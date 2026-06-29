@@ -131,58 +131,14 @@ function SellerProfilePage() {
             </div>
           </div>
 
-          <section className="mt-10">
-            <div className="flex items-end justify-between mb-5 flex-wrap gap-3">
-              <h2 className="font-display text-xl font-bold">Məhsullar ({visibleProducts.length})</h2>
-              {cats.length > 1 && (
-                <div className="flex flex-wrap gap-2">
-                  <button onClick={() => setCatFilter("all")}
-                    className={`px-3 py-1.5 rounded-full text-xs font-medium border transition ${catFilter === "all" ? "bg-neon text-background border-transparent" : "bg-surface border-border text-muted-foreground hover:text-foreground"}`}>
-                    Hamısı ({products.length})
-                  </button>
-                  {cats.map(c => {
-                    const count = products.filter((p: any) => p.category === c).length;
-                    return (
-                      <button key={c} onClick={() => setCatFilter(c)}
-                        className={`px-3 py-1.5 rounded-full text-xs font-medium border transition ${catFilter === c ? "bg-neon text-background border-transparent" : "bg-surface border-border text-muted-foreground hover:text-foreground"}`}>
-                        {c} ({count})
-                      </button>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
-            {visibleProducts.length === 0 ? (
-              <p className="text-muted-foreground py-10 text-center">Bu kateqoriyada məhsul yoxdur.</p>
-            ) : (
-              <div className="grid gap-5 grid-cols-2 lg:grid-cols-4">
-                {visibleProducts.map((p: ReturnType<typeof dbToProduct>) => <ProductCard key={p.id} p={p} />)}
-              </div>
-            )}
-          </section>
-
-          <section className="mt-12">
-            <h2 className="font-display text-xl font-bold mb-5">Rəylər ({reviews.length})</h2>
-            {reviews.length === 0 ? (
-              <p className="text-muted-foreground py-10 text-center">Hələ rəy yoxdur.</p>
-            ) : (
-              <div className="space-y-3">
-                {reviews.map((r: ReviewRow) => (
-                  <div key={r.id} className="rounded-2xl border border-border bg-surface/40 p-5">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-1">
-                        {[...Array(5)].map((_, i) => (
-                          <Star key={i} className={`h-4 w-4 ${i < r.rating ? "fill-warning text-warning" : "text-muted"}`} />
-                        ))}
-                      </div>
-                      <span className="text-xs text-muted-foreground">{new Date(r.created_at).toLocaleDateString("az-AZ")}</span>
-                    </div>
-                    {r.comment && <p className="mt-2 text-sm">{r.comment}</p>}
-                  </div>
-                ))}
-              </div>
-            )}
-          </section>
+          <SellerTabs
+            products={products}
+            visibleProducts={visibleProducts}
+            reviews={reviews}
+            cats={cats}
+            catFilter={catFilter}
+            setCatFilter={setCatFilter}
+          />
 
           <div className="mt-10">
             <Link to="/marketplace" className="text-sm text-muted-foreground hover:text-foreground">← Marketplace-ə qayıt</Link>
