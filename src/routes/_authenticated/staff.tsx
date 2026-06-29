@@ -70,7 +70,7 @@ function StaffPage() {
       supabase.from("support_tickets").select("*").order("updated_at", { ascending: false }),
       supabase.from("orders").select("*").order("created_at", { ascending: false }).limit(200),
       supabase.from("conversations").select("*").order("last_message_at", { ascending: false, nullsFirst: false }).limit(200),
-      supabase.from("profiles").select("id, display_name, username"),
+      supabase.from("public_profiles" as any).select("id, display_name, username"),
     ]);
     setTickets((tk as any) ?? []);
     setOrders((od as any) ?? []);

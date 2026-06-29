@@ -32,7 +32,7 @@ function FavoritesPage() {
       const nameMap = new Map<string, string>();
       if (sellerIds.length) {
         const { data: profs } = await supabase
-          .from("profiles")
+          .from("public_profiles" as any)
           .select("id, display_name, username")
           .in("id", sellerIds);
         (profs ?? []).forEach((p) => nameMap.set(p.id, p.display_name || p.username || "Satıcı"));

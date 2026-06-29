@@ -41,7 +41,7 @@ function InboxPage() {
       const otherIds = Array.from(new Set(list.map(c => c.user_a === user.id ? c.user_b : c.user_a)));
       const prodIds = Array.from(new Set(list.map(c => c.product_id).filter(Boolean) as string[]));
       const [{ data: ps }, { data: pr }, { data: unreadRows }] = await Promise.all([
-        otherIds.length ? supabase.from("profiles").select("id,display_name,username,avatar_url,last_seen_at").in("id", otherIds) : Promise.resolve({ data: [] } as any),
+        otherIds.length ? supabase.from("public_profiles" as any).select("id,display_name,username,avatar_url,last_seen_at").in("id", otherIds) : Promise.resolve({ data: [] } as any),
         prodIds.length ? supabase.from("products").select("id,title,slug").in("id", prodIds) : Promise.resolve({ data: [] } as any),
         list.length
           ? supabase.from("dm_messages").select("conversation_id").in("conversation_id", list.map(c => c.id)).is("read_at", null).neq("sender_id", user.id)

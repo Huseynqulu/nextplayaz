@@ -35,7 +35,7 @@ export default function AdminReviews() {
     const userIds = Array.from(new Set(base.map(r => r.reviewer_id)));
     const productIds = Array.from(new Set(base.map(r => r.product_id)));
     const [{ data: profs }, { data: prods }] = await Promise.all([
-      userIds.length ? supabase.from("profiles").select("user_id, display_name, avatar_url").in("user_id", userIds) : Promise.resolve({ data: [] as any[] }),
+      userIds.length ? supabase.from("public_profiles" as any).select("user_id, display_name, avatar_url").in("user_id", userIds) : Promise.resolve({ data: [] as any[] }),
       productIds.length ? supabase.from("products").select("id, title, slug").in("id", productIds) : Promise.resolve({ data: [] as any[] }),
     ]);
     const pMap = new Map(((profs as any[]) ?? []).map(p => [p.user_id, p]));

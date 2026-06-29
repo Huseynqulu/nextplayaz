@@ -38,7 +38,7 @@ export function ReviewSection({ productId }: { productId: string }) {
     let profMap = new Map<string, any>();
     if (ids.length) {
       const { data: profs } = await supabase
-        .from("profiles").select("id, display_name, username, avatar_url").in("id", ids);
+        .from("public_profiles" as any).select("id, display_name, username, avatar_url").in("id", ids);
       (profs ?? []).forEach((p: any) => profMap.set(p.id, p));
     }
     const list: Review[] = base.map(r => ({ ...r, reviewer: profMap.get(r.reviewer_id) ?? null }));

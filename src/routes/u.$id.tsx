@@ -17,7 +17,7 @@ type ReviewRow = { id: string; rating: number; comment: string | null; created_a
 export const Route = createFileRoute("/u/$id")({
   loader: async ({ params }) => {
     const { data: profile } = await supabase
-      .from("profiles")
+      .from("public_profiles" as any)
       .select("id, display_name, username, avatar_url, created_at, last_seen_at")
       .eq("id", params.id)
       .maybeSingle();
