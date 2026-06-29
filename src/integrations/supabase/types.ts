@@ -171,6 +171,39 @@ export type Database = {
           },
         ]
       }
+      notifications: {
+        Row: {
+          body: string | null
+          created_at: string
+          id: string
+          kind: string
+          link: string | null
+          read_at: string | null
+          title: string
+          user_id: string
+        }
+        Insert: {
+          body?: string | null
+          created_at?: string
+          id?: string
+          kind: string
+          link?: string | null
+          read_at?: string | null
+          title: string
+          user_id: string
+        }
+        Update: {
+          body?: string | null
+          created_at?: string
+          id?: string
+          kind?: string
+          link?: string | null
+          read_at?: string | null
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       orders: {
         Row: {
           auto_confirm_at: string | null
@@ -869,6 +902,10 @@ export type Database = {
       }
       mark_conversation_read: {
         Args: { p_conversation_id: string }
+        Returns: undefined
+      }
+      mark_notifications_read: {
+        Args: { p_ids?: string[] }
         Returns: undefined
       }
       mark_order_delivered: {
