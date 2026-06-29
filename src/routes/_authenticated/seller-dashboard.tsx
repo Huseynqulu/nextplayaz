@@ -74,17 +74,25 @@ function SellerDashboard() {
   useEffect(() => { if (isSeller) refresh(); }, [isSeller]);
 
   function resetForm() {
-    setForm({ title: "", description: "", price: "", old_price: "", stock: "1", category: "Games", platform: "Steam", delivery: "Instant", image_url: "" });
+    setForm({ title: "", description: "", price: "", old_price: "", stock: "1", category: "Games", platform: "Steam", delivery: "Instant", image_url: "", stock_items: "", auto_message_enabled: false, auto_message: "" });
     setEditing(null);
   }
 
-  function startEdit(p: Product) {
+  async function startEdit(p: Product) {
     setEditing(p);
+    // Load existing undelivered stock items + auto-message fields
+    const [{ data: items }, { data: full }] = await Promise.all([
+      supabase.from("product_stock_items" as any).select("content").eq("product_id", p.id).is("delivered_at", null).order("created_at"),
+      supabase.from("products").select("auto_message_enabled, auto_message").eq("id", p.id).maybeSingle(),
+    ]);
     setForm({
       title: p.title, description: p.description ?? "",
       price: String(p.price), old_price: p.old_price ? String(p.old_price) : "",
       stock: String(p.stock), category: p.category, platform: p.platform,
       delivery: p.delivery, image_url: p.image_url ?? "",
+      stock_items: ((items as any) ?? []).map((i: any) => i.content).join("\n"),
+      auto_message_enabled: !!(full as any)?.auto_message_enabled,
+      auto_message: (full as any)?.auto_message ?? "",
     });
     setShowForm(true);
   }
