@@ -51,6 +51,22 @@ function SupportTicketsPage() {
   const [busy, setBusy] = useState(false);
   const [creating, setCreating] = useState(false);
   const [form, setForm] = useState({ category: "general", subject: "", message: "", order_id: "" });
+  const [replyFile, setReplyFile] = useState<File | null>(null);
+  const [replyPreview, setReplyPreview] = useState<string | null>(null);
+  const [formFile, setFormFile] = useState<File | null>(null);
+  const [formPreview, setFormPreview] = useState<string | null>(null);
+  const replyFileRef = useRef<HTMLInputElement>(null);
+  const formFileRef = useRef<HTMLInputElement>(null);
+
+  function pickFile(f: File | null, setF: (f: File | null) => void, setP: (s: string | null) => void) {
+    if (!f) { setF(null); setP(null); return; }
+    if (!f.type.startsWith("image/")) { toast.error("Yalnız şəkil"); return; }
+    if (f.size > 8 * 1024 * 1024) { toast.error("Maks 8MB"); return; }
+    setF(f);
+    const r = new FileReader();
+    r.onload = () => setP(r.result as string);
+    r.readAsDataURL(f);
+  }
 
   async function refresh() {
     if (!user) return;
