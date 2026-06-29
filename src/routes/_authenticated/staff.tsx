@@ -126,7 +126,7 @@ function StaffPage() {
     const reason = prompt("Ləğv səbəbi (ixtiyari):", "") ?? "";
     if (!confirm(`Sifariş ləğv edilsin? Alıcıya ${o.total} ₼ qaytarılacaq.`)) return;
     setBusy(o.id);
-    const { error } = await supabase.rpc("staff_cancel_order", { p_order_id: o.id, p_reason: reason || null });
+    const { error } = await supabase.rpc("staff_cancel_order", { p_order_id: o.id, p_reason: reason || undefined });
     if (error) toast.error(error.message);
     else { toast.success("Sifariş ləğv edildi və alıcıya qaytarıldı"); await refresh(); }
     setBusy(null);
