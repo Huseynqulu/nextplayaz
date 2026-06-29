@@ -4,8 +4,10 @@ import type { Product } from "@/lib/marketplace-data";
 import { useFavorites, isRealProductId } from "@/lib/favorites";
 import { useAuth } from "@/hooks/use-auth";
 import { SellerTierBadge } from "@/components/SellerTierBadge";
+import { useCurrency } from "@/lib/currency";
 
 export function ProductCard({ p }: { p: Product }) {
+  const { format } = useCurrency();
   const discount = p.oldPrice ? Math.round((1 - p.price / p.oldPrice) * 100) : 0;
   const { isFav, toggle } = useFavorites();
   const { user } = useAuth();
@@ -92,10 +94,10 @@ export function ProductCard({ p }: { p: Product }) {
         <div className="flex items-end justify-between mt-auto pt-2">
           <div className="flex flex-col">
             {p.oldPrice && (
-              <span className="text-xs text-muted-foreground line-through">{p.oldPrice.toFixed(2)} ₼</span>
+              <span className="text-xs text-muted-foreground line-through">{format(p.oldPrice)}</span>
             )}
             <span className="font-display text-xl font-bold text-gradient leading-none">
-              {p.price.toFixed(2)} ₼
+              {format(p.price)}
             </span>
           </div>
           <span className="text-[10px] uppercase tracking-wider text-muted-foreground">

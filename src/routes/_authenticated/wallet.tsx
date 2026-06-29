@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
 import { Wallet, Loader2, Upload, Receipt, Copy, CheckCircle2, XCircle, Clock, ArrowDownToLine, ArrowUpFromLine } from "lucide-react";
+import { useCurrency } from "@/lib/currency";
 
 export const Route = createFileRoute("/_authenticated/wallet")({
   component: WalletPage,
@@ -32,6 +33,7 @@ const WITHDRAW_METHODS: { value: string; label: string; hint: string }[] = [
 
 function WalletPage() {
   const { user } = useAuth();
+  const { format } = useCurrency();
   const [balance, setBalance] = useState<number>(0);
   const [pending, setPending] = useState<{ total: number; items: { id: string; seller_net: number; funds_release_at: string | null }[] }>({ total: 0, items: [] });
   const [showPending, setShowPending] = useState(false);
@@ -159,7 +161,7 @@ function WalletPage() {
           <div className="grid sm:grid-cols-2 gap-4 mb-8">
             <div className="rounded-2xl border border-border bg-card-gradient p-6 card-shadow">
               <p className="text-xs text-muted-foreground uppercase tracking-wide">Mövcud balans</p>
-              <p className="font-display text-4xl font-bold text-neon mt-2">{balance.toFixed(2)} ₼</p>
+              <p className="font-display text-4xl font-bold text-neon mt-2">{format(balance)}</p>
             </div>
             <button
               type="button"
@@ -169,7 +171,7 @@ function WalletPage() {
               <p className="text-xs text-muted-foreground uppercase tracking-wide flex items-center gap-2">
                 <Clock className="h-3.5 w-3.5" /> Gözləyən balans (48 saat)
               </p>
-              <p className="font-display text-4xl font-bold mt-2">{pending.total.toFixed(2)} ₼</p>
+              <p className="font-display text-4xl font-bold mt-2">{format(pending.total)}</p>
               <p className="text-xs text-muted-foreground mt-1">
                 {pending.items.length} sifariş — {showPending ? "gizlət" : "detallara bax"}
               </p>
@@ -189,7 +191,7 @@ function WalletPage() {
                       <span className="text-muted-foreground">
                         {date ? `${date.toLocaleString("az-AZ")} (${hours} saat qaldı)` : "—"}
                       </span>
-                      <span className="font-semibold text-neon">+{Number(it.seller_net).toFixed(2)} ₼</span>
+                      <span className="font-semibold text-neon">+{format(it.seller_net)}</span>
                     </li>
                   );
                 })}
@@ -329,7 +331,7 @@ function WalletPage() {
                       {history.map(t => (
                         <div key={t.id} className="rounded-lg border border-border bg-surface/40 p-3">
                           <div className="flex items-center justify-between gap-2 flex-wrap">
-                            <span className="font-bold text-success">+{Number(t.amount).toFixed(2)} ₼</span>
+                            <span className="font-bold text-success">+{format(t.amount)}</span>
                             <StatusBadge s={t.status} />
                           </div>
                           <p className="text-xs text-muted-foreground mt-1">{t.method} · {new Date(t.created_at).toLocaleString("az-AZ")}</p>
@@ -347,8 +349,8 @@ function WalletPage() {
                         <div key={w.id} className="rounded-lg border border-border bg-surface/40 p-3">
                           <div className="flex items-center justify-between gap-2 flex-wrap">
                             <div>
-                              <span className="font-bold text-destructive">−{Number(w.amount).toFixed(2)} ₼</span>
-                              <span className="text-xs text-muted-foreground ml-2">→ alacaq: {Number(w.net_amount).toFixed(2)} ₼</span>
+                              <span className="font-bold text-destructive">−{format(w.amount)}</span>
+                              <span className="text-xs text-muted-foreground ml-2">→ alacaq: {format(w.net_amount)}</span>
                             </div>
                             <StatusBadge s={w.status} />
                           </div>

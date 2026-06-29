@@ -7,6 +7,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { Wallet, ShieldCheck, Package, Star, Loader2, Camera, Store, Save } from "lucide-react";
 import { toast } from "sonner";
 import { TwoFactorSetup } from "@/components/TwoFactorSetup";
+import { useCurrency } from "@/lib/currency";
 
 export const Route = createFileRoute("/_authenticated/profile")({
   component: ProfilePage,
@@ -23,6 +24,7 @@ type Profile = {
 
 function ProfilePage() {
   const { user } = useAuth();
+  const { format } = useCurrency();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [roles, setRoles] = useState<string[]>([]);
   const [orderCount, setOrderCount] = useState(0);
@@ -130,7 +132,7 @@ function ProfilePage() {
         </div>
 
         <div className="mt-6 grid gap-4 sm:grid-cols-3">
-          <StatCard icon={Wallet} label="Cüzdan balansı" value={`${Number(profile.wallet_balance).toFixed(2)} ₼`} accent />
+          <StatCard icon={Wallet} label="Cüzdan balansı" value={format(profile.wallet_balance)} accent />
           <StatCard icon={Package} label="Sifarişlər" value={orderCount.toString()} />
           <StatCard icon={Star} label="Reytinq" value="—" />
         </div>

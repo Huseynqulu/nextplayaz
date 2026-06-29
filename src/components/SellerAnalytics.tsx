@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2, TrendingUp, ShoppingBag, Coins, Package2 } from "lucide-react";
+import { useCurrency } from "@/lib/currency";
 import {
   ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid,
   BarChart, Bar,
@@ -20,6 +21,7 @@ type OrderRow = {
 const COUNTED = new Set(["paid", "delivered", "completed"]);
 
 export function SellerAnalytics({ sellerId }: { sellerId: string }) {
+  const { format } = useCurrency();
   const [loading, setLoading] = useState(true);
   const [rows, setRows] = useState<OrderRow[]>([]);
 
@@ -107,10 +109,10 @@ export function SellerAnalytics({ sellerId }: { sellerId: string }) {
       </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
-        <Stat icon={Coins} label="Xalis gəlir" value={`${stats.revenue.toFixed(2)} ₼`} sub={`Brüt: ${stats.gross.toFixed(2)} ₼`} />
+        <Stat icon={Coins} label="Xalis gəlir" value={format(stats.revenue)} sub={`Brüt: ${format(stats.gross)}`} />
         <Stat icon={ShoppingBag} label="Sifariş sayı" value={stats.orders} />
         <Stat icon={Package2} label="Satılmış vahid" value={stats.units} />
-        <Stat icon={TrendingUp} label="Orta sifariş" value={`${stats.orders ? (stats.gross / stats.orders).toFixed(2) : "0.00"} ₼`} />
+        <Stat icon={TrendingUp} label="Orta sifariş" value={format(stats.orders ? stats.gross / stats.orders : 0)} />
       </div>
 
       <div className="grid lg:grid-cols-2 gap-5">
@@ -129,7 +131,7 @@ export function SellerAnalytics({ sellerId }: { sellerId: string }) {
                 <XAxis dataKey="date" tick={{ fontSize: 10, fill: "var(--muted-foreground)" }} />
                 <YAxis tick={{ fontSize: 10, fill: "var(--muted-foreground)" }} />
                 <Tooltip contentStyle={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: 8, fontSize: 12 }}
-                  formatter={(v: any) => [`${Number(v).toFixed(2)} ₼`, "Gəlir"]} />
+                  formatter={(v: any) => [format(Number(v)), "Gəlir"]} />
                 <Area type="monotone" dataKey="revenue" stroke="var(--neon)" strokeWidth={2} fill="url(#rev)" />
               </AreaChart>
             </ResponsiveContainer>
@@ -149,7 +151,7 @@ export function SellerAnalytics({ sellerId }: { sellerId: string }) {
                   <YAxis type="category" dataKey="title" width={110} tick={{ fontSize: 10, fill: "var(--muted-foreground)" }}
                     tickFormatter={(t: string) => t.length > 16 ? t.slice(0, 16) + "…" : t} />
                   <Tooltip contentStyle={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: 8, fontSize: 12 }}
-                    formatter={(v: any) => [`${Number(v).toFixed(2)} ₼`, "Gəlir"]} />
+                    formatter={(v: any) => [format(Number(v)), "Gəlir"]} />
                   <Bar dataKey="revenue" fill="var(--neon)" radius={[0, 6, 6, 0]} />
                 </BarChart>
               </ResponsiveContainer>
@@ -175,7 +177,7 @@ export function SellerAnalytics({ sellerId }: { sellerId: string }) {
                   <td className="py-2 px-2 font-medium">{p.title}</td>
                   <td className="py-2 px-2 text-right text-muted-foreground">{p.orders}</td>
                   <td className="py-2 px-2 text-right text-muted-foreground">{p.units}</td>
-                  <td className="py-2 px-2 text-right font-semibold text-neon">{p.revenue.toFixed(2)} ₼</td>
+                  <td className="py-2 px-2 text-right font-semibold text-neon">{format(p.revenue)}</td>
                 </tr>
               ))}
             </tbody>
