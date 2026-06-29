@@ -698,6 +698,42 @@ function AdminPage() {
                 </div>
               ))}
             </div>
+          ) : tab === "disputes" ? (
+            <div className="space-y-3">
+              {disputes.length === 0 && <p className="text-muted-foreground text-center py-12">Açıq etiraz yoxdur.</p>}
+              {disputes.map(d => (
+                <div key={d.id} className="rounded-xl border border-warning/30 bg-card-gradient p-4 card-shadow">
+                  <div className="flex items-start justify-between gap-3 flex-wrap">
+                    <div className="min-w-0">
+                      <p className="font-semibold truncate">{d.product?.title ?? "Məhsul"}</p>
+                      <p className="text-xs text-muted-foreground">Sifariş: {d.id.slice(0, 8)} · {Number(d.total).toFixed(2)} ₼ · {new Date(d.disputed_at ?? d.created_at).toLocaleString("az-AZ")}</p>
+                      <p className="text-xs mt-1"><span className="text-muted-foreground">Alıcı:</span> {d.buyer_id.slice(0,8)} · <span className="text-muted-foreground">Satıcı:</span> {d.seller_id.slice(0,8)}</p>
+                      {d.disputed_reason && (
+                        <div className="mt-2 p-3 rounded-lg bg-warning/10 border border-warning/30 text-sm">
+                          <span className="font-semibold text-warning">Səbəb: </span>{d.disputed_reason}
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex flex-col gap-2 shrink-0">
+                      <button disabled={busy === d.id} onClick={async () => {
+                        if (!confirm("Alıcıya geri qaytarılsın?")) return;
+                        setBusy(d.id);
+                        const { error } = await supabase.rpc("admin_resolve_dispute" as any, { p_order_id: d.id, p_refund_buyer: true });
+                        setBusy(null);
+                        if (error) toast.error(error.message); else { toast.success("Alıcıya qaytarıldı"); refresh(); }
+                      }} className="h-9 px-3 rounded-md bg-destructive text-destructive-foreground text-xs font-semibold disabled:opacity-50">Alıcıya qaytar</button>
+                      <button disabled={busy === d.id} onClick={async () => {
+                        if (!confirm("Satıcıya ödəniş köçürülsün?")) return;
+                        setBusy(d.id);
+                        const { error } = await supabase.rpc("admin_resolve_dispute" as any, { p_order_id: d.id, p_refund_buyer: false });
+                        setBusy(null);
+                        if (error) toast.error(error.message); else { toast.success("Satıcıya köçürüldü"); refresh(); }
+                      }} className="h-9 px-3 rounded-md bg-success text-background text-xs font-semibold disabled:opacity-50">Satıcıya ver</button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
           ) : (
             <div className="space-y-2">
               {products.length === 0 && <p className="text-muted-foreground text-center py-12">Məhsul yoxdur.</p>}
