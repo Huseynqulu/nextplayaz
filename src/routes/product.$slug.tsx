@@ -1,18 +1,24 @@
-import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { createFileRoute, Link, notFound, useNavigate } from "@tanstack/react-router";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { ProductCard } from "@/components/ProductCard";
-import { getProduct, products } from "@/lib/marketplace-data";
-import { Star, ShieldCheck, Zap, Lock, Package, MessageCircle, Heart, Share2 } from "lucide-react";
+import { products as mockProducts } from "@/lib/marketplace-data";
+import { fetchProductBySlug } from "@/lib/products";
+import { Star, ShieldCheck, Zap, Lock, Package, MessageCircle, Heart, Share2, Loader2 } from "lucide-react";
 import { useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/use-auth";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/product/$slug")({
-  loader: ({ params }) => {
-    const product = getProduct(params.slug);
+  loader: async ({ params }) => {
+    const product = await fetchProductBySlug(params.slug);
     if (!product) throw notFound();
     return { product };
   },
   component: ProductPage,
+  errorComponent: ({ error }) => <div className="min-h-screen grid place-items-center text-muted-foreground">{error.message}</div>,
+  notFoundComponent: () => <div className="min-h-screen grid place-items-center text-muted-foreground">Məhsul tapılmadı.</div>,
   head: ({ loaderData }) => ({
     meta: loaderData?.product ? [
       { title: `${loaderData.product.title} — NextPlay.az` },
@@ -26,9 +32,35 @@ export const Route = createFileRoute("/product/$slug")({
 
 function ProductPage() {
   const { product: p } = Route.useLoaderData();
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const [qty, setQty] = useState(1);
+  const [buying, setBuying] = useState(false);
   const discount = p.oldPrice ? Math.round((1 - p.price / p.oldPrice) * 100) : 0;
-  const similar = products.filter(x => x.id !== p.id && x.category === p.category).slice(0, 4);
+  const similar = mockProducts.filter(x => x.id !== p.id && x.category === p.category).slice(0, 4);
+  const isDbProduct = /^[0-9a-f]{8}-/i.test(p.id);
+
+  async function buy() {
+    if (!user) {
+      toast.info("Sifariş üçün daxil olun");
+      navigate({ to: "/login" });
+      return;
+    }
+    if (!isDbProduct) {
+      toast.info("Demo məhsul — gerçək satıcı məhsulu seçin");
+      return;
+    }
+    setBuying(true);
+    const { data, error } = await supabase.rpc("create_order", { p_product_id: p.id, p_quantity: qty });
+    setBuying(false);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    toast.success("Sifariş yaradıldı! Escrow-da saxlanıldı.");
+    navigate({ to: "/orders" });
+    void data;
+  }
 
   return (
     <div className="min-h-screen flex flex-col">
