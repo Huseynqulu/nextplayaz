@@ -2,9 +2,10 @@ import { createFileRoute } from "@tanstack/react-router";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { ProductCard } from "@/components/ProductCard";
-import { products, categories, platforms } from "@/lib/marketplace-data";
-import { useMemo, useState } from "react";
-import { Search, SlidersHorizontal } from "lucide-react";
+import { categories, platforms, products as mockProducts } from "@/lib/marketplace-data";
+import { fetchProducts } from "@/lib/products";
+import { useEffect, useMemo, useState } from "react";
+import { Search, SlidersHorizontal, Loader2 } from "lucide-react";
 import { z } from "zod";
 
 const searchSchema = z.object({
