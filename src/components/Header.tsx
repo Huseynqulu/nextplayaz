@@ -107,6 +107,9 @@ export function Header() {
                     <Link to="/wallet" onClick={() => setMenuOpen(false)} className="flex items-center gap-2 px-4 py-2.5 text-sm hover:bg-surface transition">
                       <Wallet className="h-4 w-4" /> Cüzdan
                     </Link>
+                    <Link to="/messages" onClick={() => setMenuOpen(false)} className="flex items-center gap-2 px-4 py-2.5 text-sm hover:bg-surface transition">
+                      <MessageSquare className="h-4 w-4" /> Mesajlar
+                    </Link>
                     <Link to="/support-tickets" onClick={() => setMenuOpen(false)} className="flex items-center gap-2 px-4 py-2.5 text-sm hover:bg-surface transition">
                       <LifeBuoy className="h-4 w-4" /> Dəstək müraciətlərim
                     </Link>
