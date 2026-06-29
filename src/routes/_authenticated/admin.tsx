@@ -390,6 +390,83 @@ function AdminPage() {
                 </div>
               ))}
             </div>
+          ) : tab === "tickets" ? (
+            activeTicket ? (
+              <div className="rounded-2xl border border-border bg-card-gradient card-shadow overflow-hidden">
+                <div className="p-5 border-b border-border flex flex-wrap items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <button onClick={() => setActiveTicket(null)} className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground mb-2">
+                      <ArrowLeft className="h-3 w-3" /> Geri
+                    </button>
+                    <h3 className="font-semibold text-lg">{activeTicket.subject}</h3>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {ticketUser?.name ?? "—"} · {ticketUser?.email ?? activeTicket.user_id.slice(0,8)} · {activeTicket.category}
+                      {activeTicket.order_id && ` · Sifariş #${activeTicket.order_id.slice(0,8)}`}
+                    </p>
+                  </div>
+                  <div className="flex gap-2 flex-wrap">
+                    {(["open","pending","answered","closed"] as const).map(s => (
+                      <button key={s} disabled={busy === "status"} onClick={() => setTicketStatus(s)}
+                        className={`h-8 px-3 rounded-md text-xs font-semibold ${activeTicket.status === s ? "bg-neon text-background" : "bg-surface border border-border hover:border-primary"}`}>{s}</button>
+                    ))}
+                  </div>
+                </div>
+                <div className="p-5 space-y-3 max-h-[55vh] overflow-y-auto">
+                  <div className="rounded-lg bg-surface/40 border border-border p-3">
+                    <div className="text-[10px] uppercase text-muted-foreground mb-1">İstifadəçi · {new Date(activeTicket.created_at).toLocaleString("az-AZ")}</div>
+                    <p className="text-sm whitespace-pre-wrap">{activeTicket.message}</p>
+                  </div>
+                  {ticketMsgs.map(m => (
+                    <div key={m.id} className={`rounded-lg p-3 border ${m.is_admin ? "bg-neon/10 border-neon/30" : "bg-surface/40 border-border"}`}>
+                      <div className="text-[10px] uppercase text-muted-foreground mb-1">{m.is_admin ? "Admin" : "İstifadəçi"} · {new Date(m.created_at).toLocaleString("az-AZ")}</div>
+                      <p className="text-sm whitespace-pre-wrap">{m.body}</p>
+                    </div>
+                  ))}
+                </div>
+                <div className="p-4 border-t border-border flex gap-2">
+                  <textarea value={reply} onChange={e => setReply(e.target.value)} rows={2} placeholder="Admin cavabı..." className="flex-1 px-3 py-2 rounded-lg bg-background border border-border text-sm resize-none" />
+                  <button onClick={sendReply} disabled={busy === "reply" || !reply.trim()} className="h-10 self-end px-4 rounded-lg bg-neon text-background font-semibold inline-flex items-center gap-1.5 disabled:opacity-50">
+                    {busy === "reply" ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />} Göndər
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                <div className="flex gap-2 flex-wrap mb-2">
+                  {(["all","open","pending","answered","closed"] as const).map(f => {
+                    const n = f === "all" ? tickets.length : tickets.filter(t => t.status === f).length;
+                    return (
+                      <button key={f} onClick={() => setTicketFilter(f)}
+                        className={`h-8 px-3 rounded-full text-xs font-semibold transition ${ticketFilter === f ? "bg-neon text-background" : "bg-surface border border-border text-muted-foreground hover:text-foreground"}`}>
+                        {f === "all" ? "Hamısı" : f} ({n})
+                      </button>
+                    );
+                  })}
+                </div>
+                {tickets.filter(t => ticketFilter === "all" || t.status === ticketFilter).length === 0 && (
+                  <p className="text-muted-foreground text-center py-12">Müraciət yoxdur.</p>
+                )}
+                {tickets.filter(t => ticketFilter === "all" || t.status === ticketFilter).map(t => (
+                  <button key={t.id} onClick={() => openTicket(t)} className="w-full text-left rounded-xl border border-border bg-card-gradient p-4 hover:border-primary/50 transition">
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <LifeBuoy className="h-3.5 w-3.5 text-neon" />
+                          <p className="font-semibold truncate">{t.subject}</p>
+                          <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${
+                            t.status === "answered" ? "bg-success/20 text-success" :
+                            t.status === "closed" ? "bg-muted text-muted-foreground" : "bg-warning/20 text-warning"
+                          }`}>{t.status}</span>
+                          <span className="px-2 py-0.5 rounded text-[10px] bg-surface">{t.category}</span>
+                        </div>
+                        <p className="text-xs text-muted-foreground mt-1 truncate">{t.message}</p>
+                        <p className="text-[11px] text-muted-foreground mt-1">{new Date(t.updated_at).toLocaleString("az-AZ")}{t.order_id && ` · Sifariş #${t.order_id.slice(0,8)}`}</p>
+                      </div>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            )
           ) : (
             <div className="space-y-2">
               {products.length === 0 && <p className="text-muted-foreground text-center py-12">Məhsul yoxdur.</p>}
