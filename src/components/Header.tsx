@@ -66,12 +66,13 @@ export function Header() {
         <div className="hidden md:flex flex-1 max-w-md ml-auto relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <input
-            placeholder="Oyun, hesab, açar axtar..."
+            placeholder={t("nav.search")}
             className="w-full h-10 pl-10 pr-4 rounded-lg bg-surface border border-border text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring transition"
           />
         </div>
 
         <div className="flex items-center gap-2 md:ml-2 ml-auto">
+          <LanguageSwitcher />
           <button className="hidden sm:grid h-10 w-10 place-items-center rounded-lg hover:bg-surface transition" aria-label="Cart">
             <ShoppingBag className="h-5 w-5" />
           </button>
