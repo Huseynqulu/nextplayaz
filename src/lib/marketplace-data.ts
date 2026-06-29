@@ -15,6 +15,7 @@ export type Product = {
   platform: "Steam" | "PS5" | "PS4" | "Xbox" | "EA" | "Battle.net" | "Epic" | "Rockstar";
   category: "Games" | "Accounts" | "Keys" | "Services";
   image: string;
+  images?: string[];
   stock: number;
   rating: number;
   reviews: number;
