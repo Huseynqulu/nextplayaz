@@ -11,6 +11,7 @@ import { uploadChatAttachment } from "@/lib/chat-attachments";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useCurrency } from "@/lib/currency";
 
 export const Route = createFileRoute("/_authenticated/orders")({
   component: OrdersPage,
