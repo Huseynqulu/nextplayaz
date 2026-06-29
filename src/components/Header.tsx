@@ -17,15 +17,26 @@ export function Header() {
   const navigate = useNavigate();
   const [roles, setRoles] = useState<string[]>([]);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [unreadDm, setUnreadDm] = useState(0);
 
   useEffect(() => {
-    if (!user) { setRoles([]); setAvatarUrl(null); return; }
+    if (!user) { setRoles([]); setAvatarUrl(null); setUnreadDm(0); return; }
     supabase.from("user_roles").select("role").eq("user_id", user.id).then(({ data }) => {
       setRoles((data ?? []).map(r => r.role));
     });
     supabase.from("profiles").select("avatar_url").eq("id", user.id).maybeSingle().then(({ data }) => {
       setAvatarUrl((data as any)?.avatar_url ?? null);
     });
+    const loadUnread = () => {
+      supabase.from("dm_messages").select("id", { count: "exact", head: true })
+        .is("read_at", null).neq("sender_id", user.id)
+        .then(({ count }) => setUnreadDm(count ?? 0));
+    };
+    loadUnread();
+    const ch = supabase.channel(`hdr-dm-${user.id}`)
+      .on("postgres_changes", { event: "*", schema: "public", table: "dm_messages" }, loadUnread)
+      .subscribe();
+    return () => { supabase.removeChannel(ch); };
   }, [user]);
   const isAdmin = roles.includes("admin");
   const isSeller = roles.includes("seller");
@@ -100,6 +111,11 @@ export function Header() {
           {user && (
             <Link to="/messages" className="hidden sm:grid h-10 w-10 place-items-center rounded-lg hover:bg-surface transition relative" aria-label="Mesajlar">
               <MessageSquare className="h-5 w-5" />
+              {unreadDm > 0 && (
+                <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 grid place-items-center rounded-full bg-neon text-background text-[10px] font-bold leading-none">
+                  {unreadDm > 99 ? "99+" : unreadDm}
+                </span>
+              )}
             </Link>
           )}
           <NotificationBell />
