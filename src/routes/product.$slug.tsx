@@ -36,6 +36,7 @@ function ProductPage() {
   const navigate = useNavigate();
   const [qty, setQty] = useState(1);
   const [buying, setBuying] = useState(false);
+  const [contacting, setContacting] = useState(false);
   const [code, setCode] = useState("");
   const discount = p.oldPrice ? Math.round((1 - p.price / p.oldPrice) * 100) : 0;
   const similar = mockProducts.filter(x => x.id !== p.id && x.category === p.category).slice(0, 4);
