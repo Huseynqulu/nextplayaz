@@ -58,17 +58,22 @@ function WalletPage() {
   async function refresh() {
     if (!user) return;
     setLoading(true);
-    const [{ data: p }, { data: m }, { data: h }, { data: w }] = await Promise.all([
+    const [{ data: p }, { data: m }, { data: h }, { data: w }, { data: pend }] = await Promise.all([
       supabase.from("profiles").select("wallet_balance").eq("id", user.id).maybeSingle(),
       supabase.from("payment_settings").select("*").eq("is_active", true).order("label"),
       supabase.from("wallet_topups").select("*").eq("user_id", user.id).order("created_at", { ascending: false }),
       supabase.from("wallet_withdrawals" as any).select("*").eq("user_id", user.id).order("created_at", { ascending: false }),
+      supabase.from("orders").select("id, seller_net, funds_release_at")
+        .eq("seller_id", user.id).eq("status", "completed").is("funds_released_at", null)
+        .order("funds_release_at", { ascending: true }),
     ]);
     setBalance(Number(p?.wallet_balance ?? 0));
     setMethods((m as any) ?? []);
     if (!method && m && m.length > 0) setMethod((m as any)[0].method);
     setHistory((h as any) ?? []);
     setWithdrawals((w as any) ?? []);
+    const items = ((pend as any) ?? []) as { id: string; seller_net: number; funds_release_at: string | null }[];
+    setPending({ total: items.reduce((s, i) => s + Number(i.seller_net ?? 0), 0), items });
     setLoading(false);
   }
 
