@@ -1,0 +1,1 @@
+GRANT UPDATE (title, slug, description, price, old_price, platform, category, image_url, image_urls, stock, delivery, is_active, auto_message, updated_at) ON public.products TO authenticated;
