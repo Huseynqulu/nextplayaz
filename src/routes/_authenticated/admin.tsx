@@ -556,7 +556,7 @@ function AdminPage() {
               <input
                 value={userSearch}
                 onChange={e => setUserSearch(e.target.value)}
-                placeholder="ID, email, ad və ya istifadəçi adı ilə axtar..."
+                placeholder="ID, email, ad, istifadəçi adı və ya IP ilə axtar..."
                 className="w-full h-10 px-3 rounded-lg bg-background border border-border text-sm mb-2"
               />
               {(() => {
@@ -566,7 +566,9 @@ function AdminPage() {
                       u.id.toLowerCase().includes(q) ||
                       (u.email ?? "").toLowerCase().includes(q) ||
                       (u.display_name ?? "").toLowerCase().includes(q) ||
-                      (u.username ?? "").toLowerCase().includes(q)
+                      (u.username ?? "").toLowerCase().includes(q) ||
+                      (u.last_ip ?? "").toLowerCase().includes(q) ||
+                      (u.signup_ip ?? "").toLowerCase().includes(q)
                     )
                   : users;
                 return <>
