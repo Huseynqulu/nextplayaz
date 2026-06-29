@@ -1249,6 +1249,8 @@ function AdminPage() {
             <AdminReviews />
           ) : tab === "giftcards" ? (
             <AdminGiftCards />
+          ) : tab === "giftmarket" ? (
+            <AdminGiftMarket />
           ) : tab === "boost" ? (
             <AdminBoostPricing />
           ) : (
