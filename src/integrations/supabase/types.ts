@@ -263,8 +263,52 @@ export type Database = {
         }
         Relationships: []
       }
+      product_stock_items: {
+        Row: {
+          content: string
+          created_at: string
+          delivered_at: string | null
+          id: string
+          order_id: string | null
+          product_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          delivered_at?: string | null
+          id?: string
+          order_id?: string | null
+          product_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          delivered_at?: string | null
+          id?: string
+          order_id?: string | null
+          product_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_stock_items_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "product_stock_items_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       products: {
         Row: {
+          auto_message: string | null
+          auto_message_enabled: boolean
           category: string
           created_at: string
           delivery: Database["public"]["Enums"]["delivery_type"]
@@ -284,6 +328,8 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          auto_message?: string | null
+          auto_message_enabled?: boolean
           category: string
           created_at?: string
           delivery?: Database["public"]["Enums"]["delivery_type"]
@@ -303,6 +349,8 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          auto_message?: string | null
+          auto_message_enabled?: boolean
           category?: string
           created_at?: string
           delivery?: Database["public"]["Enums"]["delivery_type"]

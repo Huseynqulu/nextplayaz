@@ -48,6 +48,7 @@ function SellerDashboard() {
     title: "", description: "", price: "", old_price: "",
     stock: "1", category: "Games" as Product["category"], platform: "Steam",
     delivery: "Instant" as "Instant" | "Manual", image_url: "",
+    stock_items: "", auto_message_enabled: false, auto_message: "",
   });
 
   useEffect(() => {
@@ -73,17 +74,25 @@ function SellerDashboard() {
   useEffect(() => { if (isSeller) refresh(); }, [isSeller]);
 
   function resetForm() {
-    setForm({ title: "", description: "", price: "", old_price: "", stock: "1", category: "Games", platform: "Steam", delivery: "Instant", image_url: "" });
+    setForm({ title: "", description: "", price: "", old_price: "", stock: "1", category: "Games", platform: "Steam", delivery: "Instant", image_url: "", stock_items: "", auto_message_enabled: false, auto_message: "" });
     setEditing(null);
   }
 
-  function startEdit(p: Product) {
+  async function startEdit(p: Product) {
     setEditing(p);
+    // Load existing undelivered stock items + auto-message fields
+    const [{ data: items }, { data: full }] = await Promise.all([
+      supabase.from("product_stock_items" as any).select("content").eq("product_id", p.id).is("delivered_at", null).order("created_at"),
+      supabase.from("products").select("auto_message_enabled, auto_message").eq("id", p.id).maybeSingle(),
+    ]);
     setForm({
       title: p.title, description: p.description ?? "",
       price: String(p.price), old_price: p.old_price ? String(p.old_price) : "",
       stock: String(p.stock), category: p.category, platform: p.platform,
       delivery: p.delivery, image_url: p.image_url ?? "",
+      stock_items: ((items as any) ?? []).map((i: any) => i.content).join("\n"),
+      auto_message_enabled: !!(full as any)?.auto_message_enabled,
+      auto_message: (full as any)?.auto_message ?? "",
     });
     setShowForm(true);
   }
@@ -93,6 +102,12 @@ function SellerDashboard() {
     if (!user) return;
     setSaving(true);
     try {
+      const isInstant = form.delivery === "Instant";
+      const lines = form.stock_items.split("\n").map(s => s.trim()).filter(Boolean);
+      const stockNum = isInstant ? lines.length : Number(form.stock);
+      if (isInstant && lines.length === 0) {
+        throw new Error("Anında çatdırılma üçün ən azı 1 stok elementi əlavə edin");
+      }
       const payload = {
         seller_id: user.id,
         title: form.title.trim(),
@@ -100,16 +115,35 @@ function SellerDashboard() {
         description: form.description.trim() || null,
         price: Number(form.price),
         old_price: form.old_price ? Number(form.old_price) : null,
-        stock: Number(form.stock),
+        stock: stockNum,
         category: form.category,
         platform: form.platform,
         delivery: form.delivery,
         image_url: form.image_url.trim() || null,
+        auto_message_enabled: form.auto_message_enabled,
+        auto_message: form.auto_message_enabled ? (form.auto_message.trim() || null) : null,
       };
-      const { error } = editing
-        ? await supabase.from("products").update(payload).eq("id", editing.id)
-        : await supabase.from("products").insert(payload);
-      if (error) throw error;
+      let productId = editing?.id;
+      if (editing) {
+        const { error } = await supabase.from("products").update(payload).eq("id", editing.id);
+        if (error) throw error;
+      } else {
+        const { data: ins, error } = await supabase.from("products").insert(payload).select("id").single();
+        if (error) throw error;
+        productId = ins.id;
+      }
+
+      if (isInstant && productId) {
+        // Replace undelivered items
+        await supabase.from("product_stock_items" as any).delete().eq("product_id", productId).is("delivered_at", null);
+        if (lines.length > 0) {
+          const { error: insErr } = await supabase.from("product_stock_items" as any).insert(
+            lines.map(content => ({ product_id: productId, content }))
+          );
+          if (insErr) throw insErr;
+        }
+      }
+
       toast.success(editing ? "Məhsul yeniləndi" : "Məhsul əlavə edildi");
       setShowForm(false);
       resetForm();
@@ -175,9 +209,14 @@ function SellerDashboard() {
                   className="mt-1 w-full h-11 px-3 rounded-lg bg-surface border border-border text-sm focus:outline-none focus:ring-2 focus:ring-ring" />
               </div>
               <div>
-                <label className="text-xs font-medium text-muted-foreground">Stok *</label>
-                <input required type="number" min="0" value={form.stock} onChange={e => setForm(f => ({ ...f, stock: e.target.value }))}
-                  className="mt-1 w-full h-11 px-3 rounded-lg bg-surface border border-border text-sm focus:outline-none focus:ring-2 focus:ring-ring" />
+                <label className="text-xs font-medium text-muted-foreground">Stok {form.delivery === "Instant" ? "(avtomatik)" : "*"}</label>
+                <input
+                  required={form.delivery !== "Instant"}
+                  disabled={form.delivery === "Instant"}
+                  type="number" min="0"
+                  value={form.delivery === "Instant" ? String(form.stock_items.split("\n").map(s => s.trim()).filter(Boolean).length) : form.stock}
+                  onChange={e => setForm(f => ({ ...f, stock: e.target.value }))}
+                  className="mt-1 w-full h-11 px-3 rounded-lg bg-surface border border-border text-sm focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-60" />
               </div>
               <div>
                 <label className="text-xs font-medium text-muted-foreground">Kateqoriya</label>
@@ -206,6 +245,50 @@ function SellerDashboard() {
                 <input value={form.image_url} onChange={e => setForm(f => ({ ...f, image_url: e.target.value }))}
                   placeholder="https://..."
                   className="mt-1 w-full h-11 px-3 rounded-lg bg-surface border border-border text-sm focus:outline-none focus:ring-2 focus:ring-ring" />
+              </div>
+
+              {form.delivery === "Instant" && (
+                <div className="sm:col-span-2 rounded-xl border border-neon/30 bg-neon/5 p-4">
+                  <div className="flex items-center justify-between gap-3 mb-2 flex-wrap">
+                    <div>
+                      <label className="text-sm font-semibold text-neon">Anında çatdırılma — stok elementləri</label>
+                      <p className="text-xs text-muted-foreground mt-0.5">Hər sətirə bir kod / akkaunt / açar yazın. Hər sətir = 1 stok. Alıcıya sifariş anında avtomatik göndəriləcək.</p>
+                    </div>
+                    <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-neon/15 text-neon">
+                      {form.stock_items.split("\n").map(s => s.trim()).filter(Boolean).length} stok
+                    </span>
+                  </div>
+                  <textarea
+                    rows={8}
+                    value={form.stock_items}
+                    onChange={e => setForm(f => ({ ...f, stock_items: e.target.value }))}
+                    placeholder={"email@test.com:parol123\nKEY-AAAA-BBBB-CCCC\nlogin:password"}
+                    className="w-full px-3 py-2 rounded-lg bg-background border border-border text-sm font-mono focus:outline-none focus:ring-2 focus:ring-ring resize-y" />
+                  <p className="text-[11px] text-muted-foreground mt-2">⚠ Yenilədikdə təhvil verilməmiş köhnə elementlər silinib bu siyahı ilə əvəzlənəcək. Artıq satılmış elementlər toxunulmaz qalır.</p>
+                </div>
+              )}
+
+              <div className="sm:col-span-2 rounded-xl border border-border bg-surface/40 p-4">
+                <label className="flex items-start gap-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={form.auto_message_enabled}
+                    onChange={e => setForm(f => ({ ...f, auto_message_enabled: e.target.checked }))}
+                    className="mt-1 h-4 w-4 rounded border-border bg-background" />
+                  <div className="flex-1">
+                    <div className="text-sm font-semibold">Avtomatik mesaj göndər</div>
+                    <p className="text-xs text-muted-foreground mt-0.5">Hər alış-verişdən sonra alıcıya bu mesaj avtomatik göndəriləcək (təlimatlar, təşəkkür, və s.).</p>
+                  </div>
+                </label>
+                {form.auto_message_enabled && (
+                  <textarea
+                    rows={4}
+                    value={form.auto_message}
+                    onChange={e => setForm(f => ({ ...f, auto_message: e.target.value }))}
+                    maxLength={2000}
+                    placeholder="Salam! Alış-verişiniz üçün təşəkkür edirik. Hər hansı problem olarsa, bu söhbətdən yazın."
+                    className="mt-3 w-full px-3 py-2 rounded-lg bg-background border border-border text-sm focus:outline-none focus:ring-2 focus:ring-ring resize-y" />
+                )}
               </div>
               <div className="sm:col-span-2 flex gap-2 justify-end">
                 <button type="button" onClick={() => { setShowForm(false); resetForm(); }}
