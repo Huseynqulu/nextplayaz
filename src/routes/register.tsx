@@ -30,6 +30,9 @@ function RegisterPage() {
   const [confirm, setConfirm] = useState("");
   const [ref, setRef] = useState(search.ref ?? "");
   const [loading, setLoading] = useState(false);
+  const [usernameStatus, setUsernameStatus] = useState<"idle" | "checking" | "ok" | "taken" | "invalid">("idle");
+
+  const USERNAME_RE = /^[a-z0-9_.]{3,20}$/;
 
   useEffect(() => {
     if (search.ref) {
@@ -42,19 +45,47 @@ function RegisterPage() {
     }
   }, [search.ref]);
 
+  useEffect(() => {
+    const u = username.trim().toLowerCase();
+    if (!u) { setUsernameStatus("idle"); return; }
+    if (!USERNAME_RE.test(u)) { setUsernameStatus("invalid"); return; }
+    setUsernameStatus("checking");
+    let active = true;
+    const t = setTimeout(async () => {
+      const { data } = await supabase.from("public_profiles" as any).select("id").eq("username", u).limit(1).maybeSingle();
+      if (!active) return;
+      setUsernameStatus(data ? "taken" : "ok");
+    }, 350);
+    return () => { active = false; clearTimeout(t); };
+  }, [username]);
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    const u = username.trim().toLowerCase();
+    if (!USERNAME_RE.test(u)) {
+      toast.error("İstifadəçi adı 3–20 simvol olmalı, yalnız a-z, 0-9, _ və . ola bilər (boşluqsuz)");
+      return;
+    }
+    if (usernameStatus === "taken") { toast.error("Bu istifadəçi adı artıq tutulub"); return; }
     if (password !== confirm) {
       toast.error("Şifrələr uyğun gəlmir");
       return;
     }
     setLoading(true);
+    // Final uniqueness re-check to avoid race
+    const { data: exists } = await supabase.from("public_profiles" as any).select("id").eq("username", u).limit(1).maybeSingle();
+    if (exists) {
+      setLoading(false);
+      setUsernameStatus("taken");
+      toast.error("Bu istifadəçi adı artıq tutulub");
+      return;
+    }
     const { error, data } = await supabase.auth.signUp({
       email,
       password,
       options: {
         emailRedirectTo: window.location.origin,
-        data: { username, display_name: username },
+        data: { username: u, display_name: u },
       },
     });
     if (error) {
@@ -93,7 +124,25 @@ function RegisterPage() {
           </div>
 
           <form className="rounded-2xl border border-border bg-card-gradient p-7 card-shadow space-y-4" onSubmit={handleSubmit}>
-            <Field icon={<User className="h-4 w-4" />} placeholder="İstifadəçi adı" required minLength={2} value={username} onChange={e => setUsername(e.target.value)} />
+            <div>
+              <Field
+                icon={<User className="h-4 w-4" />}
+                placeholder="istifadəçi_adı (boşluqsuz)"
+                required
+                minLength={3}
+                maxLength={20}
+                value={username}
+                onChange={e => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_.]/g, ""))}
+              />
+              {username && (
+                <p className={`text-xs mt-1 ${usernameStatus === "ok" ? "text-success" : usernameStatus === "taken" || usernameStatus === "invalid" ? "text-destructive" : "text-muted-foreground"}`}>
+                  {usernameStatus === "checking" && "Yoxlanılır…"}
+                  {usernameStatus === "ok" && "✓ Boşdur"}
+                  {usernameStatus === "taken" && "Bu ad artıq tutulub"}
+                  {usernameStatus === "invalid" && "3–20 simvol: a-z, 0-9, _ və . (boşluqsuz)"}
+                </p>
+              )}
+            </div>
             <Field icon={<Mail className="h-4 w-4" />} type="email" placeholder="Email" required value={email} onChange={e => setEmail(e.target.value)} />
             <Field icon={<Lock className="h-4 w-4" />} type="password" placeholder="Şifrə (min 6)" required minLength={6} value={password} onChange={e => setPassword(e.target.value)} />
             <Field icon={<Lock className="h-4 w-4" />} type="password" placeholder="Şifrəni təsdiqlə" required minLength={6} value={confirm} onChange={e => setConfirm(e.target.value)} />
