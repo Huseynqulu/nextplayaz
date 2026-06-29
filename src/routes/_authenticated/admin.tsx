@@ -35,6 +35,10 @@ function AdminPage() {
   const [stats, setStats] = useState({ users: 0, sellers: 0, products: 0, orders: 0 });
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState<string | null>(null);
+  const [appFilter, setAppFilter] = useState<"all" | "pending" | "approved" | "rejected">("all");
+  const [viewing, setViewing] = useState<Application | null>(null);
+  const [signed, setSigned] = useState<{ front?: string; back?: string; selfie?: string }>({});
+
 
   // new code form
   const [newCode, setNewCode] = useState({ code: "", percent: "10", max_uses: "", expires_at: "" });
