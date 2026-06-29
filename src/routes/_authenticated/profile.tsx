@@ -32,7 +32,7 @@ function ProfilePage() {
   async function load() {
     if (!user) return;
     const [{ data: p }, { data: r }, { count }] = await Promise.all([
-      supabase.from("profiles").select("username, display_name, avatar_url, wallet_balance").eq("id", user.id).maybeSingle(),
+      supabase.rpc("get_my_profile").then(({ data }) => ({ data: (data as any)?.[0] ?? null })),
       supabase.from("user_roles").select("role").eq("user_id", user.id),
       supabase.from("orders").select("*", { count: "exact", head: true }).eq("buyer_id", user.id),
     ]);
