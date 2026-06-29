@@ -322,6 +322,7 @@ function AdminPage() {
             {([
               ["applications", `Müraciətlər (${apps.filter(a => a.status === "pending").length})`],
               ["tickets", `Dəstək (${tickets.filter(t => t.status === "open" || t.status === "pending").length})`],
+              ["disputes", `Etirazlar (${disputes.length})`],
               ["users", "İstifadəçilər"],
               ["topups", `Balans (${topups.filter(t => t.status === "pending").length})`],
               ["payments", "Rekvizitlər"],
