@@ -61,17 +61,31 @@ function RegisterPage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    const u = username.trim().toLowerCase();
+    if (!USERNAME_RE.test(u)) {
+      toast.error("İstifadəçi adı 3–20 simvol olmalı, yalnız a-z, 0-9, _ və . ola bilər (boşluqsuz)");
+      return;
+    }
+    if (usernameStatus === "taken") { toast.error("Bu istifadəçi adı artıq tutulub"); return; }
     if (password !== confirm) {
       toast.error("Şifrələr uyğun gəlmir");
       return;
     }
     setLoading(true);
+    // Final uniqueness re-check to avoid race
+    const { data: exists } = await supabase.from("public_profiles" as any).select("id").eq("username", u).limit(1).maybeSingle();
+    if (exists) {
+      setLoading(false);
+      setUsernameStatus("taken");
+      toast.error("Bu istifadəçi adı artıq tutulub");
+      return;
+    }
     const { error, data } = await supabase.auth.signUp({
       email,
       password,
       options: {
         emailRedirectTo: window.location.origin,
-        data: { username, display_name: username },
+        data: { username: u, display_name: u },
       },
     });
     if (error) {
