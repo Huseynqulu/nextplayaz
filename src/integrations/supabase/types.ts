@@ -171,6 +171,32 @@ export type Database = {
           },
         ]
       }
+      favorites: {
+        Row: {
+          created_at: string
+          product_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          product_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          product_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "favorites_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       notifications: {
         Row: {
           body: string | null
@@ -938,6 +964,7 @@ export type Database = {
         Args: { p_comment?: string; p_product_id: string; p_rating: number }
         Returns: string
       }
+      toggle_favorite: { Args: { p_product_id: string }; Returns: boolean }
       touch_last_seen: { Args: never; Returns: undefined }
     }
     Enums: {
