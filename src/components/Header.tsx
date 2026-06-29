@@ -16,11 +16,15 @@ export function Header() {
   useOnlinePresence();
   const navigate = useNavigate();
   const [roles, setRoles] = useState<string[]>([]);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!user) { setRoles([]); return; }
+    if (!user) { setRoles([]); setAvatarUrl(null); return; }
     supabase.from("user_roles").select("role").eq("user_id", user.id).then(({ data }) => {
       setRoles((data ?? []).map(r => r.role));
+    });
+    supabase.from("profiles").select("avatar_url").eq("id", user.id).maybeSingle().then(({ data }) => {
+      setAvatarUrl((data as any)?.avatar_url ?? null);
     });
   }, [user]);
   const isAdmin = roles.includes("admin");
@@ -99,8 +103,12 @@ export function Header() {
                 onClick={() => setMenuOpen(!menuOpen)}
                 className="flex items-center gap-2 h-10 px-2 sm:px-3 rounded-lg hover:bg-surface transition"
               >
-                <div className="grid h-7 w-7 place-items-center rounded-full bg-neon text-background text-xs font-bold">
-                  {(user.user_metadata?.display_name ?? user.email ?? "U")[0].toUpperCase()}
+                <div className="grid h-7 w-7 place-items-center rounded-full bg-neon text-background text-xs font-bold overflow-hidden">
+                  {avatarUrl ? (
+                    <img src={avatarUrl} alt="" className="h-full w-full object-cover" />
+                  ) : (
+                    (user.user_metadata?.display_name ?? user.email ?? "U")[0].toUpperCase()
+                  )}
                 </div>
                 <span className="hidden sm:inline text-sm font-medium max-w-[120px] truncate">
                   {user.user_metadata?.display_name ?? user.email?.split("@")[0]}
