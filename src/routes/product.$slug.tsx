@@ -137,7 +137,12 @@ function ProductPage() {
                     <span className="w-10 text-center font-semibold">{qty}</span>
                     <button onClick={() => setQty(Math.min(p.stock, qty + 1))} className="w-10 h-11 hover:bg-surface rounded-r-xl">+</button>
                   </div>
-                  <button className="flex-1 h-11 rounded-xl bg-neon text-background font-semibold neon-ring hover:scale-[1.01] transition">
+                  <button
+                    disabled={buying || p.stock < 1}
+                    onClick={buy}
+                    className="flex-1 h-11 rounded-xl bg-neon text-background font-semibold neon-ring hover:scale-[1.01] transition disabled:opacity-50 inline-flex items-center justify-center gap-2"
+                  >
+                    {buying && <Loader2 className="h-4 w-4 animate-spin" />}
                     Sifariş ver — {(p.price * qty).toFixed(2)} ₼
                   </button>
                   <button className="grid h-11 w-11 place-items-center rounded-xl border border-border hover:border-primary" aria-label="Favorilərə əlavə et"><Heart className="h-4 w-4" /></button>
