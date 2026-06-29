@@ -28,7 +28,7 @@ type Application = {
 };
 
 type ProductRow = { id: string; title: string; price: number; stock: number; category: string; is_active: boolean; seller_id: string; created_at: string };
-type AdminUser = { id: string; email: string | null; display_name: string | null; username: string | null; wallet_balance: number; roles: ("user"|"seller"|"admin"|"support")[]; created_at: string; verified_at: string | null };
+type AdminUser = { id: string; email: string | null; display_name: string | null; username: string | null; wallet_balance: number; roles: ("user"|"seller"|"admin"|"support")[]; created_at: string; verified_at: string | null; last_ip?: string | null; last_ip_at?: string | null; signup_ip?: string | null; banned_at?: string | null; ban_reason?: string | null };
 type DiscountCode = { id: string; code: string; percent: number; max_uses: number | null; used_count: number; is_active: boolean; expires_at: string | null; created_at: string };
 type AdminTicket = { id: string; user_id: string; order_id: string | null; subject: string; message: string; category: string; status: string; priority: string; created_at: string; updated_at: string };
 type TicketMsg = { id: string; sender_id: string; is_admin: boolean; body: string; created_at: string; attachment_url?: string | null };
@@ -315,6 +315,23 @@ function AdminPage() {
     setBusy(null);
   }
 
+  async function toggleBan(u: AdminUser) {
+    const isBanned = !!u.banned_at;
+    let reason: string | null = null;
+    if (!isBanned) {
+      reason = prompt(`"${u.display_name ?? u.username ?? u.email}" istifadəçisini ban etmək üçün səbəb daxil edin (məcburi deyil):`, "");
+      if (reason === null) return;
+    } else {
+      if (!confirm(`"${u.display_name ?? u.username ?? u.email}" istifadəçisinin banı silinsin?`)) return;
+    }
+    setBusy(u.id + "ban");
+    const { error } = await (supabase.rpc as any)("admin_set_banned", { p_user_id: u.id, p_banned: !isBanned, p_reason: reason });
+    if (error) toast.error(error.message); else { toast.success(isBanned ? "Ban silindi" : "İstifadəçi ban edildi"); await refresh(); }
+    setBusy(null);
+  }
+
+
+
 
   async function toggleProduct(p: ProductRow) {
     setBusy(p.id);
@@ -539,7 +556,7 @@ function AdminPage() {
               <input
                 value={userSearch}
                 onChange={e => setUserSearch(e.target.value)}
-                placeholder="ID, email, ad və ya istifadəçi adı ilə axtar..."
+                placeholder="ID, email, ad, istifadəçi adı və ya IP ilə axtar..."
                 className="w-full h-10 px-3 rounded-lg bg-background border border-border text-sm mb-2"
               />
               {(() => {
@@ -549,7 +566,9 @@ function AdminPage() {
                       u.id.toLowerCase().includes(q) ||
                       (u.email ?? "").toLowerCase().includes(q) ||
                       (u.display_name ?? "").toLowerCase().includes(q) ||
-                      (u.username ?? "").toLowerCase().includes(q)
+                      (u.username ?? "").toLowerCase().includes(q) ||
+                      (u.last_ip ?? "").toLowerCase().includes(q) ||
+                      (u.signup_ip ?? "").toLowerCase().includes(q)
                     )
                   : users;
                 return <>
@@ -566,10 +585,20 @@ function AdminPage() {
                             r === "admin" ? "bg-neon/20 text-neon" : r === "seller" ? "bg-success/20 text-success" : "bg-surface text-muted-foreground"
                           }`}>{r}</span>
                         ))}
+                        {u.banned_at && (
+                          <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-red-500/20 text-red-400">BAN</span>
+                        )}
                       </div>
 
                       <p className="text-xs text-muted-foreground mt-1">{u.email}</p>
                       <p className="text-sm mt-1 inline-flex items-center gap-1.5"><Wallet className="h-3.5 w-3.5 text-neon" /> <span className="font-semibold">{Number(u.wallet_balance).toFixed(2)} ₼</span></p>
+                      <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-muted-foreground font-mono">
+                        <span>Son IP: <span className="text-foreground">{u.last_ip ?? "—"}</span>{u.last_ip_at && <span className="ml-1 opacity-70">({new Date(u.last_ip_at).toLocaleString("az-AZ")})</span>}</span>
+                        {u.signup_ip && u.signup_ip !== u.last_ip && <span>Qeydiyyat IP: <span className="text-foreground">{u.signup_ip}</span></span>}
+                      </div>
+                      {u.banned_at && (
+                        <p className="mt-1 text-[11px] text-red-400">Ban: {new Date(u.banned_at).toLocaleString("az-AZ")}{u.ban_reason ? ` — ${u.ban_reason}` : ""}</p>
+                      )}
                     </div>
                     <div className="flex flex-wrap gap-2">
                       <button disabled={busy === u.id} onClick={() => setBalance(u)}
@@ -589,6 +618,10 @@ function AdminPage() {
                       <button disabled={busy === u.id + "verify"} onClick={() => toggleVerified(u)}
                         className={`h-9 px-3 rounded-md text-xs font-semibold disabled:opacity-50 ${u.verified_at ? "bg-sky-500/20 text-sky-300" : "bg-surface border border-border"}`}>
                         {u.verified_at ? "✓ Doğrulanmış" : "Doğrula (KYC)"}
+                      </button>
+                      <button disabled={busy === u.id + "ban" || u.id === user!.id} onClick={() => toggleBan(u)}
+                        className={`h-9 px-3 rounded-md text-xs font-semibold disabled:opacity-50 ${u.banned_at ? "bg-red-500/20 text-red-400 border border-red-500/40" : "bg-surface border border-border hover:border-red-500/60 hover:text-red-400"}`}>
+                        {u.banned_at ? "Banı sil" : "Ban et"}
                       </button>
 
                     </div>

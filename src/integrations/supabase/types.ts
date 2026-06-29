@@ -1427,11 +1427,18 @@ export type Database = {
       admin_list_users: {
         Args: never
         Returns: {
+          avatar_url: string
+          ban_reason: string
+          banned_at: string
           created_at: string
           display_name: string
           email: string
           id: string
-          roles: Database["public"]["Enums"]["app_role"][]
+          last_ip: string
+          last_ip_at: string
+          last_seen_at: string
+          roles: string[]
+          signup_ip: string
           username: string
           verified_at: string
           wallet_balance: number
