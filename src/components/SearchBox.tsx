@@ -39,7 +39,7 @@ export function SearchBox({ variant = "desktop" }: { variant?: "desktop" | "mobi
         .from("products")
         .select("id,title,slug,price,image_url")
         .ilike("title", `%${term}%`)
-        .eq("status", "active")
+        .eq("is_active", true)
         .order("created_at", { ascending: false })
         .limit(8)
         .abortSignal(ctrl.signal);

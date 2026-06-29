@@ -7,6 +7,7 @@ import { useT } from "@/lib/i18n";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { useOnlinePresence } from "@/lib/presence";
 import { NotificationBell } from "@/components/NotificationBell";
+import { SearchBox } from "@/components/SearchBox";
 
 export function Header() {
   const t = useT();
