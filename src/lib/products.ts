@@ -21,7 +21,7 @@ export type DbProduct = {
 
 const FALLBACK_IMG = "https://images.unsplash.com/photo-1542751371-adc38448a05e?w=800&q=80";
 
-export type SellerLite = { name: string; avatarUrl?: string | null; shopName?: string | null };
+export type SellerLite = { name: string; avatarUrl?: string | null; shopName?: string | null; verified?: boolean };
 
 export function dbToProduct(p: DbProduct, seller?: SellerLite | string): Product {
   const s: SellerLite = typeof seller === "string" || seller === undefined
@@ -41,11 +41,12 @@ export function dbToProduct(p: DbProduct, seller?: SellerLite | string): Product
     stock: p.stock,
     rating: Number(p.rating) || 5,
     reviews: p.reviews_count,
-    seller: { name: displayName, rating: 5, sales: 0, verified: true, avatarUrl: s.avatarUrl ?? null, shopName: s.shopName ?? null },
+    seller: { name: displayName, rating: 5, sales: 0, verified: s.verified ?? false, avatarUrl: s.avatarUrl ?? null, shopName: s.shopName ?? null },
     delivery: p.delivery,
     sellerId: p.seller_id,
   };
 }
+
 
 export async function fetchProducts(): Promise<Product[]> {
   // Active boosts first (highest tier first), then by created_at desc
@@ -70,14 +71,16 @@ export async function fetchProducts(): Promise<Product[]> {
   if (sellerIds.length) {
     const { data: profs } = await supabase
       .from("public_profiles" as any)
-      .select("id, display_name, username, shop_name, avatar_url")
+      .select("id, display_name, username, shop_name, avatar_url, verified_at")
       .in("id", sellerIds);
     sellerMap = new Map(((profs as any[]) ?? []).map((p: any) => [p.id, {
       name: p.display_name || p.username || "Satıcı",
       shopName: p.shop_name ?? null,
       avatarUrl: p.avatar_url ?? null,
+      verified: !!p.verified_at,
     } as SellerLite]));
   }
+
 
   const dbItems = data.map(d => dbToProduct(d as unknown as DbProduct, sellerMap.get(d.seller_id)));
   return [...dbItems, ...mockProducts];
@@ -88,7 +91,7 @@ export async function fetchProductBySlug(slug: string): Promise<Product | null> 
   if (data) {
     const { data: profRaw } = await supabase
       .from("public_profiles" as any)
-      .select("display_name, username, shop_name, avatar_url")
+      .select("display_name, username, shop_name, avatar_url, verified_at")
       .eq("id", data.seller_id)
       .maybeSingle();
     const prof = profRaw as any;
@@ -96,7 +99,9 @@ export async function fetchProductBySlug(slug: string): Promise<Product | null> 
       name: prof.display_name || prof.username || "Satıcı",
       shopName: prof.shop_name ?? null,
       avatarUrl: prof.avatar_url ?? null,
+      verified: !!prof.verified_at,
     } : undefined);
   }
+
   return mockProducts.find(p => p.slug === slug) ?? null;
 }
