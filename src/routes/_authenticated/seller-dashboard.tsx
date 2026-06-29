@@ -90,7 +90,7 @@ function SellerDashboard() {
       title: p.title, description: p.description ?? "",
       price: String(p.price), old_price: p.old_price ? String(p.old_price) : "",
       stock: String(p.stock), category: p.category, platform: p.platform,
-      delivery: p.delivery, image_url: p.image_url ?? "",
+      delivery: p.delivery, image_urls: (p.image_urls && p.image_urls.length ? p.image_urls : (p.image_url ? [p.image_url] : [])),
       stock_items: ((items as any) ?? []).map((i: any) => i.content).join("\n"),
       auto_message_enabled: !!(full as any)?.auto_message_enabled,
       auto_message: (full as any)?.auto_message ?? "",
