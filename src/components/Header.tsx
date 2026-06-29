@@ -16,11 +16,15 @@ export function Header() {
   useOnlinePresence();
   const navigate = useNavigate();
   const [roles, setRoles] = useState<string[]>([]);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!user) { setRoles([]); return; }
+    if (!user) { setRoles([]); setAvatarUrl(null); return; }
     supabase.from("user_roles").select("role").eq("user_id", user.id).then(({ data }) => {
       setRoles((data ?? []).map(r => r.role));
+    });
+    supabase.from("profiles").select("avatar_url").eq("id", user.id).maybeSingle().then(({ data }) => {
+      setAvatarUrl((data as any)?.avatar_url ?? null);
     });
   }, [user]);
   const isAdmin = roles.includes("admin");
