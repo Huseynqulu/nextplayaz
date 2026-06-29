@@ -104,6 +104,9 @@ export function Header() {
                     <Link to="/orders" onClick={() => setMenuOpen(false)} className="flex items-center gap-2 px-4 py-2.5 text-sm hover:bg-surface transition">
                       <ShoppingBag className="h-4 w-4" /> {t("menu.orders")}
                     </Link>
+                    <Link to="/support-tickets" onClick={() => setMenuOpen(false)} className="flex items-center gap-2 px-4 py-2.5 text-sm hover:bg-surface transition">
+                      <LifeBuoy className="h-4 w-4" /> Dəstək müraciətlərim
+                    </Link>
                     <Link to="/seller" onClick={() => setMenuOpen(false)} className="flex items-center gap-2 px-4 py-2.5 text-sm hover:bg-surface transition">
                       <LayoutDashboard className="h-4 w-4" /> {t("menu.becomeSeller")}
                     </Link>
