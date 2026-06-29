@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
 import { Loader2, Plus, Package, Trash2, Pencil } from "lucide-react";
+import { SellerAnalytics } from "@/components/SellerAnalytics";
 
 export const Route = createFileRoute("/_authenticated/seller-dashboard")({
   component: SellerDashboard,
@@ -180,6 +181,7 @@ function SellerDashboard() {
               <Plus className="h-4 w-4" /> {showForm ? "Bağla" : "Yeni məhsul"}
             </button>
           </div>
+          {user && <SellerAnalytics sellerId={user.id} />}
 
           {showForm && (
             <form onSubmit={submit} className="rounded-2xl border border-border bg-card-gradient p-6 card-shadow mb-8 grid sm:grid-cols-2 gap-4">
