@@ -585,10 +585,20 @@ function AdminPage() {
                             r === "admin" ? "bg-neon/20 text-neon" : r === "seller" ? "bg-success/20 text-success" : "bg-surface text-muted-foreground"
                           }`}>{r}</span>
                         ))}
+                        {u.banned_at && (
+                          <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-red-500/20 text-red-400">BAN</span>
+                        )}
                       </div>
 
                       <p className="text-xs text-muted-foreground mt-1">{u.email}</p>
                       <p className="text-sm mt-1 inline-flex items-center gap-1.5"><Wallet className="h-3.5 w-3.5 text-neon" /> <span className="font-semibold">{Number(u.wallet_balance).toFixed(2)} ₼</span></p>
+                      <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-muted-foreground font-mono">
+                        <span>Son IP: <span className="text-foreground">{u.last_ip ?? "—"}</span>{u.last_ip_at && <span className="ml-1 opacity-70">({new Date(u.last_ip_at).toLocaleString("az-AZ")})</span>}</span>
+                        {u.signup_ip && u.signup_ip !== u.last_ip && <span>Qeydiyyat IP: <span className="text-foreground">{u.signup_ip}</span></span>}
+                      </div>
+                      {u.banned_at && (
+                        <p className="mt-1 text-[11px] text-red-400">Ban: {new Date(u.banned_at).toLocaleString("az-AZ")}{u.ban_reason ? ` — ${u.ban_reason}` : ""}</p>
+                      )}
                     </div>
                     <div className="flex flex-wrap gap-2">
                       <button disabled={busy === u.id} onClick={() => setBalance(u)}
@@ -608,6 +618,10 @@ function AdminPage() {
                       <button disabled={busy === u.id + "verify"} onClick={() => toggleVerified(u)}
                         className={`h-9 px-3 rounded-md text-xs font-semibold disabled:opacity-50 ${u.verified_at ? "bg-sky-500/20 text-sky-300" : "bg-surface border border-border"}`}>
                         {u.verified_at ? "✓ Doğrulanmış" : "Doğrula (KYC)"}
+                      </button>
+                      <button disabled={busy === u.id + "ban" || u.id === user!.id} onClick={() => toggleBan(u)}
+                        className={`h-9 px-3 rounded-md text-xs font-semibold disabled:opacity-50 ${u.banned_at ? "bg-red-500/20 text-red-400 border border-red-500/40" : "bg-surface border border-border hover:border-red-500/60 hover:text-red-400"}`}>
+                        {u.banned_at ? "Banı sil" : "Ban et"}
                       </button>
 
                     </div>
