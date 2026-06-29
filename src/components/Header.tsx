@@ -3,8 +3,11 @@ import { Search, ShoppingBag, Menu, Gamepad2, LogOut, User as UserIcon, LayoutDa
 import { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
+import { useT } from "@/lib/i18n";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 
 export function Header() {
+  const t = useT();
   const [open, setOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const { user, signOut } = useAuth();
