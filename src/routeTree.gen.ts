@@ -17,6 +17,7 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ProductSlugRouteImport } from './routes/product.$slug'
+import { Route as AuthenticatedWalletRouteImport } from './routes/_authenticated/wallet'
 import { Route as AuthenticatedSupportTicketsRouteImport } from './routes/_authenticated/support-tickets'
 import { Route as AuthenticatedSellerDashboardRouteImport } from './routes/_authenticated/seller-dashboard'
 import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
@@ -62,6 +63,11 @@ const ProductSlugRoute = ProductSlugRouteImport.update({
   path: '/product/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedWalletRoute = AuthenticatedWalletRouteImport.update({
+  id: '/wallet',
+  path: '/wallet',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedSupportTicketsRoute =
   AuthenticatedSupportTicketsRouteImport.update({
     id: '/support-tickets',
@@ -102,6 +108,7 @@ export interface FileRoutesByFullPath {
   '/profile': typeof AuthenticatedProfileRoute
   '/seller-dashboard': typeof AuthenticatedSellerDashboardRoute
   '/support-tickets': typeof AuthenticatedSupportTicketsRoute
+  '/wallet': typeof AuthenticatedWalletRoute
   '/product/$slug': typeof ProductSlugRoute
 }
 export interface FileRoutesByTo {
@@ -116,6 +123,7 @@ export interface FileRoutesByTo {
   '/profile': typeof AuthenticatedProfileRoute
   '/seller-dashboard': typeof AuthenticatedSellerDashboardRoute
   '/support-tickets': typeof AuthenticatedSupportTicketsRoute
+  '/wallet': typeof AuthenticatedWalletRoute
   '/product/$slug': typeof ProductSlugRoute
 }
 export interface FileRoutesById {
@@ -132,6 +140,7 @@ export interface FileRoutesById {
   '/_authenticated/profile': typeof AuthenticatedProfileRoute
   '/_authenticated/seller-dashboard': typeof AuthenticatedSellerDashboardRoute
   '/_authenticated/support-tickets': typeof AuthenticatedSupportTicketsRoute
+  '/_authenticated/wallet': typeof AuthenticatedWalletRoute
   '/product/$slug': typeof ProductSlugRoute
 }
 export interface FileRouteTypes {
@@ -148,6 +157,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/seller-dashboard'
     | '/support-tickets'
+    | '/wallet'
     | '/product/$slug'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -162,6 +172,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/seller-dashboard'
     | '/support-tickets'
+    | '/wallet'
     | '/product/$slug'
   id:
     | '__root__'
@@ -177,6 +188,7 @@ export interface FileRouteTypes {
     | '/_authenticated/profile'
     | '/_authenticated/seller-dashboard'
     | '/_authenticated/support-tickets'
+    | '/_authenticated/wallet'
     | '/product/$slug'
   fileRoutesById: FileRoutesById
 }
@@ -249,6 +261,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProductSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/wallet': {
+      id: '/_authenticated/wallet'
+      path: '/wallet'
+      fullPath: '/wallet'
+      preLoaderRoute: typeof AuthenticatedWalletRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/support-tickets': {
       id: '/_authenticated/support-tickets'
       path: '/support-tickets'
@@ -293,6 +312,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
   AuthenticatedSellerDashboardRoute: typeof AuthenticatedSellerDashboardRoute
   AuthenticatedSupportTicketsRoute: typeof AuthenticatedSupportTicketsRoute
+  AuthenticatedWalletRoute: typeof AuthenticatedWalletRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -301,6 +321,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedProfileRoute: AuthenticatedProfileRoute,
   AuthenticatedSellerDashboardRoute: AuthenticatedSellerDashboardRoute,
   AuthenticatedSupportTicketsRoute: AuthenticatedSupportTicketsRoute,
+  AuthenticatedWalletRoute: AuthenticatedWalletRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
