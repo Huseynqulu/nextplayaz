@@ -258,6 +258,20 @@ function OrdersPage() {
                               Avtomatik təsdiq: {new Date(o.auto_confirm_at).toLocaleString("az-AZ")}
                             </span>
                           )}
+                          {tab === "buying" && o.status === "completed" && (
+                            reviewedIds.has(o.product_id) ? (
+                              <span className="inline-flex items-center gap-1 text-[11px] text-success self-center">
+                                <Star className="h-3 w-3 fill-success" /> Rəy verilib
+                              </span>
+                            ) : (
+                              <button
+                                onClick={() => openReview(o)}
+                                className="inline-flex items-center gap-1 h-8 px-3 rounded-lg border border-warning/40 text-warning text-xs font-medium hover:bg-warning/10"
+                              >
+                                <Star className="h-3 w-3" /> Dəyərləndir
+                              </button>
+                            )
+                          )}
                         </div>
 
                         {/* Seller actions */}
