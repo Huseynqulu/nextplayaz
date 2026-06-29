@@ -10,6 +10,7 @@ import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
+import { useCurrency } from "@/lib/currency";
 
 export const Route = createFileRoute("/product/$slug")({
   loader: async ({ params }) => {
