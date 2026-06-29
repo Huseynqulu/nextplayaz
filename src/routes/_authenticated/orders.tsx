@@ -80,8 +80,8 @@ function OrdersPage() {
     });
     setReviewSubmitting(false);
     if (error) { toast.error(error.message); return; }
-    toast.success("Rəyiniz əlavə edildi");
-    setReviewedIds(s => new Set(s).add(reviewOrder.product_id));
+    toast.success("Rəyiniz yadda saxlanıldı");
+    setMyReviews(m => ({ ...m, [reviewOrder.product_id]: { rating: reviewRating, comment: reviewComment.trim() || null } }));
     setReviewOrder(null);
   }
 
