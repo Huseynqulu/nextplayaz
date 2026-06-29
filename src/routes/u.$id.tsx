@@ -11,7 +11,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { useNavigate } from "@tanstack/react-router";
 
-type ReviewRow = { id: string; rating: number; comment: string | null; created_at: string; buyer_id: string };
+type ReviewRow = { id: string; rating: number; comment: string | null; created_at: string; reviewer_id: string };
 
 export const Route = createFileRoute("/u/$id")({
   loader: async ({ params }) => {
@@ -22,14 +22,17 @@ export const Route = createFileRoute("/u/$id")({
       .maybeSingle();
     if (!profile) throw notFound();
 
-    const [{ data: prods }, { data: revs }, { count: salesCount }] = await Promise.all([
-      supabase.from("products").select("*").eq("seller_id", params.id).eq("is_active", true).order("created_at", { ascending: false }),
-      supabase.from("reviews").select("id, rating, comment, created_at, buyer_id").eq("seller_id", params.id).order("created_at", { ascending: false }).limit(50),
+    const { data: prods } = await supabase.from("products").select("*").eq("seller_id", params.id).eq("is_active", true).order("created_at", { ascending: false });
+    const productIds = (prods ?? []).map(p => p.id);
+    const [{ data: revs }, { count: salesCount }] = await Promise.all([
+      productIds.length
+        ? supabase.from("reviews").select("id, rating, comment, created_at, reviewer_id").in("product_id", productIds).order("created_at", { ascending: false }).limit(50)
+        : Promise.resolve({ data: [] as ReviewRow[] }),
       supabase.from("orders").select("id", { count: "exact", head: true }).eq("seller_id", params.id).eq("status", "completed"),
     ]);
 
     const products = (prods ?? []).map(d => dbToProduct(d as unknown as DbProduct, profile.display_name || profile.username || "Satıcı"));
-    const reviews = (revs as ReviewRow[]) ?? [];
+    const reviews = (revs as ReviewRow[] | null) ?? [];
     const avgRating = reviews.length ? reviews.reduce((s, r) => s + r.rating, 0) / reviews.length : 0;
     return { profile, products, reviews, salesCount: salesCount ?? 0, avgRating };
   },
