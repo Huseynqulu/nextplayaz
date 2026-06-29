@@ -215,6 +215,23 @@ function AdminPage() {
     setSigned(out);
   }
 
+  async function viewReceipt(t: TopUp) {
+    if (!t.receipt_url) { toast.error("Qəbz əlavə edilməyib"); return; }
+    const { data, error } = await supabase.storage.from("topup-receipts").createSignedUrl(t.receipt_url, 600);
+    if (error || !data) { toast.error(error?.message ?? "Açıla bilmədi"); return; }
+    setTopupReceipt({ id: t.id, url: data.signedUrl });
+  }
+
+  async function decideTopup(t: TopUp, approve: boolean) {
+    const notes = prompt(approve ? "Qeyd (ixtiyari):" : "Rədd səbəbi (ixtiyari):", "") ?? "";
+    setBusy(t.id);
+    const { error } = await supabase.rpc(approve ? "admin_approve_topup" : "admin_reject_topup", { p_topup_id: t.id, p_notes: notes || null });
+    if (error) toast.error(error.message);
+    else { toast.success(approve ? `+${t.amount} ₼ əlavə edildi` : "Rədd edildi"); await refresh(); }
+    setBusy(null);
+  }
+
+
 
   if (isAdmin === null) return <div className="min-h-screen flex items-center justify-center bg-background"><Loader2 className="h-6 w-6 animate-spin text-neon" /></div>;
   if (!isAdmin) return null;
