@@ -178,9 +178,14 @@ export function Header() {
                       <LayoutDashboard className="h-4 w-4" /> {t("menu.becomeSeller")}
                     </Link>
                     {isSeller && (
-                      <Link to="/seller-dashboard" onClick={() => setMenuOpen(false)} className="flex items-center gap-2 px-4 py-2.5 text-sm hover:bg-surface transition">
-                        <Package className="h-4 w-4" /> {t("menu.myProducts")}
-                      </Link>
+                      <>
+                        <Link to="/seller-dashboard" onClick={() => setMenuOpen(false)} className="flex items-center gap-2 px-4 py-2.5 text-sm hover:bg-surface transition">
+                          <Package className="h-4 w-4" /> {t("menu.myProducts")}
+                        </Link>
+                        <Link to="/seller-orders" onClick={() => setMenuOpen(false)} className="flex items-center gap-2 px-4 py-2.5 text-sm hover:bg-surface transition">
+                          <ShoppingBag className="h-4 w-4" /> Gələn sifarişlər
+                        </Link>
+                      </>
                     )}
                     {(isSupport || isAdmin) && (
                       <Link to="/staff" onClick={() => setMenuOpen(false)} className="flex items-center gap-2 px-4 py-2.5 text-sm hover:bg-surface transition text-neon">
