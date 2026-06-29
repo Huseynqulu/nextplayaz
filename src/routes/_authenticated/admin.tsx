@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
-import { Loader2, CheckCircle2, XCircle, ShieldCheck, Package, Users, FileText, Ticket, Wallet, Trash2, Plus, Eye, X, FileImage, LifeBuoy, Send, ArrowLeft } from "lucide-react";
+import { Loader2, CheckCircle2, XCircle, ShieldCheck, Package, Users, FileText, Ticket, Wallet, Trash2, Plus, Eye, X, FileImage, LifeBuoy, Send, ArrowLeft, Receipt } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/admin")({
   component: AdminPage,
@@ -24,8 +24,9 @@ type AdminUser = { id: string; email: string | null; display_name: string | null
 type DiscountCode = { id: string; code: string; percent: number; max_uses: number | null; used_count: number; is_active: boolean; expires_at: string | null; created_at: string };
 type AdminTicket = { id: string; user_id: string; order_id: string | null; subject: string; message: string; category: string; status: string; priority: string; created_at: string; updated_at: string };
 type TicketMsg = { id: string; sender_id: string; is_admin: boolean; body: string; created_at: string };
+type TopUp = { id: string; user_id: string; amount: number; method: string; sender_note: string | null; receipt_url: string | null; status: "pending"|"approved"|"rejected"; admin_notes: string | null; created_at: string };
 
-type Tab = "applications" | "users" | "codes" | "products" | "tickets";
+type Tab = "applications" | "users" | "codes" | "products" | "tickets" | "topups";
 
 function AdminPage() {
   const { user } = useAuth();
@@ -37,11 +38,14 @@ function AdminPage() {
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [codes, setCodes] = useState<DiscountCode[]>([]);
   const [tickets, setTickets] = useState<AdminTicket[]>([]);
+  const [topups, setTopups] = useState<TopUp[]>([]);
   const [stats, setStats] = useState({ users: 0, sellers: 0, products: 0, orders: 0 });
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState<string | null>(null);
   const [appFilter, setAppFilter] = useState<"all" | "pending" | "approved" | "rejected">("all");
   const [ticketFilter, setTicketFilter] = useState<"all" | "open" | "pending" | "answered" | "closed">("all");
+  const [topupFilter, setTopupFilter] = useState<"all" | "pending" | "approved" | "rejected">("pending");
+  const [topupReceipt, setTopupReceipt] = useState<{ id: string; url: string } | null>(null);
   const [viewing, setViewing] = useState<Application | null>(null);
   const [signed, setSigned] = useState<{ front?: string; back?: string; selfie?: string }>({});
   const [activeTicket, setActiveTicket] = useState<AdminTicket | null>(null);
@@ -64,12 +68,13 @@ function AdminPage() {
 
   async function refresh() {
     setLoading(true);
-    const [{ data: a }, { data: p }, { data: u }, { data: dc }, { data: tk }, { count: uc }, { count: sc }, { count: pc }, { count: oc }] = await Promise.all([
+    const [{ data: a }, { data: p }, { data: u }, { data: dc }, { data: tk }, { data: tu }, { count: uc }, { count: sc }, { count: pc }, { count: oc }] = await Promise.all([
       supabase.from("seller_applications").select("*").order("created_at", { ascending: false }),
       supabase.from("products").select("id, title, price, stock, category, is_active, seller_id, created_at").order("created_at", { ascending: false }).limit(50),
       supabase.rpc("admin_list_users"),
       supabase.from("discount_codes").select("*").order("created_at", { ascending: false }),
       supabase.from("support_tickets").select("*").order("updated_at", { ascending: false }),
+      supabase.from("wallet_topups").select("*").order("created_at", { ascending: false }),
       supabase.from("profiles").select("*", { count: "exact", head: true }),
       supabase.from("user_roles").select("*", { count: "exact", head: true }).eq("role", "seller"),
       supabase.from("products").select("*", { count: "exact", head: true }),
@@ -80,6 +85,7 @@ function AdminPage() {
     setUsers((u as any) ?? []);
     setCodes((dc as any) ?? []);
     setTickets((tk as any) ?? []);
+    setTopups((tu as any) ?? []);
     setStats({ users: uc ?? 0, sellers: sc ?? 0, products: pc ?? 0, orders: oc ?? 0 });
     setLoading(false);
   }
@@ -209,6 +215,23 @@ function AdminPage() {
     setSigned(out);
   }
 
+  async function viewReceipt(t: TopUp) {
+    if (!t.receipt_url) { toast.error("Qəbz əlavə edilməyib"); return; }
+    const { data, error } = await supabase.storage.from("topup-receipts").createSignedUrl(t.receipt_url, 600);
+    if (error || !data) { toast.error(error?.message ?? "Açıla bilmədi"); return; }
+    setTopupReceipt({ id: t.id, url: data.signedUrl });
+  }
+
+  async function decideTopup(t: TopUp, approve: boolean) {
+    const notes = prompt(approve ? "Qeyd (ixtiyari):" : "Rədd səbəbi (ixtiyari):", "") ?? "";
+    setBusy(t.id);
+    const { error } = await supabase.rpc(approve ? "admin_approve_topup" : "admin_reject_topup", { p_topup_id: t.id, p_notes: notes || undefined });
+    if (error) toast.error(error.message);
+    else { toast.success(approve ? `+${t.amount} ₼ əlavə edildi` : "Rədd edildi"); await refresh(); }
+    setBusy(null);
+  }
+
+
 
   if (isAdmin === null) return <div className="min-h-screen flex items-center justify-center bg-background"><Loader2 className="h-6 w-6 animate-spin text-neon" /></div>;
   if (!isAdmin) return null;
@@ -244,6 +267,7 @@ function AdminPage() {
               ["applications", `Müraciətlər (${apps.filter(a => a.status === "pending").length})`],
               ["tickets", `Dəstək (${tickets.filter(t => t.status === "open" || t.status === "pending").length})`],
               ["users", "İstifadəçilər"],
+              ["topups", `Balans (${topups.filter(t => t.status === "pending").length})`],
               ["codes", "Endirim kodları"],
               ["products", "Məhsullar"],
             ] as const).map(([key, label]) => (
@@ -467,6 +491,66 @@ function AdminPage() {
                 ))}
               </div>
             )
+          ) : tab === "topups" ? (
+            <div className="space-y-3">
+              <div className="flex gap-2 flex-wrap mb-2">
+                {(["all","pending","approved","rejected"] as const).map(f => {
+                  const n = f === "all" ? topups.length : topups.filter(t => t.status === f).length;
+                  return (
+                    <button key={f} onClick={() => setTopupFilter(f)}
+                      className={`h-8 px-3 rounded-full text-xs font-semibold transition ${topupFilter === f ? "bg-neon text-background" : "bg-surface border border-border text-muted-foreground hover:text-foreground"}`}>
+                      {f === "all" ? "Hamısı" : f === "pending" ? "Gözləyən" : f === "approved" ? "Təsdiqli" : "Rədd"} ({n})
+                    </button>
+                  );
+                })}
+              </div>
+              {topups.filter(t => topupFilter === "all" || t.status === topupFilter).length === 0 && (
+                <p className="text-muted-foreground text-center py-12">Balans müraciəti yoxdur.</p>
+              )}
+              {topups.filter(t => topupFilter === "all" || t.status === topupFilter).map(t => {
+                const u = users.find(x => x.id === t.user_id);
+                return (
+                  <div key={t.id} className="rounded-xl border border-border bg-card-gradient p-4">
+                    <div className="flex flex-wrap items-start justify-between gap-3">
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <Receipt className="h-4 w-4 text-neon" />
+                          <span className="font-bold text-lg">{Number(t.amount).toFixed(2)} ₼</span>
+                          <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-surface">{t.method}</span>
+                          <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${
+                            t.status === "approved" ? "bg-success/20 text-success" :
+                            t.status === "rejected" ? "bg-destructive/20 text-destructive" : "bg-warning/20 text-warning"
+                          }`}>{t.status}</span>
+                        </div>
+                        <p className="text-xs text-muted-foreground mt-1">{u?.display_name ?? u?.username ?? "—"} · {u?.email ?? t.user_id.slice(0,8)}</p>
+                        {t.sender_note && <p className="text-xs mt-1.5 bg-surface/50 px-2 py-1 rounded">Qeyd: {t.sender_note}</p>}
+                        {t.admin_notes && <p className="text-xs mt-1.5 bg-neon/5 border border-neon/20 px-2 py-1 rounded">Admin: {t.admin_notes}</p>}
+                        <p className="text-[11px] text-muted-foreground mt-2">{new Date(t.created_at).toLocaleString("az-AZ")}</p>
+                      </div>
+                      <div className="flex gap-2 flex-wrap">
+                        {t.receipt_url && (
+                          <button onClick={() => viewReceipt(t)} className="inline-flex items-center gap-1.5 h-9 px-3 rounded-lg bg-surface border border-border text-sm font-semibold hover:border-primary">
+                            <Eye className="h-4 w-4" /> Qəbz
+                          </button>
+                        )}
+                        {t.status === "pending" && (
+                          <>
+                            <button disabled={busy === t.id} onClick={() => decideTopup(t, true)}
+                              className="inline-flex items-center gap-1.5 h-9 px-3 rounded-lg bg-success text-background text-sm font-semibold hover:opacity-90 disabled:opacity-50">
+                              <CheckCircle2 className="h-4 w-4" /> Təsdiq
+                            </button>
+                            <button disabled={busy === t.id} onClick={() => decideTopup(t, false)}
+                              className="inline-flex items-center gap-1.5 h-9 px-3 rounded-lg bg-destructive text-destructive-foreground text-sm font-semibold hover:opacity-90 disabled:opacity-50">
+                              <XCircle className="h-4 w-4" /> Rədd
+                            </button>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           ) : (
             <div className="space-y-2">
               {products.length === 0 && <p className="text-muted-foreground text-center py-12">Məhsul yoxdur.</p>}
@@ -555,6 +639,20 @@ function AdminPage() {
         </div>
       )}
 
+
+      {topupReceipt && (
+        <div className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm flex items-center justify-center p-4" onClick={() => setTopupReceipt(null)}>
+          <div className="w-full max-w-2xl rounded-2xl border border-border bg-card-gradient p-4 card-shadow" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="font-semibold">Ödəniş qəbzi</h3>
+              <button onClick={() => setTopupReceipt(null)} className="grid h-9 w-9 place-items-center rounded-lg hover:bg-surface"><X className="h-4 w-4" /></button>
+            </div>
+            <a href={topupReceipt.url} target="_blank" rel="noreferrer" className="block">
+              <img src={topupReceipt.url} alt="Receipt" className="w-full rounded-lg border border-border" />
+            </a>
+          </div>
+        </div>
+      )}
 
       <Footer />
     </div>

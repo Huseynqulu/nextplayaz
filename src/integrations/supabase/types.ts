@@ -106,6 +106,30 @@ export type Database = {
           },
         ]
       }
+      payment_settings: {
+        Row: {
+          instructions: string
+          is_active: boolean
+          label: string
+          method: Database["public"]["Enums"]["topup_method"]
+          updated_at: string
+        }
+        Insert: {
+          instructions: string
+          is_active?: boolean
+          label: string
+          method: Database["public"]["Enums"]["topup_method"]
+          updated_at?: string
+        }
+        Update: {
+          instructions?: string
+          is_active?: boolean
+          label?: string
+          method?: Database["public"]["Enums"]["topup_method"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
       products: {
         Row: {
           category: Database["public"]["Enums"]["product_category"]
@@ -388,11 +412,60 @@ export type Database = {
         }
         Relationships: []
       }
+      wallet_topups: {
+        Row: {
+          admin_notes: string | null
+          amount: number
+          created_at: string
+          id: string
+          method: Database["public"]["Enums"]["topup_method"]
+          receipt_url: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          sender_note: string | null
+          status: Database["public"]["Enums"]["topup_status"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          amount: number
+          created_at?: string
+          id?: string
+          method: Database["public"]["Enums"]["topup_method"]
+          receipt_url?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          sender_note?: string | null
+          status?: Database["public"]["Enums"]["topup_status"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          admin_notes?: string | null
+          amount?: number
+          created_at?: string
+          id?: string
+          method?: Database["public"]["Enums"]["topup_method"]
+          receipt_url?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          sender_note?: string | null
+          status?: Database["public"]["Enums"]["topup_status"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
+      admin_approve_topup: {
+        Args: { p_notes?: string; p_topup_id: string }
+        Returns: undefined
+      }
       admin_grant_role: {
         Args: {
           p_role: Database["public"]["Enums"]["app_role"]
@@ -411,6 +484,10 @@ export type Database = {
           username: string
           wallet_balance: number
         }[]
+      }
+      admin_reject_topup: {
+        Args: { p_notes?: string; p_topup_id: string }
+        Returns: undefined
       }
       admin_revoke_role: {
         Args: {
@@ -470,6 +547,15 @@ export type Database = {
         | "other"
       ticket_priority: "low" | "normal" | "high" | "urgent"
       ticket_status: "open" | "pending" | "answered" | "closed"
+      topup_method:
+        | "m10"
+        | "kapital"
+        | "birbank"
+        | "pasha"
+        | "bank_transfer"
+        | "card"
+        | "other"
+      topup_status: "pending" | "approved" | "rejected"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -619,6 +705,16 @@ export const Constants = {
       ],
       ticket_priority: ["low", "normal", "high", "urgent"],
       ticket_status: ["open", "pending", "answered", "closed"],
+      topup_method: [
+        "m10",
+        "kapital",
+        "birbank",
+        "pasha",
+        "bank_transfer",
+        "card",
+        "other",
+      ],
+      topup_status: ["pending", "approved", "rejected"],
     },
   },
 } as const
