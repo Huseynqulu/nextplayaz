@@ -62,6 +62,39 @@ export type Database = {
         }
         Relationships: []
       }
+      boost_pricing: {
+        Row: {
+          cost: number
+          hours: number
+          is_active: boolean
+          label: string
+          sort_order: number
+          sub_label: string | null
+          tier: string
+          updated_at: string
+        }
+        Insert: {
+          cost: number
+          hours: number
+          is_active?: boolean
+          label: string
+          sort_order?: number
+          sub_label?: string | null
+          tier: string
+          updated_at?: string
+        }
+        Update: {
+          cost?: number
+          hours?: number
+          is_active?: boolean
+          label?: string
+          sort_order?: number
+          sub_label?: string | null
+          tier?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       categories: {
         Row: {
           created_at: string
@@ -1191,6 +1224,10 @@ export type Database = {
       }
       admin_deactivate_gift_card: { Args: { p_id: string }; Returns: undefined }
       admin_delete_banner: { Args: { p_id: string }; Returns: undefined }
+      admin_delete_boost_pricing: {
+        Args: { p_hours: number }
+        Returns: undefined
+      }
       admin_delete_category: { Args: { p_slug: string }; Returns: undefined }
       admin_delete_review: { Args: { p_id: string }; Returns: undefined }
       admin_delete_subcategory: {
@@ -1271,6 +1308,18 @@ export type Database = {
           p_title: string
         }
         Returns: string
+      }
+      admin_upsert_boost_pricing: {
+        Args: {
+          p_cost: number
+          p_hours: number
+          p_is_active: boolean
+          p_label: string
+          p_sort_order: number
+          p_sub_label: string
+          p_tier: string
+        }
+        Returns: undefined
       }
       admin_upsert_category: {
         Args: {

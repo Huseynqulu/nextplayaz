@@ -12,6 +12,7 @@ import AdminReviews from "@/components/AdminReviews";
 import { AdminGiftCards } from "@/components/AdminGiftCards";
 import { AdminAnalytics } from "@/components/AdminAnalytics";
 import { VerifiedBadge } from "@/components/VerifiedBadge";
+import { AdminBoostPricing } from "@/components/AdminBoostPricing";
 
 export const Route = createFileRoute("/_authenticated/admin")({
   component: AdminPage,
@@ -35,7 +36,7 @@ type PaymentSetting = { method: string; label: string; instructions: string; is_
 type Category = { slug: string; label_az: string; label_en: string; label_ru: string; sort_order: number; is_active: boolean };
 type Subcategory = { id?: string; category_slug: string; slug: string; label_az: string; label_en: string; label_ru: string; sort_order: number; is_active: boolean };
 
-type Tab = "analytics" | "applications" | "users" | "codes" | "products" | "tickets" | "topups" | "withdrawals" | "platform" | "payments" | "categories" | "disputes" | "banners" | "reviews" | "giftcards";
+type Tab = "analytics" | "applications" | "users" | "codes" | "products" | "tickets" | "topups" | "withdrawals" | "platform" | "payments" | "categories" | "disputes" | "banners" | "reviews" | "giftcards" | "boost";
 
 type Withdrawal = { id: string; user_id: string; amount: number; fee: number; net_amount: number; method: string; destination: string; account_holder: string | null; status: "pending"|"approved"|"rejected"; admin_notes: string | null; created_at: string };
 type LedgerEntry = { id: string; entry_type: string; amount: number; order_id: string | null; withdrawal_id: string | null; user_id: string | null; notes: string | null; created_at: string };
@@ -396,6 +397,7 @@ function AdminPage() {
               ["banners", "Bannerlər"],
               ["reviews", "Rəylər"],
               ["giftcards", "Hədiyyə kartları"],
+              ["boost", "🚀 Boost qiymətləri"],
               ["codes", "Endirim kodları"],
               ["products", "Məhsullar"],
             ] as const).map(([key, label]) => (
@@ -1063,6 +1065,8 @@ function AdminPage() {
             <AdminReviews />
           ) : tab === "giftcards" ? (
             <AdminGiftCards />
+          ) : tab === "boost" ? (
+            <AdminBoostPricing />
           ) : (
             <div className="space-y-2">
               {products.length === 0 && <p className="text-muted-foreground text-center py-12">Məhsul yoxdur.</p>}

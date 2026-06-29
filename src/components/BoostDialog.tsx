@@ -1,15 +1,17 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2, Rocket, X, Sparkles, Zap, Crown } from "lucide-react";
 import { toast } from "sonner";
 import { useCurrency } from "@/lib/currency";
 
-type Tier = { hours: number; cost: number; label: string; sub: string; Icon: any; bg: string };
-const TIERS: Tier[] = [
-  { hours: 24,  cost: 5,  label: "Standart",  sub: "24 saat öndə", Icon: Zap,       bg: "from-amber-500/15 to-amber-500/5 border-amber-500/40" },
-  { hours: 72,  cost: 12, label: "Plus",      sub: "3 gün öndə",   Icon: Sparkles, bg: "from-fuchsia-500/15 to-purple-500/5 border-fuchsia-500/40" },
-  { hours: 168, cost: 25, label: "Premium",   sub: "7 gün öndə",   Icon: Crown,     bg: "from-cyan-500/15 to-sky-500/5 border-cyan-500/40" },
-];
+type Tier = { hours: number; cost: number; tier: string; label: string; sub_label: string | null };
+
+const TIER_ICON: Record<string, any> = { standard: Zap, plus: Sparkles, premium: Crown };
+const TIER_BG: Record<string, string> = {
+  standard: "from-amber-500/15 to-amber-500/5 border-amber-500/40",
+  plus:     "from-fuchsia-500/15 to-purple-500/5 border-fuchsia-500/40",
+  premium:  "from-cyan-500/15 to-sky-500/5 border-cyan-500/40",
+};
 
 export function BoostDialog({ productId, productTitle, currentExpiry, onClose, onDone }: {
   productId: string; productTitle: string; currentExpiry?: string | null;
@@ -17,7 +19,19 @@ export function BoostDialog({ productId, productTitle, currentExpiry, onClose, o
 }) {
   const { format } = useCurrency();
   const [busy, setBusy] = useState<number | null>(null);
+  const [tiers, setTiers] = useState<Tier[]>([]);
+  const [loading, setLoading] = useState(true);
   const active = currentExpiry && new Date(currentExpiry) > new Date();
+
+  useEffect(() => {
+    (async () => {
+      const { data } = await supabase.from("boost_pricing" as any)
+        .select("hours,cost,tier,label,sub_label,sort_order,is_active")
+        .eq("is_active", true).order("sort_order");
+      setTiers(((data as any) ?? []) as Tier[]);
+      setLoading(false);
+    })();
+  }, []);
 
   async function pick(hours: number) {
     setBusy(hours);
@@ -52,22 +66,32 @@ export function BoostDialog({ productId, productTitle, currentExpiry, onClose, o
           Boost edilən məhsullar marketplace və kateqoriya səhifələrində ən üstdə göstərilir. Məbləğ balansınızdan tutulur.
         </p>
 
-        <div className="mt-5 grid sm:grid-cols-3 gap-3">
-          {TIERS.map(t => (
-            <button
-              key={t.hours}
-              disabled={busy !== null}
-              onClick={() => pick(t.hours)}
-              className={`relative text-left rounded-xl border bg-gradient-to-br p-4 hover:scale-[1.02] transition disabled:opacity-50 ${t.bg}`}
-            >
-              <t.Icon className="h-5 w-5 mb-2" />
-              <div className="font-display font-bold">{t.label}</div>
-              <div className="text-[11px] text-muted-foreground">{t.sub}</div>
-              <div className="mt-3 font-display text-2xl font-bold text-gradient">{format(t.cost)}</div>
-              {busy === t.hours && <Loader2 className="absolute top-3 right-3 h-4 w-4 animate-spin" />}
-            </button>
-          ))}
-        </div>
+        {loading ? (
+          <div className="mt-6 grid place-items-center py-8"><Loader2 className="h-5 w-5 animate-spin" /></div>
+        ) : tiers.length === 0 ? (
+          <p className="mt-6 text-sm text-muted-foreground text-center py-6">Boost paketləri mövcud deyil.</p>
+        ) : (
+          <div className="mt-5 grid sm:grid-cols-3 gap-3">
+            {tiers.map(t => {
+              const Icon = TIER_ICON[t.tier] ?? Zap;
+              const bg = TIER_BG[t.tier] ?? "from-muted/10 to-muted/5 border-border";
+              return (
+                <button
+                  key={t.hours}
+                  disabled={busy !== null}
+                  onClick={() => pick(t.hours)}
+                  className={`relative text-left rounded-xl border bg-gradient-to-br p-4 hover:scale-[1.02] transition disabled:opacity-50 ${bg}`}
+                >
+                  <Icon className="h-5 w-5 mb-2" />
+                  <div className="font-display font-bold">{t.label}</div>
+                  <div className="text-[11px] text-muted-foreground">{t.sub_label}</div>
+                  <div className="mt-3 font-display text-2xl font-bold text-gradient">{format(Number(t.cost))}</div>
+                  {busy === t.hours && <Loader2 className="absolute top-3 right-3 h-4 w-4 animate-spin" />}
+                </button>
+              );
+            })}
+          </div>
+        )}
       </div>
     </div>
   );
