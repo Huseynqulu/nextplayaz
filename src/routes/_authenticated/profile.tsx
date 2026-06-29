@@ -132,7 +132,7 @@ function ProfilePage() {
         </div>
 
         <div className="mt-6 grid gap-4 sm:grid-cols-3">
-          <StatCard icon={Wallet} label="Cüzdan balansı" value={`${Number(profile.wallet_balance).toFixed(2)} ₼`} accent />
+          <StatCard icon={Wallet} label="Cüzdan balansı" value={format(profile.wallet_balance)} accent />
           <StatCard icon={Package} label="Sifarişlər" value={orderCount.toString()} />
           <StatCard icon={Star} label="Reytinq" value="—" />
         </div>
