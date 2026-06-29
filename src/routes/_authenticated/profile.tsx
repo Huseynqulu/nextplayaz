@@ -124,6 +124,9 @@ function ProfilePage() {
             <Row label="Qoşulma tarixi" value={new Date(user!.created_at).toLocaleDateString("az")} />
           </div>
         </div>
+        <div className="mt-6">
+          <TwoFactorSetup recommended={isSeller || isAdmin} />
+        </div>
       </main>
       <Footer />
     </div>
