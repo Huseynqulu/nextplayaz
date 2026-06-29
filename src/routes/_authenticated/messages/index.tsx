@@ -16,7 +16,7 @@ type Conv = {
   id: string; user_a: string; user_b: string; product_id: string | null;
   last_message_at: string; last_message_preview: string | null;
 };
-type ProfileLite = { id: string; display_name: string | null; username: string | null; avatar_url: string | null };
+type ProfileLite = { id: string; display_name: string | null; username: string | null; avatar_url: string | null; last_seen_at: string | null };
 
 function InboxPage() {
   const { user } = useAuth();
