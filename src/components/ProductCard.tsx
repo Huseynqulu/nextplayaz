@@ -4,8 +4,10 @@ import type { Product } from "@/lib/marketplace-data";
 import { useFavorites, isRealProductId } from "@/lib/favorites";
 import { useAuth } from "@/hooks/use-auth";
 import { SellerTierBadge } from "@/components/SellerTierBadge";
+import { useCurrency } from "@/lib/currency";
 
 export function ProductCard({ p }: { p: Product }) {
+  const { format } = useCurrency();
   const discount = p.oldPrice ? Math.round((1 - p.price / p.oldPrice) * 100) : 0;
   const { isFav, toggle } = useFavorites();
   const { user } = useAuth();
