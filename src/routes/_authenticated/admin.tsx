@@ -166,10 +166,10 @@ function AdminPage() {
     setBusy(null);
   }
 
-  async function toggleRole(u: AdminUser, role: "seller" | "admin") {
+  async function toggleRole(u: AdminUser, role: "seller" | "admin" | "support") {
     setBusy(u.id + role);
-    const has = u.roles.includes(role);
-    const { error } = await supabase.rpc(has ? "admin_revoke_role" : "admin_grant_role", { p_user_id: u.id, p_role: role });
+    const has = u.roles.includes(role as any);
+    const { error } = await supabase.rpc(has ? "admin_revoke_role" : "admin_grant_role", { p_user_id: u.id, p_role: role as any });
     if (error) toast.error(error.message); else { toast.success(has ? "Vəzifə alındı" : "Vəzifə verildi"); await refresh(); }
     setBusy(null);
   }
