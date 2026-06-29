@@ -7,6 +7,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { Wallet, ShieldCheck, Package, Star, Loader2, Camera, Store, Save } from "lucide-react";
 import { toast } from "sonner";
 import { TwoFactorSetup } from "@/components/TwoFactorSetup";
+import { useCurrency } from "@/lib/currency";
 
 export const Route = createFileRoute("/_authenticated/profile")({
   component: ProfilePage,
