@@ -7,6 +7,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
 import { Wallet, Loader2, Upload, Receipt, Copy, CheckCircle2, XCircle, Clock, ArrowDownToLine, ArrowUpFromLine } from "lucide-react";
 import { useCurrency } from "@/lib/currency";
+import { GiftCardRedeem } from "@/components/GiftCardRedeem";
 
 export const Route = createFileRoute("/_authenticated/wallet")({
   component: WalletPage,
