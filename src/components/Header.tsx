@@ -91,27 +91,7 @@ export function Header() {
           ))}
         </nav>
 
-        <form
-          className="hidden md:flex flex-1 max-w-md ml-auto relative"
-          onSubmit={(e) => {
-            e.preventDefault();
-            const q = (e.currentTarget.elements.namedItem("q") as HTMLInputElement).value.trim();
-            navigate({ to: "/marketplace", search: q ? { q } : {} });
-          }}
-        >
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
-          <input
-            name="q"
-            placeholder={t("nav.search")}
-            className="w-full h-10 pl-10 pr-24 rounded-lg bg-surface border border-border text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring transition"
-          />
-          <button
-            type="submit"
-            className="absolute right-1 top-1/2 -translate-y-1/2 h-8 px-3 rounded-md bg-neon text-background text-xs font-semibold hover:opacity-90 transition"
-          >
-            {t("nav.search")}
-          </button>
-        </form>
+        <SearchBox variant="desktop" />
 
         <div className="flex items-center gap-2 md:ml-2 ml-auto">
           <LanguageSwitcher />
