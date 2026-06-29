@@ -179,6 +179,12 @@ function WalletPage() {
             </button>
           </div>
 
+          <div className="mb-8">
+            <GiftCardRedeem onRedeemed={() => load()} />
+          </div>
+
+
+
           {showPending && pending.items.length > 0 && (
             <div className="rounded-2xl border border-border bg-card p-4 mb-8">
               <h3 className="font-semibold mb-3 text-sm">Gözləyən köçürmələr</h3>
