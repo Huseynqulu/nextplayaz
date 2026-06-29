@@ -102,6 +102,7 @@ function SellerDashboard() {
       auto_message: (full as any)?.auto_message ?? "",
     });
     setShowForm(true);
+    setTimeout(() => window.scrollTo({ top: 0, behavior: "smooth" }), 50);
   }
 
   async function submit(e: React.FormEvent) {
