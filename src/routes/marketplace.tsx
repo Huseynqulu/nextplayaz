@@ -210,7 +210,7 @@ function MarketplacePage() {
 
                 {currentPsubs.length > 0 && (
                   <div>
-                    <label className="block text-xs text-muted-foreground mb-1.5">Alt kateqoriya</label>
+                    <label className="block text-xs text-muted-foreground mb-1.5">Alt kateqoriya ({s.platform})</label>
                     <select value={s.psub} onChange={e => update({ psub: e.target.value })}
                       className="w-full h-10 px-3 rounded-lg bg-background border border-border focus:outline-none focus:ring-2 focus:ring-ring">
                       <option value="all">Hamısı</option>
