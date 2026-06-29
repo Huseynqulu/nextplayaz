@@ -10,6 +10,7 @@ export type DbProduct = {
   old_price: number | null;
   platform: string;
   category: "Games" | "Accounts" | "Keys" | "Services";
+  subcategory?: string | null;
   image_url: string | null;
   image_urls?: string[] | null;
   stock: number;
@@ -38,6 +39,7 @@ export function dbToProduct(p: DbProduct, seller?: SellerLite | string): Product
     oldPrice: p.old_price ? Number(p.old_price) : undefined,
     platform: p.platform as Product["platform"],
     category: p.category,
+    subcategory: p.subcategory ?? null,
     image: p.image_url || FALLBACK_IMG,
     images: Array.isArray(p.image_urls) ? p.image_urls.filter(Boolean) : [],
     stock: p.stock,

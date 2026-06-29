@@ -579,6 +579,7 @@ export type Database = {
           seller_id: string
           slug: string
           stock: number
+          subcategory: string | null
           title: string
           updated_at: string
         }
@@ -603,6 +604,7 @@ export type Database = {
           seller_id: string
           slug: string
           stock?: number
+          subcategory?: string | null
           title: string
           updated_at?: string
         }
@@ -627,6 +629,7 @@ export type Database = {
           seller_id?: string
           slug?: string
           stock?: number
+          subcategory?: string | null
           title?: string
           updated_at?: string
         }
@@ -858,6 +861,53 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      subcategories: {
+        Row: {
+          category_slug: string
+          created_at: string
+          id: string
+          is_active: boolean
+          label_az: string
+          label_en: string
+          label_ru: string
+          slug: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          category_slug: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          label_az: string
+          label_en: string
+          label_ru: string
+          slug: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          category_slug?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          label_az?: string
+          label_en?: string
+          label_ru?: string
+          slug?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subcategories_category_slug_fkey"
+            columns: ["category_slug"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["slug"]
+          },
+        ]
       }
       support_messages: {
         Row: {
@@ -1143,6 +1193,10 @@ export type Database = {
       admin_delete_banner: { Args: { p_id: string }; Returns: undefined }
       admin_delete_category: { Args: { p_slug: string }; Returns: undefined }
       admin_delete_review: { Args: { p_id: string }; Returns: undefined }
+      admin_delete_subcategory: {
+        Args: { p_category_slug: string; p_slug: string }
+        Returns: undefined
+      }
       admin_grant_role: {
         Args: {
           p_role: Database["public"]["Enums"]["app_role"]
@@ -1221,6 +1275,18 @@ export type Database = {
       admin_upsert_category: {
         Args: {
           p_icon?: string
+          p_is_active?: boolean
+          p_label_az: string
+          p_label_en: string
+          p_label_ru: string
+          p_slug: string
+          p_sort_order?: number
+        }
+        Returns: undefined
+      }
+      admin_upsert_subcategory: {
+        Args: {
+          p_category_slug: string
           p_is_active?: boolean
           p_label_az: string
           p_label_en: string
