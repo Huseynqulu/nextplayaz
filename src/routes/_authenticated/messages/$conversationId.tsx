@@ -15,7 +15,7 @@ export const Route = createFileRoute("/_authenticated/messages/$conversationId")
   head: () => ({ meta: [{ title: "Söhbət — NextPlay.az" }] }),
 });
 
-type Msg = { id: string; conversation_id: string; sender_id: string; body: string; created_at: string; read_at: string | null; kind?: string };
+type Msg = { id: string; conversation_id: string; sender_id: string; body: string; created_at: string; read_at: string | null; kind?: string; attachment_url?: string | null };
 type Conv = { id: string; user_a: string; user_b: string; product_id: string | null; order_id: string | null };
 type ProfileLite = { id: string; display_name: string | null; username: string | null; avatar_url: string | null; last_seen_at: string | null };
 
