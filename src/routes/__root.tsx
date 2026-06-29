@@ -95,6 +95,7 @@ function RootShell({ children }: { children: React.ReactNode }) {
 
 import { Toaster } from "sonner";
 import { I18nProvider } from "@/lib/i18n";
+import { CurrencyProvider } from "@/lib/currency";
 import { FavoritesProvider } from "@/lib/favorites";
 
 function RootComponent() {
@@ -102,10 +103,12 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <I18nProvider>
-        <FavoritesProvider>
-          <Outlet />
-          <Toaster theme="dark" position="top-right" richColors />
-        </FavoritesProvider>
+        <CurrencyProvider>
+          <FavoritesProvider>
+            <Outlet />
+            <Toaster theme="dark" position="top-right" richColors />
+          </FavoritesProvider>
+        </CurrencyProvider>
       </I18nProvider>
     </QueryClientProvider>
   );
