@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
-import { Loader2, CheckCircle2, XCircle, ShieldCheck, Package, Users, FileText, Ticket, Wallet, Trash2, Plus, Eye, X, FileImage } from "lucide-react";
+import { Loader2, CheckCircle2, XCircle, ShieldCheck, Package, Users, FileText, Ticket, Wallet, Trash2, Plus, Eye, X, FileImage, LifeBuoy, Send, ArrowLeft } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/admin")({
   component: AdminPage,
@@ -22,8 +22,10 @@ type Application = {
 type ProductRow = { id: string; title: string; price: number; stock: number; category: string; is_active: boolean; seller_id: string; created_at: string };
 type AdminUser = { id: string; email: string | null; display_name: string | null; username: string | null; wallet_balance: number; roles: ("user"|"seller"|"admin")[]; created_at: string };
 type DiscountCode = { id: string; code: string; percent: number; max_uses: number | null; used_count: number; is_active: boolean; expires_at: string | null; created_at: string };
+type AdminTicket = { id: string; user_id: string; order_id: string | null; subject: string; message: string; category: string; status: string; priority: string; created_at: string; updated_at: string };
+type TicketMsg = { id: string; sender_id: string; is_admin: boolean; body: string; created_at: string };
 
-type Tab = "applications" | "users" | "codes" | "products";
+type Tab = "applications" | "users" | "codes" | "products" | "tickets";
 
 function AdminPage() {
   const { user } = useAuth();
@@ -34,12 +36,18 @@ function AdminPage() {
   const [products, setProducts] = useState<ProductRow[]>([]);
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [codes, setCodes] = useState<DiscountCode[]>([]);
+  const [tickets, setTickets] = useState<AdminTicket[]>([]);
   const [stats, setStats] = useState({ users: 0, sellers: 0, products: 0, orders: 0 });
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState<string | null>(null);
   const [appFilter, setAppFilter] = useState<"all" | "pending" | "approved" | "rejected">("all");
+  const [ticketFilter, setTicketFilter] = useState<"all" | "open" | "pending" | "answered" | "closed">("all");
   const [viewing, setViewing] = useState<Application | null>(null);
   const [signed, setSigned] = useState<{ front?: string; back?: string; selfie?: string }>({});
+  const [activeTicket, setActiveTicket] = useState<AdminTicket | null>(null);
+  const [ticketMsgs, setTicketMsgs] = useState<TicketMsg[]>([]);
+  const [ticketUser, setTicketUser] = useState<{ email: string | null; name: string | null } | null>(null);
+  const [reply, setReply] = useState("");
 
 
   // new code form
@@ -56,11 +64,12 @@ function AdminPage() {
 
   async function refresh() {
     setLoading(true);
-    const [{ data: a }, { data: p }, { data: u }, { data: dc }, { count: uc }, { count: sc }, { count: pc }, { count: oc }] = await Promise.all([
+    const [{ data: a }, { data: p }, { data: u }, { data: dc }, { data: tk }, { count: uc }, { count: sc }, { count: pc }, { count: oc }] = await Promise.all([
       supabase.from("seller_applications").select("*").order("created_at", { ascending: false }),
       supabase.from("products").select("id, title, price, stock, category, is_active, seller_id, created_at").order("created_at", { ascending: false }).limit(50),
       supabase.rpc("admin_list_users"),
       supabase.from("discount_codes").select("*").order("created_at", { ascending: false }),
+      supabase.from("support_tickets").select("*").order("updated_at", { ascending: false }),
       supabase.from("profiles").select("*", { count: "exact", head: true }),
       supabase.from("user_roles").select("*", { count: "exact", head: true }).eq("role", "seller"),
       supabase.from("products").select("*", { count: "exact", head: true }),
@@ -70,9 +79,48 @@ function AdminPage() {
     setProducts((p as any) ?? []);
     setUsers((u as any) ?? []);
     setCodes((dc as any) ?? []);
+    setTickets((tk as any) ?? []);
     setStats({ users: uc ?? 0, sellers: sc ?? 0, products: pc ?? 0, orders: oc ?? 0 });
     setLoading(false);
   }
+
+  async function openTicket(t: AdminTicket) {
+    setActiveTicket(t);
+    setReply("");
+    const [{ data: msgs }, { data: prof }] = await Promise.all([
+      supabase.from("support_messages").select("*").eq("ticket_id", t.id).order("created_at"),
+      supabase.rpc("admin_list_users"),
+    ]);
+    setTicketMsgs((msgs as any) ?? []);
+    const found = ((prof as any) ?? []).find((x: any) => x.id === t.user_id);
+    setTicketUser(found ? { email: found.email, name: found.display_name ?? found.username } : null);
+  }
+
+  async function sendReply() {
+    if (!activeTicket || !reply.trim()) return;
+    setBusy("reply");
+    const { error } = await supabase.from("support_messages").insert({
+      ticket_id: activeTicket.id, sender_id: user!.id, is_admin: true, body: reply.trim(),
+    });
+    if (error) toast.error(error.message);
+    else {
+      setReply("");
+      const { data } = await supabase.from("support_messages").select("*").eq("ticket_id", activeTicket.id).order("created_at");
+      setTicketMsgs((data as any) ?? []);
+      await refresh();
+    }
+    setBusy(null);
+  }
+
+  async function setTicketStatus(s: "open" | "pending" | "answered" | "closed") {
+    if (!activeTicket) return;
+    setBusy("status");
+    const { error } = await supabase.from("support_tickets").update({ status: s }).eq("id", activeTicket.id);
+    if (error) toast.error(error.message);
+    else { toast.success("Status yeniləndi"); setActiveTicket({ ...activeTicket, status: s }); await refresh(); }
+    setBusy(null);
+  }
+
 
   useEffect(() => { if (isAdmin) refresh(); }, [isAdmin]);
 
@@ -194,6 +242,7 @@ function AdminPage() {
           <div className="flex gap-1 mb-6 border-b border-border overflow-x-auto">
             {([
               ["applications", `Müraciətlər (${apps.filter(a => a.status === "pending").length})`],
+              ["tickets", `Dəstək (${tickets.filter(t => t.status === "open" || t.status === "pending").length})`],
               ["users", "İstifadəçilər"],
               ["codes", "Endirim kodları"],
               ["products", "Məhsullar"],
@@ -341,6 +390,83 @@ function AdminPage() {
                 </div>
               ))}
             </div>
+          ) : tab === "tickets" ? (
+            activeTicket ? (
+              <div className="rounded-2xl border border-border bg-card-gradient card-shadow overflow-hidden">
+                <div className="p-5 border-b border-border flex flex-wrap items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <button onClick={() => setActiveTicket(null)} className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground mb-2">
+                      <ArrowLeft className="h-3 w-3" /> Geri
+                    </button>
+                    <h3 className="font-semibold text-lg">{activeTicket.subject}</h3>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {ticketUser?.name ?? "—"} · {ticketUser?.email ?? activeTicket.user_id.slice(0,8)} · {activeTicket.category}
+                      {activeTicket.order_id && ` · Sifariş #${activeTicket.order_id.slice(0,8)}`}
+                    </p>
+                  </div>
+                  <div className="flex gap-2 flex-wrap">
+                    {(["open","pending","answered","closed"] as const).map(s => (
+                      <button key={s} disabled={busy === "status"} onClick={() => setTicketStatus(s)}
+                        className={`h-8 px-3 rounded-md text-xs font-semibold ${activeTicket.status === s ? "bg-neon text-background" : "bg-surface border border-border hover:border-primary"}`}>{s}</button>
+                    ))}
+                  </div>
+                </div>
+                <div className="p-5 space-y-3 max-h-[55vh] overflow-y-auto">
+                  <div className="rounded-lg bg-surface/40 border border-border p-3">
+                    <div className="text-[10px] uppercase text-muted-foreground mb-1">İstifadəçi · {new Date(activeTicket.created_at).toLocaleString("az-AZ")}</div>
+                    <p className="text-sm whitespace-pre-wrap">{activeTicket.message}</p>
+                  </div>
+                  {ticketMsgs.map(m => (
+                    <div key={m.id} className={`rounded-lg p-3 border ${m.is_admin ? "bg-neon/10 border-neon/30" : "bg-surface/40 border-border"}`}>
+                      <div className="text-[10px] uppercase text-muted-foreground mb-1">{m.is_admin ? "Admin" : "İstifadəçi"} · {new Date(m.created_at).toLocaleString("az-AZ")}</div>
+                      <p className="text-sm whitespace-pre-wrap">{m.body}</p>
+                    </div>
+                  ))}
+                </div>
+                <div className="p-4 border-t border-border flex gap-2">
+                  <textarea value={reply} onChange={e => setReply(e.target.value)} rows={2} placeholder="Admin cavabı..." className="flex-1 px-3 py-2 rounded-lg bg-background border border-border text-sm resize-none" />
+                  <button onClick={sendReply} disabled={busy === "reply" || !reply.trim()} className="h-10 self-end px-4 rounded-lg bg-neon text-background font-semibold inline-flex items-center gap-1.5 disabled:opacity-50">
+                    {busy === "reply" ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />} Göndər
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                <div className="flex gap-2 flex-wrap mb-2">
+                  {(["all","open","pending","answered","closed"] as const).map(f => {
+                    const n = f === "all" ? tickets.length : tickets.filter(t => t.status === f).length;
+                    return (
+                      <button key={f} onClick={() => setTicketFilter(f)}
+                        className={`h-8 px-3 rounded-full text-xs font-semibold transition ${ticketFilter === f ? "bg-neon text-background" : "bg-surface border border-border text-muted-foreground hover:text-foreground"}`}>
+                        {f === "all" ? "Hamısı" : f} ({n})
+                      </button>
+                    );
+                  })}
+                </div>
+                {tickets.filter(t => ticketFilter === "all" || t.status === ticketFilter).length === 0 && (
+                  <p className="text-muted-foreground text-center py-12">Müraciət yoxdur.</p>
+                )}
+                {tickets.filter(t => ticketFilter === "all" || t.status === ticketFilter).map(t => (
+                  <button key={t.id} onClick={() => openTicket(t)} className="w-full text-left rounded-xl border border-border bg-card-gradient p-4 hover:border-primary/50 transition">
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <LifeBuoy className="h-3.5 w-3.5 text-neon" />
+                          <p className="font-semibold truncate">{t.subject}</p>
+                          <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${
+                            t.status === "answered" ? "bg-success/20 text-success" :
+                            t.status === "closed" ? "bg-muted text-muted-foreground" : "bg-warning/20 text-warning"
+                          }`}>{t.status}</span>
+                          <span className="px-2 py-0.5 rounded text-[10px] bg-surface">{t.category}</span>
+                        </div>
+                        <p className="text-xs text-muted-foreground mt-1 truncate">{t.message}</p>
+                        <p className="text-[11px] text-muted-foreground mt-1">{new Date(t.updated_at).toLocaleString("az-AZ")}{t.order_id && ` · Sifariş #${t.order_id.slice(0,8)}`}</p>
+                      </div>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            )
           ) : (
             <div className="space-y-2">
               {products.length === 0 && <p className="text-muted-foreground text-center py-12">Məhsul yoxdur.</p>}
