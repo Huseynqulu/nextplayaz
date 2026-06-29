@@ -16,6 +16,7 @@ export const Route = createFileRoute("/_authenticated/profile")({
 type Profile = {
   username: string | null;
   display_name: string | null;
+  shop_name: string | null;
   avatar_url: string | null;
   wallet_balance: number;
 };
