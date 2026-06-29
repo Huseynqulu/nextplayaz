@@ -1,8 +1,8 @@
 import { Link } from "@tanstack/react-router";
 import { ArrowRight, Sparkles, Zap } from "lucide-react";
 import psLogo from "@/assets/playstation-logo.png";
-import gtaHero from "@/assets/gta-vi-hero.webp.asset.json";
-import gtaCollage from "@/assets/gta-vi-collage.jpg.asset.json";
+import gtaHero from "@/assets/gta-vi-hero.webp";
+import gtaCollage from "@/assets/gta-vi-collage.jpg";
 
 export function GiftCardPromo() {
   return (
@@ -69,7 +69,7 @@ export function GiftCardPromo() {
           className="group relative overflow-hidden rounded-2xl border border-border bg-surface p-8 min-h-[280px] flex flex-col justify-between transition-transform hover:scale-[1.01]"
         >
           <img
-            src={gtaHero.url}
+            src={gtaHero}
             alt="GTA VI şəhər görüntüsü"
             loading="lazy"
             className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
@@ -77,7 +77,7 @@ export function GiftCardPromo() {
           <div className="absolute inset-0 bg-gradient-to-r from-background/95 via-background/55 to-background/10" />
           <div className="absolute right-4 bottom-4 hidden sm:block overflow-hidden rounded-xl border border-white/20 shadow-2xl max-w-[210px] rotate-2 group-hover:rotate-0 transition-transform">
             <img
-              src={gtaCollage.url}
+              src={gtaCollage}
               alt="GTA VI loqosu və oyun kollajı"
               loading="lazy"
               className="h-28 w-full object-cover"
