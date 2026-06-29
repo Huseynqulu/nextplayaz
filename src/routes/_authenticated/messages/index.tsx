@@ -26,7 +26,41 @@ function InboxPage() {
   const [products, setProducts] = useState<Record<string, { title: string; slug: string }>>({});
   const [unread, setUnread] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
+  const [searchQ, setSearchQ] = useState("");
+  const [searchResults, setSearchResults] = useState<ProfileLite[]>([]);
+  const [searching, setSearching] = useState(false);
+  const [starting, setStarting] = useState(false);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!user) return;
+    const q = searchQ.trim();
+    if (q.length < 2) { setSearchResults([]); return; }
+    let active = true;
+    setSearching(true);
+    const t = setTimeout(async () => {
+      const like = `%${q}%`;
+      const { data } = await supabase
+        .from("public_profiles" as any)
+        .select("id,display_name,username,avatar_url,last_seen_at,shop_name")
+        .or(`username.ilike.${like},display_name.ilike.${like},shop_name.ilike.${like}`)
+        .neq("id", user.id)
+        .limit(10);
+      if (!active) return;
+      setSearchResults((data ?? []) as ProfileLite[]);
+      setSearching(false);
+    }, 250);
+    return () => { active = false; clearTimeout(t); };
+  }, [searchQ, user?.id]);
+
+  async function startChat(otherId: string) {
+    if (starting) return;
+    setStarting(true);
+    const { data, error } = await supabase.rpc("start_conversation", { p_other_user: otherId, p_product_id: null } as any);
+    setStarting(false);
+    if (error || !data) { toast.error(error?.message ?? "Yazışma başladıla bilmədi"); return; }
+    navigate({ to: "/messages/$conversationId", params: { conversationId: data as string } });
+  }
 
   useEffect(() => {
     if (!user) return;
