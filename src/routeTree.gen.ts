@@ -21,7 +21,6 @@ import { Route as GiftCardsRouteImport } from './routes/gift-cards'
 import { Route as CartRouteImport } from './routes/cart'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as GiftCardsIndexRouteImport } from './routes/gift-cards.index'
 import { Route as UIdRouteImport } from './routes/u.$id'
 import { Route as ProductSlugRouteImport } from './routes/product.$slug'
 import { Route as GiftCardsPlatformRouteImport } from './routes/gift-cards.$platform'
@@ -97,11 +96,6 @@ const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
-} as any)
-const GiftCardsIndexRoute = GiftCardsIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => GiftCardsRoute,
 } as any)
 const UIdRoute = UIdRouteImport.update({
   id: '/u/$id',
@@ -214,7 +208,6 @@ export interface FileRoutesByFullPath {
   '/gift-cards/$platform': typeof GiftCardsPlatformRouteWithChildren
   '/product/$slug': typeof ProductSlugRoute
   '/u/$id': typeof UIdRoute
-  '/gift-cards/': typeof GiftCardsIndexRoute
   '/messages/$conversationId': typeof AuthenticatedMessagesConversationIdRoute
   '/gift-cards/$platform/$denom': typeof GiftCardsPlatformDenomRoute
   '/messages/': typeof AuthenticatedMessagesIndexRoute
@@ -222,6 +215,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/cart': typeof CartRoute
+  '/gift-cards': typeof GiftCardsRouteWithChildren
   '/login': typeof LoginRoute
   '/marketplace': typeof MarketplaceRoute
   '/privacy': typeof PrivacyRoute
@@ -243,7 +237,6 @@ export interface FileRoutesByTo {
   '/gift-cards/$platform': typeof GiftCardsPlatformRouteWithChildren
   '/product/$slug': typeof ProductSlugRoute
   '/u/$id': typeof UIdRoute
-  '/gift-cards': typeof GiftCardsIndexRoute
   '/messages/$conversationId': typeof AuthenticatedMessagesConversationIdRoute
   '/gift-cards/$platform/$denom': typeof GiftCardsPlatformDenomRoute
   '/messages': typeof AuthenticatedMessagesIndexRoute
@@ -275,7 +268,6 @@ export interface FileRoutesById {
   '/gift-cards/$platform': typeof GiftCardsPlatformRouteWithChildren
   '/product/$slug': typeof ProductSlugRoute
   '/u/$id': typeof UIdRoute
-  '/gift-cards/': typeof GiftCardsIndexRoute
   '/_authenticated/messages/$conversationId': typeof AuthenticatedMessagesConversationIdRoute
   '/gift-cards/$platform/$denom': typeof GiftCardsPlatformDenomRoute
   '/_authenticated/messages/': typeof AuthenticatedMessagesIndexRoute
@@ -307,7 +299,6 @@ export interface FileRouteTypes {
     | '/gift-cards/$platform'
     | '/product/$slug'
     | '/u/$id'
-    | '/gift-cards/'
     | '/messages/$conversationId'
     | '/gift-cards/$platform/$denom'
     | '/messages/'
@@ -315,6 +306,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/cart'
+    | '/gift-cards'
     | '/login'
     | '/marketplace'
     | '/privacy'
@@ -336,7 +328,6 @@ export interface FileRouteTypes {
     | '/gift-cards/$platform'
     | '/product/$slug'
     | '/u/$id'
-    | '/gift-cards'
     | '/messages/$conversationId'
     | '/gift-cards/$platform/$denom'
     | '/messages'
@@ -367,7 +358,6 @@ export interface FileRouteTypes {
     | '/gift-cards/$platform'
     | '/product/$slug'
     | '/u/$id'
-    | '/gift-cards/'
     | '/_authenticated/messages/$conversationId'
     | '/gift-cards/$platform/$denom'
     | '/_authenticated/messages/'
@@ -475,13 +465,6 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
-    }
-    '/gift-cards/': {
-      id: '/gift-cards/'
-      path: '/'
-      fullPath: '/gift-cards/'
-      preLoaderRoute: typeof GiftCardsIndexRouteImport
-      parentRoute: typeof GiftCardsRoute
     }
     '/u/$id': {
       id: '/u/$id'
@@ -645,12 +628,10 @@ const GiftCardsPlatformRouteWithChildren =
 
 interface GiftCardsRouteChildren {
   GiftCardsPlatformRoute: typeof GiftCardsPlatformRouteWithChildren
-  GiftCardsIndexRoute: typeof GiftCardsIndexRoute
 }
 
 const GiftCardsRouteChildren: GiftCardsRouteChildren = {
   GiftCardsPlatformRoute: GiftCardsPlatformRouteWithChildren,
-  GiftCardsIndexRoute: GiftCardsIndexRoute,
 }
 
 const GiftCardsRouteWithChildren = GiftCardsRoute._addFileChildren(
