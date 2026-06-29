@@ -15,6 +15,7 @@ export const Route = createFileRoute("/_authenticated/referrals")({
 type RefRow = { id: string; referee_id: string; status: string; reward_amount: number; created_at: string; rewarded_at: string | null };
 
 function ReferralsPage() {
+  const { format } = useCurrency();
   const [stats, setStats] = useState<{ total_invited: number; rewarded_count: number; total_earned: number; code: string } | null>(null);
   const [rows, setRows] = useState<RefRow[]>([]);
   const [loading, setLoading] = useState(true);
