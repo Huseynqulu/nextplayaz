@@ -141,8 +141,8 @@ export function Header() {
                     (user.user_metadata?.display_name ?? user.email ?? "U")[0].toUpperCase()
                   )}
                 </div>
-                <span className="hidden sm:inline text-sm font-medium max-w-[120px] truncate">
-                  {user.user_metadata?.display_name ?? user.email?.split("@")[0]}
+                <span className="hidden sm:inline text-sm font-medium max-w-[140px] truncate">
+                  {displayLabel ?? user.user_metadata?.display_name ?? user.email?.split("@")[0]}
                 </span>
               </button>
               {menuOpen && (
