@@ -21,7 +21,13 @@ export type DbProduct = {
 
 const FALLBACK_IMG = "https://images.unsplash.com/photo-1542751371-adc38448a05e?w=800&q=80";
 
-export function dbToProduct(p: DbProduct, sellerName?: string): Product {
+export type SellerLite = { name: string; avatarUrl?: string | null; shopName?: string | null };
+
+export function dbToProduct(p: DbProduct, seller?: SellerLite | string): Product {
+  const s: SellerLite = typeof seller === "string" || seller === undefined
+    ? { name: (typeof seller === "string" ? seller : "Satıcı") }
+    : seller;
+  const displayName = s.shopName || s.name || "Satıcı";
   return {
     id: p.id,
     slug: p.slug,
@@ -35,7 +41,7 @@ export function dbToProduct(p: DbProduct, sellerName?: string): Product {
     stock: p.stock,
     rating: Number(p.rating) || 5,
     reviews: p.reviews_count,
-    seller: { name: sellerName ?? "Satıcı", rating: 5, sales: 0, verified: true },
+    seller: { name: displayName, rating: 5, sales: 0, verified: true, avatarUrl: s.avatarUrl ?? null, shopName: s.shopName ?? null },
     delivery: p.delivery,
     sellerId: p.seller_id,
   };
@@ -49,28 +55,38 @@ export async function fetchProducts(): Promise<Product[]> {
     .order("created_at", { ascending: false });
   if (error || !data) return mockProducts;
 
-  // fetch seller display names
   const sellerIds = Array.from(new Set(data.map(d => d.seller_id)));
-  let nameMap = new Map<string, string>();
+  let sellerMap = new Map<string, SellerLite>();
   if (sellerIds.length) {
     const { data: profs } = await supabase
       .from("public_profiles" as any)
-      .select("id, display_name, username")
+      .select("id, display_name, username, shop_name, avatar_url")
       .in("id", sellerIds);
-    nameMap = new Map(((profs as any[]) ?? []).map((p: any) => [p.id, p.display_name || p.username || "Satıcı"]));
+    sellerMap = new Map(((profs as any[]) ?? []).map((p: any) => [p.id, {
+      name: p.display_name || p.username || "Satıcı",
+      shopName: p.shop_name ?? null,
+      avatarUrl: p.avatar_url ?? null,
+    } as SellerLite]));
   }
 
-  const dbItems = data.map(d => dbToProduct(d as unknown as DbProduct, nameMap.get(d.seller_id)));
-  // merge: db first, then mock for richness
+  const dbItems = data.map(d => dbToProduct(d as unknown as DbProduct, sellerMap.get(d.seller_id)));
   return [...dbItems, ...mockProducts];
 }
 
 export async function fetchProductBySlug(slug: string): Promise<Product | null> {
   const { data } = await supabase.from("products").select("*").eq("slug", slug).eq("is_active", true).maybeSingle();
   if (data) {
-    const { data: profRaw } = await supabase.from("public_profiles" as any).select("display_name, username").eq("id", data.seller_id).maybeSingle();
+    const { data: profRaw } = await supabase
+      .from("public_profiles" as any)
+      .select("display_name, username, shop_name, avatar_url")
+      .eq("id", data.seller_id)
+      .maybeSingle();
     const prof = profRaw as any;
-    return dbToProduct(data as unknown as DbProduct, prof?.display_name || prof?.username || "Satıcı");
+    return dbToProduct(data as unknown as DbProduct, prof ? {
+      name: prof.display_name || prof.username || "Satıcı",
+      shopName: prof.shop_name ?? null,
+      avatarUrl: prof.avatar_url ?? null,
+    } : undefined);
   }
   return mockProducts.find(p => p.slug === slug) ?? null;
 }
