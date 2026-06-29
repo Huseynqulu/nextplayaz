@@ -52,6 +52,25 @@ function MarketplacePage() {
   }, [cat, platform, q, sort, products]);
 
   return (
+    <div className="min-h-screen flex flex-col">
+      <Header />
+      <main className="flex-1">
+        <section className="border-b border-border bg-surface/30">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
+            <h1 className="font-display text-4xl sm:text-5xl font-bold">Marketplace</h1>
+            <p className="mt-3 text-muted-foreground max-w-2xl">
+              {loading ? "Yüklənir..." : `${products.length} məhsul`}, yoxlanılmış satıcılar, escrow qorunma altında.
+            </p>
+
+            <div className="mt-8 flex flex-col lg:flex-row gap-3">
+              <div className="relative flex-1">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <input
+                  value={q}
+                  onChange={e => setQ(e.target.value)}
+                  placeholder="Məhsul axtar..."
+                  className="w-full h-12 pl-12 pr-4 rounded-xl bg-background border border-border focus:outline-none focus:ring-2 focus:ring-ring"
+                />
                 <input
                   value={q}
                   onChange={e => setQ(e.target.value)}
