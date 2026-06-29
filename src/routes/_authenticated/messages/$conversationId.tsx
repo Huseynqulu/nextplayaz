@@ -165,6 +165,22 @@ function ThreadPage() {
                     </div>
                   );
                 }
+                if (m.kind === "staff") {
+                  return (
+                    <div key={m.id} className="flex justify-center my-2">
+                      <div className="max-w-[85%] px-3.5 py-2 rounded-2xl bg-primary/10 border border-primary/40 text-sm whitespace-pre-wrap break-words">
+                        <div className="flex items-center gap-1.5 text-[10px] uppercase font-bold text-primary mb-1">
+                          <ShieldCheck className="h-3 w-3" /> NextPlay Dəstək
+                        </div>
+                        {m.body}
+                        {m.attachment_url && <div className="mt-2"><ChatImage path={m.attachment_url} /></div>}
+                        <div className="text-[10px] mt-1 text-muted-foreground">
+                          {new Date(m.created_at).toLocaleTimeString("az-AZ", { hour: "2-digit", minute: "2-digit" })}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                }
                 const mine = m.sender_id === user!.id;
                 return (
                   <div key={m.id} className={`flex ${mine ? "justify-end" : "justify-start"}`}>
@@ -172,6 +188,7 @@ function ThreadPage() {
                       mine ? "bg-neon text-background rounded-br-sm" : "bg-surface text-foreground rounded-bl-sm border border-border"
                     }`}>
                       {m.body}
+                      {m.attachment_url && <div className="mt-2"><ChatImage path={m.attachment_url} /></div>}
                       <div className={`flex items-center gap-1 text-[10px] mt-1 ${mine ? "text-background/70 justify-end" : "text-muted-foreground"}`}>
                         <span>{new Date(m.created_at).toLocaleTimeString("az-AZ", { hour: "2-digit", minute: "2-digit" })}</span>
                         {mine && (
@@ -186,15 +203,30 @@ function ThreadPage() {
               })}
             </div>
 
-            <div className="border-t border-border p-3 flex items-end gap-2">
-              <textarea ref={inputRef} value={text} onChange={e => setText(e.target.value)}
-                onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); } }}
-                rows={1} maxLength={4000} placeholder="Mesaj yazın..."
-                className="flex-1 resize-none px-3 py-2.5 rounded-lg bg-background border border-border text-sm max-h-32" />
-              <button onClick={send} disabled={sending || !text.trim()}
-                className="h-11 w-11 grid place-items-center rounded-lg bg-neon text-background neon-ring disabled:opacity-50 shrink-0">
-                {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
-              </button>
+            <div className="border-t border-border p-3 space-y-2">
+              {preview && (
+                <div className="relative inline-block">
+                  <img src={preview} alt="" className="max-h-32 rounded-lg border border-border" />
+                  <button onClick={() => onPickFile(null)} className="absolute -top-2 -right-2 h-6 w-6 grid place-items-center rounded-full bg-destructive text-destructive-foreground">
+                    <X className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              )}
+              <div className="flex items-end gap-2">
+                <input ref={fileRef} type="file" accept="image/*" hidden onChange={e => onPickFile(e.target.files?.[0] ?? null)} />
+                <button type="button" onClick={() => fileRef.current?.click()}
+                  className="h-11 w-11 grid place-items-center rounded-lg bg-surface border border-border hover:border-primary shrink-0" title="Şəkil əlavə et">
+                  <Paperclip className="h-4 w-4" />
+                </button>
+                <textarea ref={inputRef} value={text} onChange={e => setText(e.target.value)}
+                  onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); } }}
+                  rows={1} maxLength={4000} placeholder="Mesaj yazın..."
+                  className="flex-1 resize-none px-3 py-2.5 rounded-lg bg-background border border-border text-sm max-h-32" />
+                <button onClick={send} disabled={sending || (!text.trim() && !pendingFile)}
+                  className="h-11 w-11 grid place-items-center rounded-lg bg-neon text-background neon-ring disabled:opacity-50 shrink-0">
+                  {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+                </button>
+              </div>
             </div>
           </div>
         </div>
