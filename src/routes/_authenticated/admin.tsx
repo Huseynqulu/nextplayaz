@@ -459,6 +459,7 @@ function AdminPage() {
               ["banners", "Bannerlər"],
               ["reviews", "Rəylər"],
               ["giftcards", "Hədiyyə kartları"],
+              ["giftmarket", "🎮 Gift Marketplace"],
               ["boost", "🚀 Boost qiymətləri"],
               ["codes", "Endirim kodları"],
               ["products", "Məhsullar"],
