@@ -216,8 +216,8 @@ function ProductPage() {
                     <button onClick={messageSeller} disabled={contacting} className="grid h-12 w-12 shrink-0 place-items-center rounded-xl border border-border hover:border-primary disabled:opacity-50" aria-label="Satıcıya mesaj">
                       {contacting ? <Loader2 className="h-4 w-4 animate-spin" /> : <MessageCircle className="h-4 w-4" />}
                     </button>
-                    <button className="grid h-12 w-12 shrink-0 place-items-center rounded-xl border border-border hover:border-primary" aria-label="Favorilərə əlavə et"><Heart className="h-4 w-4" /></button>
-                    <button className="grid h-12 w-12 shrink-0 place-items-center rounded-xl border border-border hover:border-primary" aria-label="Paylaş"><Share2 className="h-4 w-4" /></button>
+                    <button onClick={handleFav} className={`grid h-12 w-12 shrink-0 place-items-center rounded-xl border ${fav ? "border-neon text-neon" : "border-border hover:border-primary"}`} aria-label="Favorilərə əlavə et"><Heart className={`h-4 w-4 ${fav ? "fill-current" : ""}`} /></button>
+                    <button onClick={handleShare} className="grid h-12 w-12 shrink-0 place-items-center rounded-xl border border-border hover:border-primary" aria-label="Paylaş"><Share2 className="h-4 w-4" /></button>
                   </div>
                 </div>
 
