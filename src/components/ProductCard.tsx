@@ -13,8 +13,16 @@ export function ProductCard({ p }: { p: Product }) {
   const discount = p.oldPrice ? Math.round((1 - p.price / p.oldPrice) * 100) : 0;
   const { isFav, toggle } = useFavorites();
   const { user } = useAuth();
+  const { add } = useCart();
   const canFav = !!user && isRealProductId(p.id);
+  const canCart = isRealProductId(p.id) && p.stock > 0;
   const fav = canFav && isFav(p.id);
+
+  function addToCart(e: React.MouseEvent) {
+    e.preventDefault(); e.stopPropagation();
+    add({ id: p.id, slug: p.slug, title: p.title, image: p.image, price: p.price, sellerName: p.seller.name, stock: p.stock });
+    toast.success("Səbətə əlavə edildi");
+  }
 
   return (
     <Link
