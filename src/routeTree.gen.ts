@@ -23,6 +23,7 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as UIdRouteImport } from './routes/u.$id'
 import { Route as ProductSlugRouteImport } from './routes/product.$slug'
+import { Route as GiftCardsPlatformRouteImport } from './routes/gift-cards.$platform'
 import { Route as AuthenticatedWalletRouteImport } from './routes/_authenticated/wallet'
 import { Route as AuthenticatedSupportTicketsRouteImport } from './routes/_authenticated/support-tickets'
 import { Route as AuthenticatedStaffRouteImport } from './routes/_authenticated/staff'
@@ -104,6 +105,11 @@ const ProductSlugRoute = ProductSlugRouteImport.update({
   path: '/product/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const GiftCardsPlatformRoute = GiftCardsPlatformRouteImport.update({
+  id: '/$platform',
+  path: '/$platform',
+  getParentRoute: () => GiftCardsRoute,
+} as any)
 const AuthenticatedWalletRoute = AuthenticatedWalletRouteImport.update({
   id: '/wallet',
   path: '/wallet',
@@ -167,7 +173,7 @@ const AuthenticatedMessagesConversationIdRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/cart': typeof CartRoute
-  '/gift-cards': typeof GiftCardsRoute
+  '/gift-cards': typeof GiftCardsRouteWithChildren
   '/login': typeof LoginRoute
   '/marketplace': typeof MarketplaceRoute
   '/privacy': typeof PrivacyRoute
@@ -185,6 +191,7 @@ export interface FileRoutesByFullPath {
   '/staff': typeof AuthenticatedStaffRoute
   '/support-tickets': typeof AuthenticatedSupportTicketsRoute
   '/wallet': typeof AuthenticatedWalletRoute
+  '/gift-cards/$platform': typeof GiftCardsPlatformRoute
   '/product/$slug': typeof ProductSlugRoute
   '/u/$id': typeof UIdRoute
   '/messages/$conversationId': typeof AuthenticatedMessagesConversationIdRoute
@@ -193,7 +200,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/cart': typeof CartRoute
-  '/gift-cards': typeof GiftCardsRoute
+  '/gift-cards': typeof GiftCardsRouteWithChildren
   '/login': typeof LoginRoute
   '/marketplace': typeof MarketplaceRoute
   '/privacy': typeof PrivacyRoute
@@ -211,6 +218,7 @@ export interface FileRoutesByTo {
   '/staff': typeof AuthenticatedStaffRoute
   '/support-tickets': typeof AuthenticatedSupportTicketsRoute
   '/wallet': typeof AuthenticatedWalletRoute
+  '/gift-cards/$platform': typeof GiftCardsPlatformRoute
   '/product/$slug': typeof ProductSlugRoute
   '/u/$id': typeof UIdRoute
   '/messages/$conversationId': typeof AuthenticatedMessagesConversationIdRoute
@@ -221,7 +229,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/cart': typeof CartRoute
-  '/gift-cards': typeof GiftCardsRoute
+  '/gift-cards': typeof GiftCardsRouteWithChildren
   '/login': typeof LoginRoute
   '/marketplace': typeof MarketplaceRoute
   '/privacy': typeof PrivacyRoute
@@ -239,6 +247,7 @@ export interface FileRoutesById {
   '/_authenticated/staff': typeof AuthenticatedStaffRoute
   '/_authenticated/support-tickets': typeof AuthenticatedSupportTicketsRoute
   '/_authenticated/wallet': typeof AuthenticatedWalletRoute
+  '/gift-cards/$platform': typeof GiftCardsPlatformRoute
   '/product/$slug': typeof ProductSlugRoute
   '/u/$id': typeof UIdRoute
   '/_authenticated/messages/$conversationId': typeof AuthenticatedMessagesConversationIdRoute
@@ -267,6 +276,7 @@ export interface FileRouteTypes {
     | '/staff'
     | '/support-tickets'
     | '/wallet'
+    | '/gift-cards/$platform'
     | '/product/$slug'
     | '/u/$id'
     | '/messages/$conversationId'
@@ -293,6 +303,7 @@ export interface FileRouteTypes {
     | '/staff'
     | '/support-tickets'
     | '/wallet'
+    | '/gift-cards/$platform'
     | '/product/$slug'
     | '/u/$id'
     | '/messages/$conversationId'
@@ -320,6 +331,7 @@ export interface FileRouteTypes {
     | '/_authenticated/staff'
     | '/_authenticated/support-tickets'
     | '/_authenticated/wallet'
+    | '/gift-cards/$platform'
     | '/product/$slug'
     | '/u/$id'
     | '/_authenticated/messages/$conversationId'
@@ -330,7 +342,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   CartRoute: typeof CartRoute
-  GiftCardsRoute: typeof GiftCardsRoute
+  GiftCardsRoute: typeof GiftCardsRouteWithChildren
   LoginRoute: typeof LoginRoute
   MarketplaceRoute: typeof MarketplaceRoute
   PrivacyRoute: typeof PrivacyRoute
@@ -442,6 +454,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/product/$slug'
       preLoaderRoute: typeof ProductSlugRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/gift-cards/$platform': {
+      id: '/gift-cards/$platform'
+      path: '/$platform'
+      fullPath: '/gift-cards/$platform'
+      preLoaderRoute: typeof GiftCardsPlatformRouteImport
+      parentRoute: typeof GiftCardsRoute
     }
     '/_authenticated/wallet': {
       id: '/_authenticated/wallet'
@@ -555,11 +574,23 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
 const AuthenticatedRouteRouteWithChildren =
   AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
 
+interface GiftCardsRouteChildren {
+  GiftCardsPlatformRoute: typeof GiftCardsPlatformRoute
+}
+
+const GiftCardsRouteChildren: GiftCardsRouteChildren = {
+  GiftCardsPlatformRoute: GiftCardsPlatformRoute,
+}
+
+const GiftCardsRouteWithChildren = GiftCardsRoute._addFileChildren(
+  GiftCardsRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   CartRoute: CartRoute,
-  GiftCardsRoute: GiftCardsRoute,
+  GiftCardsRoute: GiftCardsRouteWithChildren,
   LoginRoute: LoginRoute,
   MarketplaceRoute: MarketplaceRoute,
   PrivacyRoute: PrivacyRoute,
