@@ -191,7 +191,7 @@ function ProductPage() {
                     onClick={openBuy}
                     className="flex-1 h-11 rounded-xl bg-neon text-background font-semibold neon-ring hover:scale-[1.01] transition disabled:opacity-50 inline-flex items-center justify-center gap-2"
                   >
-                    Sifariş ver — {format(p.price * qty)}
+                    İndi al — {format(p.price * qty)}
                   </button>
                   <button onClick={messageSeller} disabled={contacting} className="grid h-11 w-11 place-items-center rounded-xl border border-border hover:border-primary disabled:opacity-50" aria-label="Satıcıya mesaj">
                     {contacting ? <Loader2 className="h-4 w-4 animate-spin" /> : <MessageCircle className="h-4 w-4" />}
