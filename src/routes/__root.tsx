@@ -97,6 +97,7 @@ import { Toaster } from "sonner";
 import { I18nProvider } from "@/lib/i18n";
 import { CurrencyProvider } from "@/lib/currency";
 import { FavoritesProvider } from "@/lib/favorites";
+import { CartProvider } from "@/lib/cart";
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
