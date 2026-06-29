@@ -21,12 +21,19 @@ export function Header() {
   const [unreadDm, setUnreadDm] = useState(0);
 
   useEffect(() => {
-    if (!user) { setRoles([]); setAvatarUrl(null); setUnreadDm(0); return; }
+    if (!user) { setRoles([]); setAvatarUrl(null); setUnreadDm(0); setDisplayLabel(null); return; }
     supabase.from("user_roles").select("role").eq("user_id", user.id).then(({ data }) => {
-      setRoles((data ?? []).map(r => r.role));
-    });
-    supabase.from("profiles").select("avatar_url").eq("id", user.id).maybeSingle().then(({ data }) => {
-      setAvatarUrl((data as any)?.avatar_url ?? null);
+      const r = (data ?? []).map((x: any) => x.role);
+      setRoles(r);
+      const hasSeller = r.includes("seller");
+      supabase.from("profiles").select("avatar_url,shop_name,username,display_name").eq("id", user.id).maybeSingle().then(({ data: p }) => {
+        const prof = p as any;
+        setAvatarUrl(prof?.avatar_url ?? null);
+        const label = hasSeller
+          ? (prof?.shop_name || prof?.username || prof?.display_name)
+          : (prof?.username || prof?.display_name);
+        setDisplayLabel(label || null);
+      });
     });
     const loadUnread = () => {
       supabase.from("dm_messages").select("id", { count: "exact", head: true })
