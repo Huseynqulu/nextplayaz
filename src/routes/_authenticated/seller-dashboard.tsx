@@ -102,6 +102,12 @@ function SellerDashboard() {
     if (!user) return;
     setSaving(true);
     try {
+      const isInstant = form.delivery === "Instant";
+      const lines = form.stock_items.split("\n").map(s => s.trim()).filter(Boolean);
+      const stockNum = isInstant ? lines.length : Number(form.stock);
+      if (isInstant && lines.length === 0) {
+        throw new Error("Anında çatdırılma üçün ən azı 1 stok elementi əlavə edin");
+      }
       const payload = {
         seller_id: user.id,
         title: form.title.trim(),
@@ -109,16 +115,35 @@ function SellerDashboard() {
         description: form.description.trim() || null,
         price: Number(form.price),
         old_price: form.old_price ? Number(form.old_price) : null,
-        stock: Number(form.stock),
+        stock: stockNum,
         category: form.category,
         platform: form.platform,
         delivery: form.delivery,
         image_url: form.image_url.trim() || null,
+        auto_message_enabled: form.auto_message_enabled,
+        auto_message: form.auto_message_enabled ? (form.auto_message.trim() || null) : null,
       };
-      const { error } = editing
-        ? await supabase.from("products").update(payload).eq("id", editing.id)
-        : await supabase.from("products").insert(payload);
-      if (error) throw error;
+      let productId = editing?.id;
+      if (editing) {
+        const { error } = await supabase.from("products").update(payload).eq("id", editing.id);
+        if (error) throw error;
+      } else {
+        const { data: ins, error } = await supabase.from("products").insert(payload).select("id").single();
+        if (error) throw error;
+        productId = ins.id;
+      }
+
+      if (isInstant && productId) {
+        // Replace undelivered items
+        await supabase.from("product_stock_items" as any).delete().eq("product_id", productId).is("delivered_at", null);
+        if (lines.length > 0) {
+          const { error: insErr } = await supabase.from("product_stock_items" as any).insert(
+            lines.map(content => ({ product_id: productId, content }))
+          );
+          if (insErr) throw insErr;
+        }
+      }
+
       toast.success(editing ? "Məhsul yeniləndi" : "Məhsul əlavə edildi");
       setShowForm(false);
       resetForm();
