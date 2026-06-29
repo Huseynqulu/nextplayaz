@@ -22,6 +22,6 @@ export const recordMyIp = createServerFn({ method: "POST" })
     const req = getRequest();
     const ip = extractIp(req.headers);
     if (!ip) return { ok: false };
-    await context.supabase.rpc("record_user_ip", { p_ip: ip });
+    await (context.supabase.rpc as any)("record_user_ip", { p_ip: ip });
     return { ok: true };
   });
