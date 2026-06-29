@@ -1,18 +1,28 @@
 import { Link } from "@tanstack/react-router";
-import { Star, Zap, ShieldCheck, Heart } from "lucide-react";
+import { Star, Zap, ShieldCheck, Heart, ShoppingCart } from "lucide-react";
 import type { Product } from "@/lib/marketplace-data";
 import { useFavorites, isRealProductId } from "@/lib/favorites";
 import { useAuth } from "@/hooks/use-auth";
 import { SellerTierBadge } from "@/components/SellerTierBadge";
 import { useCurrency } from "@/lib/currency";
+import { useCart } from "@/lib/cart";
+import { toast } from "sonner";
 
 export function ProductCard({ p }: { p: Product }) {
   const { format } = useCurrency();
   const discount = p.oldPrice ? Math.round((1 - p.price / p.oldPrice) * 100) : 0;
   const { isFav, toggle } = useFavorites();
   const { user } = useAuth();
+  const { add } = useCart();
   const canFav = !!user && isRealProductId(p.id);
+  const canCart = isRealProductId(p.id) && p.stock > 0;
   const fav = canFav && isFav(p.id);
+
+  function addToCart(e: React.MouseEvent) {
+    e.preventDefault(); e.stopPropagation();
+    add({ id: p.id, slug: p.slug, title: p.title, image: p.image, price: p.price, sellerName: p.seller.name, stock: p.stock });
+    toast.success("Səbətə əlavə edildi");
+  }
 
   return (
     <Link
@@ -100,9 +110,19 @@ export function ProductCard({ p }: { p: Product }) {
               {format(p.price)}
             </span>
           </div>
-          <span className="text-[10px] uppercase tracking-wider text-muted-foreground">
-            {p.stock} stok
-          </span>
+          <div className="flex items-center gap-2">
+            <span className="text-[10px] uppercase tracking-wider text-muted-foreground">{p.stock} stok</span>
+            {canCart && (
+              <button
+                type="button"
+                onClick={addToCart}
+                aria-label="Səbətə əlavə et"
+                className="grid h-8 w-8 place-items-center rounded-lg bg-neon/15 hover:bg-neon hover:text-background text-neon transition"
+              >
+                <ShoppingCart className="h-4 w-4" />
+              </button>
+            )}
+          </div>
         </div>
       </div>
     </Link>

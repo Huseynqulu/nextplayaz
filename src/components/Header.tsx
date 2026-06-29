@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { Search, ShoppingBag, Menu, Gamepad2, LogOut, User as UserIcon, LayoutDashboard, ShieldCheck, Package, LifeBuoy, Wallet, MessageSquare, Heart, Gift } from "lucide-react";
+import { Search, ShoppingBag, ShoppingCart, Menu, Gamepad2, LogOut, User as UserIcon, LayoutDashboard, ShieldCheck, Package, LifeBuoy, Wallet, MessageSquare, Heart, Gift } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
@@ -85,6 +85,7 @@ export function Header() {
 
         <div className="flex items-center gap-2 md:ml-2 ml-auto">
           <LanguageSwitcher />
+          <CartButton />
           {user && (
             <Link to="/messages" className="hidden sm:grid h-10 w-10 place-items-center rounded-lg hover:bg-surface transition relative" aria-label="Mesajlar">
               <MessageSquare className="h-5 w-5" />
@@ -188,5 +189,20 @@ export function Header() {
         </div>
       )}
     </header>
+  );
+}
+
+import { useCart } from "@/lib/cart";
+function CartButton() {
+  const { count } = useCart();
+  return (
+    <Link to="/cart" className="grid h-10 w-10 place-items-center rounded-lg hover:bg-surface transition relative" aria-label="Səbət">
+      <ShoppingCart className="h-5 w-5" />
+      {count > 0 && (
+        <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 grid place-items-center rounded-full bg-neon text-background text-[10px] font-bold">
+          {count > 99 ? "99+" : count}
+        </span>
+      )}
+    </Link>
   );
 }

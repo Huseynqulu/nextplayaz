@@ -245,6 +245,45 @@ export type Database = {
           },
         ]
       }
+      gift_cards: {
+        Row: {
+          amount: number
+          code: string
+          created_at: string
+          created_by: string | null
+          id: string
+          is_active: boolean
+          note: string | null
+          redeemed_at: string | null
+          redeemed_by: string | null
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          code: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_active?: boolean
+          note?: string | null
+          redeemed_at?: string | null
+          redeemed_by?: string | null
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          code?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_active?: boolean
+          note?: string | null
+          redeemed_at?: string | null
+          redeemed_by?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       notifications: {
         Row: {
           body: string | null
@@ -1018,6 +1057,7 @@ export type Database = {
       }
     }
     Functions: {
+      _gen_gift_code: { Args: never; Returns: string }
       _gen_ref_code: { Args: never; Returns: string }
       admin_approve_topup: {
         Args: { p_notes?: string; p_topup_id: string }
@@ -1027,6 +1067,28 @@ export type Database = {
         Args: { p_id: string; p_notes?: string }
         Returns: undefined
       }
+      admin_create_gift_cards: {
+        Args: { p_amount: number; p_note?: string; p_quantity?: number }
+        Returns: {
+          amount: number
+          code: string
+          created_at: string
+          created_by: string | null
+          id: string
+          is_active: boolean
+          note: string | null
+          redeemed_at: string | null
+          redeemed_by: string | null
+          updated_at: string
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "gift_cards"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
+      admin_deactivate_gift_card: { Args: { p_id: string }; Returns: undefined }
       admin_delete_banner: { Args: { p_id: string }; Returns: undefined }
       admin_delete_category: { Args: { p_slug: string }; Returns: undefined }
       admin_delete_review: { Args: { p_id: string }; Returns: undefined }
@@ -1214,6 +1276,7 @@ export type Database = {
         Returns: undefined
       }
       recalc_seller_tier: { Args: { _seller_id: string }; Returns: undefined }
+      redeem_gift_card: { Args: { p_code: string }; Returns: number }
       redeem_referral_signup: { Args: { p_code: string }; Returns: undefined }
       release_seller_funds: { Args: never; Returns: number }
       request_withdrawal: {
