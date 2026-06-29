@@ -255,6 +255,9 @@ function ProductPage() {
             </aside>
           </div>
 
+          {/* Reviews */}
+          {isDbProduct && <ReviewSection productId={p.id} />}
+
           {/* Similar */}
           <div className="mt-16">
             <h2 className="font-display text-2xl font-bold mb-6">Oxşar məhsullar</h2>
