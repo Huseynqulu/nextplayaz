@@ -33,6 +33,8 @@ const WITHDRAW_METHODS: { value: string; label: string; hint: string }[] = [
 function WalletPage() {
   const { user } = useAuth();
   const [balance, setBalance] = useState<number>(0);
+  const [pending, setPending] = useState<{ total: number; items: { id: string; seller_net: number; funds_release_at: string | null }[] }>({ total: 0, items: [] });
+  const [showPending, setShowPending] = useState(false);
   const [methods, setMethods] = useState<Method[]>([]);
   const [history, setHistory] = useState<TopUp[]>([]);
   const [withdrawals, setWithdrawals] = useState<Withdraw[]>([]);
@@ -56,17 +58,22 @@ function WalletPage() {
   async function refresh() {
     if (!user) return;
     setLoading(true);
-    const [{ data: p }, { data: m }, { data: h }, { data: w }] = await Promise.all([
+    const [{ data: p }, { data: m }, { data: h }, { data: w }, { data: pend }] = await Promise.all([
       supabase.from("profiles").select("wallet_balance").eq("id", user.id).maybeSingle(),
       supabase.from("payment_settings").select("*").eq("is_active", true).order("label"),
       supabase.from("wallet_topups").select("*").eq("user_id", user.id).order("created_at", { ascending: false }),
       supabase.from("wallet_withdrawals" as any).select("*").eq("user_id", user.id).order("created_at", { ascending: false }),
+      supabase.from("orders").select("id, seller_net, funds_release_at")
+        .eq("seller_id", user.id).eq("status", "completed").is("funds_released_at", null)
+        .order("funds_release_at", { ascending: true }),
     ]);
     setBalance(Number(p?.wallet_balance ?? 0));
     setMethods((m as any) ?? []);
     if (!method && m && m.length > 0) setMethod((m as any)[0].method);
     setHistory((h as any) ?? []);
     setWithdrawals((w as any) ?? []);
+    const items = ((pend as any) ?? []) as { id: string; seller_net: number; funds_release_at: string | null }[];
+    setPending({ total: items.reduce((s, i) => s + Number(i.seller_net ?? 0), 0), items });
     setLoading(false);
   }
 
@@ -149,10 +156,46 @@ function WalletPage() {
           </div>
           <p className="text-muted-foreground mb-8">Balansınızı artırın, pul çıxarın və əməliyyat tarixçəsinə baxın.</p>
 
-          <div className="rounded-2xl border border-border bg-card-gradient p-6 card-shadow mb-8">
-            <p className="text-xs text-muted-foreground uppercase tracking-wide">Mövcud balans</p>
-            <p className="font-display text-4xl font-bold text-neon mt-2">{balance.toFixed(2)} ₼</p>
+          <div className="grid sm:grid-cols-2 gap-4 mb-8">
+            <div className="rounded-2xl border border-border bg-card-gradient p-6 card-shadow">
+              <p className="text-xs text-muted-foreground uppercase tracking-wide">Mövcud balans</p>
+              <p className="font-display text-4xl font-bold text-neon mt-2">{balance.toFixed(2)} ₼</p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setShowPending((v) => !v)}
+              className="text-left rounded-2xl border border-border bg-surface p-6 card-shadow hover:border-neon/40 transition"
+            >
+              <p className="text-xs text-muted-foreground uppercase tracking-wide flex items-center gap-2">
+                <Clock className="h-3.5 w-3.5" /> Gözləyən balans (48 saat)
+              </p>
+              <p className="font-display text-4xl font-bold mt-2">{pending.total.toFixed(2)} ₼</p>
+              <p className="text-xs text-muted-foreground mt-1">
+                {pending.items.length} sifariş — {showPending ? "gizlət" : "detallara bax"}
+              </p>
+            </button>
           </div>
+
+          {showPending && pending.items.length > 0 && (
+            <div className="rounded-2xl border border-border bg-card p-4 mb-8">
+              <h3 className="font-semibold mb-3 text-sm">Gözləyən köçürmələr</h3>
+              <ul className="divide-y divide-border">
+                {pending.items.map((it) => {
+                  const date = it.funds_release_at ? new Date(it.funds_release_at) : null;
+                  const hours = date ? Math.max(0, Math.round((date.getTime() - Date.now()) / 3600000)) : null;
+                  return (
+                    <li key={it.id} className="py-2 flex items-center justify-between text-sm">
+                      <span className="font-mono text-xs text-muted-foreground">#{it.id.slice(0, 8)}</span>
+                      <span className="text-muted-foreground">
+                        {date ? `${date.toLocaleString("az-AZ")} (${hours} saat qaldı)` : "—"}
+                      </span>
+                      <span className="font-semibold text-neon">+{Number(it.seller_net).toFixed(2)} ₼</span>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          )}
 
           {/* Tabs */}
           <div className="inline-flex rounded-xl bg-surface border border-border p-1 mb-6">

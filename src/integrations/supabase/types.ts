@@ -183,9 +183,14 @@ export type Database = {
           delivery_payload: string | null
           disputed_at: string | null
           disputed_reason: string | null
+          funds_release_at: string | null
+          funds_released_at: string | null
           id: string
           product_id: string
           quantity: number
+          reopened_at: string | null
+          reopened_by: string | null
+          reopened_reason: string | null
           seller_id: string
           seller_net: number
           status: Database["public"]["Enums"]["order_status"]
@@ -204,9 +209,14 @@ export type Database = {
           delivery_payload?: string | null
           disputed_at?: string | null
           disputed_reason?: string | null
+          funds_release_at?: string | null
+          funds_released_at?: string | null
           id?: string
           product_id: string
           quantity?: number
+          reopened_at?: string | null
+          reopened_by?: string | null
+          reopened_reason?: string | null
           seller_id: string
           seller_net?: number
           status?: Database["public"]["Enums"]["order_status"]
@@ -225,9 +235,14 @@ export type Database = {
           delivery_payload?: string | null
           disputed_at?: string | null
           disputed_reason?: string | null
+          funds_release_at?: string | null
+          funds_released_at?: string | null
           id?: string
           product_id?: string
           quantity?: number
+          reopened_at?: string | null
+          reopened_by?: string | null
+          reopened_reason?: string | null
           seller_id?: string
           seller_net?: number
           status?: Database["public"]["Enums"]["order_status"]
@@ -847,6 +862,7 @@ export type Database = {
         Args: { p_order_id: string; p_payload: string }
         Returns: undefined
       }
+      release_seller_funds: { Args: never; Returns: number }
       request_withdrawal: {
         Args: {
           p_account_holder?: string
@@ -858,6 +874,10 @@ export type Database = {
       }
       staff_cancel_order: {
         Args: { p_order_id: string; p_reason?: string }
+        Returns: undefined
+      }
+      staff_reopen_order: {
+        Args: { p_order_id: string; p_reason: string }
         Returns: undefined
       }
       start_conversation: {

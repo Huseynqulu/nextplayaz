@@ -145,6 +145,17 @@ function StaffPage() {
     setBusy(null);
   }
 
+  async function reopenOrder(o: OrderRow) {
+    const reason = prompt("Yenidən açma səbəbi (məcburi):", "Müştəri dəstək vasitəsilə müraciət etdi");
+    if (!reason || reason.trim().length < 3) return;
+    if (!confirm(`Sifariş yenidən mübahisəyə alınsın? Satıcının balansından ${Number((o as any).seller_net ?? 0).toFixed(2)} ₼ tutulacaq (əgər artıq köçürülübsə).`)) return;
+    setBusy(o.id);
+    const { error } = await supabase.rpc("staff_reopen_order" as any, { p_order_id: o.id, p_reason: reason });
+    if (error) toast.error(error.message);
+    else { toast.success("Sifariş yenidən açıldı və mübahisəyə alındı"); await refresh(); }
+    setBusy(null);
+  }
+
   async function openConv(c: Conv) {
     setActiveConv(c);
     setDms([]);
@@ -403,7 +414,13 @@ function StaffPage() {
                     </div>
                     <div className="text-[10px] text-muted-foreground">{new Date(o.created_at).toLocaleString("az-AZ")} • ID: {o.id.slice(0, 8)}</div>
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 flex-wrap">
+                    {o.status === "completed" && (
+                      <button disabled={busy === o.id} onClick={() => reopenOrder(o)}
+                        className="h-9 px-3 rounded-md text-xs font-semibold bg-neon/10 text-neon border border-neon/30 hover:bg-neon/20 disabled:opacity-40">
+                        🔄 Yenidən aç
+                      </button>
+                    )}
                     <button disabled={!canCancel || busy === o.id} onClick={() => partialRefund(o)}
                       className="h-9 px-3 rounded-md text-xs font-semibold bg-warning/10 text-warning border border-warning/30 hover:bg-warning/20 disabled:opacity-40">Qismən qaytar</button>
                     <button disabled={!canCancel || busy === o.id} onClick={() => cancelOrder(o)}
