@@ -955,6 +955,7 @@ export type Database = {
       }
       admin_delete_banner: { Args: { p_id: string }; Returns: undefined }
       admin_delete_category: { Args: { p_slug: string }; Returns: undefined }
+      admin_delete_review: { Args: { p_id: string }; Returns: undefined }
       admin_grant_role: {
         Args: {
           p_role: Database["public"]["Enums"]["app_role"]
@@ -1003,6 +1004,10 @@ export type Database = {
       }
       admin_set_wallet_balance: {
         Args: { p_balance: number; p_user_id: string }
+        Returns: undefined
+      }
+      admin_update_review: {
+        Args: { p_comment: string; p_id: string; p_rating: number }
         Returns: undefined
       }
       admin_upsert_banner: {

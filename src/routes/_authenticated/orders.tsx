@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
-import { Loader2, Package, CheckCircle2, Truck, Clock, ShoppingBag, AlertTriangle, MessageSquare, Upload, Video, X } from "lucide-react";
+import { Loader2, Package, CheckCircle2, Truck, Clock, ShoppingBag, AlertTriangle, MessageSquare, Upload, Video, X, Star } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { uploadChatAttachment } from "@/lib/chat-attachments";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
@@ -56,6 +56,33 @@ function OrdersPage() {
   const [disputeVideoUrl, setDisputeVideoUrl] = useState("");
   const [disputeFile, setDisputeFile] = useState<File | null>(null);
   const [disputeSubmitting, setDisputeSubmitting] = useState(false);
+  const [reviewOrder, setReviewOrder] = useState<Order | null>(null);
+  const [reviewRating, setReviewRating] = useState(5);
+  const [reviewHover, setReviewHover] = useState(0);
+  const [reviewComment, setReviewComment] = useState("");
+  const [reviewedIds, setReviewedIds] = useState<Set<string>>(new Set());
+  const [reviewSubmitting, setReviewSubmitting] = useState(false);
+
+  function openReview(o: Order) {
+    setReviewOrder(o);
+    setReviewRating(5);
+    setReviewHover(0);
+    setReviewComment("");
+  }
+  async function submitReview() {
+    if (!reviewOrder) return;
+    setReviewSubmitting(true);
+    const { error } = await supabase.rpc("submit_review" as any, {
+      p_product_id: reviewOrder.product_id,
+      p_rating: reviewRating,
+      p_comment: reviewComment.trim() || null,
+    });
+    setReviewSubmitting(false);
+    if (error) { toast.error(error.message); return; }
+    toast.success("Rəyiniz əlavə edildi");
+    setReviewedIds(s => new Set(s).add(reviewOrder.product_id));
+    setReviewOrder(null);
+  }
 
   async function refresh() {
     if (!user) return;
@@ -68,6 +95,11 @@ function OrdersPage() {
       .order("created_at", { ascending: false });
     if (error) toast.error(error.message);
     setOrders((data as any) ?? []);
+    if (tab === "buying") {
+      const { data: revs } = await supabase
+        .from("reviews").select("product_id").eq("reviewer_id", user.id);
+      setReviewedIds(new Set(((revs as any[]) ?? []).map(r => r.product_id)));
+    }
     setLoading(false);
   }
   useEffect(() => { refresh(); /* eslint-disable-next-line */ }, [user, tab]);
@@ -226,6 +258,20 @@ function OrdersPage() {
                               Avtomatik təsdiq: {new Date(o.auto_confirm_at).toLocaleString("az-AZ")}
                             </span>
                           )}
+                          {tab === "buying" && o.status === "completed" && (
+                            reviewedIds.has(o.product_id) ? (
+                              <span className="inline-flex items-center gap-1 text-[11px] text-success self-center">
+                                <Star className="h-3 w-3 fill-success" /> Rəy verilib
+                              </span>
+                            ) : (
+                              <button
+                                onClick={() => openReview(o)}
+                                className="inline-flex items-center gap-1 h-8 px-3 rounded-lg border border-warning/40 text-warning text-xs font-medium hover:bg-warning/10"
+                              >
+                                <Star className="h-3 w-3" /> Dəyərləndir
+                              </button>
+                            )
+                          )}
                         </div>
 
                         {/* Seller actions */}
@@ -324,6 +370,57 @@ function OrdersPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {reviewOrder && (
+        <div className="fixed inset-0 z-50 grid place-items-center bg-background/80 backdrop-blur-sm p-4" onClick={() => !reviewSubmitting && setReviewOrder(null)}>
+          <div className="w-full max-w-md rounded-2xl border border-border bg-card card-shadow overflow-hidden" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between p-5 border-b border-border">
+              <h3 className="font-display text-lg font-bold inline-flex items-center gap-2">
+                <Star className="h-5 w-5 text-warning fill-warning" /> Məhsulu dəyərləndir
+              </h3>
+              <button onClick={() => !reviewSubmitting && setReviewOrder(null)} className="text-muted-foreground hover:text-foreground" aria-label="Bağla">
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            <div className="p-5 space-y-4">
+              <p className="text-sm text-muted-foreground line-clamp-2">{reviewOrder.product?.title}</p>
+              <div className="flex items-center justify-center gap-1 py-2" onMouseLeave={() => setReviewHover(0)}>
+                {[1,2,3,4,5].map(n => {
+                  const filled = (reviewHover || reviewRating) >= n;
+                  return (
+                    <button
+                      key={n}
+                      type="button"
+                      onMouseEnter={() => setReviewHover(n)}
+                      onClick={() => setReviewRating(n)}
+                      className="p-1 transition-transform hover:scale-110"
+                      aria-label={`${n} ulduz`}
+                    >
+                      <Star className={`h-9 w-9 ${filled ? "text-warning fill-warning" : "text-muted-foreground/40"}`} />
+                    </button>
+                  );
+                })}
+              </div>
+              <textarea
+                value={reviewComment}
+                onChange={e => setReviewComment(e.target.value)}
+                rows={4}
+                maxLength={500}
+                placeholder="Təcrübənizi paylaşın (istəyə bağlı)…"
+                className="w-full px-3 py-2 rounded-lg bg-surface border border-border focus:border-primary outline-none text-sm resize-none"
+              />
+              <div className="text-[11px] text-muted-foreground text-right">{reviewComment.length}/500</div>
+            </div>
+            <div className="flex gap-2 p-4 border-t border-border">
+              <button onClick={() => setReviewOrder(null)} disabled={reviewSubmitting} className="h-11 px-4 rounded-xl border border-border text-sm font-medium hover:bg-surface disabled:opacity-50">Ləğv et</button>
+              <button onClick={submitReview} disabled={reviewSubmitting} className="flex-1 h-11 rounded-xl bg-neon text-background font-semibold neon-ring disabled:opacity-50 inline-flex items-center justify-center gap-2">
+                {reviewSubmitting && <Loader2 className="h-4 w-4 animate-spin" />}
+                Rəyi göndər
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <Footer />
     </div>
