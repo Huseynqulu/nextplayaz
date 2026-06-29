@@ -230,6 +230,45 @@ function SellerDashboard() {
 
           {showForm && (
             <form onSubmit={submit} className="rounded-2xl border border-border bg-card-gradient p-6 card-shadow mb-8 grid sm:grid-cols-2 gap-4">
+              {/* Gift Card mode */}
+              <div className="sm:col-span-2 rounded-xl border border-border bg-surface/40 p-3 space-y-3">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input type="checkbox" checked={form.is_gift_card} onChange={e => setForm(f => ({ ...f, is_gift_card: e.target.checked, gift_platform_id: "", gift_denomination_id: "" }))} className="h-4 w-4" />
+                  <span className="text-sm font-semibold">🎁 Bu məhsul Hədiyyə Kartıdır</span>
+                  <span className="text-[11px] text-muted-foreground">— PlayStation, Steam, Xbox, Netflix və s.</span>
+                </label>
+                {form.is_gift_card && (
+                  <div className="grid sm:grid-cols-2 gap-3">
+                    <div>
+                      <label className="text-xs font-medium text-muted-foreground">Platforma *</label>
+                      <select required={form.is_gift_card} value={form.gift_platform_id}
+                        onChange={e => setForm(f => ({ ...f, gift_platform_id: e.target.value, gift_denomination_id: "" }))}
+                        className="mt-1 w-full h-11 px-3 rounded-lg bg-background border border-border text-sm">
+                        <option value="">— Seçin —</option>
+                        {giftPlatforms.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="text-xs font-medium text-muted-foreground">Nominal *</label>
+                      <select required={form.is_gift_card} value={form.gift_denomination_id}
+                        disabled={!form.gift_platform_id}
+                        onChange={e => setForm(f => ({ ...f, gift_denomination_id: e.target.value }))}
+                        className="mt-1 w-full h-11 px-3 rounded-lg bg-background border border-border text-sm disabled:opacity-60">
+                        <option value="">— Seçin —</option>
+                        {giftDenoms.filter(d => d.platform_id === form.gift_platform_id).map(d => (
+                          <option key={d.id} value={d.id}>
+                            {Number(d.face_value).toFixed(0)} {d.currency}{d.region ? ` (${d.region})` : ""}{d.label ? ` — ${d.label}` : ""}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <p className="sm:col-span-2 text-[11px] text-muted-foreground">
+                      Hədiyyə kartı məhsullar `/gift-cards` bölməsində seçilmiş nominalın altında — ən ucuz qiymətdən bahaya doğru — göstərilir. Adi marketplace siyahısında görünməz.
+                    </p>
+                  </div>
+                )}
+              </div>
+
               <div className="sm:col-span-2">
                 <label className="text-xs font-medium text-muted-foreground">Başlıq *</label>
                 <input required value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))}
