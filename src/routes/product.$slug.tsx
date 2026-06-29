@@ -208,9 +208,13 @@ function ProductPage() {
               {p.sellerId ? (
                 <Link to="/u/$id" params={{ id: p.sellerId }} className="mt-5 p-5 rounded-2xl border border-border bg-surface/50 flex items-center gap-4 hover:border-primary transition">
                   <div className="relative shrink-0">
-                    <div className="grid h-12 w-12 place-items-center rounded-xl bg-neon/15 border border-neon/30 text-neon font-bold">
-                      {p.seller.name[0]}
-                    </div>
+                    {p.seller.avatarUrl ? (
+                      <img src={p.seller.avatarUrl} alt={p.seller.name} className="h-12 w-12 rounded-xl object-cover border border-border" />
+                    ) : (
+                      <div className="grid h-12 w-12 place-items-center rounded-xl bg-neon/15 border border-neon/30 text-neon font-bold">
+                        {p.seller.name[0]?.toUpperCase()}
+                      </div>
+                    )}
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
