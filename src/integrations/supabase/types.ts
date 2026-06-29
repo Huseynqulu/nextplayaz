@@ -598,6 +598,10 @@ export type Database = {
         Args: { p_order_id: string; p_payload: string }
         Returns: undefined
       }
+      staff_cancel_order: {
+        Args: { p_order_id: string; p_reason?: string }
+        Returns: undefined
+      }
       start_conversation: {
         Args: { p_other_user: string; p_product_id?: string }
         Returns: string
