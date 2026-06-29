@@ -96,8 +96,10 @@ function OrdersPage() {
     if (error) toast.error(error.message);
     setOrders((data as any) ?? []);
     const { data: revs } = await supabase
-      .from("reviews").select("product_id").eq("reviewer_id", user.id);
-    setReviewedIds(new Set(((revs as any[]) ?? []).map(r => r.product_id)));
+      .from("reviews").select("product_id, rating, comment").eq("reviewer_id", user.id);
+    const map: Record<string, { rating: number; comment: string | null }> = {};
+    for (const r of ((revs as any[]) ?? [])) map[r.product_id] = { rating: r.rating, comment: r.comment };
+    setMyReviews(map);
     setLoading(false);
   }
   useEffect(() => { refresh(); /* eslint-disable-next-line */ }, [user]);
