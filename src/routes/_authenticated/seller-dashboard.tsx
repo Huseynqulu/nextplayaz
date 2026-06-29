@@ -120,7 +120,8 @@ function SellerDashboard() {
         category: form.category,
         platform: form.platform,
         delivery: form.delivery,
-        image_url: form.image_url.trim() || null,
+        image_url: form.image_urls[0] ?? null,
+        image_urls: form.image_urls,
         auto_message_enabled: form.auto_message_enabled,
         auto_message: form.auto_message_enabled ? (form.auto_message.trim() || null) : null,
       };
