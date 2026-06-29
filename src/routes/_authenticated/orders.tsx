@@ -342,7 +342,7 @@ function OrdersPage() {
           <div className="w-full max-w-md rounded-2xl border border-border bg-card card-shadow overflow-hidden" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between p-5 border-b border-border">
               <h3 className="font-display text-lg font-bold inline-flex items-center gap-2">
-                <Star className="h-5 w-5 text-warning fill-warning" /> Məhsulu dəyərləndir
+                <Star className="h-5 w-5 text-warning fill-warning" /> {myReviews[reviewOrder.product_id] ? "Rəyi dəyişdir" : "Məhsulu dəyərləndir"}
               </h3>
               <button onClick={() => !reviewSubmitting && setReviewOrder(null)} className="text-muted-foreground hover:text-foreground" aria-label="Bağla">
                 <X className="h-5 w-5" />
