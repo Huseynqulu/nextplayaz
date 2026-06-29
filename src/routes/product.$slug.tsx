@@ -174,35 +174,37 @@ function ProductPage() {
                   )}
                 </div>
 
-                <div className="mt-5 flex items-center gap-3">
-                  <div className="flex items-center rounded-xl border border-border bg-background">
-                    <button onClick={() => setQty(Math.max(1, qty - 1))} className="w-10 h-11 hover:bg-surface rounded-l-xl">−</button>
-                    <span className="w-10 text-center font-semibold">{qty}</span>
-                    <button onClick={() => setQty(Math.min(p.stock, qty + 1))} className="w-10 h-11 hover:bg-surface rounded-r-xl">+</button>
+                <div className="mt-5 space-y-3">
+                  <div className="flex items-center gap-3">
+                    <div className="flex items-center rounded-xl border border-border bg-background shrink-0">
+                      <button onClick={() => setQty(Math.max(1, qty - 1))} className="w-10 h-11 hover:bg-surface rounded-l-xl">−</button>
+                      <span className="w-10 text-center font-semibold">{qty}</span>
+                      <button onClick={() => setQty(Math.min(p.stock, qty + 1))} className="w-10 h-11 hover:bg-surface rounded-r-xl">+</button>
+                    </div>
+                    <input
+                      value={code}
+                      onChange={e => setCode(e.target.value)}
+                      placeholder="Endirim kodu (varsa)"
+                      className="flex-1 min-w-0 h-11 px-3 rounded-xl bg-background border border-border text-sm focus:border-primary outline-none uppercase"
+                    />
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <button
+                      disabled={buying || p.stock < 1}
+                      onClick={openBuy}
+                      className="flex-1 min-w-0 h-12 px-4 rounded-xl bg-neon text-background font-bold neon-ring hover:scale-[1.01] transition disabled:opacity-50 inline-flex items-center justify-center gap-2 whitespace-nowrap"
+                    >
+                      İndi al
+                    </button>
+                    <button onClick={messageSeller} disabled={contacting} className="grid h-12 w-12 shrink-0 place-items-center rounded-xl border border-border hover:border-primary disabled:opacity-50" aria-label="Satıcıya mesaj">
+                      {contacting ? <Loader2 className="h-4 w-4 animate-spin" /> : <MessageCircle className="h-4 w-4" />}
+                    </button>
+                    <button className="grid h-12 w-12 shrink-0 place-items-center rounded-xl border border-border hover:border-primary" aria-label="Favorilərə əlavə et"><Heart className="h-4 w-4" /></button>
+                    <button className="grid h-12 w-12 shrink-0 place-items-center rounded-xl border border-border hover:border-primary" aria-label="Paylaş"><Share2 className="h-4 w-4" /></button>
+                  </div>
                 </div>
 
-                <div className="mt-3">
-                  <input
-                    value={code}
-                    onChange={e => setCode(e.target.value)}
-                    placeholder="Endirim kodu (varsa)"
-                    className="w-full h-10 px-3 rounded-lg bg-background border border-border text-sm focus:border-primary outline-none uppercase"
-                  />
-                </div>
-
-                  <button
-                    disabled={buying || p.stock < 1}
-                    onClick={openBuy}
-                    className="flex-1 min-w-0 h-11 px-3 rounded-xl bg-neon text-background font-semibold neon-ring hover:scale-[1.01] transition disabled:opacity-50 inline-flex items-center justify-center gap-2 whitespace-nowrap"
-                  >
-                    İndi al
-                  </button>
-                  <button onClick={messageSeller} disabled={contacting} className="grid h-11 w-11 place-items-center rounded-xl border border-border hover:border-primary disabled:opacity-50" aria-label="Satıcıya mesaj">
-                    {contacting ? <Loader2 className="h-4 w-4 animate-spin" /> : <MessageCircle className="h-4 w-4" />}
-                  </button>
-                  <button className="grid h-11 w-11 place-items-center rounded-xl border border-border hover:border-primary" aria-label="Favorilərə əlavə et"><Heart className="h-4 w-4" /></button>
-                  <button className="grid h-11 w-11 place-items-center rounded-xl border border-border hover:border-primary" aria-label="Paylaş"><Share2 className="h-4 w-4" /></button>
-                </div>
 
                 <div className="mt-4 grid grid-cols-3 gap-2 text-xs">
                   <div className="flex items-center gap-1.5 text-muted-foreground"><Lock className="h-3.5 w-3.5 text-neon" /> Escrow</div>
