@@ -94,10 +94,10 @@ export function ProductCard({ p }: { p: Product }) {
         <div className="flex items-end justify-between mt-auto pt-2">
           <div className="flex flex-col">
             {p.oldPrice && (
-              <span className="text-xs text-muted-foreground line-through">{p.oldPrice.toFixed(2)} ₼</span>
+              <span className="text-xs text-muted-foreground line-through">{format(p.oldPrice)}</span>
             )}
             <span className="font-display text-xl font-bold text-gradient leading-none">
-              {p.price.toFixed(2)} ₼
+              {format(p.price)}
             </span>
           </div>
           <span className="text-[10px] uppercase tracking-wider text-muted-foreground">
