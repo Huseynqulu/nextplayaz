@@ -16,7 +16,9 @@ type Application = {
   id: string; user_id: string; first_name: string; last_name: string; email: string; phone: string;
   category: string; status: "pending" | "approved" | "rejected"; created_at: string;
   id_front_url: string | null; id_back_url: string | null; selfie_url: string | null;
+  admin_notes: string | null;
 };
+
 type ProductRow = { id: string; title: string; price: number; stock: number; category: string; is_active: boolean; seller_id: string; created_at: string };
 type AdminUser = { id: string; email: string | null; display_name: string | null; username: string | null; wallet_balance: number; roles: ("user"|"seller"|"admin")[]; created_at: string };
 type DiscountCode = { id: string; code: string; percent: number; max_uses: number | null; used_count: number; is_active: boolean; expires_at: string | null; created_at: string };
