@@ -1,9 +1,21 @@
+import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { Flame, ArrowRight } from "lucide-react";
-import { products } from "@/lib/marketplace-data";
+import { products as mock } from "@/lib/marketplace-data";
+import type { Product } from "@/lib/marketplace-data";
 import { ProductCard } from "./ProductCard";
+import { fetchProducts } from "@/lib/products";
 
 export function TrendingSection() {
+  const [items, setItems] = useState<Product[]>(mock.slice(0, 4));
+  useEffect(() => {
+    (async () => {
+      const all = await fetchProducts();
+      const sorted = [...all].sort((a, b) => b.reviews - a.reviews);
+      setItems(sorted.slice(0, 4));
+    })();
+  }, []);
+
   return (
     <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10">
       <div className="flex items-end justify-between mb-8">
@@ -19,7 +31,7 @@ export function TrendingSection() {
       </div>
 
       <div className="grid gap-5 grid-cols-2 lg:grid-cols-4">
-        {products.slice(0, 4).map(p => <ProductCard key={p.id} p={p} />)}
+        {items.map(p => <ProductCard key={p.id} p={p} />)}
       </div>
     </section>
   );
