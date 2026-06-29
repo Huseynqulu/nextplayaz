@@ -645,6 +645,7 @@ export type Database = {
           shop_name: string | null
           updated_at: string
           username: string | null
+          verified_at: string | null
           wallet_balance: number
         }
         Insert: {
@@ -662,6 +663,7 @@ export type Database = {
           shop_name?: string | null
           updated_at?: string
           username?: string | null
+          verified_at?: string | null
           wallet_balance?: number
         }
         Update: {
@@ -679,6 +681,7 @@ export type Database = {
           shop_name?: string | null
           updated_at?: string
           username?: string | null
+          verified_at?: string | null
           wallet_balance?: number
         }
         Relationships: [
@@ -1071,6 +1074,7 @@ export type Database = {
           seller_tier: string | null
           shop_name: string | null
           username: string | null
+          verified_at: string | null
         }
         Insert: {
           avatar_url?: string | null
@@ -1082,6 +1086,7 @@ export type Database = {
           seller_tier?: string | null
           shop_name?: string | null
           username?: string | null
+          verified_at?: string | null
         }
         Update: {
           avatar_url?: string | null
@@ -1093,6 +1098,7 @@ export type Database = {
           seller_tier?: string | null
           shop_name?: string | null
           username?: string | null
+          verified_at?: string | null
         }
         Relationships: []
       }
@@ -1150,6 +1156,7 @@ export type Database = {
           id: string
           roles: Database["public"]["Enums"]["app_role"][]
           username: string
+          verified_at: string
           wallet_balance: number
         }[]
       }
@@ -1178,6 +1185,10 @@ export type Database = {
           p_role: Database["public"]["Enums"]["app_role"]
           p_user_id: string
         }
+        Returns: undefined
+      }
+      admin_set_verified: {
+        Args: { p_user_id: string; p_verified: boolean }
         Returns: undefined
       }
       admin_set_wallet_balance: {

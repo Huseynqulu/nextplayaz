@@ -11,6 +11,7 @@ import { AdminBanners } from "@/components/AdminBanners";
 import AdminReviews from "@/components/AdminReviews";
 import { AdminGiftCards } from "@/components/AdminGiftCards";
 import { AdminAnalytics } from "@/components/AdminAnalytics";
+import { VerifiedBadge } from "@/components/VerifiedBadge";
 
 export const Route = createFileRoute("/_authenticated/admin")({
   component: AdminPage,
@@ -25,7 +26,7 @@ type Application = {
 };
 
 type ProductRow = { id: string; title: string; price: number; stock: number; category: string; is_active: boolean; seller_id: string; created_at: string };
-type AdminUser = { id: string; email: string | null; display_name: string | null; username: string | null; wallet_balance: number; roles: ("user"|"seller"|"admin")[]; created_at: string };
+type AdminUser = { id: string; email: string | null; display_name: string | null; username: string | null; wallet_balance: number; roles: ("user"|"seller"|"admin"|"support")[]; created_at: string; verified_at: string | null };
 type DiscountCode = { id: string; code: string; percent: number; max_uses: number | null; used_count: number; is_active: boolean; expires_at: string | null; created_at: string };
 type AdminTicket = { id: string; user_id: string; order_id: string | null; subject: string; message: string; category: string; status: string; priority: string; created_at: string; updated_at: string };
 type TicketMsg = { id: string; sender_id: string; is_admin: boolean; body: string; created_at: string; attachment_url?: string | null };
@@ -206,11 +207,21 @@ function AdminPage() {
       if (status === "approved") {
         const { error: e2 } = await supabase.rpc("admin_grant_role", { p_user_id: app.user_id, p_role: "seller" });
         if (e2) throw e2;
+        const { error: e3 } = await supabase.rpc("admin_set_verified", { p_user_id: app.user_id, p_verified: true });
+        if (e3) throw e3;
       }
-      toast.success(status === "approved" ? "Satıcı təsdiqləndi" : "Müraciət rədd edildi");
+      toast.success(status === "approved" ? "Satıcı təsdiqləndi və doğrulandı" : "Müraciət rədd edildi");
       await refresh();
     } catch (e: any) { toast.error(e.message ?? "Xəta"); } finally { setBusy(null); }
   }
+
+  async function toggleVerified(u: AdminUser) {
+    setBusy(u.id + "verify");
+    const { error } = await supabase.rpc("admin_set_verified", { p_user_id: u.id, p_verified: !u.verified_at });
+    if (error) toast.error(error.message); else { toast.success(u.verified_at ? "Doğrulama silindi" : "Doğrulandı"); await refresh(); }
+    setBusy(null);
+  }
+
 
   async function toggleProduct(p: ProductRow) {
     setBusy(p.id);
@@ -436,12 +447,14 @@ function AdminPage() {
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2 flex-wrap">
                         <p className="font-medium truncate">{u.display_name ?? u.username ?? "—"}</p>
+                        <VerifiedBadge verified={u.verified_at} size={16} />
                         {u.roles.map(r => (
                           <span key={r} className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${
                             r === "admin" ? "bg-neon/20 text-neon" : r === "seller" ? "bg-success/20 text-success" : "bg-surface text-muted-foreground"
                           }`}>{r}</span>
                         ))}
                       </div>
+
                       <p className="text-xs text-muted-foreground mt-1">{u.email}</p>
                       <p className="text-sm mt-1 inline-flex items-center gap-1.5"><Wallet className="h-3.5 w-3.5 text-neon" /> <span className="font-semibold">{Number(u.wallet_balance).toFixed(2)} ₼</span></p>
                     </div>
@@ -460,6 +473,11 @@ function AdminPage() {
                         className={`h-9 px-3 rounded-md text-xs font-semibold disabled:opacity-50 ${u.roles.includes("admin") ? "bg-neon/20 text-neon" : "bg-surface border border-border"}`}>
                         {u.roles.includes("admin") ? "Admin ✓" : "Admin et"}
                       </button>
+                      <button disabled={busy === u.id + "verify"} onClick={() => toggleVerified(u)}
+                        className={`h-9 px-3 rounded-md text-xs font-semibold disabled:opacity-50 ${u.verified_at ? "bg-sky-500/20 text-sky-300" : "bg-surface border border-border"}`}>
+                        {u.verified_at ? "✓ Doğrulanmış" : "Doğrula (KYC)"}
+                      </button>
+
                     </div>
                   </div>
                 </div>
