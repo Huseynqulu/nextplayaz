@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { Loader2, CheckCircle2, XCircle, ShieldCheck, Package, Users, FileText, Ticket, Wallet, Trash2, Plus, Eye, X, FileImage, LifeBuoy, Send, ArrowLeft, Receipt, Image as ImageIcon } from "lucide-react";
 import { ChatImage } from "@/components/ChatImage";
 import { AdminBanners } from "@/components/AdminBanners";
+import AdminReviews from "@/components/AdminReviews";
 
 export const Route = createFileRoute("/_authenticated/admin")({
   component: AdminPage,
