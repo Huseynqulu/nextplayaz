@@ -97,6 +97,9 @@ export function Header() {
                     <Link to="/profile" onClick={() => setMenuOpen(false)} className="flex items-center gap-2 px-4 py-2.5 text-sm hover:bg-surface transition">
                       <UserIcon className="h-4 w-4" /> Profil
                     </Link>
+                    <Link to="/orders" onClick={() => setMenuOpen(false)} className="flex items-center gap-2 px-4 py-2.5 text-sm hover:bg-surface transition">
+                      <ShoppingBag className="h-4 w-4" /> Sifarişlərim
+                    </Link>
                     <Link to="/seller" onClick={() => setMenuOpen(false)} className="flex items-center gap-2 px-4 py-2.5 text-sm hover:bg-surface transition">
                       <LayoutDashboard className="h-4 w-4" /> Satıcı ol
                     </Link>
