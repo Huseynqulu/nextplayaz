@@ -36,7 +36,7 @@ type PaymentSetting = { method: string; label: string; instructions: string; is_
 type Category = { slug: string; label_az: string; label_en: string; label_ru: string; sort_order: number; is_active: boolean };
 type Subcategory = { id?: string; category_slug: string; slug: string; label_az: string; label_en: string; label_ru: string; sort_order: number; is_active: boolean };
 
-type Tab = "analytics" | "applications" | "users" | "codes" | "products" | "tickets" | "topups" | "withdrawals" | "platform" | "payments" | "categories" | "disputes" | "banners" | "reviews" | "giftcards";
+type Tab = "analytics" | "applications" | "users" | "codes" | "products" | "tickets" | "topups" | "withdrawals" | "platform" | "payments" | "categories" | "disputes" | "banners" | "reviews" | "giftcards" | "boost";
 
 type Withdrawal = { id: string; user_id: string; amount: number; fee: number; net_amount: number; method: string; destination: string; account_holder: string | null; status: "pending"|"approved"|"rejected"; admin_notes: string | null; created_at: string };
 type LedgerEntry = { id: string; entry_type: string; amount: number; order_id: string | null; withdrawal_id: string | null; user_id: string | null; notes: string | null; created_at: string };
