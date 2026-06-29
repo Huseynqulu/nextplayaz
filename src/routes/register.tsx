@@ -1,24 +1,46 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
-import { Mail, Lock, User, Gamepad2, Loader2 } from "lucide-react";
-import { useState } from "react";
+import { Mail, Lock, User, Gamepad2, Loader2, Gift } from "lucide-react";
+import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
 import { toast } from "sonner";
+import { z } from "zod";
+
+const searchSchema = z.object({ ref: z.string().optional() });
 
 export const Route = createFileRoute("/register")({
+  validateSearch: searchSchema,
   component: RegisterPage,
   head: () => ({ meta: [{ title: "Qeydiyyat — NextPlay.az" }] }),
 });
 
+async function redeemIfAny(code: string | undefined) {
+  if (!code) return;
+  try { await supabase.rpc("redeem_referral_signup", { p_code: code }); } catch {/* ignore */}
+}
+
 function RegisterPage() {
   const navigate = useNavigate();
+  const search = Route.useSearch();
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
+  const [ref, setRef] = useState(search.ref ?? "");
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (search.ref) {
+      try { sessionStorage.setItem("nextplay_ref", search.ref); } catch {/* ignore */}
+    } else {
+      try {
+        const v = sessionStorage.getItem("nextplay_ref");
+        if (v) setRef(v);
+      } catch {/* ignore */}
+    }
+  }, [search.ref]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -27,7 +49,7 @@ function RegisterPage() {
       return;
     }
     setLoading(true);
-    const { error } = await supabase.auth.signUp({
+    const { error, data } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -35,22 +57,27 @@ function RegisterPage() {
         data: { username, display_name: username },
       },
     });
-    setLoading(false);
     if (error) {
+      setLoading(false);
       toast.error(error.message);
       return;
     }
+    if (data.session) await redeemIfAny(ref.trim() || undefined);
+    setLoading(false);
     toast.success("Hesab yaradıldı! Xoş gəlmisən!");
+    try { sessionStorage.removeItem("nextplay_ref"); } catch {/* ignore */}
     navigate({ to: "/" });
   }
 
   async function handleGoogle() {
     setLoading(true);
+    if (ref.trim()) try { sessionStorage.setItem("nextplay_ref", ref.trim()); } catch {/* ignore */}
     const result = await lovable.auth.signInWithOAuth("google", { redirect_uri: window.location.origin });
     if (result.error) { setLoading(false); toast.error("Google ilə qeydiyyat alınmadı"); return; }
     if (result.redirected) return;
     navigate({ to: "/" });
   }
+
 
   return (
     <div className="min-h-screen flex flex-col">
