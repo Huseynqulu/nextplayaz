@@ -57,7 +57,7 @@ function ThreadPage() {
         supabase.from("dm_messages").select("*").eq("conversation_id", conversationId).order("created_at", { ascending: true }),
       ]);
       if (!active) return;
-      setOther((p as ProfileLite) ?? null);
+      setOther(((p as unknown) as ProfileLite) ?? null);
       setProduct((pr as any) ?? null);
       setMessages((msgs ?? []) as Msg[]);
       setLoading(false);
