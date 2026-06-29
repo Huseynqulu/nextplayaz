@@ -142,7 +142,17 @@ function ProductPage() {
                     <button onClick={() => setQty(Math.max(1, qty - 1))} className="w-10 h-11 hover:bg-surface rounded-l-xl">−</button>
                     <span className="w-10 text-center font-semibold">{qty}</span>
                     <button onClick={() => setQty(Math.min(p.stock, qty + 1))} className="w-10 h-11 hover:bg-surface rounded-r-xl">+</button>
-                  </div>
+                </div>
+
+                <div className="mt-3">
+                  <input
+                    value={code}
+                    onChange={e => setCode(e.target.value)}
+                    placeholder="Endirim kodu (varsa)"
+                    className="w-full h-10 px-3 rounded-lg bg-background border border-border text-sm focus:border-primary outline-none uppercase"
+                  />
+                </div>
+
                   <button
                     disabled={buying || p.stock < 1}
                     onClick={buy}
