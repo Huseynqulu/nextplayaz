@@ -102,13 +102,16 @@ function SellerProfilePage() {
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex flex-wrap items-center gap-2">
-                  <h1 className="font-display text-2xl sm:text-3xl font-bold">{name}</h1>
+                  <h1 className="font-display text-2xl sm:text-3xl font-bold inline-flex items-center gap-2">
+                    {shopName && <Store className="h-6 w-6 text-neon" />}{name}
+                  </h1>
                   <ShieldCheck className="h-5 w-5 text-neon" />
                   <SellerTierBadge sellerId={profile.id} size="md" showStats />
                   <span className={`px-2 py-0.5 rounded-full text-[11px] font-semibold ${online ? "bg-success/15 text-success" : "bg-surface text-muted-foreground"}`}>
                     {online ? "● Onlayn" : "Offline"}
                   </span>
                 </div>
+                {shopName && <p className="text-sm text-muted-foreground mt-0.5">Sahibi: <span className="text-foreground font-medium">{realName}</span></p>}
                 <p className="text-sm text-muted-foreground mt-1">@{profile.username ?? profile.id.slice(0, 8)} · {formatLastSeen(profile.last_seen_at)}</p>
                 <div className="flex flex-wrap items-center gap-5 mt-4 text-sm">
                   <span className="flex items-center gap-1.5"><Star className="h-4 w-4 fill-warning text-warning" /> <b>{avgRating.toFixed(1)}</b> <span className="text-muted-foreground">({reviews.length} rəy)</span></span>
