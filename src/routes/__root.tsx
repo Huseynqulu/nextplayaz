@@ -90,13 +90,16 @@ function RootShell({ children }: { children: React.ReactNode }) {
 }
 
 import { Toaster } from "sonner";
+import { I18nProvider } from "@/lib/i18n";
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   return (
     <QueryClientProvider client={queryClient}>
-      <Outlet />
-      <Toaster theme="dark" position="top-right" richColors />
+      <I18nProvider>
+        <Outlet />
+        <Toaster theme="dark" position="top-right" richColors />
+      </I18nProvider>
     </QueryClientProvider>
   );
 }
