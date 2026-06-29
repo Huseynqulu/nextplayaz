@@ -370,13 +370,23 @@ function SellerDashboard() {
                     </div>
                   )}
                   <div className="flex-1 min-w-0">
-                    <Link to="/product/$slug" params={{ slug: p.slug }} className="font-semibold hover:text-neon truncate block">{p.title}</Link>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <Link to="/product/$slug" params={{ slug: p.slug }} className="font-semibold hover:text-neon truncate">{p.title}</Link>
+                      {p.boost_expires_at && new Date(p.boost_expires_at) > new Date() && (
+                        <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-neon/15 text-neon border border-neon/30">
+                          <Rocket className="h-3 w-3" /> BOOST
+                        </span>
+                      )}
+                    </div>
                     <p className="text-xs text-muted-foreground">
                       {p.category} · {p.platform} · {p.price} AZN · stok: {p.stock}
                       {!p.is_active && <span className="ml-2 text-destructive">(deaktiv)</span>}
                     </p>
                   </div>
                   <div className="flex gap-2">
+                    <button onClick={() => setBoosting(p)} className="h-9 w-9 grid place-items-center rounded-lg border border-border hover:bg-neon/15 hover:text-neon hover:border-neon/40" aria-label="Boost" title="Boost et">
+                      <Rocket className="h-4 w-4" />
+                    </button>
                     <button onClick={() => startEdit(p)} className="h-9 w-9 grid place-items-center rounded-lg border border-border hover:bg-surface" aria-label="Edit">
                       <Pencil className="h-4 w-4" />
                     </button>
@@ -391,6 +401,15 @@ function SellerDashboard() {
         </div>
       </main>
       <Footer />
+      {boosting && (
+        <BoostDialog
+          productId={boosting.id}
+          productTitle={boosting.title}
+          currentExpiry={boosting.boost_expires_at ?? null}
+          onClose={() => setBoosting(null)}
+          onDone={refresh}
+        />
+      )}
     </div>
   );
 }
