@@ -35,7 +35,7 @@ type Platform = { id: string; slug: string; name: string; logo_url: string | nul
 type Denom = { id: string; face_value: number; currency: string; region: string | null; label: string | null };
 
 function PlatformGiftCards() {
-  const { platform } = useParams({ from: "/gift-cards/$platform" });
+  const { platform } = useParams({ from: "/gift-cards/$platform/" });
   const [pl, setPl] = useState<Platform | null | undefined>(undefined);
   const [denoms, setDenoms] = useState<Denom[]>([]);
   const [cheapest, setCheapest] = useState<Record<string, number>>({});
