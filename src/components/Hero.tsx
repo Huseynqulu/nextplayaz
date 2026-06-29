@@ -1,18 +1,43 @@
 import { Link } from "@tanstack/react-router";
 import { ArrowRight, ShieldCheck, Zap, Trophy } from "lucide-react";
-import hero from "@/assets/hero.jpg";
 import { useT } from "@/lib/i18n";
+
+const HERO_COVERS = [
+  271590,   // GTA V
+  1551360,  // Forza Horizon 5
+  1091500,  // Cyberpunk 2077
+  1245620,  // Elden Ring
+  1174180,  // Red Dead Redemption 2
+  2669320,  // EA FC 25
+  1086940,  // Baldur's Gate 3
+  730,      // CS2
+];
 
 export function Hero() {
   const t = useT();
   return (
     <section className="relative overflow-hidden bg-hero">
-      <div className="absolute inset-0 bg-grid opacity-40" />
-      <div className="absolute inset-0">
-        <img src={hero} alt="" width={1920} height={1088} className="absolute inset-0 h-full w-full object-cover object-right opacity-70" />
-        <div className="absolute inset-0 bg-gradient-to-r from-background via-background/85 to-transparent" />
-        <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent" />
+      <div className="absolute inset-0 bg-grid opacity-30" />
+      <div className="absolute inset-0 overflow-hidden">
+        <div
+          className="absolute -right-20 top-0 bottom-0 w-[60%] grid grid-cols-4 gap-3 opacity-60 rotate-6 scale-110"
+          aria-hidden
+        >
+          {HERO_COVERS.map((id, i) => (
+            <img
+              key={id}
+              src={`https://cdn.akamai.steamstatic.com/steam/apps/${id}/library_600x900.jpg`}
+              alt=""
+              loading="eager"
+              className="aspect-[2/3] w-full object-cover rounded-xl border border-white/10"
+              style={{ transform: `translateY(${i % 2 === 0 ? "-20px" : "20px"})` }}
+            />
+          ))}
+        </div>
+        <div className="absolute inset-0 bg-gradient-to-r from-background via-background/95 to-background/40" />
+        <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-background/60" />
       </div>
+
 
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-24 lg:py-36">
         <div className="max-w-2xl" style={{ animation: "rise 0.8s cubic-bezier(0.16,1,0.3,1)" }}>
