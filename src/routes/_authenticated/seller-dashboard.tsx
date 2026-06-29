@@ -75,7 +75,7 @@ function SellerDashboard() {
   useEffect(() => { if (isSeller) refresh(); }, [isSeller]);
 
   function resetForm() {
-    setForm({ title: "", description: "", price: "", old_price: "", stock: "1", category: "Games", platform: "Steam", delivery: "Instant", image_url: "", stock_items: "", auto_message_enabled: false, auto_message: "" });
+    setForm({ title: "", description: "", price: "", old_price: "", stock: "1", category: "Games", platform: "Steam", delivery: "Instant", image_urls: [], stock_items: "", auto_message_enabled: false, auto_message: "" });
     setEditing(null);
   }
 
