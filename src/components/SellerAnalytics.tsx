@@ -121,16 +121,16 @@ export function SellerAnalytics({ sellerId }: { sellerId: string }) {
               <AreaChart data={stats.series} margin={{ top: 5, right: 8, left: -10, bottom: 0 }}>
                 <defs>
                   <linearGradient id="rev" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="hsl(var(--neon))" stopOpacity={0.5} />
-                    <stop offset="100%" stopColor="hsl(var(--neon))" stopOpacity={0} />
+                    <stop offset="0%" stopColor="var(--neon)" stopOpacity={0.5} />
+                    <stop offset="100%" stopColor="var(--neon)" stopOpacity={0} />
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                <XAxis dataKey="date" tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }} />
-                <YAxis tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }} />
-                <Tooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 12 }}
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+                <XAxis dataKey="date" tick={{ fontSize: 10, fill: "var(--muted-foreground)" }} />
+                <YAxis tick={{ fontSize: 10, fill: "var(--muted-foreground)" }} />
+                <Tooltip contentStyle={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: 8, fontSize: 12 }}
                   formatter={(v: any) => [`${Number(v).toFixed(2)} ₼`, "Gəlir"]} />
-                <Area type="monotone" dataKey="revenue" stroke="hsl(var(--neon))" strokeWidth={2} fill="url(#rev)" />
+                <Area type="monotone" dataKey="revenue" stroke="var(--neon)" strokeWidth={2} fill="url(#rev)" />
               </AreaChart>
             </ResponsiveContainer>
           </div>
@@ -144,13 +144,13 @@ export function SellerAnalytics({ sellerId }: { sellerId: string }) {
             <div className="h-56">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={stats.topProducts} layout="vertical" margin={{ top: 5, right: 10, left: 0, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" horizontal={false} />
-                  <XAxis type="number" tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }} />
-                  <YAxis type="category" dataKey="title" width={110} tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }}
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" horizontal={false} />
+                  <XAxis type="number" tick={{ fontSize: 10, fill: "var(--muted-foreground)" }} />
+                  <YAxis type="category" dataKey="title" width={110} tick={{ fontSize: 10, fill: "var(--muted-foreground)" }}
                     tickFormatter={(t: string) => t.length > 16 ? t.slice(0, 16) + "…" : t} />
-                  <Tooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 12 }}
+                  <Tooltip contentStyle={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: 8, fontSize: 12 }}
                     formatter={(v: any) => [`${Number(v).toFixed(2)} ₼`, "Gəlir"]} />
-                  <Bar dataKey="revenue" fill="hsl(var(--neon))" radius={[0, 6, 6, 0]} />
+                  <Bar dataKey="revenue" fill="var(--neon)" radius={[0, 6, 6, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
