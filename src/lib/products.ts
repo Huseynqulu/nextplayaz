@@ -68,7 +68,8 @@ export async function fetchProducts(): Promise<Product[]> {
 export async function fetchProductBySlug(slug: string): Promise<Product | null> {
   const { data } = await supabase.from("products").select("*").eq("slug", slug).eq("is_active", true).maybeSingle();
   if (data) {
-    const { data: prof } = await supabase.from("public_profiles" as any).select("display_name, username").eq("id", data.seller_id).maybeSingle();
+    const { data: profRaw } = await supabase.from("public_profiles" as any).select("display_name, username").eq("id", data.seller_id).maybeSingle();
+    const prof = profRaw as any;
     return dbToProduct(data as unknown as DbProduct, prof?.display_name || prof?.username || "Satıcı");
   }
   return mockProducts.find(p => p.slug === slug) ?? null;
