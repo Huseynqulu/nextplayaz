@@ -46,6 +46,21 @@ function ProductPage() {
   const [showTerms, setShowTerms] = useState(false);
   const [agreed, setAgreed] = useState(false);
   const discount = p.oldPrice ? Math.round((1 - p.price / p.oldPrice) * 100) : 0;
+  const { isFav, toggle: toggleFav } = useFavorites();
+  const fav = isFav(p.id);
+  async function handleFav() {
+    if (!user) { toast.error("Daxil olun"); navigate({ to: "/auth" }); return; }
+    if (!isRealProductId(p.id)) { toast.error("Bu məhsul saxlanıla bilməz"); return; }
+    await toggleFav(p.id);
+  }
+  async function handleShare() {
+    const url = typeof window !== "undefined" ? window.location.href : "";
+    try {
+      if (navigator.share) { await navigator.share({ title: p.title, url }); return; }
+      await navigator.clipboard.writeText(url);
+      toast.success("Link kopyalandı");
+    } catch {}
+  }
   const similar: typeof p[] = [];
   const isDbProduct = /^[0-9a-f]{8}-/i.test(p.id);
   const gallery = Array.from(new Set([p.image, ...((p.images ?? []) as string[])].filter(Boolean)));
