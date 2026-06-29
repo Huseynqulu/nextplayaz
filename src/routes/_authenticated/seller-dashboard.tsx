@@ -57,10 +57,13 @@ function SellerDashboard() {
     platform: "", platform_subcategory: "",
     delivery: "Instant" as "Instant" | "Manual", image_urls: [] as string[],
     stock_items: "", auto_message_enabled: false, auto_message: "",
+    is_gift_card: false, gift_platform_id: "", gift_denomination_id: "",
   });
   const [subcats, setSubcats] = useState<{ slug: string; label_az: string; category_slug: string }[]>([]);
   const [platformList, setPlatformList] = useState<{ slug: string; label_az: string }[]>([]);
   const [psubs, setPsubs] = useState<{ slug: string; label_az: string; platform_slug: string }[]>([]);
+  const [giftPlatforms, setGiftPlatforms] = useState<{ id: string; name: string; slug: string }[]>([]);
+  const [giftDenoms, setGiftDenoms] = useState<{ id: string; platform_id: string; face_value: number; currency: string; region: string | null; label: string | null }[]>([]);
   useEffect(() => {
     supabase.from("subcategories" as any).select("slug,label_az,category_slug").eq("is_active", true).order("sort_order")
       .then(({ data }) => setSubcats(((data as any) ?? []) as any));
@@ -72,6 +75,10 @@ function SellerDashboard() {
       });
     supabase.from("platform_subcategories" as any).select("slug,label_az,platform_slug").eq("is_active", true).order("sort_order")
       .then(({ data }) => setPsubs(((data as any) ?? []) as any));
+    supabase.from("gift_platforms" as any).select("id,name,slug").eq("is_active", true).order("sort_order").order("name")
+      .then(({ data }) => setGiftPlatforms(((data as any) ?? []) as any));
+    supabase.from("gift_denominations" as any).select("id,platform_id,face_value,currency,region,label").eq("is_active", true).order("sort_order").order("face_value")
+      .then(({ data }) => setGiftDenoms(((data as any) ?? []) as any));
   }, []);
   const currentSubs = subcats.filter(s => s.category_slug === form.category);
   const currentPlatformSlug = platformList.find(p => p.label_az === form.platform)?.slug;
@@ -94,7 +101,7 @@ function SellerDashboard() {
   useEffect(() => { if (isSeller) refresh(); }, [isSeller]);
 
   function resetForm() {
-    setForm({ title: "", description: "", price: "", old_price: "", stock: "1", category: "Games", subcategory: "", platform: platformList[0]?.label_az ?? "", platform_subcategory: "", delivery: "Instant", image_urls: [], stock_items: "", auto_message_enabled: false, auto_message: "" });
+    setForm({ title: "", description: "", price: "", old_price: "", stock: "1", category: "Games", subcategory: "", platform: platformList[0]?.label_az ?? "", platform_subcategory: "", delivery: "Instant", image_urls: [], stock_items: "", auto_message_enabled: false, auto_message: "", is_gift_card: false, gift_platform_id: "", gift_denomination_id: "" });
     setEditing(null);
   }
 
@@ -103,8 +110,10 @@ function SellerDashboard() {
     // Load existing undelivered stock items + auto-message fields
     const [{ data: items }, { data: full }] = await Promise.all([
       supabase.from("product_stock_items" as any).select("content").eq("product_id", p.id).is("delivered_at", null).order("created_at"),
-      supabase.from("products").select("auto_message_enabled, auto_message, subcategory, platform_subcategory").eq("id", p.id).maybeSingle(),
+      supabase.from("products").select("auto_message_enabled, auto_message, subcategory, platform_subcategory, gift_denomination_id").eq("id", p.id).maybeSingle(),
     ]);
+    const giftDenomId = (full as any)?.gift_denomination_id ?? "";
+    const giftPlatId = giftDenomId ? (giftDenoms.find(d => d.id === giftDenomId)?.platform_id ?? "") : "";
     setForm({
       title: p.title, description: p.description ?? "",
       price: String(p.price), old_price: p.old_price ? String(p.old_price) : "",
@@ -114,6 +123,9 @@ function SellerDashboard() {
       stock_items: ((items as any) ?? []).map((i: any) => i.content).join("\n"),
       auto_message_enabled: !!(full as any)?.auto_message_enabled,
       auto_message: (full as any)?.auto_message ?? "",
+      is_gift_card: !!giftDenomId,
+      gift_platform_id: giftPlatId,
+      gift_denomination_id: giftDenomId,
     });
     setShowForm(true);
     setTimeout(() => window.scrollTo({ top: 0, behavior: "smooth" }), 50);
@@ -129,6 +141,9 @@ function SellerDashboard() {
       const stockNum = isInstant ? lines.length : Number(form.stock);
       if (isInstant && lines.length === 0) {
         throw new Error("Anında çatdırılma üçün ən azı 1 stok elementi əlavə edin");
+      }
+      if (form.is_gift_card && !form.gift_denomination_id) {
+        throw new Error("Hədiyyə kartı üçün platforma və nominal seçin");
       }
       const payload = {
         seller_id: user.id,
@@ -147,6 +162,7 @@ function SellerDashboard() {
         image_urls: form.image_urls,
         auto_message_enabled: form.auto_message_enabled,
         auto_message: form.auto_message_enabled ? (form.auto_message.trim() || null) : null,
+        gift_denomination_id: form.is_gift_card ? form.gift_denomination_id : null,
       };
       let productId = editing?.id;
       if (editing) {
@@ -214,6 +230,45 @@ function SellerDashboard() {
 
           {showForm && (
             <form onSubmit={submit} className="rounded-2xl border border-border bg-card-gradient p-6 card-shadow mb-8 grid sm:grid-cols-2 gap-4">
+              {/* Gift Card mode */}
+              <div className="sm:col-span-2 rounded-xl border border-border bg-surface/40 p-3 space-y-3">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input type="checkbox" checked={form.is_gift_card} onChange={e => setForm(f => ({ ...f, is_gift_card: e.target.checked, gift_platform_id: "", gift_denomination_id: "" }))} className="h-4 w-4" />
+                  <span className="text-sm font-semibold">🎁 Bu məhsul Hədiyyə Kartıdır</span>
+                  <span className="text-[11px] text-muted-foreground">— PlayStation, Steam, Xbox, Netflix və s.</span>
+                </label>
+                {form.is_gift_card && (
+                  <div className="grid sm:grid-cols-2 gap-3">
+                    <div>
+                      <label className="text-xs font-medium text-muted-foreground">Platforma *</label>
+                      <select required={form.is_gift_card} value={form.gift_platform_id}
+                        onChange={e => setForm(f => ({ ...f, gift_platform_id: e.target.value, gift_denomination_id: "" }))}
+                        className="mt-1 w-full h-11 px-3 rounded-lg bg-background border border-border text-sm">
+                        <option value="">— Seçin —</option>
+                        {giftPlatforms.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="text-xs font-medium text-muted-foreground">Nominal *</label>
+                      <select required={form.is_gift_card} value={form.gift_denomination_id}
+                        disabled={!form.gift_platform_id}
+                        onChange={e => setForm(f => ({ ...f, gift_denomination_id: e.target.value }))}
+                        className="mt-1 w-full h-11 px-3 rounded-lg bg-background border border-border text-sm disabled:opacity-60">
+                        <option value="">— Seçin —</option>
+                        {giftDenoms.filter(d => d.platform_id === form.gift_platform_id).map(d => (
+                          <option key={d.id} value={d.id}>
+                            {Number(d.face_value).toFixed(0)} {d.currency}{d.region ? ` (${d.region})` : ""}{d.label ? ` — ${d.label}` : ""}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <p className="sm:col-span-2 text-[11px] text-muted-foreground">
+                      Hədiyyə kartı məhsullar `/gift-cards` bölməsində seçilmiş nominalın altında — ən ucuz qiymətdən bahaya doğru — göstərilir. Adi marketplace siyahısında görünməz.
+                    </p>
+                  </div>
+                )}
+              </div>
+
               <div className="sm:col-span-2">
                 <label className="text-xs font-medium text-muted-foreground">Başlıq *</label>
                 <input required value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))}

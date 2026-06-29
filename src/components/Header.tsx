@@ -34,6 +34,7 @@ export function Header() {
   const nav = [
     { to: "/", label: t("nav.home") },
     { to: "/marketplace", label: t("nav.marketplace") },
+    { to: "/gift-cards", label: "🎁 Gift Kartlar" },
     { to: "/seller", label: t("nav.seller") },
     { to: "/support", label: t("nav.support") },
   ] as const;

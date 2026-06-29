@@ -10,6 +10,7 @@ import { ChatImage } from "@/components/ChatImage";
 import { AdminBanners } from "@/components/AdminBanners";
 import AdminReviews from "@/components/AdminReviews";
 import { AdminGiftCards } from "@/components/AdminGiftCards";
+import { AdminGiftMarket } from "@/components/AdminGiftMarket";
 import { AdminAnalytics } from "@/components/AdminAnalytics";
 import { VerifiedBadge } from "@/components/VerifiedBadge";
 import { AdminBoostPricing } from "@/components/AdminBoostPricing";
@@ -36,7 +37,7 @@ type PaymentSetting = { method: string; label: string; instructions: string; is_
 type Category = { slug: string; label_az: string; label_en: string; label_ru: string; sort_order: number; is_active: boolean };
 type Subcategory = { id?: string; category_slug: string; slug: string; label_az: string; label_en: string; label_ru: string; sort_order: number; is_active: boolean };
 
-type Tab = "analytics" | "applications" | "users" | "codes" | "products" | "tickets" | "topups" | "withdrawals" | "platform" | "payments" | "categories" | "platforms" | "disputes" | "banners" | "reviews" | "giftcards" | "boost";
+type Tab = "analytics" | "applications" | "users" | "codes" | "products" | "tickets" | "topups" | "withdrawals" | "platform" | "payments" | "categories" | "platforms" | "disputes" | "banners" | "reviews" | "giftcards" | "giftmarket" | "boost";
 
 type PlatformRow = { slug: string; label_az: string; label_en: string; label_ru: string; sort_order: number; is_active: boolean };
 type PlatformSub = { platform_slug: string; slug: string; label_az: string; label_en: string; label_ru: string; sort_order: number; is_active: boolean };
@@ -458,6 +459,7 @@ function AdminPage() {
               ["banners", "Bannerlər"],
               ["reviews", "Rəylər"],
               ["giftcards", "Hədiyyə kartları"],
+              ["giftmarket", "🎮 Gift Marketplace"],
               ["boost", "🚀 Boost qiymətləri"],
               ["codes", "Endirim kodları"],
               ["products", "Məhsullar"],
@@ -1247,6 +1249,8 @@ function AdminPage() {
             <AdminReviews />
           ) : tab === "giftcards" ? (
             <AdminGiftCards />
+          ) : tab === "giftmarket" ? (
+            <AdminGiftMarket />
           ) : tab === "boost" ? (
             <AdminBoostPricing />
           ) : (
