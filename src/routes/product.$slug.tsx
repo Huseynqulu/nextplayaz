@@ -276,6 +276,57 @@ function ProductPage() {
         </div>
       </main>
       <Footer />
+
+      {showTerms && (
+        <div className="fixed inset-0 z-50 grid place-items-center bg-background/80 backdrop-blur-sm p-4" onClick={() => !buying && setShowTerms(false)}>
+          <div className="w-full max-w-lg rounded-2xl border border-border bg-card card-shadow overflow-hidden" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between p-5 border-b border-border">
+              <h3 className="font-display text-lg font-bold inline-flex items-center gap-2">
+                <FileText className="h-5 w-5 text-neon" /> Alış-veriş şərtləri
+              </h3>
+              <button onClick={() => !buying && setShowTerms(false)} className="text-muted-foreground hover:text-foreground" aria-label="Bağla">
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            <div className="max-h-[55vh] overflow-y-auto px-5 py-4 text-sm space-y-3 text-muted-foreground">
+              <p><b className="text-foreground">1. Escrow qoruması.</b> Ödədiyiniz <span className="text-neon font-semibold">{(p.price * qty).toFixed(2)} ₼</span> NextPlay tərəfindən saxlanılır və yalnız sifarişi təsdiqlədikdən sonra satıcıya köçürülür.</p>
+              <p><b className="text-foreground">2. Çatdırılma müddəti.</b> Satıcı sifarişi 24 saat ərzində mesaj vasitəsi ilə təhvil verməlidir. Anında çatdırılma məhsullarında məlumat dərhal göstərilir.</p>
+              <p><b className="text-foreground">3. Avtomatik təsdiq.</b> Çatdırılmadan 24 saat sonra sifariş təsdiq etməsəniz, sistem onu avtomatik tamamlayır və vəsait satıcıya keçir.</p>
+              <p><b className="text-foreground">4. Etiraz hüququ.</b> Problem yaranarsa, "Etiraz et" düyməsi ilə dəstəyə müraciət edə bilərsiniz. Etiraz üçün <b>video sübut və ya ekran görüntüsü</b> mütləqdir.</p>
+              <p><b className="text-foreground">5. Geri qaytarma.</b> Sübutlu etirazda admin tam və ya qismən geri qaytarma edə bilər. Hesab dəyişikliyi (şifrə, e-poçt) edildikdən sonra geri qaytarma rədd edilir.</p>
+              <p><b className="text-foreground">6. Qadağalar.</b> Satıcı ilə platforma xaricində ödəniş və ya əlaqə qadağandır — bu halda Escrow qorunması itirilir və hesab bloklana bilər.</p>
+              <p><b className="text-foreground">7. Komissiya.</b> NextPlay hər uğurlu sifarişdən 5% komissiya tutur — bu məbləğ satıcıdan tutulur, alıcı yalnız məhsul qiymətini ödəyir.</p>
+              <p>Tam mətn üçün <Link to="/terms" target="_blank" className="text-neon hover:underline">Şərtlər</Link>, <Link to="/refund" target="_blank" className="text-neon hover:underline">Geri qaytarma</Link> və <Link to="/privacy" target="_blank" className="text-neon hover:underline">Məxfilik</Link> səhifələrinə baxın.</p>
+            </div>
+            <label className="flex items-start gap-2.5 px-5 py-3 border-t border-border bg-surface/40 cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={agreed}
+                onChange={e => setAgreed(e.target.checked)}
+                className="mt-0.5 h-4 w-4 accent-primary cursor-pointer"
+              />
+              <span className="text-sm">Yuxarıdakı bütün şərtləri oxudum və qəbul edirəm.</span>
+            </label>
+            <div className="flex gap-2 p-4 border-t border-border">
+              <button
+                onClick={() => setShowTerms(false)}
+                disabled={buying}
+                className="h-11 px-4 rounded-xl border border-border text-sm font-medium hover:bg-surface disabled:opacity-50"
+              >
+                Ləğv et
+              </button>
+              <button
+                onClick={buy}
+                disabled={!agreed || buying}
+                className="flex-1 h-11 rounded-xl bg-neon text-background font-semibold neon-ring transition disabled:opacity-40 disabled:cursor-not-allowed inline-flex items-center justify-center gap-2"
+              >
+                {buying && <Loader2 className="h-4 w-4 animate-spin" />}
+                {agreed ? `Razıyam — ${(p.price * qty).toFixed(2)} ₼ ödə` : "Şərtləri qəbul edin"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
