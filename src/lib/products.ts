@@ -57,7 +57,7 @@ export async function fetchProducts(): Promise<Product[]> {
       .from("public_profiles" as any)
       .select("id, display_name, username")
       .in("id", sellerIds);
-    nameMap = new Map((profs ?? []).map(p => [p.id, p.display_name || p.username || "Satıcı"]));
+    nameMap = new Map(((profs as any[]) ?? []).map((p: any) => [p.id, p.display_name || p.username || "Satıcı"]));
   }
 
   const dbItems = data.map(d => dbToProduct(d as unknown as DbProduct, nameMap.get(d.seller_id)));
