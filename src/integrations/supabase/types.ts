@@ -1067,6 +1067,22 @@ export type Database = {
         }[]
       }
       get_homepage_stats: { Args: never; Returns: Json }
+      get_my_profile: {
+        Args: never
+        Returns: {
+          avatar_url: string
+          created_at: string
+          display_name: string
+          id: string
+          last_seen_at: string
+          referral_code: string
+          referred_by: string
+          updated_at: string
+          username: string
+          wallet_balance: number
+        }[]
+      }
+      get_my_wallet_balance: { Args: never; Returns: number }
       get_referral_stats: {
         Args: never
         Returns: {

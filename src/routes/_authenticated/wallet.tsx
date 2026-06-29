@@ -59,7 +59,7 @@ function WalletPage() {
     if (!user) return;
     setLoading(true);
     const [{ data: p }, { data: m }, { data: h }, { data: w }, { data: pend }] = await Promise.all([
-      supabase.from("profiles").select("wallet_balance").eq("id", user.id).maybeSingle(),
+      supabase.rpc("get_my_wallet_balance"),
       supabase.from("payment_settings").select("*").eq("is_active", true).order("label"),
       supabase.from("wallet_topups").select("*").eq("user_id", user.id).order("created_at", { ascending: false }),
       supabase.from("wallet_withdrawals" as any).select("*").eq("user_id", user.id).order("created_at", { ascending: false }),
@@ -67,7 +67,7 @@ function WalletPage() {
         .eq("seller_id", user.id).eq("status", "completed").is("funds_released_at", null)
         .order("funds_release_at", { ascending: true }),
     ]);
-    setBalance(Number(p?.wallet_balance ?? 0));
+    setBalance(Number(p ?? 0));
     setMethods((m as any) ?? []);
     if (!method && m && m.length > 0) setMethod((m as any)[0].method);
     setHistory((h as any) ?? []);
