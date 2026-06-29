@@ -57,7 +57,7 @@ export async function fetchProducts(): Promise<Product[]> {
     .eq("is_active", true)
     .order("boost_expires_at", { ascending: false, nullsFirst: false })
     .order("created_at", { ascending: false });
-  if (error || !data) return mockProducts;
+  if (error || !data) return [];
   // Clear boost rank for expired boosts in returned list (DB ordering already accounts via NULL last for expired? Not quite—filter manually)
   data.sort((a: any, b: any) => {
     const aActive = a.boost_expires_at && a.boost_expires_at > nowIso ? (a.boost_tier ?? 1) : 0;
@@ -83,7 +83,7 @@ export async function fetchProducts(): Promise<Product[]> {
 
 
   const dbItems = data.map(d => dbToProduct(d as unknown as DbProduct, sellerMap.get(d.seller_id)));
-  return [...dbItems, ...mockProducts];
+  return dbItems;
 }
 
 export async function fetchProductBySlug(slug: string): Promise<Product | null> {
@@ -103,5 +103,5 @@ export async function fetchProductBySlug(slug: string): Promise<Product | null> 
     } : undefined);
   }
 
-  return mockProducts.find(p => p.slug === slug) ?? null;
+  return null;
 }

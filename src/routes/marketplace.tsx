@@ -39,7 +39,7 @@ function MarketplacePage() {
   const update = (patch: Partial<typeof s>) =>
     navigate({ search: ((prev: any) => ({ ...prev, ...patch })) as any, replace: true });
 
-  const [products, setProducts] = useState<import("@/lib/marketplace-data").Product[]>(mockProducts);
+  const [products, setProducts] = useState<import("@/lib/marketplace-data").Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [qLocal, setQLocal] = useState(s.q);
 
