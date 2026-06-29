@@ -195,6 +195,15 @@ function StatCard({ icon: Icon, label, value, accent }: { icon: React.ComponentT
   );
 }
 
+function Field({ label, children }: { label: React.ReactNode; children: React.ReactNode }) {
+  return (
+    <label className="block">
+      <span className="block text-xs font-medium text-muted-foreground mb-1.5">{label}</span>
+      {children}
+    </label>
+  );
+}
+
 function Row({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex justify-between py-2 border-b border-border last:border-0">
