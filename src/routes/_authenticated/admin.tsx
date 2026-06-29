@@ -366,6 +366,8 @@ function AdminPage() {
 
           {loading ? (
             <div className="flex justify-center py-20"><Loader2 className="h-6 w-6 animate-spin text-neon" /></div>
+          ) : tab === "analytics" ? (
+            <AdminAnalytics />
           ) : tab === "applications" ? (
             <div className="space-y-3">
               <div className="flex gap-2 flex-wrap mb-2">
