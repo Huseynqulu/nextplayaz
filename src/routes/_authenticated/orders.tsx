@@ -239,10 +239,14 @@ function OrdersPage() {
                             </span>
                           )}
                           {o.status === "completed" && (
-                            reviewedIds.has(o.product_id) ? (
-                              <span className="inline-flex items-center gap-1 text-[11px] text-success self-center">
-                                <Star className="h-3 w-3 fill-success" /> Rəy verilib
-                              </span>
+                            myReviews[o.product_id] ? (
+                              <button
+                                onClick={() => openReview(o)}
+                                className="inline-flex items-center gap-1 h-8 px-3 rounded-lg border border-success/40 text-success text-xs font-medium hover:bg-success/10"
+                                title="Rəyinizi dəyişdirin"
+                              >
+                                <Star className="h-3 w-3 fill-success" /> Rəyi dəyiş ({myReviews[o.product_id].rating}★)
+                              </button>
                             ) : (
                               <button
                                 onClick={() => openReview(o)}
