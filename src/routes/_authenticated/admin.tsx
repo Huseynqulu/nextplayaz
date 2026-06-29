@@ -10,25 +10,21 @@ import { Loader2, CheckCircle2, XCircle, ShieldCheck, Package, Users, FileText }
 export const Route = createFileRoute("/_authenticated/admin")({
   component: AdminPage,
   head: () => ({ meta: [{ title: "Admin Panel — NextPlay.az" }] }),
-  beforeLoad: async ({ context }: any) => {
-    const user = context?.user;
-    if (!user) throw redirect({ to: "/login" });
-    const { data } = await supabase.rpc("has_role", { _user_id: user.id, _role: "admin" });
-    if (!data) throw redirect({ to: "/profile" });
-  },
 });
 
 type Application = {
   id: string;
   user_id: string;
-  full_name: string;
+  first_name: string;
+  last_name: string;
   email: string;
-  phone: string | null;
-  shop_name: string;
-  about: string | null;
-  experience: string | null;
+  phone: string;
+  category: string;
   status: "pending" | "approved" | "rejected";
   created_at: string;
+  id_front_url: string | null;
+  id_back_url: string | null;
+  selfie_url: string | null;
 };
 
 type ProductRow = {
@@ -44,12 +40,26 @@ type ProductRow = {
 
 function AdminPage() {
   const { user } = useAuth();
-  const [tab, setTab] = useState<"applications" | "products" | "users">("applications");
+  const navigate = Route.useNavigate();
+  const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
+  const [tab, setTab] = useState<"applications" | "products">("applications");
   const [apps, setApps] = useState<Application[]>([]);
   const [products, setProducts] = useState<ProductRow[]>([]);
   const [stats, setStats] = useState({ users: 0, sellers: 0, products: 0, orders: 0 });
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!user) return;
+    (async () => {
+      const { data } = await supabase.rpc("has_role", { _user_id: user.id, _role: "admin" });
+      setIsAdmin(!!data);
+      if (!data) {
+        toast.error("Admin icazəniz yoxdur");
+        navigate({ to: "/profile" });
+      }
+    })();
+  }, [user, navigate]);
 
   async function refresh() {
     setLoading(true);
@@ -67,14 +77,14 @@ function AdminPage() {
     setLoading(false);
   }
 
-  useEffect(() => { if (user) refresh(); }, [user]);
+  useEffect(() => { if (isAdmin) refresh(); }, [isAdmin]);
 
   async function decide(app: Application, status: "approved" | "rejected") {
     setBusy(app.id);
     try {
       const { error: e1 } = await supabase
         .from("seller_applications")
-        .update({ status, reviewed_at: new Date().toISOString(), reviewed_by: user!.id })
+        .update({ status })
         .eq("id", app.id);
       if (e1) throw e1;
 
@@ -82,8 +92,7 @@ function AdminPage() {
         const { error: e2 } = await supabase
           .from("user_roles")
           .insert({ user_id: app.user_id, role: "seller" });
-        // ignore duplicate-role error
-        if (e2 && !e2.message.includes("duplicate")) throw e2;
+        if (e2 && !e2.message.toLowerCase().includes("duplicate")) throw e2;
       }
       toast.success(status === "approved" ? "Satıcı təsdiqləndi" : "Müraciət rədd edildi");
       await refresh();
@@ -101,6 +110,15 @@ function AdminPage() {
     setBusy(null);
   }
 
+  if (isAdmin === null) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <Loader2 className="h-6 w-6 animate-spin text-neon" />
+      </div>
+    );
+  }
+  if (!isAdmin) return null;
+
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
@@ -112,7 +130,6 @@ function AdminPage() {
           </div>
           <p className="text-muted-foreground mb-8">Platforma idarəetməsi və moderasiya.</p>
 
-          {/* Stats */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
             {[
               { label: "İstifadəçi", value: stats.users, icon: Users },
@@ -128,7 +145,6 @@ function AdminPage() {
             ))}
           </div>
 
-          {/* Tabs */}
           <div className="flex gap-1 mb-6 border-b border-border">
             {([
               ["applications", `Müraciətlər (${apps.filter(a => a.status === "pending").length})`],
@@ -154,18 +170,22 @@ function AdminPage() {
               {apps.map(a => (
                 <div key={a.id} className="rounded-2xl border border-border bg-card-gradient p-5 card-shadow">
                   <div className="flex flex-wrap items-start justify-between gap-3">
-                    <div className="min-w-0">
-                      <div className="flex items-center gap-2">
-                        <h3 className="font-semibold">{a.shop_name}</h3>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <h3 className="font-semibold">{a.first_name} {a.last_name}</h3>
+                        <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-surface">{a.category}</span>
                         <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${
                           a.status === "approved" ? "bg-success/20 text-success" :
                           a.status === "rejected" ? "bg-destructive/20 text-destructive" :
                           "bg-warning/20 text-warning"
                         }`}>{a.status}</span>
                       </div>
-                      <p className="text-sm text-muted-foreground mt-1">{a.full_name} · {a.email} {a.phone && `· ${a.phone}`}</p>
-                      {a.about && <p className="text-sm mt-2">{a.about}</p>}
-                      {a.experience && <p className="text-xs text-muted-foreground mt-1">Təcrübə: {a.experience}</p>}
+                      <p className="text-sm text-muted-foreground mt-1">{a.email} · {a.phone}</p>
+                      <div className="flex gap-3 mt-3 text-xs">
+                        {a.id_front_url && <span className="text-success">✓ ID ön</span>}
+                        {a.id_back_url && <span className="text-success">✓ ID arxa</span>}
+                        {a.selfie_url && <span className="text-success">✓ Selfie</span>}
+                      </div>
                       <p className="text-[11px] text-muted-foreground mt-2">{new Date(a.created_at).toLocaleString("az-AZ")}</p>
                     </div>
                     {a.status === "pending" && (
