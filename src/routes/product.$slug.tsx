@@ -63,9 +63,14 @@ function ProductPage() {
       toast.error(error.message);
       return;
     }
-    toast.success("Sifariş yaradıldı! Escrow-da saxlanıldı.");
+    toast.success("Sifariş yaradıldı! Satıcı ilə söhbət açıldı.");
+    const orderId = data as string | null;
+    if (orderId) {
+      const { data: ord } = await supabase.from("orders").select("conversation_id").eq("id", orderId).maybeSingle();
+      const convId = (ord as any)?.conversation_id as string | null;
+      if (convId) { navigate({ to: "/messages/$conversationId", params: { conversationId: convId } }); return; }
+    }
     navigate({ to: "/orders" });
-    void data;
   }
 
   async function messageSeller() {
