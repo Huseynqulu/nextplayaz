@@ -180,7 +180,7 @@ function WalletPage() {
           </div>
 
           <div className="mb-8">
-            <GiftCardRedeem onRedeemed={() => load()} />
+            <GiftCardRedeem onRedeemed={() => refresh()} />
           </div>
 
 
