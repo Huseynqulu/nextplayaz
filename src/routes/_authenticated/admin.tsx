@@ -235,6 +235,15 @@ function AdminPage() {
     setBusy(null);
   }
 
+  async function savePaymentSetting(s: PaymentSetting) {
+    setBusy(s.method);
+    const { error } = await supabase.from("payment_settings").update({
+      label: s.label, instructions: s.instructions, is_active: s.is_active,
+    }).eq("method", s.method as any);
+    if (error) toast.error(error.message);
+    else toast.success(`${s.label} yeniləndi`);
+    setBusy(null);
+  }
 
 
   if (isAdmin === null) return <div className="min-h-screen flex items-center justify-center bg-background"><Loader2 className="h-6 w-6 animate-spin text-neon" /></div>;
