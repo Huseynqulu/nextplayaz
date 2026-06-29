@@ -25,8 +25,9 @@ type DiscountCode = { id: string; code: string; percent: number; max_uses: numbe
 type AdminTicket = { id: string; user_id: string; order_id: string | null; subject: string; message: string; category: string; status: string; priority: string; created_at: string; updated_at: string };
 type TicketMsg = { id: string; sender_id: string; is_admin: boolean; body: string; created_at: string };
 type TopUp = { id: string; user_id: string; amount: number; method: string; sender_note: string | null; receipt_url: string | null; status: "pending"|"approved"|"rejected"; admin_notes: string | null; created_at: string };
+type PaymentSetting = { method: string; label: string; instructions: string; is_active: boolean };
 
-type Tab = "applications" | "users" | "codes" | "products" | "tickets" | "topups";
+type Tab = "applications" | "users" | "codes" | "products" | "tickets" | "topups" | "payments";
 
 function AdminPage() {
   const { user } = useAuth();
@@ -39,6 +40,7 @@ function AdminPage() {
   const [codes, setCodes] = useState<DiscountCode[]>([]);
   const [tickets, setTickets] = useState<AdminTicket[]>([]);
   const [topups, setTopups] = useState<TopUp[]>([]);
+  const [paySettings, setPaySettings] = useState<PaymentSetting[]>([]);
   const [stats, setStats] = useState({ users: 0, sellers: 0, products: 0, orders: 0 });
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState<string | null>(null);
@@ -68,13 +70,14 @@ function AdminPage() {
 
   async function refresh() {
     setLoading(true);
-    const [{ data: a }, { data: p }, { data: u }, { data: dc }, { data: tk }, { data: tu }, { count: uc }, { count: sc }, { count: pc }, { count: oc }] = await Promise.all([
+    const [{ data: a }, { data: p }, { data: u }, { data: dc }, { data: tk }, { data: tu }, { data: ps }, { count: uc }, { count: sc }, { count: pc }, { count: oc }] = await Promise.all([
       supabase.from("seller_applications").select("*").order("created_at", { ascending: false }),
       supabase.from("products").select("id, title, price, stock, category, is_active, seller_id, created_at").order("created_at", { ascending: false }).limit(50),
       supabase.rpc("admin_list_users"),
       supabase.from("discount_codes").select("*").order("created_at", { ascending: false }),
       supabase.from("support_tickets").select("*").order("updated_at", { ascending: false }),
       supabase.from("wallet_topups").select("*").order("created_at", { ascending: false }),
+      supabase.from("payment_settings").select("*").order("label"),
       supabase.from("profiles").select("*", { count: "exact", head: true }),
       supabase.from("user_roles").select("*", { count: "exact", head: true }).eq("role", "seller"),
       supabase.from("products").select("*", { count: "exact", head: true }),
@@ -86,6 +89,7 @@ function AdminPage() {
     setCodes((dc as any) ?? []);
     setTickets((tk as any) ?? []);
     setTopups((tu as any) ?? []);
+    setPaySettings((ps as any) ?? []);
     setStats({ users: uc ?? 0, sellers: sc ?? 0, products: pc ?? 0, orders: oc ?? 0 });
     setLoading(false);
   }
@@ -231,6 +235,15 @@ function AdminPage() {
     setBusy(null);
   }
 
+  async function savePaymentSetting(s: PaymentSetting) {
+    setBusy(s.method);
+    const { error } = await supabase.from("payment_settings").update({
+      label: s.label, instructions: s.instructions, is_active: s.is_active,
+    }).eq("method", s.method as any);
+    if (error) toast.error(error.message);
+    else toast.success(`${s.label} yeniləndi`);
+    setBusy(null);
+  }
 
 
   if (isAdmin === null) return <div className="min-h-screen flex items-center justify-center bg-background"><Loader2 className="h-6 w-6 animate-spin text-neon" /></div>;
@@ -268,6 +281,7 @@ function AdminPage() {
               ["tickets", `Dəstək (${tickets.filter(t => t.status === "open" || t.status === "pending").length})`],
               ["users", "İstifadəçilər"],
               ["topups", `Balans (${topups.filter(t => t.status === "pending").length})`],
+              ["payments", "Rekvizitlər"],
               ["codes", "Endirim kodları"],
               ["products", "Məhsullar"],
             ] as const).map(([key, label]) => (
@@ -550,6 +564,39 @@ function AdminPage() {
                   </div>
                 );
               })}
+            </div>
+          ) : tab === "payments" ? (
+            <div className="space-y-3">
+              <p className="text-sm text-muted-foreground mb-2">Bu rekvizitlər istifadəçilərin <span className="text-neon font-semibold">Cüzdan</span> səhifəsində ödəniş üsulu seçildikdə avtomatik göstərilir.</p>
+              {paySettings.map((s, i) => (
+                <div key={s.method} className="rounded-xl border border-border bg-card-gradient p-4 card-shadow space-y-3">
+                  <div className="flex items-center justify-between gap-3 flex-wrap">
+                    <div>
+                      <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-surface mr-2">{s.method}</span>
+                      <input value={s.label} onChange={e => {
+                        const next = [...paySettings]; next[i] = { ...s, label: e.target.value }; setPaySettings(next);
+                      }} className="h-9 px-3 rounded-md bg-background border border-border text-sm font-semibold" />
+                    </div>
+                    <label className="inline-flex items-center gap-2 text-xs cursor-pointer">
+                      <input type="checkbox" checked={s.is_active} onChange={e => {
+                        const next = [...paySettings]; next[i] = { ...s, is_active: e.target.checked }; setPaySettings(next);
+                      }} className="h-4 w-4 accent-neon" />
+                      Aktiv
+                    </label>
+                  </div>
+                  <textarea value={s.instructions} onChange={e => {
+                    const next = [...paySettings]; next[i] = { ...s, instructions: e.target.value }; setPaySettings(next);
+                  }} rows={3} placeholder="Məs: m10 nömrəsi: +994 50 123 45 67, Ad: Eli Novruzov"
+                    className="w-full px-3 py-2 rounded-md bg-background border border-border text-sm font-mono resize-none" />
+                  <div className="flex justify-end">
+                    <button disabled={busy === s.method} onClick={() => savePaymentSetting(s)}
+                      className="h-9 px-4 rounded-md bg-neon text-background text-sm font-semibold neon-ring disabled:opacity-50 inline-flex items-center gap-1.5">
+                      {busy === s.method ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <CheckCircle2 className="h-3.5 w-3.5" />}
+                      Yadda saxla
+                    </button>
+                  </div>
+                </div>
+              ))}
             </div>
           ) : (
             <div className="space-y-2">

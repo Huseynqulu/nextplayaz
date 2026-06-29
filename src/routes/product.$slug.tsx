@@ -36,6 +36,7 @@ function ProductPage() {
   const navigate = useNavigate();
   const [qty, setQty] = useState(1);
   const [buying, setBuying] = useState(false);
+  const [contacting, setContacting] = useState(false);
   const [code, setCode] = useState("");
   const discount = p.oldPrice ? Math.round((1 - p.price / p.oldPrice) * 100) : 0;
   const similar = mockProducts.filter(x => x.id !== p.id && x.category === p.category).slice(0, 4);
@@ -65,6 +66,20 @@ function ProductPage() {
     toast.success("Sifariş yaradıldı! Escrow-da saxlanıldı.");
     navigate({ to: "/orders" });
     void data;
+  }
+
+  async function messageSeller() {
+    if (!user) { toast.info("Daxil olun"); navigate({ to: "/login" }); return; }
+    if (!p.sellerId) { toast.info("Demo məhsul üçün satıcı mövcud deyil"); return; }
+    if (p.sellerId === user.id) { toast.info("Bu sizin məhsulunuzdur"); return; }
+    setContacting(true);
+    const { data, error } = await supabase.rpc("start_conversation", {
+      p_other_user: p.sellerId,
+      p_product_id: isDbProduct ? p.id : null,
+    } as any);
+    setContacting(false);
+    if (error || !data) { toast.error(error?.message ?? "Xəta"); return; }
+    navigate({ to: "/messages/$conversationId", params: { conversationId: data as string } });
   }
 
 
@@ -160,6 +175,9 @@ function ProductPage() {
                   >
                     {buying && <Loader2 className="h-4 w-4 animate-spin" />}
                     Sifariş ver — {(p.price * qty).toFixed(2)} ₼
+                  </button>
+                  <button onClick={messageSeller} disabled={contacting} className="grid h-11 w-11 place-items-center rounded-xl border border-border hover:border-primary disabled:opacity-50" aria-label="Satıcıya mesaj">
+                    {contacting ? <Loader2 className="h-4 w-4 animate-spin" /> : <MessageCircle className="h-4 w-4" />}
                   </button>
                   <button className="grid h-11 w-11 place-items-center rounded-xl border border-border hover:border-primary" aria-label="Favorilərə əlavə et"><Heart className="h-4 w-4" /></button>
                   <button className="grid h-11 w-11 place-items-center rounded-xl border border-border hover:border-primary" aria-label="Paylaş"><Share2 className="h-4 w-4" /></button>

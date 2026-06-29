@@ -21,6 +21,7 @@ export type Product = {
   seller: { name: string; rating: number; sales: number; verified: boolean };
   delivery: "Instant" | "Manual";
   tag?: "HOT" | "NEW" | "-50%" | "TOP";
+  sellerId?: string;
 };
 
 export const products: Product[] = [
