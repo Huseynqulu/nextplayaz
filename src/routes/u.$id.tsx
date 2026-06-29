@@ -132,12 +132,31 @@ function SellerProfilePage() {
           </div>
 
           <section className="mt-10">
-            <h2 className="font-display text-xl font-bold mb-5">Məhsullar ({products.length})</h2>
-            {products.length === 0 ? (
-              <p className="text-muted-foreground py-10 text-center">Hələ aktiv məhsul yoxdur.</p>
+            <div className="flex items-end justify-between mb-5 flex-wrap gap-3">
+              <h2 className="font-display text-xl font-bold">Məhsullar ({visibleProducts.length})</h2>
+              {cats.length > 1 && (
+                <div className="flex flex-wrap gap-2">
+                  <button onClick={() => setCatFilter("all")}
+                    className={`px-3 py-1.5 rounded-full text-xs font-medium border transition ${catFilter === "all" ? "bg-neon text-background border-transparent" : "bg-surface border-border text-muted-foreground hover:text-foreground"}`}>
+                    Hamısı ({products.length})
+                  </button>
+                  {cats.map(c => {
+                    const count = products.filter((p: any) => p.category === c).length;
+                    return (
+                      <button key={c} onClick={() => setCatFilter(c)}
+                        className={`px-3 py-1.5 rounded-full text-xs font-medium border transition ${catFilter === c ? "bg-neon text-background border-transparent" : "bg-surface border-border text-muted-foreground hover:text-foreground"}`}>
+                        {c} ({count})
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+            {visibleProducts.length === 0 ? (
+              <p className="text-muted-foreground py-10 text-center">Bu kateqoriyada məhsul yoxdur.</p>
             ) : (
               <div className="grid gap-5 grid-cols-2 lg:grid-cols-4">
-                {products.map((p: ReturnType<typeof dbToProduct>) => <ProductCard key={p.id} p={p} />)}
+                {visibleProducts.map((p: ReturnType<typeof dbToProduct>) => <ProductCard key={p.id} p={p} />)}
               </div>
             )}
           </section>
