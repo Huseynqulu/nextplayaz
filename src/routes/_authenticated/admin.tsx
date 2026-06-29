@@ -148,6 +148,18 @@ function AdminPage() {
     setBusy(null);
   }
 
+  async function openDetails(a: Application) {
+    setViewing(a);
+    setSigned({});
+    const paths = [a.id_front_url, a.id_back_url, a.selfie_url];
+    const keys = ["front", "back", "selfie"] as const;
+    const results = await Promise.all(paths.map(p => p ? supabase.storage.from("seller-verification").createSignedUrl(p, 600) : Promise.resolve(null as any)));
+    const out: any = {};
+    results.forEach((r, i) => { if (r?.data?.signedUrl) out[keys[i]] = r.data.signedUrl; });
+    setSigned(out);
+  }
+
+
   if (isAdmin === null) return <div className="min-h-screen flex items-center justify-center bg-background"><Loader2 className="h-6 w-6 animate-spin text-neon" /></div>;
   if (!isAdmin) return null;
 
