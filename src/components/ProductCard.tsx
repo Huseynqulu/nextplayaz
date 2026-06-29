@@ -1,10 +1,12 @@
 import { Link } from "@tanstack/react-router";
-import { Star, Zap, ShieldCheck, Heart } from "lucide-react";
+import { Star, Zap, ShieldCheck, Heart, ShoppingCart } from "lucide-react";
 import type { Product } from "@/lib/marketplace-data";
 import { useFavorites, isRealProductId } from "@/lib/favorites";
 import { useAuth } from "@/hooks/use-auth";
 import { SellerTierBadge } from "@/components/SellerTierBadge";
 import { useCurrency } from "@/lib/currency";
+import { useCart } from "@/lib/cart";
+import { toast } from "sonner";
 
 export function ProductCard({ p }: { p: Product }) {
   const { format } = useCurrency();
