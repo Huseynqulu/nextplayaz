@@ -381,7 +381,7 @@ function OrdersPage() {
               <button onClick={() => setReviewOrder(null)} disabled={reviewSubmitting} className="h-11 px-4 rounded-xl border border-border text-sm font-medium hover:bg-surface disabled:opacity-50">Ləğv et</button>
               <button onClick={submitReview} disabled={reviewSubmitting} className="flex-1 h-11 rounded-xl bg-neon text-background font-semibold neon-ring disabled:opacity-50 inline-flex items-center justify-center gap-2">
                 {reviewSubmitting && <Loader2 className="h-4 w-4 animate-spin" />}
-                Rəyi göndər
+                {myReviews[reviewOrder.product_id] ? "Rəyi yenilə" : "Rəyi göndər"}
               </button>
             </div>
           </div>
