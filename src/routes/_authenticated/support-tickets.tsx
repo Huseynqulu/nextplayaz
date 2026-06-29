@@ -180,17 +180,28 @@ function SupportTicketsPage() {
                     <div className="text-[10px] uppercase text-muted-foreground mb-1">
                       {m.is_admin ? "Dəstək komandası" : "Sən"} · {new Date(m.created_at).toLocaleString("az-AZ")}
                     </div>
-                    <p className="text-sm whitespace-pre-wrap">{m.body}</p>
+                    {m.body && <p className="text-sm whitespace-pre-wrap">{m.body}</p>}
+                    {m.attachment_url && <div className="mt-2"><ChatImage path={m.attachment_url} /></div>}
                   </div>
                 ))}
               </div>
 
               {active.status !== "closed" && (
-                <div className="p-4 border-t border-border flex gap-2">
-                  <textarea value={reply} onChange={e => setReply(e.target.value)} rows={2} placeholder="Cavab yaz..." className="flex-1 px-3 py-2 rounded-lg bg-background border border-border text-sm resize-none" />
-                  <button onClick={send} disabled={busy || !reply.trim()} className="h-10 self-end px-4 rounded-lg bg-neon text-background font-semibold inline-flex items-center gap-1.5 disabled:opacity-50">
-                    {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />} Göndər
-                  </button>
+                <div className="p-4 border-t border-border space-y-2">
+                  {replyPreview && (
+                    <div className="relative inline-block">
+                      <img src={replyPreview} alt="" className="max-h-32 rounded-lg border border-border" />
+                      <button onClick={() => pickFile(null, setReplyFile, setReplyPreview)} className="absolute -top-2 -right-2 h-6 w-6 grid place-items-center rounded-full bg-destructive text-destructive-foreground"><X className="h-3.5 w-3.5" /></button>
+                    </div>
+                  )}
+                  <div className="flex gap-2">
+                    <input ref={replyFileRef} type="file" accept="image/*" hidden onChange={e => pickFile(e.target.files?.[0] ?? null, setReplyFile, setReplyPreview)} />
+                    <button type="button" onClick={() => replyFileRef.current?.click()} className="h-10 w-10 self-end grid place-items-center rounded-md bg-surface border border-border hover:border-primary" title="Şəkil əlavə et"><Paperclip className="h-4 w-4" /></button>
+                    <textarea value={reply} onChange={e => setReply(e.target.value)} rows={2} placeholder="Cavab yaz..." className="flex-1 px-3 py-2 rounded-lg bg-background border border-border text-sm resize-none" />
+                    <button onClick={send} disabled={busy || (!reply.trim() && !replyFile)} className="h-10 self-end px-4 rounded-lg bg-neon text-background font-semibold inline-flex items-center gap-1.5 disabled:opacity-50">
+                      {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />} Göndər
+                    </button>
+                  </div>
                 </div>
               )}
             </div>
