@@ -94,14 +94,15 @@ function SellerDashboard() {
     ]);
     setForm({
       title: p.title, description: p.description ?? "",
-      price: String(p.price), old_price: p.old_price ? String(p.old_price) : "",
+      price: String(p.price), old_price: p.oldPrice ? String(p.oldPrice) : "",
       stock: String(p.stock), category: p.category, subcategory: (full as any)?.subcategory ?? "", platform: p.platform,
-      delivery: p.delivery, image_urls: (p.image_urls && p.image_urls.length ? p.image_urls : (p.image_url ? [p.image_url] : [])),
+      delivery: p.delivery, image_urls: (p.images && p.images.length ? p.images : (p.image ? [p.image] : [])),
       stock_items: ((items as any) ?? []).map((i: any) => i.content).join("\n"),
       auto_message_enabled: !!(full as any)?.auto_message_enabled,
       auto_message: (full as any)?.auto_message ?? "",
     });
     setShowForm(true);
+    setTimeout(() => window.scrollTo({ top: 0, behavior: "smooth" }), 50);
   }
 
   async function submit(e: React.FormEvent) {
