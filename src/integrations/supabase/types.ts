@@ -484,6 +484,8 @@ export type Database = {
         Row: {
           auto_message: string | null
           auto_message_enabled: boolean
+          boost_expires_at: string | null
+          boost_tier: string | null
           category: string
           created_at: string
           delivery: Database["public"]["Enums"]["delivery_type"]
@@ -505,6 +507,8 @@ export type Database = {
         Insert: {
           auto_message?: string | null
           auto_message_enabled?: boolean
+          boost_expires_at?: string | null
+          boost_tier?: string | null
           category: string
           created_at?: string
           delivery?: Database["public"]["Enums"]["delivery_type"]
@@ -526,6 +530,8 @@ export type Database = {
         Update: {
           auto_message?: string | null
           auto_message_enabled?: boolean
+          boost_expires_at?: string | null
+          boost_tier?: string | null
           category?: string
           created_at?: string
           delivery?: Database["public"]["Enums"]["delivery_type"]
@@ -555,6 +561,9 @@ export type Database = {
           last_seen_at: string | null
           referral_code: string | null
           referred_by: string | null
+          sales_count: number
+          sales_total: number
+          seller_tier: string
           shop_name: string | null
           updated_at: string
           username: string | null
@@ -568,6 +577,9 @@ export type Database = {
           last_seen_at?: string | null
           referral_code?: string | null
           referred_by?: string | null
+          sales_count?: number
+          sales_total?: number
+          seller_tier?: string
           shop_name?: string | null
           updated_at?: string
           username?: string | null
@@ -581,6 +593,9 @@ export type Database = {
           last_seen_at?: string | null
           referral_code?: string | null
           referred_by?: string | null
+          sales_count?: number
+          sales_total?: number
+          seller_tier?: string
           shop_name?: string | null
           updated_at?: string
           username?: string | null
@@ -972,6 +987,8 @@ export type Database = {
           display_name: string | null
           id: string | null
           last_seen_at: string | null
+          sales_count: number | null
+          seller_tier: string | null
           shop_name: string | null
           username: string | null
         }
@@ -981,6 +998,8 @@ export type Database = {
           display_name?: string | null
           id?: string | null
           last_seen_at?: string | null
+          sales_count?: number | null
+          seller_tier?: string | null
           shop_name?: string | null
           username?: string | null
         }
@@ -990,6 +1009,8 @@ export type Database = {
           display_name?: string | null
           id?: string | null
           last_seen_at?: string | null
+          sales_count?: number | null
+          seller_tier?: string | null
           shop_name?: string | null
           username?: string | null
         }
@@ -1092,6 +1113,14 @@ export type Database = {
         Returns: undefined
       }
       auto_confirm_orders: { Args: never; Returns: number }
+      boost_product: {
+        Args: { _hours: number; _product_id: string }
+        Returns: Json
+      }
+      compute_seller_tier: {
+        Args: { _avg_rating: number; _sales_count: number }
+        Returns: string
+      }
       confirm_order: { Args: { p_order_id: string }; Returns: undefined }
       create_order: {
         Args: {
@@ -1137,6 +1166,17 @@ export type Database = {
         }[]
       }
       get_my_wallet_balance: { Args: never; Returns: number }
+      get_recent_sales: {
+        Args: { _limit?: number }
+        Returns: {
+          buyer_name: string
+          created_at: string
+          order_id: string
+          price: number
+          product_slug: string
+          product_title: string
+        }[]
+      }
       get_referral_stats: {
         Args: never
         Returns: {
@@ -1173,6 +1213,7 @@ export type Database = {
         Args: { p_order_id: string; p_payload: string }
         Returns: undefined
       }
+      recalc_seller_tier: { Args: { _seller_id: string }; Returns: undefined }
       redeem_referral_signup: { Args: { p_code: string }; Returns: undefined }
       release_seller_funds: { Args: never; Returns: number }
       request_withdrawal: {
@@ -1200,6 +1241,7 @@ export type Database = {
         Args: { p_comment?: string; p_product_id: string; p_rating: number }
         Returns: string
       }
+      tier_commission_rate: { Args: { _tier: string }; Returns: number }
       toggle_favorite: { Args: { p_product_id: string }; Returns: boolean }
       touch_last_seen: { Args: never; Returns: undefined }
     }

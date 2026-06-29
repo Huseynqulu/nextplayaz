@@ -48,12 +48,22 @@ export function dbToProduct(p: DbProduct, seller?: SellerLite | string): Product
 }
 
 export async function fetchProducts(): Promise<Product[]> {
+  // Active boosts first (highest tier first), then by created_at desc
+  const nowIso = new Date().toISOString();
   const { data, error } = await supabase
     .from("products")
     .select("*")
     .eq("is_active", true)
+    .order("boost_expires_at", { ascending: false, nullsFirst: false })
     .order("created_at", { ascending: false });
   if (error || !data) return mockProducts;
+  // Clear boost rank for expired boosts in returned list (DB ordering already accounts via NULL last for expired? Not quite—filter manually)
+  data.sort((a: any, b: any) => {
+    const aActive = a.boost_expires_at && a.boost_expires_at > nowIso ? (a.boost_tier ?? 1) : 0;
+    const bActive = b.boost_expires_at && b.boost_expires_at > nowIso ? (b.boost_tier ?? 1) : 0;
+    if (aActive !== bActive) return bActive - aActive;
+    return (b.created_at ?? "").localeCompare(a.created_at ?? "");
+  });
 
   const sellerIds = Array.from(new Set(data.map(d => d.seller_id)));
   let sellerMap = new Map<string, SellerLite>();

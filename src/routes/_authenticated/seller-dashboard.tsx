@@ -5,8 +5,9 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
-import { Loader2, Plus, Package, Trash2, Pencil } from "lucide-react";
+import { Loader2, Plus, Package, Trash2, Pencil, Rocket } from "lucide-react";
 import { SellerAnalytics } from "@/components/SellerAnalytics";
+import { BoostDialog } from "@/components/BoostDialog";
 
 export const Route = createFileRoute("/_authenticated/seller-dashboard")({
   component: SellerDashboard,
@@ -26,6 +27,8 @@ type Product = {
   description: string | null;
   image_url: string | null;
   is_active: boolean;
+  boost_expires_at?: string | null;
+  boost_tier?: number | null;
 };
 
 const CATEGORIES = ["Games", "Accounts", "Keys", "Services"] as const;
@@ -45,6 +48,7 @@ function SellerDashboard() {
   const [editing, setEditing] = useState<Product | null>(null);
   const [saving, setSaving] = useState(false);
   const [uploadingImg, setUploadingImg] = useState(false);
+  const [boosting, setBoosting] = useState<Product | null>(null);
 
   const [form, setForm] = useState({
     title: "", description: "", price: "", old_price: "",
@@ -366,13 +370,23 @@ function SellerDashboard() {
                     </div>
                   )}
                   <div className="flex-1 min-w-0">
-                    <Link to="/product/$slug" params={{ slug: p.slug }} className="font-semibold hover:text-neon truncate block">{p.title}</Link>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <Link to="/product/$slug" params={{ slug: p.slug }} className="font-semibold hover:text-neon truncate">{p.title}</Link>
+                      {p.boost_expires_at && new Date(p.boost_expires_at) > new Date() && (
+                        <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-neon/15 text-neon border border-neon/30">
+                          <Rocket className="h-3 w-3" /> BOOST
+                        </span>
+                      )}
+                    </div>
                     <p className="text-xs text-muted-foreground">
                       {p.category} · {p.platform} · {p.price} AZN · stok: {p.stock}
                       {!p.is_active && <span className="ml-2 text-destructive">(deaktiv)</span>}
                     </p>
                   </div>
                   <div className="flex gap-2">
+                    <button onClick={() => setBoosting(p)} className="h-9 w-9 grid place-items-center rounded-lg border border-border hover:bg-neon/15 hover:text-neon hover:border-neon/40" aria-label="Boost" title="Boost et">
+                      <Rocket className="h-4 w-4" />
+                    </button>
                     <button onClick={() => startEdit(p)} className="h-9 w-9 grid place-items-center rounded-lg border border-border hover:bg-surface" aria-label="Edit">
                       <Pencil className="h-4 w-4" />
                     </button>
@@ -387,6 +401,15 @@ function SellerDashboard() {
         </div>
       </main>
       <Footer />
+      {boosting && (
+        <BoostDialog
+          productId={boosting.id}
+          productTitle={boosting.title}
+          currentExpiry={boosting.boost_expires_at ?? null}
+          onClose={() => setBoosting(null)}
+          onDone={refresh}
+        />
+      )}
     </div>
   );
 }
