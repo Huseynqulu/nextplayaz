@@ -42,6 +42,7 @@ function StaffPage() {
 
   const [orders, setOrders] = useState<OrderRow[]>([]);
   const [oFilter, setOFilter] = useState<"all" | "paid" | "delivered" | "completed" | "cancelled" | "disputed">("paid");
+  const [orderSearch, setOrderSearch] = useState("");
 
   const [convs, setConvs] = useState<Conv[]>([]);
   const [activeConv, setActiveConv] = useState<Conv | null>(null);
