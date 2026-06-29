@@ -103,5 +103,5 @@ export async function fetchProductBySlug(slug: string): Promise<Product | null> 
     } : undefined);
   }
 
-  return mockProducts.find(p => p.slug === slug) ?? null;
+  return null;
 }
