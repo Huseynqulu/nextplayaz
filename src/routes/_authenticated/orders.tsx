@@ -56,6 +56,33 @@ function OrdersPage() {
   const [disputeVideoUrl, setDisputeVideoUrl] = useState("");
   const [disputeFile, setDisputeFile] = useState<File | null>(null);
   const [disputeSubmitting, setDisputeSubmitting] = useState(false);
+  const [reviewOrder, setReviewOrder] = useState<Order | null>(null);
+  const [reviewRating, setReviewRating] = useState(5);
+  const [reviewHover, setReviewHover] = useState(0);
+  const [reviewComment, setReviewComment] = useState("");
+  const [reviewedIds, setReviewedIds] = useState<Set<string>>(new Set());
+  const [reviewSubmitting, setReviewSubmitting] = useState(false);
+
+  function openReview(o: Order) {
+    setReviewOrder(o);
+    setReviewRating(5);
+    setReviewHover(0);
+    setReviewComment("");
+  }
+  async function submitReview() {
+    if (!reviewOrder) return;
+    setReviewSubmitting(true);
+    const { error } = await supabase.rpc("submit_review" as any, {
+      p_product_id: reviewOrder.product_id,
+      p_rating: reviewRating,
+      p_comment: reviewComment.trim() || null,
+    });
+    setReviewSubmitting(false);
+    if (error) { toast.error(error.message); return; }
+    toast.success("Rəyiniz əlavə edildi");
+    setReviewedIds(s => new Set(s).add(reviewOrder.product_id));
+    setReviewOrder(null);
+  }
 
   async function refresh() {
     if (!user) return;
