@@ -176,6 +176,7 @@ export type Database = {
           auto_confirm_at: string | null
           buyer_id: string
           buyer_notes: string | null
+          commission_amount: number
           conversation_id: string | null
           created_at: string
           delivered_at: string | null
@@ -186,6 +187,7 @@ export type Database = {
           product_id: string
           quantity: number
           seller_id: string
+          seller_net: number
           status: Database["public"]["Enums"]["order_status"]
           total: number
           unit_price: number
@@ -195,6 +197,7 @@ export type Database = {
           auto_confirm_at?: string | null
           buyer_id: string
           buyer_notes?: string | null
+          commission_amount?: number
           conversation_id?: string | null
           created_at?: string
           delivered_at?: string | null
@@ -205,6 +208,7 @@ export type Database = {
           product_id: string
           quantity?: number
           seller_id: string
+          seller_net?: number
           status?: Database["public"]["Enums"]["order_status"]
           total: number
           unit_price: number
@@ -214,6 +218,7 @@ export type Database = {
           auto_confirm_at?: string | null
           buyer_id?: string
           buyer_notes?: string | null
+          commission_amount?: number
           conversation_id?: string | null
           created_at?: string
           delivered_at?: string | null
@@ -224,6 +229,7 @@ export type Database = {
           product_id?: string
           quantity?: number
           seller_id?: string
+          seller_net?: number
           status?: Database["public"]["Enums"]["order_status"]
           total?: number
           unit_price?: number
@@ -262,6 +268,47 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      platform_ledger: {
+        Row: {
+          amount: number
+          created_at: string
+          entry_type: string
+          id: string
+          notes: string | null
+          order_id: string | null
+          user_id: string | null
+          withdrawal_id: string | null
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          entry_type: string
+          id?: string
+          notes?: string | null
+          order_id?: string | null
+          user_id?: string | null
+          withdrawal_id?: string | null
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          entry_type?: string
+          id?: string
+          notes?: string | null
+          order_id?: string | null
+          user_id?: string | null
+          withdrawal_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "platform_ledger_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       product_stock_items: {
         Row: {
@@ -644,6 +691,57 @@ export type Database = {
         }
         Relationships: []
       }
+      wallet_withdrawals: {
+        Row: {
+          account_holder: string | null
+          admin_notes: string | null
+          amount: number
+          created_at: string
+          destination: string
+          fee: number
+          id: string
+          method: string
+          net_amount: number
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          account_holder?: string | null
+          admin_notes?: string | null
+          amount: number
+          created_at?: string
+          destination: string
+          fee?: number
+          id?: string
+          method: string
+          net_amount: number
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          account_holder?: string | null
+          admin_notes?: string | null
+          amount?: number
+          created_at?: string
+          destination?: string
+          fee?: number
+          id?: string
+          method?: string
+          net_amount?: number
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -651,6 +749,10 @@ export type Database = {
     Functions: {
       admin_approve_topup: {
         Args: { p_notes?: string; p_topup_id: string }
+        Returns: undefined
+      }
+      admin_approve_withdrawal: {
+        Args: { p_id: string; p_notes?: string }
         Returns: undefined
       }
       admin_delete_category: { Args: { p_slug: string }; Returns: undefined }
@@ -677,8 +779,16 @@ export type Database = {
         Args: { p_notes?: string; p_order_id: string; p_refund_amount: number }
         Returns: undefined
       }
+      admin_record_platform_payout: {
+        Args: { p_amount: number; p_notes?: string }
+        Returns: string
+      }
       admin_reject_topup: {
         Args: { p_notes?: string; p_topup_id: string }
+        Returns: undefined
+      }
+      admin_reject_withdrawal: {
+        Args: { p_id: string; p_notes?: string }
         Returns: undefined
       }
       admin_resolve_dispute: {
@@ -710,19 +820,14 @@ export type Database = {
       }
       auto_confirm_orders: { Args: never; Returns: number }
       confirm_order: { Args: { p_order_id: string }; Returns: undefined }
-      create_order:
-        | {
-            Args: { p_product_id: string; p_quantity?: number }
-            Returns: string
-          }
-        | {
-            Args: {
-              p_discount_code?: string
-              p_product_id: string
-              p_quantity?: number
-            }
-            Returns: string
-          }
+      create_order: {
+        Args: {
+          p_discount_code?: string
+          p_product_id: string
+          p_quantity?: number
+        }
+        Returns: string
+      }
       dispute_order: {
         Args: { p_order_id: string; p_reason: string }
         Returns: undefined
@@ -741,6 +846,15 @@ export type Database = {
       mark_order_delivered: {
         Args: { p_order_id: string; p_payload: string }
         Returns: undefined
+      }
+      request_withdrawal: {
+        Args: {
+          p_account_holder?: string
+          p_amount: number
+          p_destination: string
+          p_method: string
+        }
+        Returns: string
       }
       staff_cancel_order: {
         Args: { p_order_id: string; p_reason?: string }
