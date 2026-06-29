@@ -83,7 +83,7 @@ export async function fetchProducts(): Promise<Product[]> {
 
 
   const dbItems = data.map(d => dbToProduct(d as unknown as DbProduct, sellerMap.get(d.seller_id)));
-  return [...dbItems, ...mockProducts];
+  return dbItems;
 }
 
 export async function fetchProductBySlug(slug: string): Promise<Product | null> {
