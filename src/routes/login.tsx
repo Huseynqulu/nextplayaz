@@ -17,18 +17,47 @@ function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [mfa, setMfa] = useState<{ factorId: string; challengeId: string } | null>(null);
+  const [mfaCode, setMfaCode] = useState("");
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
     const { error } = await supabase.auth.signInWithPassword({ email, password });
-    setLoading(false);
-    if (error) {
-      toast.error(error.message);
-      return;
+    if (error) { setLoading(false); toast.error(error.message); return; }
+
+    // Check if MFA challenge is required
+    const { data: aal } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+    if (aal?.nextLevel === "aal2" && aal.currentLevel === "aal1") {
+      const { data: factors } = await supabase.auth.mfa.listFactors();
+      const totp = factors?.totp?.find(f => f.status === "verified");
+      if (totp) {
+        const { data: ch, error: chErr } = await supabase.auth.mfa.challenge({ factorId: totp.id });
+        setLoading(false);
+        if (chErr) { toast.error(chErr.message); return; }
+        setMfa({ factorId: totp.id, challengeId: ch.id });
+        return;
+      }
     }
+    setLoading(false);
     toast.success("Xoş gəldin!");
     navigate({ to: "/" });
+  }
+
+  async function verifyMfa(e: React.FormEvent) {
+    e.preventDefault();
+    if (!mfa || mfaCode.length !== 6) return;
+    setLoading(true);
+    const { error } = await supabase.auth.mfa.verify({ factorId: mfa.factorId, challengeId: mfa.challengeId, code: mfaCode });
+    setLoading(false);
+    if (error) { toast.error(error.message); return; }
+    toast.success("Xoş gəldin!");
+    navigate({ to: "/" });
+  }
+
+  async function cancelMfa() {
+    await supabase.auth.signOut();
+    setMfa(null); setMfaCode("");
   }
 
   async function handleGoogle() {
