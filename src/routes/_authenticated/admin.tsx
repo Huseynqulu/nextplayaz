@@ -508,7 +508,8 @@ function AdminPage() {
                   {ticketMsgs.map(m => (
                     <div key={m.id} className={`rounded-lg p-3 border ${m.is_admin ? "bg-neon/10 border-neon/30" : "bg-surface/40 border-border"}`}>
                       <div className="text-[10px] uppercase text-muted-foreground mb-1">{m.is_admin ? "Admin" : "İstifadəçi"} · {new Date(m.created_at).toLocaleString("az-AZ")}</div>
-                      <p className="text-sm whitespace-pre-wrap">{m.body}</p>
+                      {m.body && <p className="text-sm whitespace-pre-wrap">{m.body}</p>}
+                      {m.attachment_url && <div className="mt-2"><ChatImage path={m.attachment_url} /></div>}
                     </div>
                   ))}
                 </div>
