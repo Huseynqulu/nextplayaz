@@ -25,8 +25,9 @@ type DiscountCode = { id: string; code: string; percent: number; max_uses: numbe
 type AdminTicket = { id: string; user_id: string; order_id: string | null; subject: string; message: string; category: string; status: string; priority: string; created_at: string; updated_at: string };
 type TicketMsg = { id: string; sender_id: string; is_admin: boolean; body: string; created_at: string };
 type TopUp = { id: string; user_id: string; amount: number; method: string; sender_note: string | null; receipt_url: string | null; status: "pending"|"approved"|"rejected"; admin_notes: string | null; created_at: string };
+type PaymentSetting = { method: string; label: string; instructions: string; is_active: boolean };
 
-type Tab = "applications" | "users" | "codes" | "products" | "tickets" | "topups";
+type Tab = "applications" | "users" | "codes" | "products" | "tickets" | "topups" | "payments";
 
 function AdminPage() {
   const { user } = useAuth();
