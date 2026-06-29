@@ -1,20 +1,29 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { ProductCard } from "@/components/ProductCard";
 import { categories, platforms, products as mockProducts } from "@/lib/marketplace-data";
 import { fetchProducts } from "@/lib/products";
 import { useEffect, useMemo, useState } from "react";
-import { Search, SlidersHorizontal, Loader2 } from "lucide-react";
+import { Search, SlidersHorizontal, Loader2, X, Zap, ShieldCheck, Star } from "lucide-react";
 import { z } from "zod";
+import { zodValidator, fallback } from "@tanstack/zod-adapter";
 
 const searchSchema = z.object({
-  cat: z.string().optional(),
-  q: z.string().optional(),
+  q: fallback(z.string(), "").default(""),
+  cat: fallback(z.string(), "all").default("all"),
+  platform: fallback(z.string(), "all").default("all"),
+  delivery: fallback(z.enum(["all", "Instant", "Manual"]), "all").default("all"),
+  min: fallback(z.number().min(0), 0).default(0),
+  max: fallback(z.number().min(0), 0).default(0),
+  rating: fallback(z.number().min(0).max(5), 0).default(0),
+  verified: fallback(z.boolean(), false).default(false),
+  inStock: fallback(z.boolean(), true).default(true),
+  sort: fallback(z.enum(["popular", "low", "high", "rating", "newest"]), "popular").default("popular"),
 });
 
 export const Route = createFileRoute("/marketplace")({
-  validateSearch: searchSchema,
+  validateSearch: zodValidator(searchSchema),
   component: MarketplacePage,
   head: () => ({
     meta: [
@@ -25,38 +34,71 @@ export const Route = createFileRoute("/marketplace")({
 });
 
 function MarketplacePage() {
-  const { cat: initialCat, q: initialQ } = Route.useSearch();
-  const [cat, setCat] = useState<string>(initialCat ?? "all");
-  const [platform, setPlatform] = useState<string>("all");
-  const [q, setQ] = useState<string>(initialQ ?? "");
-  const [sort, setSort] = useState<"popular" | "low" | "high" | "rating">("popular");
+  const s = Route.useSearch();
+  const navigate = useNavigate({ from: "/marketplace" });
+  const update = (patch: Partial<typeof s>) =>
+    navigate({ search: ((prev: any) => ({ ...prev, ...patch })) as any, replace: true });
+
   const [products, setProducts] = useState<import("@/lib/marketplace-data").Product[]>(mockProducts);
   const [loading, setLoading] = useState(true);
+  const [qLocal, setQLocal] = useState(s.q);
 
+  useEffect(() => { fetchProducts().then(p => { setProducts(p); setLoading(false); }); }, []);
+  useEffect(() => { setQLocal(s.q); }, [s.q]);
+
+  // Debounce free-text search → URL
   useEffect(() => {
-    fetchProducts().then(p => { setProducts(p); setLoading(false); });
-  }, []);
+    const t = setTimeout(() => { if (qLocal !== s.q) update({ q: qLocal }); }, 250);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [qLocal]);
 
   const filtered = useMemo(() => {
     let r = products.slice();
-    if (cat !== "all") r = r.filter(p => p.category === cat);
-    if (platform !== "all") r = r.filter(p => p.platform === platform);
-    if (q.trim()) {
-      const s = q.toLowerCase();
-      r = r.filter(p => p.title.toLowerCase().includes(s) || (p.description ?? "").toLowerCase().includes(s));
+    if (s.cat !== "all") r = r.filter(p => p.category === s.cat);
+    if (s.platform !== "all") r = r.filter(p => p.platform === s.platform);
+    if (s.delivery !== "all") r = r.filter(p => p.delivery === s.delivery);
+    if (s.verified) r = r.filter(p => p.seller?.verified);
+    if (s.inStock) r = r.filter(p => (p.stock ?? 0) > 0);
+    if (s.min > 0) r = r.filter(p => p.price >= s.min);
+    if (s.max > 0) r = r.filter(p => p.price <= s.max);
+    if (s.rating > 0) r = r.filter(p => (p.rating ?? 0) >= s.rating);
+    if (s.q.trim()) {
+      const q = s.q.toLowerCase();
+      r = r.filter(p =>
+        p.title.toLowerCase().includes(q) ||
+        (p.description ?? "").toLowerCase().includes(q) ||
+        (p.seller?.shopName ?? "").toLowerCase().includes(q) ||
+        (p.seller?.name ?? "").toLowerCase().includes(q)
+      );
     }
-    if (sort === "low") r.sort((a, b) => a.price - b.price);
-    if (sort === "high") r.sort((a, b) => b.price - a.price);
-    if (sort === "rating") r.sort((a, b) => b.rating - a.rating);
+    if (s.sort === "low") r.sort((a, b) => a.price - b.price);
+    else if (s.sort === "high") r.sort((a, b) => b.price - a.price);
+    else if (s.sort === "rating") r.sort((a, b) => b.rating - a.rating);
+    else if (s.sort === "newest") r.sort((a, b) => (b.id > a.id ? 1 : -1));
     return r;
-  }, [cat, platform, q, sort, products]);
+  }, [products, s]);
+
+  const activeCount =
+    (s.cat !== "all" ? 1 : 0) +
+    (s.platform !== "all" ? 1 : 0) +
+    (s.delivery !== "all" ? 1 : 0) +
+    (s.verified ? 1 : 0) +
+    (s.min > 0 ? 1 : 0) +
+    (s.max > 0 ? 1 : 0) +
+    (s.rating > 0 ? 1 : 0);
+
+  const reset = () => navigate({
+    search: { q: "", cat: "all", platform: "all", delivery: "all", min: 0, max: 0, rating: 0, verified: false, inStock: true, sort: "popular" } as any,
+    replace: true,
+  });
 
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
       <main className="flex-1">
         <section className="border-b border-border bg-surface/30">
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10">
             <h1 className="font-display text-4xl sm:text-5xl font-bold">Marketplace</h1>
             <p className="mt-3 text-muted-foreground max-w-2xl">
               {loading ? "Yüklənir..." : `${products.length} məhsul`}, yoxlanılmış satıcılar, escrow qorunma altında.
@@ -66,26 +108,21 @@ function MarketplacePage() {
               <div className="relative flex-1">
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <input
-                  value={q}
-                  onChange={e => setQ(e.target.value)}
-                  placeholder="Məhsul axtar..."
-                  className="w-full h-12 pl-12 pr-4 rounded-xl bg-background border border-border focus:outline-none focus:ring-2 focus:ring-ring"
+                  value={qLocal}
+                  onChange={e => setQLocal(e.target.value)}
+                  placeholder="Məhsul, satıcı və ya mağaza axtar..."
+                  className="w-full h-12 pl-12 pr-10 rounded-xl bg-background border border-border focus:outline-none focus:ring-2 focus:ring-ring"
                 />
+                {qLocal && (
+                  <button onClick={() => setQLocal("")} className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded hover:bg-surface" aria-label="Sil">
+                    <X className="h-4 w-4 text-muted-foreground" />
+                  </button>
+                )}
               </div>
-              <select
-                value={platform}
-                onChange={e => setPlatform(e.target.value)}
-                className="h-12 px-4 rounded-xl bg-background border border-border focus:outline-none focus:ring-2 focus:ring-ring min-w-[160px]"
-              >
-                <option value="all">Bütün platformalar</option>
-                {platforms.map(p => <option key={p} value={p}>{p}</option>)}
-              </select>
-              <select
-                value={sort}
-                onChange={e => setSort(e.target.value as typeof sort)}
-                className="h-12 px-4 rounded-xl bg-background border border-border focus:outline-none focus:ring-2 focus:ring-ring min-w-[160px]"
-              >
+              <select value={s.sort} onChange={e => update({ sort: e.target.value as typeof s.sort })}
+                className="h-12 px-4 rounded-xl bg-background border border-border focus:outline-none focus:ring-2 focus:ring-ring min-w-[170px]">
                 <option value="popular">Populyar</option>
+                <option value="newest">Ən yenilər</option>
                 <option value="low">Ən aşağı qiymət</option>
                 <option value="high">Ən yüksək qiymət</option>
                 <option value="rating">Reytinqə görə</option>
@@ -94,15 +131,12 @@ function MarketplacePage() {
 
             <div className="mt-6 flex flex-wrap gap-2">
               {categories.map(c => (
-                <button
-                  key={c.id}
-                  onClick={() => setCat(c.id)}
+                <button key={c.id} onClick={() => update({ cat: c.id })}
                   className={`px-4 py-2 rounded-full text-sm font-medium transition border ${
-                    cat === c.id
+                    s.cat === c.id
                       ? "bg-neon text-background border-transparent neon-ring"
                       : "bg-surface border-border text-muted-foreground hover:text-foreground hover:border-primary/40"
-                  }`}
-                >
+                  }`}>
                   {c.label} <span className="opacity-60">({c.count})</span>
                 </button>
               ))}
@@ -110,26 +144,131 @@ function MarketplacePage() {
           </div>
         </section>
 
-        <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10">
-          <div className="flex items-center justify-between mb-6">
-            <p className="text-sm text-muted-foreground">
-              <SlidersHorizontal className="inline h-4 w-4 mr-1.5" />
-              {filtered.length} məhsul tapıldı
-            </p>
-          </div>
+        <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 grid lg:grid-cols-[260px_1fr] gap-8">
+          {/* Sidebar filters */}
+          <aside className="space-y-6">
+            <div className="rounded-xl border border-border bg-card-gradient p-4">
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="font-semibold text-sm flex items-center gap-2">
+                  <SlidersHorizontal className="h-4 w-4 text-neon" /> Filtrlər
+                  {activeCount > 0 && <span className="text-[10px] bg-neon text-background rounded-full px-2 py-0.5">{activeCount}</span>}
+                </h3>
+                {activeCount > 0 && (
+                  <button onClick={reset} className="text-xs text-muted-foreground hover:text-foreground">Sıfırla</button>
+                )}
+              </div>
 
-          {loading ? (<div className="py-20 grid place-items-center"><Loader2 className="h-6 w-6 animate-spin text-neon" /></div>) : filtered.length === 0 ? (
-            <div className="py-20 text-center">
-              <p className="text-lg text-muted-foreground">Heç bir nəticə tapılmadı.</p>
+              <div className="space-y-4 text-sm">
+                <div>
+                  <label className="block text-xs text-muted-foreground mb-1.5">Platforma</label>
+                  <select value={s.platform} onChange={e => update({ platform: e.target.value })}
+                    className="w-full h-10 px-3 rounded-lg bg-background border border-border focus:outline-none focus:ring-2 focus:ring-ring">
+                    <option value="all">Bütün platformalar</option>
+                    {platforms.map(p => <option key={p} value={p}>{p}</option>)}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs text-muted-foreground mb-1.5">Çatdırılma</label>
+                  <div className="grid grid-cols-3 gap-1">
+                    {(["all", "Instant", "Manual"] as const).map(d => (
+                      <button key={d} onClick={() => update({ delivery: d })}
+                        className={`h-9 rounded-lg text-xs font-semibold border transition ${
+                          s.delivery === d ? "bg-neon text-background border-transparent" : "bg-background border-border text-muted-foreground hover:text-foreground"
+                        }`}>
+                        {d === "all" ? "Hamısı" : d === "Instant" ? "⚡ Anında" : "Əl ilə"}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs text-muted-foreground mb-1.5">Qiymət (₼)</label>
+                  <div className="flex items-center gap-2">
+                    <input type="number" min={0} value={s.min || ""} onChange={e => update({ min: Number(e.target.value) || 0 })}
+                      placeholder="Min" className="w-full h-10 px-3 rounded-lg bg-background border border-border focus:outline-none focus:ring-2 focus:ring-ring" />
+                    <span className="text-muted-foreground">–</span>
+                    <input type="number" min={0} value={s.max || ""} onChange={e => update({ max: Number(e.target.value) || 0 })}
+                      placeholder="Max" className="w-full h-10 px-3 rounded-lg bg-background border border-border focus:outline-none focus:ring-2 focus:ring-ring" />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs text-muted-foreground mb-1.5">Minimum reytinq</label>
+                  <div className="flex gap-1">
+                    {[0, 3, 4, 4.5].map(r => (
+                      <button key={r} onClick={() => update({ rating: r })}
+                        className={`flex-1 h-9 rounded-lg text-xs font-semibold border transition inline-flex items-center justify-center gap-1 ${
+                          s.rating === r ? "bg-neon text-background border-transparent" : "bg-background border-border text-muted-foreground hover:text-foreground"
+                        }`}>
+                        {r === 0 ? "Hamısı" : <><Star className="h-3 w-3 fill-current" />{r}+</>}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input type="checkbox" checked={s.verified} onChange={e => update({ verified: e.target.checked })}
+                    className="h-4 w-4 accent-neon" />
+                  <span className="inline-flex items-center gap-1"><ShieldCheck className="h-3.5 w-3.5 text-sky-400" /> Yalnız doğrulanmış satıcılar</span>
+                </label>
+
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input type="checkbox" checked={s.inStock} onChange={e => update({ inStock: e.target.checked })}
+                    className="h-4 w-4 accent-neon" />
+                  <span className="inline-flex items-center gap-1"><Zap className="h-3.5 w-3.5 text-success" /> Yalnız stokda olanlar</span>
+                </label>
+              </div>
             </div>
-          ) : (
-            <div className="grid gap-5 grid-cols-2 lg:grid-cols-4">
-              {filtered.map(p => <ProductCard key={p.id} p={p} />)}
+          </aside>
+
+          {/* Results */}
+          <div>
+            <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
+              <p className="text-sm text-muted-foreground">
+                {filtered.length} məhsul tapıldı
+              </p>
+              {(s.q || activeCount > 0) && (
+                <div className="flex flex-wrap gap-1.5">
+                  {s.q && (
+                    <Chip label={`"${s.q}"`} onClear={() => { setQLocal(""); update({ q: "" }); }} />
+                  )}
+                  {s.cat !== "all" && <Chip label={s.cat} onClear={() => update({ cat: "all" })} />}
+                  {s.platform !== "all" && <Chip label={s.platform} onClear={() => update({ platform: "all" })} />}
+                  {s.delivery !== "all" && <Chip label={s.delivery === "Instant" ? "⚡ Anında" : "Əl ilə"} onClear={() => update({ delivery: "all" })} />}
+                  {s.min > 0 && <Chip label={`≥ ${s.min}₼`} onClear={() => update({ min: 0 })} />}
+                  {s.max > 0 && <Chip label={`≤ ${s.max}₼`} onClear={() => update({ max: 0 })} />}
+                  {s.rating > 0 && <Chip label={`★ ${s.rating}+`} onClear={() => update({ rating: 0 })} />}
+                  {s.verified && <Chip label="Doğrulanmış" onClear={() => update({ verified: false })} />}
+                </div>
+              )}
             </div>
-          )}
+
+            {loading ? (
+              <div className="py-20 grid place-items-center"><Loader2 className="h-6 w-6 animate-spin text-neon" /></div>
+            ) : filtered.length === 0 ? (
+              <div className="py-20 text-center">
+                <p className="text-lg text-muted-foreground">Heç bir nəticə tapılmadı.</p>
+                <button onClick={reset} className="mt-4 h-10 px-5 rounded-lg bg-neon text-background font-semibold text-sm">Filtrləri sıfırla</button>
+              </div>
+            ) : (
+              <div className="grid gap-5 grid-cols-1 sm:grid-cols-2 xl:grid-cols-3">
+                {filtered.map(p => <ProductCard key={p.id} p={p} />)}
+              </div>
+            )}
+          </div>
         </section>
       </main>
       <Footer />
     </div>
+  );
+}
+
+function Chip({ label, onClear }: { label: string; onClear: () => void }) {
+  return (
+    <span className="inline-flex items-center gap-1 h-7 px-2.5 rounded-full bg-surface border border-border text-xs">
+      {label}
+      <button onClick={onClear} className="hover:text-foreground text-muted-foreground" aria-label="Sil"><X className="h-3 w-3" /></button>
+    </span>
   );
 }
