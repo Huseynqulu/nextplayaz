@@ -118,7 +118,7 @@ function ProductPage() {
             {/* Gallery */}
             <div>
               <div className="relative aspect-[4/3] overflow-hidden rounded-2xl border border-border card-shadow">
-                <img src={p.image} alt={p.title} className="absolute inset-0 h-full w-full object-cover" />
+                <img src={activeImg} alt={p.title} className="absolute inset-0 h-full w-full object-cover" />
                 <div className="absolute inset-0 bg-gradient-to-t from-background/30 to-transparent" />
                 {p.tag && (
                   <span className="absolute top-4 left-4 px-3 py-1.5 rounded-md text-xs font-bold bg-destructive text-destructive-foreground">
@@ -126,13 +126,15 @@ function ProductPage() {
                   </span>
                 )}
               </div>
-              <div className="mt-4 grid grid-cols-4 gap-3">
-                {[p.image, p.image, p.image, p.image].map((src, i) => (
-                  <button key={i} className="aspect-square overflow-hidden rounded-xl border border-border hover:border-primary transition">
-                    <img src={src} alt="" className="h-full w-full object-cover" />
-                  </button>
-                ))}
-              </div>
+              {gallery.length > 1 && (
+                <div className="mt-4 grid grid-cols-4 sm:grid-cols-5 gap-3">
+                  {gallery.map((src, i) => (
+                    <button key={i} onClick={() => setActiveImg(src)} className={`aspect-square overflow-hidden rounded-xl border transition ${activeImg === src ? "border-primary" : "border-border hover:border-primary/60"}`}>
+                      <img src={src} alt="" className="h-full w-full object-cover" />
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Info */}
