@@ -30,6 +30,9 @@ function RegisterPage() {
   const [confirm, setConfirm] = useState("");
   const [ref, setRef] = useState(search.ref ?? "");
   const [loading, setLoading] = useState(false);
+  const [usernameStatus, setUsernameStatus] = useState<"idle" | "checking" | "ok" | "taken" | "invalid">("idle");
+
+  const USERNAME_RE = /^[a-z0-9_.]{3,20}$/;
 
   useEffect(() => {
     if (search.ref) {
@@ -41,6 +44,20 @@ function RegisterPage() {
       } catch {/* ignore */}
     }
   }, [search.ref]);
+
+  useEffect(() => {
+    const u = username.trim().toLowerCase();
+    if (!u) { setUsernameStatus("idle"); return; }
+    if (!USERNAME_RE.test(u)) { setUsernameStatus("invalid"); return; }
+    setUsernameStatus("checking");
+    let active = true;
+    const t = setTimeout(async () => {
+      const { data } = await supabase.from("public_profiles" as any).select("id").eq("username", u).limit(1).maybeSingle();
+      if (!active) return;
+      setUsernameStatus(data ? "taken" : "ok");
+    }, 350);
+    return () => { active = false; clearTimeout(t); };
+  }, [username]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
