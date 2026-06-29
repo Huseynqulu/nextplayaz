@@ -85,6 +85,7 @@ function SellerProfilePage() {
                 <div className="flex flex-wrap items-center gap-2">
                   <h1 className="font-display text-2xl sm:text-3xl font-bold">{name}</h1>
                   <ShieldCheck className="h-5 w-5 text-neon" />
+                  <SellerTierBadge sellerId={profile.id} size="md" showStats />
                   <span className={`px-2 py-0.5 rounded-full text-[11px] font-semibold ${online ? "bg-success/15 text-success" : "bg-surface text-muted-foreground"}`}>
                     {online ? "● Onlayn" : "Offline"}
                   </span>
