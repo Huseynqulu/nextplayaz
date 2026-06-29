@@ -309,6 +309,7 @@ function AdminPage() {
               ["users", "İstifadəçilər"],
               ["topups", `Balans (${topups.filter(t => t.status === "pending").length})`],
               ["payments", "Rekvizitlər"],
+              ["categories", "Kateqoriyalar"],
               ["codes", "Endirim kodları"],
               ["products", "Məhsullar"],
             ] as const).map(([key, label]) => (
