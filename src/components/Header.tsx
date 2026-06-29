@@ -17,6 +17,7 @@ export function Header() {
   const navigate = useNavigate();
   const [roles, setRoles] = useState<string[]>([]);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [displayLabel, setDisplayLabel] = useState<string | null>(null);
   const [unreadDm, setUnreadDm] = useState(0);
 
   useEffect(() => {
