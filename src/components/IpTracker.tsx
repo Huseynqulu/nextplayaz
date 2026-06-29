@@ -12,6 +12,18 @@ export function IpTracker() {
       if (!data.session || done) return;
       done = true;
       try { await record(); } catch {}
+      try {
+        const { data: prof } = await supabase
+          .from("profiles")
+          .select("banned_at, ban_reason")
+          .eq("id", data.session.user.id)
+          .maybeSingle();
+        if (prof?.banned_at) {
+          await supabase.auth.signOut();
+          alert(`Hesabınız ban edilib.${prof.ban_reason ? `\nSəbəb: ${prof.ban_reason}` : ""}`);
+          window.location.href = "/";
+        }
+      } catch {}
     };
     run();
     const { data: sub } = supabase.auth.onAuthStateChange((event) => {
