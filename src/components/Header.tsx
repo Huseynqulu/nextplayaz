@@ -128,6 +128,9 @@ export function Header() {
                     <Link to="/favorites" onClick={() => setMenuOpen(false)} className="flex items-center gap-2 px-4 py-2.5 text-sm hover:bg-surface transition">
                       <Heart className="h-4 w-4" /> İstək siyahım
                     </Link>
+                    <Link to="/referrals" onClick={() => setMenuOpen(false)} className="flex items-center gap-2 px-4 py-2.5 text-sm hover:bg-surface transition">
+                      <Gift className="h-4 w-4 text-neon" /> Referal proqramı
+                    </Link>
                     <Link to="/support-tickets" onClick={() => setMenuOpen(false)} className="flex items-center gap-2 px-4 py-2.5 text-sm hover:bg-surface transition">
                       <LifeBuoy className="h-4 w-4" /> Dəstək müraciətlərim
                     </Link>
