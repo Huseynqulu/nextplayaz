@@ -92,19 +92,27 @@ function InboxPage() {
                 const otherId = c.user_a === user!.id ? c.user_b : c.user_a;
                 const p = profiles[otherId];
                 const prod = c.product_id ? products[c.product_id] : null;
+                const u = unread[c.id] ?? 0;
+                const online = isOnline(p?.last_seen_at);
                 return (
                   <button key={c.id} onClick={() => navigate({ to: "/messages/$conversationId", params: { conversationId: c.id } })}
                     className="w-full text-left rounded-xl border border-border bg-card-gradient p-4 hover:border-primary transition flex items-center gap-3 card-shadow">
-                    <div className="h-11 w-11 rounded-full bg-surface grid place-items-center overflow-hidden shrink-0">
-                      {p?.avatar_url ? <img src={p.avatar_url} alt="" className="h-full w-full object-cover" /> : <UserIcon className="h-5 w-5 text-muted-foreground" />}
+                    <div className="relative shrink-0">
+                      <div className="h-11 w-11 rounded-full bg-surface grid place-items-center overflow-hidden">
+                        {p?.avatar_url ? <img src={p.avatar_url} alt="" className="h-full w-full object-cover" /> : <UserIcon className="h-5 w-5 text-muted-foreground" />}
+                      </div>
+                      <span className={`absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-background ${online ? "bg-success" : "bg-muted"}`} />
                     </div>
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center justify-between gap-2">
-                        <p className="font-semibold truncate">{p?.display_name ?? p?.username ?? "İstifadəçi"}</p>
+                        <p className={`truncate ${u > 0 ? "font-bold" : "font-semibold"}`}>{p?.display_name ?? p?.username ?? "İstifadəçi"}</p>
                         <span className="text-[11px] text-muted-foreground shrink-0">{new Date(c.last_message_at).toLocaleString("az-AZ", { dateStyle: "short", timeStyle: "short" })}</span>
                       </div>
                       {prod && <p className="text-[11px] text-neon truncate">↳ {prod.title}</p>}
-                      <p className="text-sm text-muted-foreground truncate">{c.last_message_preview ?? "—"}</p>
+                      <div className="flex items-center gap-2">
+                        <p className={`text-sm truncate flex-1 ${u > 0 ? "text-foreground font-medium" : "text-muted-foreground"}`}>{c.last_message_preview ?? "—"}</p>
+                        {u > 0 && <span className="shrink-0 min-w-[20px] h-5 px-1.5 rounded-full bg-neon text-background text-[11px] font-bold grid place-items-center">{u}</span>}
+                      </div>
                     </div>
                   </button>
                 );
