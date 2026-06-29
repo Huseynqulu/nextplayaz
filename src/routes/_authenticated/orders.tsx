@@ -79,6 +79,15 @@ function OrdersPage() {
     if (error) toast.error(error.message); else { toast.success("Təsdiq edildi, satıcıya ödəniş köçürüldü"); refresh(); }
   }
 
+  async function dispute(o: Order) {
+    const reason = prompt("Etirazınızın səbəbi (minimum 5 simvol):");
+    if (!reason || reason.trim().length < 5) { if (reason !== null) toast.error("Səbəb çox qısadır"); return; }
+    setBusy(o.id);
+    const { error } = await supabase.rpc("dispute_order" as any, { p_order_id: o.id, p_reason: reason.trim() });
+    setBusy(null);
+    if (error) toast.error(error.message); else { toast.success("Etiraz göndərildi, admin baxacaq"); refresh(); }
+  }
+
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
