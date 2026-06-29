@@ -82,7 +82,7 @@ export function ProductCard({ p }: { p: Product }) {
             p.delivery === "Instant" ? "bg-neon/20 border-neon/40 text-neon" : "bg-background/70 border-border"
           }`}>
             {p.delivery === "Instant" && <Zap className="h-2.5 w-2.5" />}
-            {p.delivery}
+            {p.delivery === "Instant" ? "Anında" : "Əllə"}
           </span>
         </div>
       </div>
