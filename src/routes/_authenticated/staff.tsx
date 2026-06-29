@@ -145,6 +145,17 @@ function StaffPage() {
     setBusy(null);
   }
 
+  async function reopenOrder(o: OrderRow) {
+    const reason = prompt("Yenidən açma səbəbi (məcburi):", "Müştəri dəstək vasitəsilə müraciət etdi");
+    if (!reason || reason.trim().length < 3) return;
+    if (!confirm(`Sifariş yenidən mübahisəyə alınsın? Satıcının balansından ${Number((o as any).seller_net ?? 0).toFixed(2)} ₼ tutulacaq (əgər artıq köçürülübsə).`)) return;
+    setBusy(o.id);
+    const { error } = await supabase.rpc("staff_reopen_order" as any, { p_order_id: o.id, p_reason: reason });
+    if (error) toast.error(error.message);
+    else { toast.success("Sifariş yenidən açıldı və mübahisəyə alındı"); await refresh(); }
+    setBusy(null);
+  }
+
   async function openConv(c: Conv) {
     setActiveConv(c);
     setDms([]);
