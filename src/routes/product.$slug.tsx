@@ -12,6 +12,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
 import { useCurrency } from "@/lib/currency";
 import { VerifiedBadge } from "@/components/VerifiedBadge";
+import { useFavorites, isRealProductId } from "@/lib/favorites";
 
 export const Route = createFileRoute("/product/$slug")({
   loader: async ({ params }) => {
