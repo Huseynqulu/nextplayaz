@@ -5,7 +5,7 @@ import { Footer } from "@/components/Footer";
 import { ProductCard } from "@/components/ProductCard";
 import { products as mockProducts } from "@/lib/marketplace-data";
 import { fetchProductBySlug } from "@/lib/products";
-import { Star, ShieldCheck, Zap, Lock, Package, MessageCircle, Heart, Share2, Loader2 } from "lucide-react";
+import { Star, ShieldCheck, Zap, Lock, Package, MessageCircle, Heart, Share2, Loader2, X, FileText } from "lucide-react";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
