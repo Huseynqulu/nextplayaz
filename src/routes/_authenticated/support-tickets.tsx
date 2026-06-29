@@ -1,11 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
-import { Loader2, LifeBuoy, Plus, ArrowLeft, Send, ShoppingBag } from "lucide-react";
+import { Loader2, LifeBuoy, Plus, ArrowLeft, Send, ShoppingBag, Paperclip, X } from "lucide-react";
+import { uploadChatAttachment } from "@/lib/chat-attachments";
+import { ChatImage } from "@/components/ChatImage";
 
 export const Route = createFileRoute("/_authenticated/support-tickets")({
   component: SupportTicketsPage,
@@ -16,7 +18,7 @@ type Ticket = {
   id: string; subject: string; message: string; category: string; status: string;
   priority: string; order_id: string | null; created_at: string; updated_at: string;
 };
-type Msg = { id: string; sender_id: string; is_admin: boolean; body: string; created_at: string };
+type Msg = { id: string; sender_id: string; is_admin: boolean; body: string; created_at: string; attachment_url?: string | null };
 type OrderOpt = { id: string; product_title: string; created_at: string };
 
 const CATEGORIES: { value: string; label: string }[] = [
