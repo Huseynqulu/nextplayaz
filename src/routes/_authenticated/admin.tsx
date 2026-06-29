@@ -640,6 +640,20 @@ function AdminPage() {
       )}
 
 
+      {topupReceipt && (
+        <div className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm flex items-center justify-center p-4" onClick={() => setTopupReceipt(null)}>
+          <div className="w-full max-w-2xl rounded-2xl border border-border bg-card-gradient p-4 card-shadow" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="font-semibold">Ödəniş qəbzi</h3>
+              <button onClick={() => setTopupReceipt(null)} className="grid h-9 w-9 place-items-center rounded-lg hover:bg-surface"><X className="h-4 w-4" /></button>
+            </div>
+            <a href={topupReceipt.url} target="_blank" rel="noreferrer" className="block">
+              <img src={topupReceipt.url} alt="Receipt" className="w-full rounded-lg border border-border" />
+            </a>
+          </div>
+        </div>
+      )}
+
       <Footer />
     </div>
   );
