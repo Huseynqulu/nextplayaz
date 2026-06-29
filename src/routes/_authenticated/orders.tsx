@@ -48,11 +48,9 @@ const STATUS_LABEL: Record<string, { label: string; cls: string; icon: any }> = 
 function OrdersPage() {
   const { user } = useAuth();
   const { format } = useCurrency();
-  const [tab, setTab] = useState<"buying" | "selling">("buying");
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState<string | null>(null);
-  const [payloadInput, setPayloadInput] = useState<Record<string, string>>({});
   const [disputeOrder, setDisputeOrder] = useState<Order | null>(null);
   const [disputeReason, setDisputeReason] = useState("");
   const [disputeVideoUrl, setDisputeVideoUrl] = useState("");

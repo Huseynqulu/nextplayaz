@@ -27,6 +27,7 @@ import { Route as GiftCardsPlatformRouteImport } from './routes/gift-cards.$plat
 import { Route as AuthenticatedWalletRouteImport } from './routes/_authenticated/wallet'
 import { Route as AuthenticatedSupportTicketsRouteImport } from './routes/_authenticated/support-tickets'
 import { Route as AuthenticatedStaffRouteImport } from './routes/_authenticated/staff'
+import { Route as AuthenticatedSellerOrdersRouteImport } from './routes/_authenticated/seller-orders'
 import { Route as AuthenticatedSellerDashboardRouteImport } from './routes/_authenticated/seller-dashboard'
 import { Route as AuthenticatedReferralsRouteImport } from './routes/_authenticated/referrals'
 import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
@@ -127,6 +128,12 @@ const AuthenticatedStaffRoute = AuthenticatedStaffRouteImport.update({
   path: '/staff',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedSellerOrdersRoute =
+  AuthenticatedSellerOrdersRouteImport.update({
+    id: '/seller-orders',
+    path: '/seller-orders',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedSellerDashboardRoute =
   AuthenticatedSellerDashboardRouteImport.update({
     id: '/seller-dashboard',
@@ -194,6 +201,7 @@ export interface FileRoutesByFullPath {
   '/profile': typeof AuthenticatedProfileRoute
   '/referrals': typeof AuthenticatedReferralsRoute
   '/seller-dashboard': typeof AuthenticatedSellerDashboardRoute
+  '/seller-orders': typeof AuthenticatedSellerOrdersRoute
   '/staff': typeof AuthenticatedStaffRoute
   '/support-tickets': typeof AuthenticatedSupportTicketsRoute
   '/wallet': typeof AuthenticatedWalletRoute
@@ -222,6 +230,7 @@ export interface FileRoutesByTo {
   '/profile': typeof AuthenticatedProfileRoute
   '/referrals': typeof AuthenticatedReferralsRoute
   '/seller-dashboard': typeof AuthenticatedSellerDashboardRoute
+  '/seller-orders': typeof AuthenticatedSellerOrdersRoute
   '/staff': typeof AuthenticatedStaffRoute
   '/support-tickets': typeof AuthenticatedSupportTicketsRoute
   '/wallet': typeof AuthenticatedWalletRoute
@@ -252,6 +261,7 @@ export interface FileRoutesById {
   '/_authenticated/profile': typeof AuthenticatedProfileRoute
   '/_authenticated/referrals': typeof AuthenticatedReferralsRoute
   '/_authenticated/seller-dashboard': typeof AuthenticatedSellerDashboardRoute
+  '/_authenticated/seller-orders': typeof AuthenticatedSellerOrdersRoute
   '/_authenticated/staff': typeof AuthenticatedStaffRoute
   '/_authenticated/support-tickets': typeof AuthenticatedSupportTicketsRoute
   '/_authenticated/wallet': typeof AuthenticatedWalletRoute
@@ -282,6 +292,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/referrals'
     | '/seller-dashboard'
+    | '/seller-orders'
     | '/staff'
     | '/support-tickets'
     | '/wallet'
@@ -310,6 +321,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/referrals'
     | '/seller-dashboard'
+    | '/seller-orders'
     | '/staff'
     | '/support-tickets'
     | '/wallet'
@@ -339,6 +351,7 @@ export interface FileRouteTypes {
     | '/_authenticated/profile'
     | '/_authenticated/referrals'
     | '/_authenticated/seller-dashboard'
+    | '/_authenticated/seller-orders'
     | '/_authenticated/staff'
     | '/_authenticated/support-tickets'
     | '/_authenticated/wallet'
@@ -495,6 +508,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedStaffRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/seller-orders': {
+      id: '/_authenticated/seller-orders'
+      path: '/seller-orders'
+      fullPath: '/seller-orders'
+      preLoaderRoute: typeof AuthenticatedSellerOrdersRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/seller-dashboard': {
       id: '/_authenticated/seller-dashboard'
       path: '/seller-dashboard'
@@ -568,6 +588,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
   AuthenticatedReferralsRoute: typeof AuthenticatedReferralsRoute
   AuthenticatedSellerDashboardRoute: typeof AuthenticatedSellerDashboardRoute
+  AuthenticatedSellerOrdersRoute: typeof AuthenticatedSellerOrdersRoute
   AuthenticatedStaffRoute: typeof AuthenticatedStaffRoute
   AuthenticatedSupportTicketsRoute: typeof AuthenticatedSupportTicketsRoute
   AuthenticatedWalletRoute: typeof AuthenticatedWalletRoute
@@ -582,6 +603,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedProfileRoute: AuthenticatedProfileRoute,
   AuthenticatedReferralsRoute: AuthenticatedReferralsRoute,
   AuthenticatedSellerDashboardRoute: AuthenticatedSellerDashboardRoute,
+  AuthenticatedSellerOrdersRoute: AuthenticatedSellerOrdersRoute,
   AuthenticatedStaffRoute: AuthenticatedStaffRoute,
   AuthenticatedSupportTicketsRoute: AuthenticatedSupportTicketsRoute,
   AuthenticatedWalletRoute: AuthenticatedWalletRoute,
