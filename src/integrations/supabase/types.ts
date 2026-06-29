@@ -56,6 +56,7 @@ export type Database = {
           id: string
           last_message_at: string
           last_message_preview: string | null
+          order_id: string | null
           product_id: string | null
           user_a: string
           user_b: string
@@ -65,6 +66,7 @@ export type Database = {
           id?: string
           last_message_at?: string
           last_message_preview?: string | null
+          order_id?: string | null
           product_id?: string | null
           user_a: string
           user_b: string
@@ -74,6 +76,7 @@ export type Database = {
           id?: string
           last_message_at?: string
           last_message_preview?: string | null
+          order_id?: string | null
           product_id?: string | null
           user_a?: string
           user_b?: string
@@ -133,6 +136,7 @@ export type Database = {
           conversation_id: string
           created_at: string
           id: string
+          kind: string
           read_at: string | null
           sender_id: string
         }
@@ -141,6 +145,7 @@ export type Database = {
           conversation_id: string
           created_at?: string
           id?: string
+          kind?: string
           read_at?: string | null
           sender_id: string
         }
@@ -149,6 +154,7 @@ export type Database = {
           conversation_id?: string
           created_at?: string
           id?: string
+          kind?: string
           read_at?: string | null
           sender_id?: string
         }
@@ -164,10 +170,15 @@ export type Database = {
       }
       orders: {
         Row: {
+          auto_confirm_at: string | null
           buyer_id: string
           buyer_notes: string | null
+          conversation_id: string | null
           created_at: string
+          delivered_at: string | null
           delivery_payload: string | null
+          disputed_at: string | null
+          disputed_reason: string | null
           id: string
           product_id: string
           quantity: number
@@ -178,10 +189,15 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          auto_confirm_at?: string | null
           buyer_id: string
           buyer_notes?: string | null
+          conversation_id?: string | null
           created_at?: string
+          delivered_at?: string | null
           delivery_payload?: string | null
+          disputed_at?: string | null
+          disputed_reason?: string | null
           id?: string
           product_id: string
           quantity?: number
@@ -192,10 +208,15 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          auto_confirm_at?: string | null
           buyer_id?: string
           buyer_notes?: string | null
+          conversation_id?: string | null
           created_at?: string
+          delivered_at?: string | null
           delivery_payload?: string | null
+          disputed_at?: string | null
+          disputed_reason?: string | null
           id?: string
           product_id?: string
           quantity?: number
@@ -602,6 +623,10 @@ export type Database = {
         Args: { p_notes?: string; p_topup_id: string }
         Returns: undefined
       }
+      admin_resolve_dispute: {
+        Args: { p_notes?: string; p_order_id: string; p_refund: boolean }
+        Returns: undefined
+      }
       admin_revoke_role: {
         Args: {
           p_role: Database["public"]["Enums"]["app_role"]
@@ -625,6 +650,7 @@ export type Database = {
         }
         Returns: undefined
       }
+      auto_confirm_orders: { Args: never; Returns: number }
       confirm_order: { Args: { p_order_id: string }; Returns: undefined }
       create_order:
         | {
@@ -639,12 +665,20 @@ export type Database = {
             }
             Returns: string
           }
+      dispute_order: {
+        Args: { p_order_id: string; p_reason: string }
+        Returns: undefined
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
           _user_id: string
         }
         Returns: boolean
+      }
+      mark_conversation_read: {
+        Args: { p_conversation_id: string }
+        Returns: undefined
       }
       mark_order_delivered: {
         Args: { p_order_id: string; p_payload: string }
