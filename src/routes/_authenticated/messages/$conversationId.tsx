@@ -4,9 +4,11 @@ import { Footer } from "@/components/Footer";
 import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
-import { ArrowLeft, Send, Loader2, User as UserIcon, Check, CheckCheck } from "lucide-react";
+import { ArrowLeft, Send, Loader2, User as UserIcon, CheckCheck, Paperclip, X, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 import { isOnline, formatLastSeen } from "@/lib/presence";
+import { uploadChatAttachment } from "@/lib/chat-attachments";
+import { ChatImage } from "@/components/ChatImage";
 
 export const Route = createFileRoute("/_authenticated/messages/$conversationId")({
   component: ThreadPage,
