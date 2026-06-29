@@ -1,13 +1,24 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { Search, ShoppingBag, Menu, Gamepad2, LogOut, User as UserIcon, LayoutDashboard } from "lucide-react";
-import { useState } from "react";
+import { Search, ShoppingBag, Menu, Gamepad2, LogOut, User as UserIcon, LayoutDashboard, ShieldCheck, Package } from "lucide-react";
+import { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/use-auth";
+import { supabase } from "@/integrations/supabase/client";
 
 export function Header() {
   const [open, setOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
+  const [roles, setRoles] = useState<string[]>([]);
+
+  useEffect(() => {
+    if (!user) { setRoles([]); return; }
+    supabase.from("user_roles").select("role").eq("user_id", user.id).then(({ data }) => {
+      setRoles((data ?? []).map(r => r.role));
+    });
+  }, [user]);
+  const isAdmin = roles.includes("admin");
+  const isSeller = roles.includes("seller");
 
   const nav = [
     { to: "/", label: "Ana səhifə" },
@@ -87,8 +98,18 @@ export function Header() {
                       <UserIcon className="h-4 w-4" /> Profil
                     </Link>
                     <Link to="/seller" onClick={() => setMenuOpen(false)} className="flex items-center gap-2 px-4 py-2.5 text-sm hover:bg-surface transition">
-                      <LayoutDashboard className="h-4 w-4" /> Satıcı paneli
+                      <LayoutDashboard className="h-4 w-4" /> Satıcı ol
                     </Link>
+                    {isSeller && (
+                      <Link to="/seller-dashboard" onClick={() => setMenuOpen(false)} className="flex items-center gap-2 px-4 py-2.5 text-sm hover:bg-surface transition">
+                        <Package className="h-4 w-4" /> Məhsullarım
+                      </Link>
+                    )}
+                    {isAdmin && (
+                      <Link to="/admin" onClick={() => setMenuOpen(false)} className="flex items-center gap-2 px-4 py-2.5 text-sm hover:bg-surface transition text-neon">
+                        <ShieldCheck className="h-4 w-4" /> Admin Panel
+                      </Link>
+                    )}
                     <button onClick={handleSignOut} className="w-full flex items-center gap-2 px-4 py-2.5 text-sm hover:bg-surface transition text-destructive">
                       <LogOut className="h-4 w-4" /> Çıxış
                     </button>
