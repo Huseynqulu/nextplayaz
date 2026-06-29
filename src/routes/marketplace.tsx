@@ -6,7 +6,7 @@ import { categories, products as mockProducts } from "@/lib/marketplace-data";
 import { fetchProducts } from "@/lib/products";
 import { supabase } from "@/integrations/supabase/client";
 import { useEffect, useMemo, useState } from "react";
-import { Search, SlidersHorizontal, Loader2, X, Zap, ShieldCheck, Star } from "lucide-react";
+import { Search, SlidersHorizontal, Loader2, X, Zap, ShieldCheck, Star, LayoutGrid, Grid3x3, List } from "lucide-react";
 import { z } from "zod";
 import { zodValidator, fallback } from "@tanstack/zod-adapter";
 
@@ -45,6 +45,7 @@ function MarketplacePage() {
   const [products, setProducts] = useState<import("@/lib/marketplace-data").Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [qLocal, setQLocal] = useState(s.q);
+  const [view, setView] = useState<"compact" | "grid" | "list">("compact");
   const [subcats, setSubcats] = useState<{ slug: string; label_az: string; category_slug: string }[]>([]);
   const [platforms, setPlatforms] = useState<{ slug: string; label_az: string }[]>([]);
   const [psubs, setPsubs] = useState<{ slug: string; label_az: string; platform_slug: string }[]>([]);
@@ -279,8 +280,34 @@ function MarketplacePage() {
               <p className="text-sm text-muted-foreground">
                 {filtered.length} məhsul tapıldı
               </p>
+              <div className="flex items-center gap-1 rounded-lg border border-border bg-card/40 p-1">
+                <button
+                  type="button"
+                  aria-label="Sıx görünüş"
+                  onClick={() => setView("compact")}
+                  className={`grid h-7 w-7 place-items-center rounded-md transition ${view === "compact" ? "bg-neon text-background" : "text-muted-foreground hover:text-foreground"}`}
+                >
+                  <Grid3x3 className="h-4 w-4" />
+                </button>
+                <button
+                  type="button"
+                  aria-label="Şəbəkə görünüşü"
+                  onClick={() => setView("grid")}
+                  className={`grid h-7 w-7 place-items-center rounded-md transition ${view === "grid" ? "bg-neon text-background" : "text-muted-foreground hover:text-foreground"}`}
+                >
+                  <LayoutGrid className="h-4 w-4" />
+                </button>
+                <button
+                  type="button"
+                  aria-label="Siyahı görünüşü"
+                  onClick={() => setView("list")}
+                  className={`grid h-7 w-7 place-items-center rounded-md transition ${view === "list" ? "bg-neon text-background" : "text-muted-foreground hover:text-foreground"}`}
+                >
+                  <List className="h-4 w-4" />
+                </button>
+              </div>
               {(s.q || activeCount > 0) && (
-                <div className="flex flex-wrap gap-1.5">
+                <div className="flex flex-wrap gap-1.5 w-full">
                   {s.q && (
                     <Chip label={`"${s.q}"`} onClear={() => { setQLocal(""); update({ q: "" }); }} />
                   )}
@@ -304,12 +331,21 @@ function MarketplacePage() {
                 <p className="text-lg text-muted-foreground">Heç bir nəticə tapılmadı.</p>
                 <button onClick={reset} className="mt-4 h-10 px-5 rounded-lg bg-neon text-background font-semibold text-sm">Filtrləri sıfırla</button>
               </div>
+            ) : view === "list" ? (
+              <div className="flex flex-col gap-2">
+                {filtered.map(p => <ProductCard key={p.id} p={p} variant="list" />)}
+              </div>
+            ) : view === "compact" ? (
+              <div className="grid gap-3 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5">
+                {filtered.map(p => <ProductCard key={p.id} p={p} variant="compact" />)}
+              </div>
             ) : (
-              <div className="grid gap-5 grid-cols-1 sm:grid-cols-2 xl:grid-cols-3">
+              <div className="grid gap-3 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4">
                 {filtered.map(p => <ProductCard key={p.id} p={p} />)}
               </div>
             )}
           </div>
+
         </section>
       </main>
       <Footer />
