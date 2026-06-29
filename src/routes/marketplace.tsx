@@ -2,9 +2,10 @@ import { createFileRoute } from "@tanstack/react-router";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { ProductCard } from "@/components/ProductCard";
-import { products, categories, platforms } from "@/lib/marketplace-data";
-import { useMemo, useState } from "react";
-import { Search, SlidersHorizontal } from "lucide-react";
+import { categories, platforms, products as mockProducts } from "@/lib/marketplace-data";
+import { fetchProducts } from "@/lib/products";
+import { useEffect, useMemo, useState } from "react";
+import { Search, SlidersHorizontal, Loader2 } from "lucide-react";
 import { z } from "zod";
 
 const searchSchema = z.object({
@@ -29,6 +30,12 @@ function MarketplacePage() {
   const [platform, setPlatform] = useState<string>("all");
   const [q, setQ] = useState<string>(initialQ ?? "");
   const [sort, setSort] = useState<"popular" | "low" | "high" | "rating">("popular");
+  const [products, setProducts] = useState<import("@/lib/marketplace-data").Product[]>(mockProducts);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchProducts().then(p => { setProducts(p); setLoading(false); });
+  }, []);
 
   const filtered = useMemo(() => {
     let r = products.slice();
@@ -36,13 +43,13 @@ function MarketplacePage() {
     if (platform !== "all") r = r.filter(p => p.platform === platform);
     if (q.trim()) {
       const s = q.toLowerCase();
-      r = r.filter(p => p.title.toLowerCase().includes(s) || p.description.toLowerCase().includes(s));
+      r = r.filter(p => p.title.toLowerCase().includes(s) || (p.description ?? "").toLowerCase().includes(s));
     }
     if (sort === "low") r.sort((a, b) => a.price - b.price);
     if (sort === "high") r.sort((a, b) => b.price - a.price);
     if (sort === "rating") r.sort((a, b) => b.rating - a.rating);
     return r;
-  }, [cat, platform, q, sort]);
+  }, [cat, platform, q, sort, products]);
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -52,12 +59,18 @@ function MarketplacePage() {
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
             <h1 className="font-display text-4xl sm:text-5xl font-bold">Marketplace</h1>
             <p className="mt-3 text-muted-foreground max-w-2xl">
-              {products.length}+ məhsul, yoxlanılmış satıcılar, escrow qorunma altında.
+              {loading ? "Yüklənir..." : `${products.length} məhsul`}, yoxlanılmış satıcılar, escrow qorunma altında.
             </p>
 
             <div className="mt-8 flex flex-col lg:flex-row gap-3">
               <div className="relative flex-1">
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <input
+                  value={q}
+                  onChange={e => setQ(e.target.value)}
+                  placeholder="Məhsul axtar..."
+                  className="w-full h-12 pl-12 pr-4 rounded-xl bg-background border border-border focus:outline-none focus:ring-2 focus:ring-ring"
+                />
                 <input
                   value={q}
                   onChange={e => setQ(e.target.value)}
@@ -111,7 +124,7 @@ function MarketplacePage() {
             </p>
           </div>
 
-          {filtered.length === 0 ? (
+          {loading ? (<div className="py-20 grid place-items-center"><Loader2 className="h-6 w-6 animate-spin text-neon" /></div>) : filtered.length === 0 ? (
             <div className="py-20 text-center">
               <p className="text-lg text-muted-foreground">Heç bir nəticə tapılmadı.</p>
             </div>
