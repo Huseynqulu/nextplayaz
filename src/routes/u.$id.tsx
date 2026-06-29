@@ -149,3 +149,75 @@ function SellerProfilePage() {
     </div>
   );
 }
+
+function SellerTabs({ products, visibleProducts, reviews, cats, catFilter, setCatFilter }: {
+  products: any[]; visibleProducts: any[]; reviews: ReviewRow[];
+  cats: string[]; catFilter: string; setCatFilter: (v: string) => void;
+}) {
+  const [tab, setTab] = useState<"products" | "reviews">("products");
+  return (
+    <div className="mt-10">
+      <div className="flex items-center gap-2 border-b border-border mb-6">
+        <button
+          onClick={() => setTab("products")}
+          className={`px-4 py-2.5 text-sm font-semibold border-b-2 -mb-px transition ${tab === "products" ? "border-neon text-neon" : "border-transparent text-muted-foreground hover:text-foreground"}`}
+        >Məhsullar ({products.length})</button>
+        <button
+          onClick={() => setTab("reviews")}
+          className={`px-4 py-2.5 text-sm font-semibold border-b-2 -mb-px transition ${tab === "reviews" ? "border-neon text-neon" : "border-transparent text-muted-foreground hover:text-foreground"}`}
+        >Dəyərləndirmələr ({reviews.length})</button>
+      </div>
+
+      {tab === "products" && (
+        <>
+          {cats.length > 1 && (
+            <div className="flex flex-wrap gap-2 mb-5">
+              <button onClick={() => setCatFilter("all")}
+                className={`px-3 py-1.5 rounded-full text-xs font-medium border transition ${catFilter === "all" ? "bg-neon text-background border-transparent" : "bg-surface border-border text-muted-foreground hover:text-foreground"}`}>
+                Hamısı ({products.length})
+              </button>
+              {cats.map(c => {
+                const count = products.filter((p: any) => p.category === c).length;
+                return (
+                  <button key={c} onClick={() => setCatFilter(c)}
+                    className={`px-3 py-1.5 rounded-full text-xs font-medium border transition ${catFilter === c ? "bg-neon text-background border-transparent" : "bg-surface border-border text-muted-foreground hover:text-foreground"}`}>
+                    {c} ({count})
+                  </button>
+                );
+              })}
+            </div>
+          )}
+          {visibleProducts.length === 0 ? (
+            <p className="text-muted-foreground py-10 text-center">Bu kateqoriyada məhsul yoxdur.</p>
+          ) : (
+            <div className="grid gap-5 grid-cols-2 lg:grid-cols-4">
+              {visibleProducts.map((p: any) => <ProductCard key={p.id} p={p} />)}
+            </div>
+          )}
+        </>
+      )}
+
+      {tab === "reviews" && (
+        reviews.length === 0 ? (
+          <p className="text-muted-foreground py-10 text-center">Hələ rəy yoxdur.</p>
+        ) : (
+          <div className="space-y-3">
+            {reviews.map((r) => (
+              <div key={r.id} className="rounded-2xl border border-border bg-surface/40 p-5">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-1">
+                    {[...Array(5)].map((_, i) => (
+                      <Star key={i} className={`h-4 w-4 ${i < r.rating ? "fill-warning text-warning" : "text-muted"}`} />
+                    ))}
+                  </div>
+                  <span className="text-xs text-muted-foreground">{new Date(r.created_at).toLocaleDateString("az-AZ")}</span>
+                </div>
+                {r.comment && <p className="mt-2 text-sm">{r.comment}</p>}
+              </div>
+            ))}
+          </div>
+        )
+      )}
+    </div>
+  );
+}
