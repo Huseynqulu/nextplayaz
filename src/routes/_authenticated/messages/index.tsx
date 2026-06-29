@@ -111,7 +111,56 @@ function InboxPage() {
             <MessageSquare className="h-7 w-7 text-neon" />
             <h1 className="font-display text-3xl sm:text-4xl font-bold">Mesajlar</h1>
           </div>
-          <p className="text-muted-foreground mb-8">Satıcı və alıcılarla birbaşa yazışmalar.</p>
+          <p className="text-muted-foreground mb-6">Satıcı və alıcılarla birbaşa yazışmalar.</p>
+
+          <div className="relative mb-6">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+            <input
+              value={searchQ}
+              onChange={(e) => setSearchQ(e.target.value)}
+              placeholder="İstifadəçi adı, mağaza adı və ya ad ilə axtar…"
+              className="w-full h-11 pl-10 pr-4 rounded-xl bg-surface border border-border focus:border-neon outline-none text-sm"
+            />
+            {searchQ.trim().length >= 2 && (
+              <div className="absolute z-20 mt-2 left-0 right-0 rounded-xl border border-border bg-card-gradient card-shadow overflow-hidden">
+                {searching ? (
+                  <div className="p-4 flex justify-center"><Loader2 className="h-4 w-4 animate-spin text-neon" /></div>
+                ) : searchResults.length === 0 ? (
+                  <div className="p-4 text-sm text-muted-foreground text-center">Nəticə tapılmadı</div>
+                ) : (
+                  <ul className="max-h-80 overflow-y-auto divide-y divide-border">
+                    {searchResults.map(r => {
+                      const online = isOnline(r.last_seen_at);
+                      const primary = r.shop_name || r.display_name || r.username || "İstifadəçi";
+                      const secondary = r.username ? `@${r.username}` : "";
+                      return (
+                        <li key={r.id}>
+                          <button
+                            disabled={starting}
+                            onClick={() => startChat(r.id)}
+                            className="w-full flex items-center gap-3 p-3 hover:bg-surface text-left disabled:opacity-50"
+                          >
+                            <div className="relative shrink-0">
+                              <div className="h-9 w-9 rounded-full bg-surface grid place-items-center overflow-hidden">
+                                {r.avatar_url ? <img src={r.avatar_url} alt="" className="h-full w-full object-cover" /> : <UserIcon className="h-4 w-4 text-muted-foreground" />}
+                              </div>
+                              <span className={`absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full border-2 border-background ${online ? "bg-success" : "bg-muted"}`} />
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <p className="font-semibold truncate text-sm">{primary}</p>
+                              {secondary && <p className="text-xs text-muted-foreground truncate">{secondary}</p>}
+                            </div>
+                            <span className="text-xs text-neon font-medium shrink-0">Yaz →</span>
+                          </button>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                )}
+              </div>
+            )}
+          </div>
+
 
           {loading ? (
             <div className="flex justify-center py-20"><Loader2 className="h-6 w-6 animate-spin text-neon" /></div>
