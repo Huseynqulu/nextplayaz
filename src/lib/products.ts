@@ -37,6 +37,7 @@ export function dbToProduct(p: DbProduct, sellerName?: string): Product {
     reviews: p.reviews_count,
     seller: { name: sellerName ?? "Satıcı", rating: 5, sales: 0, verified: true },
     delivery: p.delivery,
+    sellerId: p.seller_id,
   };
 }
 
