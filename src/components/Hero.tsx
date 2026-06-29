@@ -1,0 +1,69 @@
+import { Link } from "@tanstack/react-router";
+import { ArrowRight, ShieldCheck, Zap, Trophy } from "lucide-react";
+import hero from "@/assets/hero.jpg";
+
+export function Hero() {
+  return (
+    <section className="relative overflow-hidden bg-hero">
+      <div className="absolute inset-0 bg-grid opacity-40" />
+      <div className="absolute inset-0">
+        <img src={hero} alt="" width={1920} height={1088} className="absolute inset-0 h-full w-full object-cover object-right opacity-70" />
+        <div className="absolute inset-0 bg-gradient-to-r from-background via-background/85 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent" />
+      </div>
+
+      <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-24 lg:py-36">
+        <div className="max-w-2xl" style={{ animation: "rise 0.8s cubic-bezier(0.16,1,0.3,1)" }}>
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-neon/40 bg-neon/10 text-xs font-medium text-neon mb-6 backdrop-blur">
+            <span className="h-1.5 w-1.5 rounded-full bg-neon animate-pulse" />
+            Azərbaycanın #1 Gaming Marketplace-i
+          </div>
+
+          <h1 className="font-display text-5xl sm:text-6xl lg:text-7xl font-bold tracking-tight leading-[1.05]">
+            Gaming aləminin <br />
+            <span className="text-gradient">yeni mərkəzi</span>
+          </h1>
+
+          <p className="mt-6 text-lg text-muted-foreground max-w-xl leading-relaxed">
+            Oyunlar, hesablar, açarlar və premium gaming xidmətləri.
+            Escrow sistemi ilə qorunan ödənişlər. Yoxlanılmış satıcılar. Anında çatdırılma.
+          </p>
+
+          <div className="mt-8 flex flex-wrap gap-3">
+            <Link
+              to="/marketplace"
+              className="inline-flex h-12 items-center gap-2 px-6 rounded-xl bg-neon text-background font-semibold neon-ring hover:scale-[1.02] transition"
+            >
+              Marketplace-ə keç
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+            <Link
+              to="/seller"
+              className="inline-flex h-12 items-center px-6 rounded-xl border border-border bg-surface/60 backdrop-blur font-semibold hover:border-primary hover:bg-surface transition"
+            >
+              Satıcı ol
+            </Link>
+          </div>
+
+          <div className="mt-12 grid grid-cols-3 gap-6 max-w-lg">
+            <Stat icon={<Trophy className="h-4 w-4" />} value="5000+" label="Tamamlanmış sifariş" />
+            <Stat icon={<ShieldCheck className="h-4 w-4" />} value="100%" label="Escrow qorunma" />
+            <Stat icon={<Zap className="h-4 w-4" />} value="24/7" label="Online dəstək" />
+          </div>
+        </div>
+      </div>
+
+      <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
+    </section>
+  );
+}
+
+function Stat({ icon, value, label }: { icon: React.ReactNode; value: string; label: string }) {
+  return (
+    <div className="border-l-2 border-neon/40 pl-3">
+      <div className="flex items-center gap-1.5 text-neon mb-1">{icon}</div>
+      <div className="font-display text-2xl font-bold">{value}</div>
+      <div className="text-xs text-muted-foreground leading-tight">{label}</div>
+    </div>
+  );
+}
