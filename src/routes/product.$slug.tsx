@@ -68,6 +68,20 @@ function ProductPage() {
     void data;
   }
 
+  async function messageSeller() {
+    if (!user) { toast.info("Daxil olun"); navigate({ to: "/login" }); return; }
+    if (!p.sellerId) { toast.info("Demo məhsul üçün satıcı mövcud deyil"); return; }
+    if (p.sellerId === user.id) { toast.info("Bu sizin məhsulunuzdur"); return; }
+    setContacting(true);
+    const { data, error } = await supabase.rpc("start_conversation", {
+      p_other_user: p.sellerId,
+      p_product_id: isDbProduct ? p.id : null,
+    } as any);
+    setContacting(false);
+    if (error || !data) { toast.error(error?.message ?? "Xəta"); return; }
+    navigate({ to: "/messages/$conversationId", params: { conversationId: data as string } });
+  }
+
 
   return (
     <div className="min-h-screen flex flex-col">
