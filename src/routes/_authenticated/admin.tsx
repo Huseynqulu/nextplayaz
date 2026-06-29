@@ -24,8 +24,9 @@ type AdminUser = { id: string; email: string | null; display_name: string | null
 type DiscountCode = { id: string; code: string; percent: number; max_uses: number | null; used_count: number; is_active: boolean; expires_at: string | null; created_at: string };
 type AdminTicket = { id: string; user_id: string; order_id: string | null; subject: string; message: string; category: string; status: string; priority: string; created_at: string; updated_at: string };
 type TicketMsg = { id: string; sender_id: string; is_admin: boolean; body: string; created_at: string };
+type TopUp = { id: string; user_id: string; amount: number; method: string; sender_note: string | null; receipt_url: string | null; status: "pending"|"approved"|"rejected"; admin_notes: string | null; created_at: string };
 
-type Tab = "applications" | "users" | "codes" | "products" | "tickets";
+type Tab = "applications" | "users" | "codes" | "products" | "tickets" | "topups";
 
 function AdminPage() {
   const { user } = useAuth();
