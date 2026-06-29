@@ -33,6 +33,8 @@ const WITHDRAW_METHODS: { value: string; label: string; hint: string }[] = [
 function WalletPage() {
   const { user } = useAuth();
   const [balance, setBalance] = useState<number>(0);
+  const [pending, setPending] = useState<{ total: number; items: { id: string; seller_net: number; funds_release_at: string | null }[] }>({ total: 0, items: [] });
+  const [showPending, setShowPending] = useState(false);
   const [methods, setMethods] = useState<Method[]>([]);
   const [history, setHistory] = useState<TopUp[]>([]);
   const [withdrawals, setWithdrawals] = useState<Withdraw[]>([]);
