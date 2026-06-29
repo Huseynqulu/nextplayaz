@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { MessageSquare, Loader2, User as UserIcon } from "lucide-react";
+import { isOnline } from "@/lib/presence";
 
 export const Route = createFileRoute("/_authenticated/messages/")({
   component: InboxPage,
