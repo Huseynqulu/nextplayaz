@@ -87,31 +87,21 @@ function OrdersPage() {
   async function refresh() {
     if (!user) return;
     setLoading(true);
-    const col = tab === "buying" ? "buyer_id" : "seller_id";
     const { data, error } = await supabase
       .from("orders")
       .select("*, product:products(title, slug, image_url)")
-      .eq(col, user.id)
+      .eq("buyer_id", user.id)
       .order("created_at", { ascending: false });
     if (error) toast.error(error.message);
     setOrders((data as any) ?? []);
-    if (tab === "buying") {
-      const { data: revs } = await supabase
-        .from("reviews").select("product_id").eq("reviewer_id", user.id);
-      setReviewedIds(new Set(((revs as any[]) ?? []).map(r => r.product_id)));
-    }
+    const { data: revs } = await supabase
+      .from("reviews").select("product_id").eq("reviewer_id", user.id);
+    setReviewedIds(new Set(((revs as any[]) ?? []).map(r => r.product_id)));
     setLoading(false);
   }
-  useEffect(() => { refresh(); /* eslint-disable-next-line */ }, [user, tab]);
+  useEffect(() => { refresh(); /* eslint-disable-next-line */ }, [user]);
 
-  async function deliver(o: Order) {
-    const payload = payloadInput[o.id]?.trim();
-    if (!payload) { toast.error("Çatdırılma məlumatı daxil edin"); return; }
-    setBusy(o.id);
-    const { error } = await supabase.rpc("mark_order_delivered", { p_order_id: o.id, p_payload: payload });
-    setBusy(null);
-    if (error) toast.error(error.message); else { toast.success("Çatdırıldı"); refresh(); }
-  }
+
 
   async function confirm(o: Order) {
     setBusy(o.id);
