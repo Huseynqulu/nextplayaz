@@ -378,6 +378,10 @@ function AdminPage() {
                         className={`h-9 px-3 rounded-md text-xs font-semibold disabled:opacity-50 ${u.roles.includes("seller") ? "bg-success/20 text-success" : "bg-surface border border-border"}`}>
                         {u.roles.includes("seller") ? "Satıcı ✓" : "Satıcı et"}
                       </button>
+                      <button disabled={busy === u.id + "support"} onClick={() => toggleRole(u, "support")}
+                        className={`h-9 px-3 rounded-md text-xs font-semibold disabled:opacity-50 ${u.roles.includes("support" as any) ? "bg-primary/20 text-primary" : "bg-surface border border-border"}`}>
+                        {u.roles.includes("support" as any) ? "Dəstək ✓" : "Dəstək et"}
+                      </button>
                       <button disabled={busy === u.id + "admin" || u.id === user!.id} onClick={() => toggleRole(u, "admin")}
                         className={`h-9 px-3 rounded-md text-xs font-semibold disabled:opacity-50 ${u.roles.includes("admin") ? "bg-neon/20 text-neon" : "bg-surface border border-border"}`}>
                         {u.roles.includes("admin") ? "Admin ✓" : "Admin et"}
