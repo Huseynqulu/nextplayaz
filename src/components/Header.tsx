@@ -95,30 +95,30 @@ export function Header() {
                   <div className="fixed inset-0 z-10" onClick={() => setMenuOpen(false)} />
                   <div className="absolute right-0 top-12 z-20 w-56 rounded-xl border border-border bg-popover shadow-xl card-shadow overflow-hidden">
                     <div className="px-4 py-3 border-b border-border">
-                      <p className="text-xs text-muted-foreground">Daxil olunub</p>
+                      <p className="text-xs text-muted-foreground">{t("auth.signedIn")}</p>
                       <p className="text-sm font-semibold truncate">{user.email}</p>
                     </div>
                     <Link to="/profile" onClick={() => setMenuOpen(false)} className="flex items-center gap-2 px-4 py-2.5 text-sm hover:bg-surface transition">
-                      <UserIcon className="h-4 w-4" /> Profil
+                      <UserIcon className="h-4 w-4" /> {t("menu.profile")}
                     </Link>
                     <Link to="/orders" onClick={() => setMenuOpen(false)} className="flex items-center gap-2 px-4 py-2.5 text-sm hover:bg-surface transition">
-                      <ShoppingBag className="h-4 w-4" /> Sifarişlərim
+                      <ShoppingBag className="h-4 w-4" /> {t("menu.orders")}
                     </Link>
                     <Link to="/seller" onClick={() => setMenuOpen(false)} className="flex items-center gap-2 px-4 py-2.5 text-sm hover:bg-surface transition">
-                      <LayoutDashboard className="h-4 w-4" /> Satıcı ol
+                      <LayoutDashboard className="h-4 w-4" /> {t("menu.becomeSeller")}
                     </Link>
                     {isSeller && (
                       <Link to="/seller-dashboard" onClick={() => setMenuOpen(false)} className="flex items-center gap-2 px-4 py-2.5 text-sm hover:bg-surface transition">
-                        <Package className="h-4 w-4" /> Məhsullarım
+                        <Package className="h-4 w-4" /> {t("menu.myProducts")}
                       </Link>
                     )}
                     {isAdmin && (
                       <Link to="/admin" onClick={() => setMenuOpen(false)} className="flex items-center gap-2 px-4 py-2.5 text-sm hover:bg-surface transition text-neon">
-                        <ShieldCheck className="h-4 w-4" /> Admin Panel
+                        <ShieldCheck className="h-4 w-4" /> {t("menu.admin")}
                       </Link>
                     )}
                     <button onClick={handleSignOut} className="w-full flex items-center gap-2 px-4 py-2.5 text-sm hover:bg-surface transition text-destructive">
-                      <LogOut className="h-4 w-4" /> Çıxış
+                      <LogOut className="h-4 w-4" /> {t("menu.signOut")}
                     </button>
                   </div>
                 </>
@@ -127,10 +127,10 @@ export function Header() {
           ) : (
             <>
               <Link to="/login" className="hidden sm:inline-flex h-10 items-center px-4 rounded-lg text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-surface transition">
-                Giriş
+                {t("auth.login")}
               </Link>
               <Link to="/register" className="inline-flex h-10 items-center px-4 rounded-lg text-sm font-semibold bg-neon text-background neon-ring hover:opacity-95 transition">
-                Qeydiyyat
+                {t("auth.register")}
               </Link>
             </>
           )}
