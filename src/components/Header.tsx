@@ -98,8 +98,18 @@ export function Header() {
                       <UserIcon className="h-4 w-4" /> Profil
                     </Link>
                     <Link to="/seller" onClick={() => setMenuOpen(false)} className="flex items-center gap-2 px-4 py-2.5 text-sm hover:bg-surface transition">
-                      <LayoutDashboard className="h-4 w-4" /> Satıcı paneli
+                      <LayoutDashboard className="h-4 w-4" /> Satıcı ol
                     </Link>
+                    {isSeller && (
+                      <Link to="/seller-dashboard" onClick={() => setMenuOpen(false)} className="flex items-center gap-2 px-4 py-2.5 text-sm hover:bg-surface transition">
+                        <Package className="h-4 w-4" /> Məhsullarım
+                      </Link>
+                    )}
+                    {isAdmin && (
+                      <Link to="/admin" onClick={() => setMenuOpen(false)} className="flex items-center gap-2 px-4 py-2.5 text-sm hover:bg-surface transition text-neon">
+                        <ShieldCheck className="h-4 w-4" /> Admin Panel
+                      </Link>
+                    )}
                     <button onClick={handleSignOut} className="w-full flex items-center gap-2 px-4 py-2.5 text-sm hover:bg-surface transition text-destructive">
                       <LogOut className="h-4 w-4" /> Çıxış
                     </button>
