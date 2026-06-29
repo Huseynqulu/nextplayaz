@@ -17,7 +17,7 @@ export const Route = createFileRoute("/_authenticated/messages/$conversationId")
 
 type Msg = { id: string; conversation_id: string; sender_id: string; body: string; created_at: string; read_at: string | null; kind?: string; attachment_url?: string | null };
 type Conv = { id: string; user_a: string; user_b: string; product_id: string | null; order_id: string | null };
-type ProfileLite = { id: string; display_name: string | null; username: string | null; avatar_url: string | null; last_seen_at: string | null };
+type ProfileLite = { id: string; display_name: string | null; username: string | null; shop_name?: string | null; avatar_url: string | null; last_seen_at: string | null };
 
 function ThreadPage() {
   const { conversationId } = Route.useParams();
