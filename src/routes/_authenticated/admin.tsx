@@ -349,6 +349,7 @@ function AdminPage() {
               ["payments", "Rekvizitlər"],
               ["categories", "Kateqoriyalar"],
               ["banners", "Bannerlər"],
+              ["reviews", "Rəylər"],
               ["codes", "Endirim kodları"],
               ["products", "Məhsullar"],
             ] as const).map(([key, label]) => (
