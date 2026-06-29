@@ -19,6 +19,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as ProductSlugRouteImport } from './routes/product.$slug'
 import { Route as AuthenticatedWalletRouteImport } from './routes/_authenticated/wallet'
 import { Route as AuthenticatedSupportTicketsRouteImport } from './routes/_authenticated/support-tickets'
+import { Route as AuthenticatedStaffRouteImport } from './routes/_authenticated/staff'
 import { Route as AuthenticatedSellerDashboardRouteImport } from './routes/_authenticated/seller-dashboard'
 import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
 import { Route as AuthenticatedOrdersRouteImport } from './routes/_authenticated/orders'
@@ -76,6 +77,11 @@ const AuthenticatedSupportTicketsRoute =
     path: '/support-tickets',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedStaffRoute = AuthenticatedStaffRouteImport.update({
+  id: '/staff',
+  path: '/staff',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedSellerDashboardRoute =
   AuthenticatedSellerDashboardRouteImport.update({
     id: '/seller-dashboard',
@@ -121,6 +127,7 @@ export interface FileRoutesByFullPath {
   '/orders': typeof AuthenticatedOrdersRoute
   '/profile': typeof AuthenticatedProfileRoute
   '/seller-dashboard': typeof AuthenticatedSellerDashboardRoute
+  '/staff': typeof AuthenticatedStaffRoute
   '/support-tickets': typeof AuthenticatedSupportTicketsRoute
   '/wallet': typeof AuthenticatedWalletRoute
   '/product/$slug': typeof ProductSlugRoute
@@ -138,6 +145,7 @@ export interface FileRoutesByTo {
   '/orders': typeof AuthenticatedOrdersRoute
   '/profile': typeof AuthenticatedProfileRoute
   '/seller-dashboard': typeof AuthenticatedSellerDashboardRoute
+  '/staff': typeof AuthenticatedStaffRoute
   '/support-tickets': typeof AuthenticatedSupportTicketsRoute
   '/wallet': typeof AuthenticatedWalletRoute
   '/product/$slug': typeof ProductSlugRoute
@@ -157,6 +165,7 @@ export interface FileRoutesById {
   '/_authenticated/orders': typeof AuthenticatedOrdersRoute
   '/_authenticated/profile': typeof AuthenticatedProfileRoute
   '/_authenticated/seller-dashboard': typeof AuthenticatedSellerDashboardRoute
+  '/_authenticated/staff': typeof AuthenticatedStaffRoute
   '/_authenticated/support-tickets': typeof AuthenticatedSupportTicketsRoute
   '/_authenticated/wallet': typeof AuthenticatedWalletRoute
   '/product/$slug': typeof ProductSlugRoute
@@ -176,6 +185,7 @@ export interface FileRouteTypes {
     | '/orders'
     | '/profile'
     | '/seller-dashboard'
+    | '/staff'
     | '/support-tickets'
     | '/wallet'
     | '/product/$slug'
@@ -193,6 +203,7 @@ export interface FileRouteTypes {
     | '/orders'
     | '/profile'
     | '/seller-dashboard'
+    | '/staff'
     | '/support-tickets'
     | '/wallet'
     | '/product/$slug'
@@ -211,6 +222,7 @@ export interface FileRouteTypes {
     | '/_authenticated/orders'
     | '/_authenticated/profile'
     | '/_authenticated/seller-dashboard'
+    | '/_authenticated/staff'
     | '/_authenticated/support-tickets'
     | '/_authenticated/wallet'
     | '/product/$slug'
@@ -301,6 +313,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSupportTicketsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/staff': {
+      id: '/_authenticated/staff'
+      path: '/staff'
+      fullPath: '/staff'
+      preLoaderRoute: typeof AuthenticatedStaffRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/seller-dashboard': {
       id: '/_authenticated/seller-dashboard'
       path: '/seller-dashboard'
@@ -351,6 +370,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedOrdersRoute: typeof AuthenticatedOrdersRoute
   AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
   AuthenticatedSellerDashboardRoute: typeof AuthenticatedSellerDashboardRoute
+  AuthenticatedStaffRoute: typeof AuthenticatedStaffRoute
   AuthenticatedSupportTicketsRoute: typeof AuthenticatedSupportTicketsRoute
   AuthenticatedWalletRoute: typeof AuthenticatedWalletRoute
   AuthenticatedMessagesConversationIdRoute: typeof AuthenticatedMessagesConversationIdRoute
@@ -362,6 +382,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedOrdersRoute: AuthenticatedOrdersRoute,
   AuthenticatedProfileRoute: AuthenticatedProfileRoute,
   AuthenticatedSellerDashboardRoute: AuthenticatedSellerDashboardRoute,
+  AuthenticatedStaffRoute: AuthenticatedStaffRoute,
   AuthenticatedSupportTicketsRoute: AuthenticatedSupportTicketsRoute,
   AuthenticatedWalletRoute: AuthenticatedWalletRoute,
   AuthenticatedMessagesConversationIdRoute:

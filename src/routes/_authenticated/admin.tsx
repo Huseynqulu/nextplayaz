@@ -166,10 +166,10 @@ function AdminPage() {
     setBusy(null);
   }
 
-  async function toggleRole(u: AdminUser, role: "seller" | "admin") {
+  async function toggleRole(u: AdminUser, role: "seller" | "admin" | "support") {
     setBusy(u.id + role);
-    const has = u.roles.includes(role);
-    const { error } = await supabase.rpc(has ? "admin_revoke_role" : "admin_grant_role", { p_user_id: u.id, p_role: role });
+    const has = u.roles.includes(role as any);
+    const { error } = await supabase.rpc(has ? "admin_revoke_role" : "admin_grant_role", { p_user_id: u.id, p_role: role as any });
     if (error) toast.error(error.message); else { toast.success(has ? "Vəzifə alındı" : "Vəzifə verildi"); await refresh(); }
     setBusy(null);
   }
@@ -377,6 +377,10 @@ function AdminPage() {
                       <button disabled={busy === u.id + "seller"} onClick={() => toggleRole(u, "seller")}
                         className={`h-9 px-3 rounded-md text-xs font-semibold disabled:opacity-50 ${u.roles.includes("seller") ? "bg-success/20 text-success" : "bg-surface border border-border"}`}>
                         {u.roles.includes("seller") ? "Satıcı ✓" : "Satıcı et"}
+                      </button>
+                      <button disabled={busy === u.id + "support"} onClick={() => toggleRole(u, "support")}
+                        className={`h-9 px-3 rounded-md text-xs font-semibold disabled:opacity-50 ${u.roles.includes("support" as any) ? "bg-primary/20 text-primary" : "bg-surface border border-border"}`}>
+                        {u.roles.includes("support" as any) ? "Dəstək ✓" : "Dəstək et"}
                       </button>
                       <button disabled={busy === u.id + "admin" || u.id === user!.id} onClick={() => toggleRole(u, "admin")}
                         className={`h-9 px-3 rounded-md text-xs font-semibold disabled:opacity-50 ${u.roles.includes("admin") ? "bg-neon/20 text-neon" : "bg-surface border border-border"}`}>
