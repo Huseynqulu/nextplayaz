@@ -26,8 +26,9 @@ type AdminTicket = { id: string; user_id: string; order_id: string | null; subje
 type TicketMsg = { id: string; sender_id: string; is_admin: boolean; body: string; created_at: string };
 type TopUp = { id: string; user_id: string; amount: number; method: string; sender_note: string | null; receipt_url: string | null; status: "pending"|"approved"|"rejected"; admin_notes: string | null; created_at: string };
 type PaymentSetting = { method: string; label: string; instructions: string; is_active: boolean };
+type Category = { slug: string; label_az: string; label_en: string; label_ru: string; sort_order: number; is_active: boolean };
 
-type Tab = "applications" | "users" | "codes" | "products" | "tickets" | "topups" | "payments";
+type Tab = "applications" | "users" | "codes" | "products" | "tickets" | "topups" | "payments" | "categories";
 
 function AdminPage() {
   const { user } = useAuth();
@@ -41,6 +42,8 @@ function AdminPage() {
   const [tickets, setTickets] = useState<AdminTicket[]>([]);
   const [topups, setTopups] = useState<TopUp[]>([]);
   const [paySettings, setPaySettings] = useState<PaymentSetting[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [newCategory, setNewCategory] = useState<Category>({ slug: "", label_az: "", label_en: "", label_ru: "", sort_order: 10, is_active: true });
   const [stats, setStats] = useState({ users: 0, sellers: 0, products: 0, orders: 0 });
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState<string | null>(null);
@@ -70,7 +73,7 @@ function AdminPage() {
 
   async function refresh() {
     setLoading(true);
-    const [{ data: a }, { data: p }, { data: u }, { data: dc }, { data: tk }, { data: tu }, { data: ps }, { count: uc }, { count: sc }, { count: pc }, { count: oc }] = await Promise.all([
+    const [{ data: a }, { data: p }, { data: u }, { data: dc }, { data: tk }, { data: tu }, { data: ps }, { data: cats }, { count: uc }, { count: sc }, { count: pc }, { count: oc }] = await Promise.all([
       supabase.from("seller_applications").select("*").order("created_at", { ascending: false }),
       supabase.from("products").select("id, title, price, stock, category, is_active, seller_id, created_at").order("created_at", { ascending: false }).limit(50),
       supabase.rpc("admin_list_users"),
@@ -78,6 +81,7 @@ function AdminPage() {
       supabase.from("support_tickets").select("*").order("updated_at", { ascending: false }),
       supabase.from("wallet_topups").select("*").order("created_at", { ascending: false }),
       supabase.from("payment_settings").select("*").order("label"),
+      supabase.from("categories" as any).select("*").order("sort_order"),
       supabase.from("profiles").select("*", { count: "exact", head: true }),
       supabase.from("user_roles").select("*", { count: "exact", head: true }).eq("role", "seller"),
       supabase.from("products").select("*", { count: "exact", head: true }),
@@ -90,8 +94,31 @@ function AdminPage() {
     setTickets((tk as any) ?? []);
     setTopups((tu as any) ?? []);
     setPaySettings((ps as any) ?? []);
+    setCategories((cats as any) ?? []);
     setStats({ users: uc ?? 0, sellers: sc ?? 0, products: pc ?? 0, orders: oc ?? 0 });
     setLoading(false);
+  }
+
+  async function saveCategory(c: Category) {
+    if (!c.slug || !c.label_az) { toast.error("Slug və AZ ad tələb olunur"); return; }
+    setBusy(c.slug);
+    const { error } = await supabase.rpc("admin_upsert_category" as any, {
+      p_slug: c.slug.trim(), p_label_az: c.label_az, p_label_en: c.label_en || c.label_az,
+      p_label_ru: c.label_ru || c.label_az, p_sort_order: c.sort_order, p_is_active: c.is_active,
+    });
+    setBusy(null);
+    if (error) toast.error(error.message); else { toast.success("Yadda saxlandı"); await refresh(); }
+  }
+  async function deleteCategory(slug: string) {
+    if (!confirm(`"${slug}" kateqoriyası silinsin?`)) return;
+    setBusy(slug);
+    const { error } = await supabase.rpc("admin_delete_category" as any, { p_slug: slug });
+    setBusy(null);
+    if (error) toast.error(error.message); else { toast.success("Silindi"); await refresh(); }
+  }
+  async function addNewCategory() {
+    await saveCategory(newCategory);
+    setNewCategory({ slug: "", label_az: "", label_en: "", label_ru: "", sort_order: 10, is_active: true });
   }
 
   async function openTicket(t: AdminTicket) {
@@ -282,6 +309,7 @@ function AdminPage() {
               ["users", "İstifadəçilər"],
               ["topups", `Balans (${topups.filter(t => t.status === "pending").length})`],
               ["payments", "Rekvizitlər"],
+              ["categories", "Kateqoriyalar"],
               ["codes", "Endirim kodları"],
               ["products", "Məhsullar"],
             ] as const).map(([key, label]) => (
@@ -598,6 +626,57 @@ function AdminPage() {
                       {busy === s.method ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <CheckCircle2 className="h-3.5 w-3.5" />}
                       Yadda saxla
                     </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : tab === "categories" ? (
+            <div className="space-y-3">
+              <div className="rounded-2xl border border-border bg-card-gradient p-4 card-shadow">
+                <h3 className="font-semibold mb-3 inline-flex items-center gap-2"><Plus className="h-4 w-4 text-neon" /> Yeni kateqoriya əlavə et</h3>
+                <div className="grid sm:grid-cols-5 gap-2">
+                  <input value={newCategory.slug} onChange={e => setNewCategory({ ...newCategory, slug: e.target.value })}
+                    placeholder="slug (məs: Boosting)" className="h-10 px-3 rounded-md bg-background border border-border text-sm" />
+                  <input value={newCategory.label_az} onChange={e => setNewCategory({ ...newCategory, label_az: e.target.value })}
+                    placeholder="Ad (AZ)" className="h-10 px-3 rounded-md bg-background border border-border text-sm" />
+                  <input value={newCategory.label_en} onChange={e => setNewCategory({ ...newCategory, label_en: e.target.value })}
+                    placeholder="Name (EN)" className="h-10 px-3 rounded-md bg-background border border-border text-sm" />
+                  <input value={newCategory.label_ru} onChange={e => setNewCategory({ ...newCategory, label_ru: e.target.value })}
+                    placeholder="Имя (RU)" className="h-10 px-3 rounded-md bg-background border border-border text-sm" />
+                  <button onClick={addNewCategory} disabled={busy === newCategory.slug}
+                    className="h-10 px-4 rounded-md bg-neon text-background text-sm font-semibold neon-ring disabled:opacity-50 inline-flex items-center justify-center gap-1.5">
+                    <Plus className="h-4 w-4" /> Əlavə et
+                  </button>
+                </div>
+              </div>
+              {categories.length === 0 && <p className="text-muted-foreground text-center py-12">Kateqoriya yoxdur.</p>}
+              {categories.map((c, i) => (
+                <div key={c.slug} className="rounded-xl border border-border bg-card-gradient p-4 card-shadow">
+                  <div className="grid sm:grid-cols-[100px_1fr_1fr_1fr_80px_auto] gap-2 items-center">
+                    <span className="px-2 py-0.5 rounded text-[11px] font-bold bg-surface text-center">{c.slug}</span>
+                    <input value={c.label_az} onChange={e => { const n = [...categories]; n[i] = { ...c, label_az: e.target.value }; setCategories(n); }}
+                      className="h-9 px-3 rounded-md bg-background border border-border text-sm" />
+                    <input value={c.label_en} onChange={e => { const n = [...categories]; n[i] = { ...c, label_en: e.target.value }; setCategories(n); }}
+                      className="h-9 px-3 rounded-md bg-background border border-border text-sm" />
+                    <input value={c.label_ru} onChange={e => { const n = [...categories]; n[i] = { ...c, label_ru: e.target.value }; setCategories(n); }}
+                      className="h-9 px-3 rounded-md bg-background border border-border text-sm" />
+                    <input type="number" value={c.sort_order} onChange={e => { const n = [...categories]; n[i] = { ...c, sort_order: Number(e.target.value) }; setCategories(n); }}
+                      className="h-9 px-2 rounded-md bg-background border border-border text-sm text-center" />
+                    <div className="flex items-center gap-1.5">
+                      <label className="inline-flex items-center gap-1.5 text-xs cursor-pointer">
+                        <input type="checkbox" checked={c.is_active} onChange={e => { const n = [...categories]; n[i] = { ...c, is_active: e.target.checked }; setCategories(n); }}
+                          className="h-4 w-4 accent-neon" />
+                        Aktiv
+                      </label>
+                      <button disabled={busy === c.slug} onClick={() => saveCategory(c)}
+                        className="h-9 w-9 grid place-items-center rounded-md bg-neon text-background disabled:opacity-50" title="Yadda saxla">
+                        {busy === c.slug ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
+                      </button>
+                      <button disabled={busy === c.slug} onClick={() => deleteCategory(c.slug)}
+                        className="h-9 w-9 grid place-items-center rounded-md bg-destructive text-destructive-foreground disabled:opacity-50" title="Sil">
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    </div>
                   </div>
                 </div>
               ))}

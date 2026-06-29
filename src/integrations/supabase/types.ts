@@ -14,6 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
+      categories: {
+        Row: {
+          created_at: string
+          icon: string | null
+          is_active: boolean
+          label_az: string
+          label_en: string
+          label_ru: string
+          slug: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          icon?: string | null
+          is_active?: boolean
+          label_az: string
+          label_en: string
+          label_ru: string
+          slug: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          icon?: string | null
+          is_active?: boolean
+          label_az?: string
+          label_en?: string
+          label_ru?: string
+          slug?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       conversations: {
         Row: {
           created_at: string
@@ -205,7 +241,7 @@ export type Database = {
       }
       products: {
         Row: {
-          category: Database["public"]["Enums"]["product_category"]
+          category: string
           created_at: string
           delivery: Database["public"]["Enums"]["delivery_type"]
           description: string | null
@@ -224,7 +260,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
-          category: Database["public"]["Enums"]["product_category"]
+          category: string
           created_at?: string
           delivery?: Database["public"]["Enums"]["delivery_type"]
           description?: string | null
@@ -243,7 +279,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
-          category?: Database["public"]["Enums"]["product_category"]
+          category?: string
           created_at?: string
           delivery?: Database["public"]["Enums"]["delivery_type"]
           description?: string | null
@@ -269,6 +305,7 @@ export type Database = {
           created_at: string
           display_name: string | null
           id: string
+          last_seen_at: string | null
           updated_at: string
           username: string | null
           wallet_balance: number
@@ -278,6 +315,7 @@ export type Database = {
           created_at?: string
           display_name?: string | null
           id: string
+          last_seen_at?: string | null
           updated_at?: string
           username?: string | null
           wallet_balance?: number
@@ -287,6 +325,7 @@ export type Database = {
           created_at?: string
           display_name?: string | null
           id?: string
+          last_seen_at?: string | null
           updated_at?: string
           username?: string | null
           wallet_balance?: number
@@ -331,7 +370,7 @@ export type Database = {
       seller_applications: {
         Row: {
           admin_notes: string | null
-          category: Database["public"]["Enums"]["product_category"]
+          category: string
           created_at: string
           email: string
           first_name: string
@@ -347,7 +386,7 @@ export type Database = {
         }
         Insert: {
           admin_notes?: string | null
-          category: Database["public"]["Enums"]["product_category"]
+          category: string
           created_at?: string
           email: string
           first_name: string
@@ -363,7 +402,7 @@ export type Database = {
         }
         Update: {
           admin_notes?: string | null
-          category?: Database["public"]["Enums"]["product_category"]
+          category?: string
           created_at?: string
           email?: string
           first_name?: string
@@ -539,6 +578,7 @@ export type Database = {
         Args: { p_notes?: string; p_topup_id: string }
         Returns: undefined
       }
+      admin_delete_category: { Args: { p_slug: string }; Returns: undefined }
       admin_grant_role: {
         Args: {
           p_role: Database["public"]["Enums"]["app_role"]
@@ -571,6 +611,18 @@ export type Database = {
       }
       admin_set_wallet_balance: {
         Args: { p_balance: number; p_user_id: string }
+        Returns: undefined
+      }
+      admin_upsert_category: {
+        Args: {
+          p_icon?: string
+          p_is_active?: boolean
+          p_label_az: string
+          p_label_en: string
+          p_label_ru: string
+          p_slug: string
+          p_sort_order?: number
+        }
         Returns: undefined
       }
       confirm_order: { Args: { p_order_id: string }; Returns: undefined }
@@ -606,6 +658,7 @@ export type Database = {
         Args: { p_other_user: string; p_product_id?: string }
         Returns: string
       }
+      touch_last_seen: { Args: never; Returns: undefined }
     }
     Enums: {
       app_role: "user" | "seller" | "admin" | "support"
@@ -620,7 +673,6 @@ export type Database = {
         | "cancelled"
         | "paid"
         | "refunded"
-      product_category: "Games" | "Accounts" | "Keys" | "Services"
       ticket_category:
         | "order"
         | "payment"
@@ -779,7 +831,6 @@ export const Constants = {
         "paid",
         "refunded",
       ],
-      product_category: ["Games", "Accounts", "Keys", "Services"],
       ticket_category: [
         "order",
         "payment",
