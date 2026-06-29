@@ -54,7 +54,7 @@ function SellerDashboard() {
   const [form, setForm] = useState({
     title: "", description: "", price: "", old_price: "",
     stock: "1", category: "Games" as Product["category"], platform: "Steam",
-    delivery: "Instant" as "Instant" | "Manual", image_url: "",
+    delivery: "Instant" as "Instant" | "Manual", image_urls: [] as string[],
     stock_items: "", auto_message_enabled: false, auto_message: "",
   });
 
