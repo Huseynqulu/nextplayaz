@@ -40,17 +40,17 @@ export function AdminBanners() {
   async function save(b: Partial<Banner> & { id?: string }) {
     setBusy(b.id ?? "new");
     const { error } = await supabase.rpc("admin_upsert_banner", {
-      p_id: b.id ?? null,
+      p_id: b.id ?? (null as unknown as string),
       p_title: b.title!,
-      p_subtitle: b.subtitle ?? null,
-      p_image_url: b.image_url ?? null,
-      p_link_url: b.link_url ?? null,
-      p_bg_color: b.bg_color ?? null,
-      p_text_color: b.text_color ?? null,
+      p_subtitle: (b.subtitle ?? null) as unknown as string,
+      p_image_url: (b.image_url ?? null) as unknown as string,
+      p_link_url: (b.link_url ?? null) as unknown as string,
+      p_bg_color: (b.bg_color ?? null) as unknown as string,
+      p_text_color: (b.text_color ?? null) as unknown as string,
       p_sort_order: b.sort_order ?? 0,
       p_is_active: b.is_active ?? true,
-      p_starts_at: b.starts_at ?? null,
-      p_ends_at: b.ends_at ?? null,
+      p_starts_at: (b.starts_at ?? null) as unknown as string,
+      p_ends_at: (b.ends_at ?? null) as unknown as string,
     });
     setBusy(null);
     if (error) return toast.error(error.message);
