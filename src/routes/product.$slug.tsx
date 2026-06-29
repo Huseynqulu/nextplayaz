@@ -191,24 +191,38 @@ function ProductPage() {
               </div>
 
               {/* Seller card */}
-              <div className="mt-5 p-5 rounded-2xl border border-border bg-surface/50 flex items-center gap-4">
-                <div className="grid h-12 w-12 place-items-center rounded-xl bg-neon/15 border border-neon/30 text-neon font-bold">
-                  {p.seller.name[0]}
-                </div>
-                <div className="flex-1">
-                  <div className="flex items-center gap-2">
+              {p.sellerId ? (
+                <Link to="/u/$id" params={{ id: p.sellerId }} className="mt-5 p-5 rounded-2xl border border-border bg-surface/50 flex items-center gap-4 hover:border-primary transition">
+                  <div className="relative shrink-0">
+                    <div className="grid h-12 w-12 place-items-center rounded-xl bg-neon/15 border border-neon/30 text-neon font-bold">
+                      {p.seller.name[0]}
+                    </div>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <h4 className="font-semibold truncate">{p.seller.name}</h4>
+                      {p.seller.verified && <ShieldCheck className="h-4 w-4 text-neon shrink-0" />}
+                    </div>
+                    <div className="text-xs text-muted-foreground flex items-center gap-3 mt-0.5">
+                      <span className="flex items-center gap-1"><Star className="h-3 w-3 fill-warning text-warning" /> {p.seller.rating}</span>
+                      <span>Profilə bax →</span>
+                    </div>
+                  </div>
+                  <button onClick={(e) => { e.preventDefault(); messageSeller(); }} disabled={contacting} className="inline-flex items-center gap-1.5 px-3 h-9 rounded-lg border border-border text-sm hover:border-primary disabled:opacity-50">
+                    {contacting ? <Loader2 className="h-4 w-4 animate-spin" /> : <MessageCircle className="h-4 w-4" />} Mesaj
+                  </button>
+                </Link>
+              ) : (
+                <div className="mt-5 p-5 rounded-2xl border border-border bg-surface/50 flex items-center gap-4">
+                  <div className="grid h-12 w-12 place-items-center rounded-xl bg-neon/15 border border-neon/30 text-neon font-bold">
+                    {p.seller.name[0]}
+                  </div>
+                  <div className="flex-1">
                     <h4 className="font-semibold">{p.seller.name}</h4>
-                    {p.seller.verified && <ShieldCheck className="h-4 w-4 text-neon" />}
-                  </div>
-                  <div className="text-xs text-muted-foreground flex items-center gap-3 mt-0.5">
-                    <span className="flex items-center gap-1"><Star className="h-3 w-3 fill-warning text-warning" /> {p.seller.rating}</span>
-                    <span>{p.seller.sales.toLocaleString()} satış</span>
+                    <p className="text-xs text-muted-foreground">Demo satıcı</p>
                   </div>
                 </div>
-                <button className="inline-flex items-center gap-1.5 px-3 h-9 rounded-lg border border-border text-sm hover:border-primary">
-                  <MessageCircle className="h-4 w-4" /> Mesaj
-                </button>
-              </div>
+              )}
             </div>
           </div>
 
