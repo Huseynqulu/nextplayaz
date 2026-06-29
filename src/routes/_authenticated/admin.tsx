@@ -101,6 +101,8 @@ function AdminPage() {
       supabase.from("products").select("*", { count: "exact", head: true }),
       supabase.from("orders").select("*", { count: "exact", head: true }),
     ]);
+    const { data: ds } = await supabase.from("orders").select("id,buyer_id,seller_id,product_id,total,status,disputed_at,disputed_reason,created_at,product:products(title)").eq("status", "disputed").order("disputed_at", { ascending: false });
+    setDisputes((ds as any) ?? []);
     setApps((a as any) ?? []);
     setProducts((p as any) ?? []);
     setUsers((u as any) ?? []);
