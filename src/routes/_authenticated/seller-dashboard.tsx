@@ -48,6 +48,7 @@ function SellerDashboard() {
     title: "", description: "", price: "", old_price: "",
     stock: "1", category: "Games" as Product["category"], platform: "Steam",
     delivery: "Instant" as "Instant" | "Manual", image_url: "",
+    stock_items: "", auto_message_enabled: false, auto_message: "",
   });
 
   useEffect(() => {
