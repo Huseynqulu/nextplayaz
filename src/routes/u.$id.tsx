@@ -16,11 +16,12 @@ type ReviewRow = { id: string; rating: number; comment: string | null; created_a
 
 export const Route = createFileRoute("/u/$id")({
   loader: async ({ params }) => {
-    const { data: profile } = await supabase
-      .from("profiles")
+    const { data: profileRaw } = await supabase
+      .from("public_profiles" as any)
       .select("id, display_name, username, avatar_url, created_at, last_seen_at")
       .eq("id", params.id)
       .maybeSingle();
+    const profile = profileRaw as any;
     if (!profile) throw notFound();
 
     const { data: prods } = await supabase.from("products").select("*").eq("seller_id", params.id).eq("is_active", true).order("created_at", { ascending: false });

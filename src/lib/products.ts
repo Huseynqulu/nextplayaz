@@ -54,10 +54,10 @@ export async function fetchProducts(): Promise<Product[]> {
   let nameMap = new Map<string, string>();
   if (sellerIds.length) {
     const { data: profs } = await supabase
-      .from("profiles")
+      .from("public_profiles" as any)
       .select("id, display_name, username")
       .in("id", sellerIds);
-    nameMap = new Map((profs ?? []).map(p => [p.id, p.display_name || p.username || "Satıcı"]));
+    nameMap = new Map(((profs as any[]) ?? []).map((p: any) => [p.id, p.display_name || p.username || "Satıcı"]));
   }
 
   const dbItems = data.map(d => dbToProduct(d as unknown as DbProduct, nameMap.get(d.seller_id)));
@@ -68,7 +68,8 @@ export async function fetchProducts(): Promise<Product[]> {
 export async function fetchProductBySlug(slug: string): Promise<Product | null> {
   const { data } = await supabase.from("products").select("*").eq("slug", slug).eq("is_active", true).maybeSingle();
   if (data) {
-    const { data: prof } = await supabase.from("profiles").select("display_name, username").eq("id", data.seller_id).maybeSingle();
+    const { data: profRaw } = await supabase.from("public_profiles" as any).select("display_name, username").eq("id", data.seller_id).maybeSingle();
+    const prof = profRaw as any;
     return dbToProduct(data as unknown as DbProduct, prof?.display_name || prof?.username || "Satıcı");
   }
   return mockProducts.find(p => p.slug === slug) ?? null;
