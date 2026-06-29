@@ -47,7 +47,7 @@ function InboxPage() {
         .neq("id", user.id)
         .limit(10);
       if (!active) return;
-      setSearchResults((data ?? []) as ProfileLite[]);
+      setSearchResults(((data ?? []) as unknown) as ProfileLite[]);
       setSearching(false);
     }, 250);
     return () => { active = false; clearTimeout(t); };
