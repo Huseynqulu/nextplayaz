@@ -124,7 +124,25 @@ function RegisterPage() {
           </div>
 
           <form className="rounded-2xl border border-border bg-card-gradient p-7 card-shadow space-y-4" onSubmit={handleSubmit}>
-            <Field icon={<User className="h-4 w-4" />} placeholder="İstifadəçi adı" required minLength={2} value={username} onChange={e => setUsername(e.target.value)} />
+            <div>
+              <Field
+                icon={<User className="h-4 w-4" />}
+                placeholder="istifadəçi_adı (boşluqsuz)"
+                required
+                minLength={3}
+                maxLength={20}
+                value={username}
+                onChange={e => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_.]/g, ""))}
+              />
+              {username && (
+                <p className={`text-xs mt-1 ${usernameStatus === "ok" ? "text-success" : usernameStatus === "taken" || usernameStatus === "invalid" ? "text-destructive" : "text-muted-foreground"}`}>
+                  {usernameStatus === "checking" && "Yoxlanılır…"}
+                  {usernameStatus === "ok" && "✓ Boşdur"}
+                  {usernameStatus === "taken" && "Bu ad artıq tutulub"}
+                  {usernameStatus === "invalid" && "3–20 simvol: a-z, 0-9, _ və . (boşluqsuz)"}
+                </p>
+              )}
+            </div>
             <Field icon={<Mail className="h-4 w-4" />} type="email" placeholder="Email" required value={email} onChange={e => setEmail(e.target.value)} />
             <Field icon={<Lock className="h-4 w-4" />} type="password" placeholder="Şifrə (min 6)" required minLength={6} value={password} onChange={e => setPassword(e.target.value)} />
             <Field icon={<Lock className="h-4 w-4" />} type="password" placeholder="Şifrəni təsdiqlə" required minLength={6} value={confirm} onChange={e => setConfirm(e.target.value)} />
