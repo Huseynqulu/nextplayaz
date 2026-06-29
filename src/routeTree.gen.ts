@@ -16,6 +16,7 @@ import { Route as MarketplaceRouteImport } from './routes/marketplace'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as UIdRouteImport } from './routes/u.$id'
 import { Route as ProductSlugRouteImport } from './routes/product.$slug'
 import { Route as AuthenticatedWalletRouteImport } from './routes/_authenticated/wallet'
 import { Route as AuthenticatedSupportTicketsRouteImport } from './routes/_authenticated/support-tickets'
@@ -59,6 +60,11 @@ const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const UIdRoute = UIdRouteImport.update({
+  id: '/u/$id',
+  path: '/u/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProductSlugRoute = ProductSlugRouteImport.update({
@@ -131,6 +137,7 @@ export interface FileRoutesByFullPath {
   '/support-tickets': typeof AuthenticatedSupportTicketsRoute
   '/wallet': typeof AuthenticatedWalletRoute
   '/product/$slug': typeof ProductSlugRoute
+  '/u/$id': typeof UIdRoute
   '/messages/$conversationId': typeof AuthenticatedMessagesConversationIdRoute
   '/messages/': typeof AuthenticatedMessagesIndexRoute
 }
@@ -149,6 +156,7 @@ export interface FileRoutesByTo {
   '/support-tickets': typeof AuthenticatedSupportTicketsRoute
   '/wallet': typeof AuthenticatedWalletRoute
   '/product/$slug': typeof ProductSlugRoute
+  '/u/$id': typeof UIdRoute
   '/messages/$conversationId': typeof AuthenticatedMessagesConversationIdRoute
   '/messages': typeof AuthenticatedMessagesIndexRoute
 }
@@ -169,6 +177,7 @@ export interface FileRoutesById {
   '/_authenticated/support-tickets': typeof AuthenticatedSupportTicketsRoute
   '/_authenticated/wallet': typeof AuthenticatedWalletRoute
   '/product/$slug': typeof ProductSlugRoute
+  '/u/$id': typeof UIdRoute
   '/_authenticated/messages/$conversationId': typeof AuthenticatedMessagesConversationIdRoute
   '/_authenticated/messages/': typeof AuthenticatedMessagesIndexRoute
 }
@@ -189,6 +198,7 @@ export interface FileRouteTypes {
     | '/support-tickets'
     | '/wallet'
     | '/product/$slug'
+    | '/u/$id'
     | '/messages/$conversationId'
     | '/messages/'
   fileRoutesByTo: FileRoutesByTo
@@ -207,6 +217,7 @@ export interface FileRouteTypes {
     | '/support-tickets'
     | '/wallet'
     | '/product/$slug'
+    | '/u/$id'
     | '/messages/$conversationId'
     | '/messages'
   id:
@@ -226,6 +237,7 @@ export interface FileRouteTypes {
     | '/_authenticated/support-tickets'
     | '/_authenticated/wallet'
     | '/product/$slug'
+    | '/u/$id'
     | '/_authenticated/messages/$conversationId'
     | '/_authenticated/messages/'
   fileRoutesById: FileRoutesById
@@ -239,6 +251,7 @@ export interface RootRouteChildren {
   SellerRoute: typeof SellerRoute
   SupportRoute: typeof SupportRoute
   ProductSlugRoute: typeof ProductSlugRoute
+  UIdRoute: typeof UIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -290,6 +303,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/u/$id': {
+      id: '/u/$id'
+      path: '/u/$id'
+      fullPath: '/u/$id'
+      preLoaderRoute: typeof UIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/product/$slug': {
@@ -402,6 +422,7 @@ const rootRouteChildren: RootRouteChildren = {
   SellerRoute: SellerRoute,
   SupportRoute: SupportRoute,
   ProductSlugRoute: ProductSlugRoute,
+  UIdRoute: UIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
