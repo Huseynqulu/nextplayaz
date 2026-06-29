@@ -191,3 +191,18 @@ export function Header() {
     </header>
   );
 }
+
+import { useCart } from "@/lib/cart";
+function CartButton() {
+  const { count } = useCart();
+  return (
+    <Link to="/cart" className="grid h-10 w-10 place-items-center rounded-lg hover:bg-surface transition relative" aria-label="Səbət">
+      <ShoppingCart className="h-5 w-5" />
+      {count > 0 && (
+        <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 grid place-items-center rounded-full bg-neon text-background text-[10px] font-bold">
+          {count > 99 ? "99+" : count}
+        </span>
+      )}
+    </Link>
+  );
+}
