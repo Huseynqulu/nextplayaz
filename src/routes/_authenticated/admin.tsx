@@ -630,6 +630,57 @@ function AdminPage() {
                 </div>
               ))}
             </div>
+          ) : tab === "categories" ? (
+            <div className="space-y-3">
+              <div className="rounded-2xl border border-border bg-card-gradient p-4 card-shadow">
+                <h3 className="font-semibold mb-3 inline-flex items-center gap-2"><Plus className="h-4 w-4 text-neon" /> Yeni kateqoriya əlavə et</h3>
+                <div className="grid sm:grid-cols-5 gap-2">
+                  <input value={newCategory.slug} onChange={e => setNewCategory({ ...newCategory, slug: e.target.value })}
+                    placeholder="slug (məs: Boosting)" className="h-10 px-3 rounded-md bg-background border border-border text-sm" />
+                  <input value={newCategory.label_az} onChange={e => setNewCategory({ ...newCategory, label_az: e.target.value })}
+                    placeholder="Ad (AZ)" className="h-10 px-3 rounded-md bg-background border border-border text-sm" />
+                  <input value={newCategory.label_en} onChange={e => setNewCategory({ ...newCategory, label_en: e.target.value })}
+                    placeholder="Name (EN)" className="h-10 px-3 rounded-md bg-background border border-border text-sm" />
+                  <input value={newCategory.label_ru} onChange={e => setNewCategory({ ...newCategory, label_ru: e.target.value })}
+                    placeholder="Имя (RU)" className="h-10 px-3 rounded-md bg-background border border-border text-sm" />
+                  <button onClick={addNewCategory} disabled={busy === newCategory.slug}
+                    className="h-10 px-4 rounded-md bg-neon text-background text-sm font-semibold neon-ring disabled:opacity-50 inline-flex items-center justify-center gap-1.5">
+                    <Plus className="h-4 w-4" /> Əlavə et
+                  </button>
+                </div>
+              </div>
+              {categories.length === 0 && <p className="text-muted-foreground text-center py-12">Kateqoriya yoxdur.</p>}
+              {categories.map((c, i) => (
+                <div key={c.slug} className="rounded-xl border border-border bg-card-gradient p-4 card-shadow">
+                  <div className="grid sm:grid-cols-[100px_1fr_1fr_1fr_80px_auto] gap-2 items-center">
+                    <span className="px-2 py-0.5 rounded text-[11px] font-bold bg-surface text-center">{c.slug}</span>
+                    <input value={c.label_az} onChange={e => { const n = [...categories]; n[i] = { ...c, label_az: e.target.value }; setCategories(n); }}
+                      className="h-9 px-3 rounded-md bg-background border border-border text-sm" />
+                    <input value={c.label_en} onChange={e => { const n = [...categories]; n[i] = { ...c, label_en: e.target.value }; setCategories(n); }}
+                      className="h-9 px-3 rounded-md bg-background border border-border text-sm" />
+                    <input value={c.label_ru} onChange={e => { const n = [...categories]; n[i] = { ...c, label_ru: e.target.value }; setCategories(n); }}
+                      className="h-9 px-3 rounded-md bg-background border border-border text-sm" />
+                    <input type="number" value={c.sort_order} onChange={e => { const n = [...categories]; n[i] = { ...c, sort_order: Number(e.target.value) }; setCategories(n); }}
+                      className="h-9 px-2 rounded-md bg-background border border-border text-sm text-center" />
+                    <div className="flex items-center gap-1.5">
+                      <label className="inline-flex items-center gap-1.5 text-xs cursor-pointer">
+                        <input type="checkbox" checked={c.is_active} onChange={e => { const n = [...categories]; n[i] = { ...c, is_active: e.target.checked }; setCategories(n); }}
+                          className="h-4 w-4 accent-neon" />
+                        Aktiv
+                      </label>
+                      <button disabled={busy === c.slug} onClick={() => saveCategory(c)}
+                        className="h-9 w-9 grid place-items-center rounded-md bg-neon text-background disabled:opacity-50" title="Yadda saxla">
+                        {busy === c.slug ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
+                      </button>
+                      <button disabled={busy === c.slug} onClick={() => deleteCategory(c.slug)}
+                        className="h-9 w-9 grid place-items-center rounded-md bg-destructive text-destructive-foreground disabled:opacity-50" title="Sil">
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
           ) : (
             <div className="space-y-2">
               {products.length === 0 && <p className="text-muted-foreground text-center py-12">Məhsul yoxdur.</p>}
