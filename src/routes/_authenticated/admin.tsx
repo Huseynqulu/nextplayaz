@@ -358,6 +358,76 @@ function AdminPage() {
           )}
         </div>
       </main>
+
+      {viewing && (
+        <div className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm flex items-center justify-center p-4" onClick={() => setViewing(null)}>
+          <div className="w-full max-w-3xl max-h-[90vh] overflow-y-auto rounded-2xl border border-border bg-card-gradient p-6 card-shadow" onClick={e => e.stopPropagation()}>
+            <div className="flex items-start justify-between mb-5">
+              <div>
+                <h2 className="font-display text-2xl font-bold">{viewing.first_name} {viewing.last_name}</h2>
+                <p className="text-sm text-muted-foreground mt-1">Satıcı müraciəti detalları</p>
+              </div>
+              <button onClick={() => setViewing(null)} className="grid h-9 w-9 place-items-center rounded-lg hover:bg-surface"><X className="h-4 w-4" /></button>
+            </div>
+
+            <div className="grid sm:grid-cols-2 gap-3 mb-5">
+              {[
+                ["Email", viewing.email],
+                ["Telefon", viewing.phone],
+                ["Kateqoriya", viewing.category],
+                ["Status", viewing.status.toUpperCase()],
+                ["İstifadəçi ID", viewing.user_id],
+                ["Tarix", new Date(viewing.created_at).toLocaleString("az-AZ")],
+              ].map(([k, v]) => (
+                <div key={k} className="rounded-lg bg-surface/50 border border-border p-3">
+                  <div className="text-[10px] uppercase tracking-wide text-muted-foreground">{k}</div>
+                  <div className="text-sm font-medium mt-0.5 break-all">{v}</div>
+                </div>
+              ))}
+            </div>
+
+            {viewing.admin_notes && (
+              <div className="rounded-lg bg-surface/50 border border-border p-3 mb-5">
+                <div className="text-[10px] uppercase tracking-wide text-muted-foreground">Admin qeydləri</div>
+                <div className="text-sm mt-1">{viewing.admin_notes}</div>
+              </div>
+            )}
+
+            <h3 className="font-semibold mb-3 inline-flex items-center gap-2"><FileImage className="h-4 w-4 text-neon" /> Sənədlər</h3>
+            <div className="grid sm:grid-cols-3 gap-3">
+              {(["front","back","selfie"] as const).map(k => {
+                const labels = { front: "ID Ön", back: "ID Arxa", selfie: "Selfie" };
+                const url = signed[k];
+                return (
+                  <div key={k} className="rounded-lg border border-border overflow-hidden bg-background">
+                    <div className="aspect-[4/3] grid place-items-center bg-surface/40">
+                      {url ? (
+                        <a href={url} target="_blank" rel="noreferrer" className="block w-full h-full">
+                          <img src={url} alt={labels[k]} className="w-full h-full object-cover" />
+                        </a>
+                      ) : (
+                        <span className="text-xs text-muted-foreground">Yüklənir...</span>
+                      )}
+                    </div>
+                    <div className="p-2 text-xs font-semibold text-center">{labels[k]}</div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {viewing.status === "pending" && (
+              <div className="flex gap-2 mt-6">
+                <button disabled={busy === viewing.id} onClick={async () => { await decide(viewing, "approved"); setViewing(null); }}
+                  className="flex-1 h-10 rounded-lg bg-success text-background font-semibold disabled:opacity-50">Təsdiq et</button>
+                <button disabled={busy === viewing.id} onClick={async () => { await decide(viewing, "rejected"); setViewing(null); }}
+                  className="flex-1 h-10 rounded-lg bg-destructive text-destructive-foreground font-semibold disabled:opacity-50">Rədd et</button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+
       <Footer />
     </div>
   );
