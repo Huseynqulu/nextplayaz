@@ -7,6 +7,7 @@ import { dbToProduct, type DbProduct } from "@/lib/products";
 import { isOnline, formatLastSeen } from "@/lib/presence";
 import { ShieldCheck, Star, MessageCircle, Loader2, Store } from "lucide-react";
 import { SellerTierBadge } from "@/components/SellerTierBadge";
+import { VerifiedBadge } from "@/components/VerifiedBadge";
 import { useAuth } from "@/hooks/use-auth";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
