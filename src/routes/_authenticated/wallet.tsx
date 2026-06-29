@@ -156,10 +156,46 @@ function WalletPage() {
           </div>
           <p className="text-muted-foreground mb-8">Balansınızı artırın, pul çıxarın və əməliyyat tarixçəsinə baxın.</p>
 
-          <div className="rounded-2xl border border-border bg-card-gradient p-6 card-shadow mb-8">
-            <p className="text-xs text-muted-foreground uppercase tracking-wide">Mövcud balans</p>
-            <p className="font-display text-4xl font-bold text-neon mt-2">{balance.toFixed(2)} ₼</p>
+          <div className="grid sm:grid-cols-2 gap-4 mb-8">
+            <div className="rounded-2xl border border-border bg-card-gradient p-6 card-shadow">
+              <p className="text-xs text-muted-foreground uppercase tracking-wide">Mövcud balans</p>
+              <p className="font-display text-4xl font-bold text-neon mt-2">{balance.toFixed(2)} ₼</p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setShowPending((v) => !v)}
+              className="text-left rounded-2xl border border-border bg-surface p-6 card-shadow hover:border-neon/40 transition"
+            >
+              <p className="text-xs text-muted-foreground uppercase tracking-wide flex items-center gap-2">
+                <Clock className="h-3.5 w-3.5" /> Gözləyən balans (48 saat)
+              </p>
+              <p className="font-display text-4xl font-bold mt-2">{pending.total.toFixed(2)} ₼</p>
+              <p className="text-xs text-muted-foreground mt-1">
+                {pending.items.length} sifariş — {showPending ? "gizlət" : "detallara bax"}
+              </p>
+            </button>
           </div>
+
+          {showPending && pending.items.length > 0 && (
+            <div className="rounded-2xl border border-border bg-card p-4 mb-8">
+              <h3 className="font-semibold mb-3 text-sm">Gözləyən köçürmələr</h3>
+              <ul className="divide-y divide-border">
+                {pending.items.map((it) => {
+                  const date = it.funds_release_at ? new Date(it.funds_release_at) : null;
+                  const hours = date ? Math.max(0, Math.round((date.getTime() - Date.now()) / 3600000)) : null;
+                  return (
+                    <li key={it.id} className="py-2 flex items-center justify-between text-sm">
+                      <span className="font-mono text-xs text-muted-foreground">#{it.id.slice(0, 8)}</span>
+                      <span className="text-muted-foreground">
+                        {date ? `${date.toLocaleString("az-AZ")} (${hours} saat qaldı)` : "—"}
+                      </span>
+                      <span className="font-semibold text-neon">+{Number(it.seller_net).toFixed(2)} ₼</span>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          )}
 
           {/* Tabs */}
           <div className="inline-flex rounded-xl bg-surface border border-border p-1 mb-6">
