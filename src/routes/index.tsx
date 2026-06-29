@@ -9,6 +9,7 @@ import { FeaturedProducts } from "@/components/FeaturedProducts";
 import { StatsSection } from "@/components/StatsSection";
 import { HowItWorks } from "@/components/HowItWorks";
 import { SellerCta } from "@/components/SellerCta";
+import { LiveSalesTicker } from "@/components/LiveSalesTicker";
 
 export const Route = createFileRoute("/")({
   component: HomePage,
@@ -22,6 +23,7 @@ function HomePage() {
         <Hero />
         <BannerCarousel />
         <FeaturedGames />
+        <LiveSalesTicker />
         <CategoriesSection />
         <FeaturedProducts />
         <StatsSection />
