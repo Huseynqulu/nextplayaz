@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
-import { Loader2, Plus, Package, Trash2, Pencil, Rocket } from "lucide-react";
+import { Loader2, Plus, Package, Trash2, Pencil, Rocket, ShoppingBag } from "lucide-react";
 import { SellerAnalytics } from "@/components/SellerAnalytics";
 import { BoostDialog } from "@/components/BoostDialog";
 
@@ -219,12 +219,20 @@ function SellerDashboard() {
               </h1>
               <p className="text-muted-foreground mt-2">Məhsullarınızı idarə edin.</p>
             </div>
-            <button
-              onClick={() => { resetForm(); setShowForm(s => !s); }}
-              className="inline-flex items-center gap-2 h-11 px-5 rounded-lg bg-neon text-background font-semibold neon-ring hover:opacity-95"
-            >
-              <Plus className="h-4 w-4" /> {showForm ? "Bağla" : "Yeni məhsul"}
-            </button>
+            <div className="flex gap-2 flex-wrap">
+              <Link
+                to="/seller-orders"
+                className="inline-flex items-center gap-2 h-11 px-5 rounded-lg border border-border bg-surface font-semibold hover:border-neon"
+              >
+                <ShoppingBag className="h-4 w-4" /> Gələn sifarişlər
+              </Link>
+              <button
+                onClick={() => { resetForm(); setShowForm(s => !s); }}
+                className="inline-flex items-center gap-2 h-11 px-5 rounded-lg bg-neon text-background font-semibold neon-ring hover:opacity-95"
+              >
+                <Plus className="h-4 w-4" /> {showForm ? "Bağla" : "Yeni məhsul"}
+              </button>
+            </div>
           </div>
           {user && <SellerAnalytics sellerId={user.id} />}
 
