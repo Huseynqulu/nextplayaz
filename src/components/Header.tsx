@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { Search, ShoppingBag, Menu, Gamepad2, LogOut, User as UserIcon, LayoutDashboard, ShieldCheck, Package } from "lucide-react";
+import { Search, ShoppingBag, Menu, Gamepad2, LogOut, User as UserIcon, LayoutDashboard, ShieldCheck, Package, LifeBuoy } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
