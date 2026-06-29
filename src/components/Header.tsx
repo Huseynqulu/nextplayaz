@@ -5,12 +5,14 @@ import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
 import { useT } from "@/lib/i18n";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { useOnlinePresence } from "@/lib/presence";
 
 export function Header() {
   const t = useT();
   const [open, setOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const { user, signOut } = useAuth();
+  useOnlinePresence();
   const navigate = useNavigate();
   const [roles, setRoles] = useState<string[]>([]);
 
