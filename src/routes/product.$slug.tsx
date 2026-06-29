@@ -221,7 +221,7 @@ function ProductPage() {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
                       <h4 className="font-semibold truncate">{p.seller.name}</h4>
-                      {p.seller.verified && <ShieldCheck className="h-4 w-4 text-neon shrink-0" />}
+                      <VerifiedBadge verified={p.seller.verified} size={16} />
                     </div>
                     <div className="text-xs text-muted-foreground flex items-center gap-3 mt-0.5">
                       <span className="flex items-center gap-1"><Star className="h-3 w-3 fill-warning text-warning" /> {p.seller.rating}</span>
