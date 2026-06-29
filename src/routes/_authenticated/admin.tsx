@@ -272,6 +272,7 @@ function AdminPage() {
               ["tickets", `Dəstək (${tickets.filter(t => t.status === "open" || t.status === "pending").length})`],
               ["users", "İstifadəçilər"],
               ["topups", `Balans (${topups.filter(t => t.status === "pending").length})`],
+              ["payments", "Rekvizitlər"],
               ["codes", "Endirim kodları"],
               ["products", "Məhsullar"],
             ] as const).map(([key, label]) => (
