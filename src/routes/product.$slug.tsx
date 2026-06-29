@@ -1,5 +1,6 @@
 import { createFileRoute, Link, notFound, useNavigate } from "@tanstack/react-router";
 import { Header } from "@/components/Header";
+import { ReviewSection } from "@/components/ReviewSection";
 import { Footer } from "@/components/Footer";
 import { ProductCard } from "@/components/ProductCard";
 import { products as mockProducts } from "@/lib/marketplace-data";
