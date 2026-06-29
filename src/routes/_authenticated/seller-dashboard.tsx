@@ -244,57 +244,51 @@ function SellerDashboard() {
                 </select>
               </div>
               <div className="sm:col-span-2">
-                <label className="text-xs font-medium text-muted-foreground">Məhsul şəkli</label>
-                <div className="mt-1 flex flex-col sm:flex-row gap-3">
-                  <div className="flex-shrink-0">
-                    {form.image_url ? (
-                      <div className="relative w-28 h-28 rounded-lg overflow-hidden border border-border bg-surface">
-                        <img src={form.image_url} alt="" className="w-full h-full object-cover" />
-                        <button type="button" onClick={() => setForm(f => ({ ...f, image_url: "" }))}
-                          className="absolute top-1 right-1 h-6 w-6 rounded-full bg-background/80 hover:bg-background flex items-center justify-center">
-                          <Trash2 className="h-3 w-3 text-red-500" />
-                        </button>
-                      </div>
-                    ) : (
-                      <div className="w-28 h-28 rounded-lg border border-dashed border-border bg-surface/50 flex items-center justify-center">
-                        <Package className="h-8 w-8 text-muted-foreground/40" />
-                      </div>
-                    )}
-                  </div>
-                  <div className="flex-1 flex flex-col gap-2">
-                    <label className={`inline-flex items-center justify-center gap-2 h-11 px-4 rounded-lg border border-border bg-surface hover:bg-surface/70 cursor-pointer text-sm font-medium ${uploadingImg ? "opacity-50 pointer-events-none" : ""}`}>
-                      {uploadingImg ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
-                      {uploadingImg ? "Yüklənir..." : "Cihazdan şəkil yüklə"}
-                      <input type="file" accept="image/*" className="hidden"
-                        onChange={async (e) => {
-                          const file = e.target.files?.[0];
-                          if (!file || !user) return;
-                          if (file.size > 5 * 1024 * 1024) { toast.error("Maksimum 5MB"); return; }
-                          setUploadingImg(true);
-                          try {
+                <label className="text-xs font-medium text-muted-foreground">Məhsul şəkilləri ({form.image_urls.length})</label>
+                <div className="mt-1 flex flex-wrap gap-3">
+                  {form.image_urls.map((url, idx) => (
+                    <div key={url + idx} className="relative w-24 h-24 rounded-lg overflow-hidden border border-border bg-surface group">
+                      <img src={url} alt="" className="w-full h-full object-cover" />
+                      {idx === 0 && <span className="absolute bottom-0 inset-x-0 text-[10px] text-center bg-primary/80 text-primary-foreground py-0.5">Əsas</span>}
+                      <button type="button" onClick={() => setForm(f => ({ ...f, image_urls: f.image_urls.filter((_, i) => i !== idx) }))}
+                        className="absolute top-1 right-1 h-6 w-6 rounded-full bg-background/80 hover:bg-background flex items-center justify-center">
+                        <Trash2 className="h-3 w-3 text-red-500" />
+                      </button>
+                    </div>
+                  ))}
+                  <label className={`w-24 h-24 rounded-lg border border-dashed border-border bg-surface/50 hover:bg-surface flex flex-col items-center justify-center cursor-pointer text-[11px] gap-1 ${uploadingImg ? "opacity-50 pointer-events-none" : ""}`}>
+                    {uploadingImg ? <Loader2 className="h-5 w-5 animate-spin" /> : <Plus className="h-5 w-5 text-muted-foreground" />}
+                    <span>{uploadingImg ? "Yüklənir..." : "Şəkil əlavə et"}</span>
+                    <input type="file" accept="image/*" multiple className="hidden"
+                      onChange={async (e) => {
+                        const files = Array.from(e.target.files ?? []);
+                        if (!files.length || !user) return;
+                        setUploadingImg(true);
+                        try {
+                          const uploaded: string[] = [];
+                          for (const file of files) {
+                            if (file.size > 5 * 1024 * 1024) { toast.error(`${file.name}: maksimum 5MB`); continue; }
                             const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
                             const path = `${user.id}/${Date.now()}-${Math.random().toString(36).slice(2,8)}.${ext}`;
                             const { error: upErr } = await supabase.storage.from("product-images").upload(path, file, { contentType: file.type, upsert: false });
-                            if (upErr) throw upErr;
-                            const { data: signed, error: sErr } = await supabase.storage.from("product-images").createSignedUrl(path, 60 * 60 * 24 * 365 * 10);
-                            if (sErr || !signed) throw sErr ?? new Error("URL yaradıla bilmədi");
-                            setForm(f => ({ ...f, image_url: signed.signedUrl }));
-                            toast.success("Şəkil yükləndi");
-                          } catch (err: any) {
-                            toast.error(err.message ?? "Yükləmə xətası");
-                          } finally {
-                            setUploadingImg(false);
-                            e.target.value = "";
+                            if (upErr) { toast.error(upErr.message); continue; }
+                            const { data: signed } = await supabase.storage.from("product-images").createSignedUrl(path, 60 * 60 * 24 * 365 * 10);
+                            if (signed?.signedUrl) uploaded.push(signed.signedUrl);
                           }
-                        }} />
-                    </label>
-                    <input value={form.image_url} onChange={e => setForm(f => ({ ...f, image_url: e.target.value }))}
-                      placeholder="və ya şəkil URL-i yapışdırın"
-                      className="w-full h-10 px-3 rounded-lg bg-surface border border-border text-xs focus:outline-none focus:ring-2 focus:ring-ring" />
-                    <p className="text-[11px] text-muted-foreground">JPG / PNG / WEBP — maks 5MB</p>
-                  </div>
+                          if (uploaded.length) {
+                            setForm(f => ({ ...f, image_urls: [...f.image_urls, ...uploaded] }));
+                            toast.success(`${uploaded.length} şəkil yükləndi`);
+                          }
+                        } finally {
+                          setUploadingImg(false);
+                          e.target.value = "";
+                        }
+                      }} />
+                  </label>
                 </div>
+                <p className="mt-2 text-[11px] text-muted-foreground">Birinci şəkil əsas şəkil olacaq. JPG / PNG / WEBP — hər biri maks 5MB. Bir neçə şəkil eyni anda seçə bilərsiniz.</p>
               </div>
+
 
               {form.delivery === "Instant" && (
                 <div className="sm:col-span-2 rounded-xl border border-neon/30 bg-neon/5 p-4">
