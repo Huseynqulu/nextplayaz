@@ -317,6 +317,89 @@ export type Database = {
         }
         Relationships: []
       }
+      gift_denominations: {
+        Row: {
+          created_at: string
+          currency: string
+          face_value: number
+          id: string
+          is_active: boolean
+          label: string | null
+          platform_id: string
+          region: string | null
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          currency: string
+          face_value: number
+          id?: string
+          is_active?: boolean
+          label?: string | null
+          platform_id: string
+          region?: string | null
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          currency?: string
+          face_value?: number
+          id?: string
+          is_active?: boolean
+          label?: string | null
+          platform_id?: string
+          region?: string | null
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "gift_denominations_platform_id_fkey"
+            columns: ["platform_id"]
+            isOneToOne: false
+            referencedRelation: "gift_platforms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      gift_platforms: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean
+          logo_url: string | null
+          name: string
+          slug: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          logo_url?: string | null
+          name: string
+          slug: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          logo_url?: string | null
+          name?: string
+          slug?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       loyalty_ledger: {
         Row: {
           created_at: string
@@ -686,6 +769,7 @@ export type Database = {
           created_at: string
           delivery: Database["public"]["Enums"]["delivery_type"]
           description: string | null
+          gift_denomination_id: string | null
           id: string
           image_url: string | null
           image_urls: string[]
@@ -712,6 +796,7 @@ export type Database = {
           created_at?: string
           delivery?: Database["public"]["Enums"]["delivery_type"]
           description?: string | null
+          gift_denomination_id?: string | null
           id?: string
           image_url?: string | null
           image_urls?: string[]
@@ -738,6 +823,7 @@ export type Database = {
           created_at?: string
           delivery?: Database["public"]["Enums"]["delivery_type"]
           description?: string | null
+          gift_denomination_id?: string | null
           id?: string
           image_url?: string | null
           image_urls?: string[]
@@ -755,7 +841,15 @@ export type Database = {
           title?: string
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "products_gift_denomination_id_fkey"
+            columns: ["gift_denomination_id"]
+            isOneToOne: false
+            referencedRelation: "gift_denominations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {
