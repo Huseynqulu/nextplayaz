@@ -36,6 +36,7 @@ function ProductPage() {
   const navigate = useNavigate();
   const [qty, setQty] = useState(1);
   const [buying, setBuying] = useState(false);
+  const [code, setCode] = useState("");
   const discount = p.oldPrice ? Math.round((1 - p.price / p.oldPrice) * 100) : 0;
   const similar = mockProducts.filter(x => x.id !== p.id && x.category === p.category).slice(0, 4);
   const isDbProduct = /^[0-9a-f]{8}-/i.test(p.id);
@@ -51,7 +52,11 @@ function ProductPage() {
       return;
     }
     setBuying(true);
-    const { data, error } = await supabase.rpc("create_order", { p_product_id: p.id, p_quantity: qty });
+    const { data, error } = await supabase.rpc("create_order", {
+      p_product_id: p.id,
+      p_quantity: qty,
+      p_discount_code: code.trim() || null,
+    } as any);
     setBuying(false);
     if (error) {
       toast.error(error.message);
@@ -61,6 +66,7 @@ function ProductPage() {
     navigate({ to: "/orders" });
     void data;
   }
+
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -136,7 +142,17 @@ function ProductPage() {
                     <button onClick={() => setQty(Math.max(1, qty - 1))} className="w-10 h-11 hover:bg-surface rounded-l-xl">−</button>
                     <span className="w-10 text-center font-semibold">{qty}</span>
                     <button onClick={() => setQty(Math.min(p.stock, qty + 1))} className="w-10 h-11 hover:bg-surface rounded-r-xl">+</button>
-                  </div>
+                </div>
+
+                <div className="mt-3">
+                  <input
+                    value={code}
+                    onChange={e => setCode(e.target.value)}
+                    placeholder="Endirim kodu (varsa)"
+                    className="w-full h-10 px-3 rounded-lg bg-background border border-border text-sm focus:border-primary outline-none uppercase"
+                  />
+                </div>
+
                   <button
                     disabled={buying || p.stock < 1}
                     onClick={buy}
