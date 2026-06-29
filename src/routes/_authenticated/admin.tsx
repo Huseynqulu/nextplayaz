@@ -40,6 +40,7 @@ function AdminPage() {
   const [codes, setCodes] = useState<DiscountCode[]>([]);
   const [tickets, setTickets] = useState<AdminTicket[]>([]);
   const [topups, setTopups] = useState<TopUp[]>([]);
+  const [paySettings, setPaySettings] = useState<PaymentSetting[]>([]);
   const [stats, setStats] = useState({ users: 0, sellers: 0, products: 0, orders: 0 });
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState<string | null>(null);
