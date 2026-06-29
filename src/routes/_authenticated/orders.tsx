@@ -88,13 +88,45 @@ function OrdersPage() {
     if (error) toast.error(error.message); else { toast.success("Təsdiq edildi, satıcıya ödəniş köçürüldü"); refresh(); }
   }
 
-  async function dispute(o: Order) {
-    const reason = prompt("Etirazınızın səbəbi (minimum 5 simvol):");
-    if (!reason || reason.trim().length < 5) { if (reason !== null) toast.error("Səbəb çox qısadır"); return; }
-    setBusy(o.id);
-    const { error } = await supabase.rpc("dispute_order" as any, { p_order_id: o.id, p_reason: reason.trim() });
-    setBusy(null);
-    if (error) toast.error(error.message); else { toast.success("Etiraz göndərildi, admin baxacaq"); refresh(); }
+  function openDispute(o: Order) {
+    setDisputeOrder(o);
+    setDisputeReason("");
+    setDisputeVideoUrl("");
+    setDisputeFile(null);
+  }
+
+  async function submitDispute() {
+    if (!disputeOrder || !user) return;
+    const reason = disputeReason.trim();
+    const url = disputeVideoUrl.trim();
+    if (reason.length < 5) { toast.error("Səbəb minimum 5 simvol olmalıdır"); return; }
+    if (!url && !disputeFile) {
+      toast.error("Video linki (Streamable və s.) və ya ekran görüntüsü mütləq əlavə edilməlidir");
+      return;
+    }
+    if (url && !/^https?:\/\/.{8,}/i.test(url)) {
+      toast.error("Video linki düzgün deyil (https://... formatında olmalıdır)");
+      return;
+    }
+    setDisputeSubmitting(true);
+    try {
+      let path: string | null = null;
+      if (disputeFile) path = await uploadChatAttachment(disputeFile, user.id);
+      const { error } = await supabase.rpc("dispute_order" as any, {
+        p_order_id: disputeOrder.id,
+        p_reason: reason,
+        p_evidence_url: url || null,
+        p_evidence_path: path,
+      });
+      if (error) throw error;
+      toast.success("Etiraz göndərildi, dəstək baxacaq");
+      setDisputeOrder(null);
+      refresh();
+    } catch (e: any) {
+      toast.error(e.message ?? "Xəta baş verdi");
+    } finally {
+      setDisputeSubmitting(false);
+    }
   }
 
   return (
