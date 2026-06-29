@@ -8,7 +8,7 @@ import { useCurrency } from "@/lib/currency";
 import { useCart } from "@/lib/cart";
 import { toast } from "sonner";
 
-export function ProductCard({ p }: { p: Product }) {
+export function ProductCard({ p, variant = "default" }: { p: Product; variant?: "default" | "compact" | "list" }) {
   const { format } = useCurrency();
   const discount = p.oldPrice ? Math.round((1 - p.price / p.oldPrice) * 100) : 0;
   const { isFav, toggle } = useFavorites();
