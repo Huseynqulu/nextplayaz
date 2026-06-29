@@ -17,18 +17,47 @@ function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [mfa, setMfa] = useState<{ factorId: string; challengeId: string } | null>(null);
+  const [mfaCode, setMfaCode] = useState("");
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
     const { error } = await supabase.auth.signInWithPassword({ email, password });
-    setLoading(false);
-    if (error) {
-      toast.error(error.message);
-      return;
+    if (error) { setLoading(false); toast.error(error.message); return; }
+
+    // Check if MFA challenge is required
+    const { data: aal } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+    if (aal?.nextLevel === "aal2" && aal.currentLevel === "aal1") {
+      const { data: factors } = await supabase.auth.mfa.listFactors();
+      const totp = factors?.totp?.find(f => f.status === "verified");
+      if (totp) {
+        const { data: ch, error: chErr } = await supabase.auth.mfa.challenge({ factorId: totp.id });
+        setLoading(false);
+        if (chErr) { toast.error(chErr.message); return; }
+        setMfa({ factorId: totp.id, challengeId: ch.id });
+        return;
+      }
     }
+    setLoading(false);
     toast.success("Xoş gəldin!");
     navigate({ to: "/" });
+  }
+
+  async function verifyMfa(e: React.FormEvent) {
+    e.preventDefault();
+    if (!mfa || mfaCode.length !== 6) return;
+    setLoading(true);
+    const { error } = await supabase.auth.mfa.verify({ factorId: mfa.factorId, challengeId: mfa.challengeId, code: mfaCode });
+    setLoading(false);
+    if (error) { toast.error(error.message); return; }
+    toast.success("Xoş gəldin!");
+    navigate({ to: "/" });
+  }
+
+  async function cancelMfa() {
+    await supabase.auth.signOut();
+    setMfa(null); setMfaCode("");
   }
 
   async function handleGoogle() {
@@ -58,6 +87,24 @@ function LoginPage() {
             <p className="mt-2 text-muted-foreground text-sm">Gaming aləminə davam et</p>
           </div>
 
+          {mfa ? (
+            <form onSubmit={verifyMfa} className="rounded-2xl border border-border bg-card-gradient p-7 card-shadow space-y-4">
+              <div className="text-center">
+                <h2 className="font-display text-lg font-bold">İki addımlı doğrulama</h2>
+                <p className="text-xs text-muted-foreground mt-1">Authenticator tətbiqindəki 6 rəqəmli kodu daxil edin</p>
+              </div>
+              <input value={mfaCode} onChange={e => setMfaCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                inputMode="numeric" autoFocus placeholder="000000"
+                className="w-full h-14 px-4 rounded-xl bg-background border border-border text-center font-mono text-3xl tracking-[0.5em] focus:outline-none focus:ring-2 focus:ring-ring" />
+              <button type="submit" disabled={loading || mfaCode.length !== 6}
+                className="w-full h-11 rounded-xl bg-neon text-background font-semibold neon-ring disabled:opacity-60 flex items-center justify-center gap-2">
+                {loading && <Loader2 className="h-4 w-4 animate-spin" />} Təsdiqlə
+              </button>
+              <button type="button" onClick={cancelMfa} className="w-full text-xs text-muted-foreground hover:text-foreground">
+                Ləğv et və geri qayıt
+              </button>
+            </form>
+          ) : (
           <form className="rounded-2xl border border-border bg-card-gradient p-7 card-shadow space-y-4" onSubmit={handleSubmit}>
             <Field icon={<Mail className="h-4 w-4" />} type="email" placeholder="Email" required value={email} onChange={e => setEmail(e.target.value)} />
             <Field icon={<Lock className="h-4 w-4" />} type="password" placeholder="Şifrə" required minLength={6} value={password} onChange={e => setPassword(e.target.value)} />
@@ -78,6 +125,7 @@ function LoginPage() {
               Google ilə davam et
             </button>
           </form>
+          )}
 
           <p className="text-center text-sm text-muted-foreground mt-6">
             Hesabın yoxdur? <Link to="/register" className="text-neon font-semibold hover:underline">Qeydiyyatdan keç</Link>

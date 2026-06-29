@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { Wallet, ShieldCheck, Package, Star, Loader2, Camera, User as UserIcon } from "lucide-react";
 import { toast } from "sonner";
+import { TwoFactorSetup } from "@/components/TwoFactorSetup";
 
 export const Route = createFileRoute("/_authenticated/profile")({
   component: ProfilePage,
@@ -122,6 +123,9 @@ function ProfilePage() {
             <Row label="Ad" value={profile.display_name ?? "—"} />
             <Row label="Qoşulma tarixi" value={new Date(user!.created_at).toLocaleDateString("az")} />
           </div>
+        </div>
+        <div className="mt-6">
+          <TwoFactorSetup recommended={isSeller || isAdmin} />
         </div>
       </main>
       <Footer />
