@@ -5,8 +5,9 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
-import { Loader2, Plus, Package, Trash2, Pencil } from "lucide-react";
+import { Loader2, Plus, Package, Trash2, Pencil, Rocket } from "lucide-react";
 import { SellerAnalytics } from "@/components/SellerAnalytics";
+import { BoostDialog } from "@/components/BoostDialog";
 
 export const Route = createFileRoute("/_authenticated/seller-dashboard")({
   component: SellerDashboard,
@@ -26,6 +27,8 @@ type Product = {
   description: string | null;
   image_url: string | null;
   is_active: boolean;
+  boost_expires_at?: string | null;
+  boost_tier?: number | null;
 };
 
 const CATEGORIES = ["Games", "Accounts", "Keys", "Services"] as const;
