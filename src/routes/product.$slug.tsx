@@ -39,11 +39,13 @@ function ProductPage() {
   const [buying, setBuying] = useState(false);
   const [contacting, setContacting] = useState(false);
   const [code, setCode] = useState("");
+  const [showTerms, setShowTerms] = useState(false);
+  const [agreed, setAgreed] = useState(false);
   const discount = p.oldPrice ? Math.round((1 - p.price / p.oldPrice) * 100) : 0;
   const similar = mockProducts.filter(x => x.id !== p.id && x.category === p.category).slice(0, 4);
   const isDbProduct = /^[0-9a-f]{8}-/i.test(p.id);
 
-  async function buy() {
+  function openBuy() {
     if (!user) {
       toast.info("Sifariş üçün daxil olun");
       navigate({ to: "/login" });
@@ -53,6 +55,12 @@ function ProductPage() {
       toast.info("Demo məhsul — gerçək satıcı məhsulu seçin");
       return;
     }
+    setAgreed(false);
+    setShowTerms(true);
+  }
+
+  async function buy() {
+    if (!agreed) { toast.error("Şərtləri qəbul etməlisiniz"); return; }
     setBuying(true);
     const { data, error } = await supabase.rpc("create_order", {
       p_product_id: p.id,
@@ -64,6 +72,7 @@ function ProductPage() {
       toast.error(error.message);
       return;
     }
+    setShowTerms(false);
     toast.success("Sifariş yaradıldı! Satıcı ilə söhbət açıldı.");
     const orderId = data as string | null;
     if (orderId) {
