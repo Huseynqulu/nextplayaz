@@ -3,6 +3,7 @@ import { Star, Zap, ShieldCheck, Heart } from "lucide-react";
 import type { Product } from "@/lib/marketplace-data";
 import { useFavorites, isRealProductId } from "@/lib/favorites";
 import { useAuth } from "@/hooks/use-auth";
+import { SellerTierBadge } from "@/components/SellerTierBadge";
 
 export function ProductCard({ p }: { p: Product }) {
   const discount = p.oldPrice ? Math.round((1 - p.price / p.oldPrice) * 100) : 0;
