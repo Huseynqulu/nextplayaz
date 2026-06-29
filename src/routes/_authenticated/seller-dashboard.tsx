@@ -57,10 +57,13 @@ function SellerDashboard() {
     platform: "", platform_subcategory: "",
     delivery: "Instant" as "Instant" | "Manual", image_urls: [] as string[],
     stock_items: "", auto_message_enabled: false, auto_message: "",
+    is_gift_card: false, gift_platform_id: "", gift_denomination_id: "",
   });
   const [subcats, setSubcats] = useState<{ slug: string; label_az: string; category_slug: string }[]>([]);
   const [platformList, setPlatformList] = useState<{ slug: string; label_az: string }[]>([]);
   const [psubs, setPsubs] = useState<{ slug: string; label_az: string; platform_slug: string }[]>([]);
+  const [giftPlatforms, setGiftPlatforms] = useState<{ id: string; name: string; slug: string }[]>([]);
+  const [giftDenoms, setGiftDenoms] = useState<{ id: string; platform_id: string; face_value: number; currency: string; region: string | null; label: string | null }[]>([]);
   useEffect(() => {
     supabase.from("subcategories" as any).select("slug,label_az,category_slug").eq("is_active", true).order("sort_order")
       .then(({ data }) => setSubcats(((data as any) ?? []) as any));
@@ -72,6 +75,10 @@ function SellerDashboard() {
       });
     supabase.from("platform_subcategories" as any).select("slug,label_az,platform_slug").eq("is_active", true).order("sort_order")
       .then(({ data }) => setPsubs(((data as any) ?? []) as any));
+    supabase.from("gift_platforms" as any).select("id,name,slug").eq("is_active", true).order("sort_order").order("name")
+      .then(({ data }) => setGiftPlatforms(((data as any) ?? []) as any));
+    supabase.from("gift_denominations" as any).select("id,platform_id,face_value,currency,region,label").eq("is_active", true).order("sort_order").order("face_value")
+      .then(({ data }) => setGiftDenoms(((data as any) ?? []) as any));
   }, []);
   const currentSubs = subcats.filter(s => s.category_slug === form.category);
   const currentPlatformSlug = platformList.find(p => p.label_az === form.platform)?.slug;
