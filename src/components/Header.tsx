@@ -185,6 +185,25 @@ export function Header() {
         </div>
       </div>
 
+      <div className="md:hidden border-t border-border/60 px-4 pb-3 pt-2">
+        <form
+          className="relative"
+          onSubmit={(e) => {
+            e.preventDefault();
+            const q = (e.currentTarget.elements.namedItem("q") as HTMLInputElement).value.trim();
+            navigate({ to: "/marketplace", search: q ? { q } : {} });
+          }}
+        >
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <input
+            name="q"
+            placeholder={t("nav.search")}
+            className="w-full h-10 pl-10 pr-4 rounded-lg bg-surface border border-border text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring transition"
+          />
+        </form>
+      </div>
+
+
       {open && (
         <div className="lg:hidden border-t border-border bg-background/95 backdrop-blur">
           <nav className="flex flex-col p-4 gap-1">
