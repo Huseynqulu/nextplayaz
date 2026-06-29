@@ -569,6 +569,7 @@ export type Database = {
           description: string | null
           id: string
           image_url: string | null
+          image_urls: string[]
           is_active: boolean
           old_price: number | null
           platform: string
@@ -592,6 +593,7 @@ export type Database = {
           description?: string | null
           id?: string
           image_url?: string | null
+          image_urls?: string[]
           is_active?: boolean
           old_price?: number | null
           platform: string
@@ -615,6 +617,7 @@ export type Database = {
           description?: string | null
           id?: string
           image_url?: string | null
+          image_urls?: string[]
           is_active?: boolean
           old_price?: number | null
           platform?: string
