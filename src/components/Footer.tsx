@@ -1,7 +1,9 @@
 import { Link } from "@tanstack/react-router";
 import { Gamepad2, Shield, Zap, Headphones } from "lucide-react";
+import { useT } from "@/lib/i18n";
 
 export function Footer() {
+  const t = useT();
   return (
     <footer className="mt-32 border-t border-border bg-surface/40">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16">
@@ -16,41 +18,41 @@ export function Footer() {
               </span>
             </div>
             <p className="text-sm text-muted-foreground leading-relaxed">
-              Azərbaycanın ilk premium gaming marketplace platforması. Təhlükəsiz escrow ödənişlər, yoxlanılmış satıcılar, anında çatdırılma.
+              {t("footer.tagline")}
             </p>
           </div>
 
-          <FooterCol title="Marketplace" links={[
-            ["/marketplace", "Bütün məhsullar"],
-            ["/marketplace?cat=Games", "Oyunlar"],
-            ["/marketplace?cat=Accounts", "Hesablar"],
-            ["/marketplace?cat=Keys", "Açarlar"],
-            ["/marketplace?cat=Services", "Xidmətlər"],
+          <FooterCol title={t("footer.marketplace")} links={[
+            ["/marketplace", t("footer.all")],
+            ["/marketplace?cat=Games", t("footer.games")],
+            ["/marketplace?cat=Accounts", t("footer.accounts")],
+            ["/marketplace?cat=Keys", t("footer.keys")],
+            ["/marketplace?cat=Services", t("footer.services")],
           ]} />
 
-          <FooterCol title="Hesab" links={[
-            ["/login", "Daxil ol"],
-            ["/register", "Qeydiyyat"],
-            ["/seller", "Satıcı ol"],
-            ["/support", "Dəstək"],
+          <FooterCol title={t("footer.account")} links={[
+            ["/login", t("auth.login")],
+            ["/register", t("auth.register")],
+            ["/seller", t("nav.seller")],
+            ["/support", t("nav.support")],
           ]} />
 
           <div>
-            <h4 className="font-display text-sm font-semibold mb-4">Niyə NextPlay?</h4>
+            <h4 className="font-display text-sm font-semibold mb-4">{t("footer.why")}</h4>
             <ul className="space-y-3 text-sm">
-              <li className="flex gap-2 text-muted-foreground"><Shield className="h-4 w-4 text-neon shrink-0 mt-0.5" /> Escrow qorunma</li>
-              <li className="flex gap-2 text-muted-foreground"><Zap className="h-4 w-4 text-neon shrink-0 mt-0.5" /> Anında çatdırılma</li>
-              <li className="flex gap-2 text-muted-foreground"><Headphones className="h-4 w-4 text-neon shrink-0 mt-0.5" /> 24/7 dəstək</li>
+              <li className="flex gap-2 text-muted-foreground"><Shield className="h-4 w-4 text-neon shrink-0 mt-0.5" /> {t("footer.escrow")}</li>
+              <li className="flex gap-2 text-muted-foreground"><Zap className="h-4 w-4 text-neon shrink-0 mt-0.5" /> {t("footer.instant")}</li>
+              <li className="flex gap-2 text-muted-foreground"><Headphones className="h-4 w-4 text-neon shrink-0 mt-0.5" /> {t("footer.support24")}</li>
             </ul>
           </div>
         </div>
 
         <div className="mt-12 pt-8 border-t border-border flex flex-col sm:flex-row justify-between items-center gap-4">
-          <p className="text-xs text-muted-foreground">© {new Date().getFullYear()} NextPlay.az — Bütün hüquqlar qorunur.</p>
+          <p className="text-xs text-muted-foreground">© {new Date().getFullYear()} NextPlay.az — {t("footer.rights")}</p>
           <div className="flex gap-6 text-xs text-muted-foreground">
-            <a href="#" className="hover:text-foreground transition">Şərtlər</a>
-            <a href="#" className="hover:text-foreground transition">Məxfilik</a>
-            <a href="#" className="hover:text-foreground transition">Geri qaytarma</a>
+            <a href="#" className="hover:text-foreground transition">{t("footer.terms")}</a>
+            <a href="#" className="hover:text-foreground transition">{t("footer.privacy")}</a>
+            <a href="#" className="hover:text-foreground transition">{t("footer.refund")}</a>
           </div>
         </div>
       </div>
