@@ -342,6 +342,8 @@ function AdminPage() {
               ["disputes", `Etirazlar (${disputes.length})`],
               ["users", "İstifadəçilər"],
               ["topups", `Balans (${topups.filter(t => t.status === "pending").length})`],
+              ["withdrawals", `Pul çıxarış (${withdrawals.filter(w => w.status === "pending").length})`],
+              ["platform", `Platforma (${platformBalance.toFixed(2)} ₼)`],
               ["payments", "Rekvizitlər"],
               ["categories", "Kateqoriyalar"],
               ["codes", "Endirim kodları"],
