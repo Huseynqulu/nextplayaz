@@ -60,7 +60,8 @@ function MarketplacePage() {
   }, []);
   useEffect(() => { setQLocal(s.q); }, [s.q]);
   const currentSubs = s.cat !== "all" ? subcats.filter(x => x.category_slug === s.cat) : [];
-  const currentPsubs = s.platform !== "all" ? psubs.filter(x => x.platform_slug === s.platform) : [];
+  const currentPlatformSlug = platforms.find(p => p.label_az === s.platform)?.slug;
+  const currentPsubs = s.platform !== "all" && currentPlatformSlug ? psubs.filter(x => x.platform_slug === currentPlatformSlug) : [];
 
   // Debounce free-text search → URL
   useEffect(() => {
@@ -209,7 +210,7 @@ function MarketplacePage() {
 
                 {currentPsubs.length > 0 && (
                   <div>
-                    <label className="block text-xs text-muted-foreground mb-1.5">Alt kateqoriya</label>
+                    <label className="block text-xs text-muted-foreground mb-1.5">Alt kateqoriya ({s.platform})</label>
                     <select value={s.psub} onChange={e => update({ psub: e.target.value })}
                       className="w-full h-10 px-3 rounded-lg bg-background border border-border focus:outline-none focus:ring-2 focus:ring-ring">
                       <option value="all">Hamısı</option>
