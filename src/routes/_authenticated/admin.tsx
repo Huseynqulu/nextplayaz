@@ -207,8 +207,21 @@ function AdminPage() {
             <div className="flex justify-center py-20"><Loader2 className="h-6 w-6 animate-spin text-neon" /></div>
           ) : tab === "applications" ? (
             <div className="space-y-3">
-              {apps.length === 0 && <p className="text-muted-foreground text-center py-12">Müraciət yoxdur.</p>}
-              {apps.map(a => (
+              <div className="flex gap-2 flex-wrap mb-2">
+                {(["all","pending","approved","rejected"] as const).map(f => {
+                  const n = f === "all" ? apps.length : apps.filter(a => a.status === f).length;
+                  return (
+                    <button key={f} onClick={() => setAppFilter(f)}
+                      className={`h-8 px-3 rounded-full text-xs font-semibold transition ${
+                        appFilter === f ? "bg-neon text-background" : "bg-surface border border-border text-muted-foreground hover:text-foreground"
+                      }`}>{f === "all" ? "Hamısı" : f === "pending" ? "Gözləyən" : f === "approved" ? "Təsdiqli" : "Rədd"} ({n})</button>
+                  );
+                })}
+              </div>
+              {apps.filter(a => appFilter === "all" || a.status === appFilter).length === 0 && (
+                <p className="text-muted-foreground text-center py-12">Müraciət yoxdur.</p>
+              )}
+              {apps.filter(a => appFilter === "all" || a.status === appFilter).map(a => (
                 <div key={a.id} className="rounded-2xl border border-border bg-card-gradient p-5 card-shadow">
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div className="min-w-0 flex-1">
@@ -221,24 +234,36 @@ function AdminPage() {
                         }`}>{a.status}</span>
                       </div>
                       <p className="text-sm text-muted-foreground mt-1">{a.email} · {a.phone}</p>
+                      <div className="flex gap-3 mt-2 text-[11px]">
+                        {a.id_front_url && <span className="text-success">✓ ID ön</span>}
+                        {a.id_back_url && <span className="text-success">✓ ID arxa</span>}
+                        {a.selfie_url && <span className="text-success">✓ Selfie</span>}
+                      </div>
                       <p className="text-[11px] text-muted-foreground mt-2">{new Date(a.created_at).toLocaleString("az-AZ")}</p>
                     </div>
-                    {a.status === "pending" && (
-                      <div className="flex gap-2">
-                        <button disabled={busy === a.id} onClick={() => decide(a, "approved")}
-                          className="inline-flex items-center gap-1.5 h-9 px-3 rounded-lg bg-success text-background text-sm font-semibold hover:opacity-90 disabled:opacity-50">
-                          <CheckCircle2 className="h-4 w-4" /> Təsdiq
-                        </button>
-                        <button disabled={busy === a.id} onClick={() => decide(a, "rejected")}
-                          className="inline-flex items-center gap-1.5 h-9 px-3 rounded-lg bg-destructive text-destructive-foreground text-sm font-semibold hover:opacity-90 disabled:opacity-50">
-                          <XCircle className="h-4 w-4" /> Rədd
-                        </button>
-                      </div>
-                    )}
+                    <div className="flex gap-2 flex-wrap">
+                      <button onClick={() => openDetails(a)}
+                        className="inline-flex items-center gap-1.5 h-9 px-3 rounded-lg bg-surface border border-border text-sm font-semibold hover:border-primary">
+                        <Eye className="h-4 w-4" /> Detallar
+                      </button>
+                      {a.status === "pending" && (
+                        <>
+                          <button disabled={busy === a.id} onClick={() => decide(a, "approved")}
+                            className="inline-flex items-center gap-1.5 h-9 px-3 rounded-lg bg-success text-background text-sm font-semibold hover:opacity-90 disabled:opacity-50">
+                            <CheckCircle2 className="h-4 w-4" /> Təsdiq
+                          </button>
+                          <button disabled={busy === a.id} onClick={() => decide(a, "rejected")}
+                            className="inline-flex items-center gap-1.5 h-9 px-3 rounded-lg bg-destructive text-destructive-foreground text-sm font-semibold hover:opacity-90 disabled:opacity-50">
+                            <XCircle className="h-4 w-4" /> Rədd
+                          </button>
+                        </>
+                      )}
+                    </div>
                   </div>
                 </div>
               ))}
             </div>
+
           ) : tab === "users" ? (
             <div className="space-y-2">
               {users.length === 0 && <p className="text-muted-foreground text-center py-12">İstifadəçi yoxdur.</p>}
