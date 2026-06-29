@@ -155,15 +155,37 @@ function OrdersPage() {
                             <code className="text-sm break-all">{o.delivery_payload}</code>
                           </div>
                         )}
-                        {tab === "buying" && (o.status === "delivered" || o.status === "paid") && (
-                          <button
-                            disabled={busy === o.id}
-                            onClick={() => confirm(o)}
-                            className="mt-3 inline-flex items-center gap-1.5 h-9 px-3 rounded-lg bg-success text-background text-sm font-semibold hover:opacity-90 disabled:opacity-50"
-                          >
-                            <CheckCircle2 className="h-4 w-4" /> Çatdırılmanı təsdiq et
-                          </button>
-                        )}
+                        <div className="mt-3 flex flex-wrap gap-2">
+                          {o.conversation_id && (
+                            <Link to="/messages/$conversationId" params={{ conversationId: o.conversation_id }}
+                              className="inline-flex items-center gap-1.5 h-9 px-3 rounded-lg border border-border bg-surface text-sm font-semibold hover:border-primary">
+                              <MessageSquare className="h-4 w-4" /> Söhbət
+                            </Link>
+                          )}
+
+                          {tab === "buying" && (o.status === "delivered" || o.status === "paid") && (
+                            <button disabled={busy === o.id} onClick={() => confirm(o)}
+                              className="inline-flex items-center gap-1.5 h-9 px-3 rounded-lg bg-success text-background text-sm font-semibold hover:opacity-90 disabled:opacity-50">
+                              <CheckCircle2 className="h-4 w-4" /> Çatdırılmanı təsdiq et
+                            </button>
+                          )}
+                          {tab === "buying" && (o.status === "paid" || o.status === "delivered") && (
+                            <button disabled={busy === o.id} onClick={() => dispute(o)}
+                              className="inline-flex items-center gap-1.5 h-9 px-3 rounded-lg border border-destructive/40 text-destructive text-sm font-semibold hover:bg-destructive/10 disabled:opacity-50">
+                              <AlertTriangle className="h-4 w-4" /> Etiraz et
+                            </button>
+                          )}
+                          {o.status === "disputed" && (
+                            <span className="inline-flex items-center gap-1.5 h-9 px-3 rounded-lg bg-warning/10 border border-warning/40 text-warning text-xs font-semibold">
+                              <AlertTriangle className="h-4 w-4" /> Etiraz açıqdır {o.disputed_reason ? `· ${o.disputed_reason}` : ""}
+                            </span>
+                          )}
+                          {tab === "buying" && o.auto_confirm_at && o.status === "delivered" && (
+                            <span className="text-[11px] text-muted-foreground self-center">
+                              Avtomatik təsdiq: {new Date(o.auto_confirm_at).toLocaleString("az-AZ")}
+                            </span>
+                          )}
+                        </div>
 
                         {/* Seller actions */}
                         {tab === "selling" && o.status === "paid" && (
