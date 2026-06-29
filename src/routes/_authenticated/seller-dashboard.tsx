@@ -48,6 +48,7 @@ function SellerDashboard() {
   const [editing, setEditing] = useState<Product | null>(null);
   const [saving, setSaving] = useState(false);
   const [uploadingImg, setUploadingImg] = useState(false);
+  const [boosting, setBoosting] = useState<Product | null>(null);
 
   const [form, setForm] = useState({
     title: "", description: "", price: "", old_price: "",
