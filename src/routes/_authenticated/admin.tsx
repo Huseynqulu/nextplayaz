@@ -315,6 +315,23 @@ function AdminPage() {
     setBusy(null);
   }
 
+  async function toggleBan(u: AdminUser) {
+    const isBanned = !!u.banned_at;
+    let reason: string | null = null;
+    if (!isBanned) {
+      reason = prompt(`"${u.display_name ?? u.username ?? u.email}" istifadəçisini ban etmək üçün səbəb daxil edin (məcburi deyil):`, "");
+      if (reason === null) return;
+    } else {
+      if (!confirm(`"${u.display_name ?? u.username ?? u.email}" istifadəçisinin banı silinsin?`)) return;
+    }
+    setBusy(u.id + "ban");
+    const { error } = await (supabase.rpc as any)("admin_set_banned", { p_user_id: u.id, p_banned: !isBanned, p_reason: reason });
+    if (error) toast.error(error.message); else { toast.success(isBanned ? "Ban silindi" : "İstifadəçi ban edildi"); await refresh(); }
+    setBusy(null);
+  }
+
+
+
 
   async function toggleProduct(p: ProductRow) {
     setBusy(p.id);
