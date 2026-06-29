@@ -14,6 +14,45 @@ export type Database = {
   }
   public: {
     Tables: {
+      discount_codes: {
+        Row: {
+          code: string
+          created_at: string
+          created_by: string | null
+          expires_at: string | null
+          id: string
+          is_active: boolean
+          max_uses: number | null
+          percent: number
+          updated_at: string
+          used_count: number
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          created_by?: string | null
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean
+          max_uses?: number | null
+          percent: number
+          updated_at?: string
+          used_count?: number
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          created_by?: string | null
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean
+          max_uses?: number | null
+          percent?: number
+          updated_at?: string
+          used_count?: number
+        }
+        Relationships: []
+      }
       orders: {
         Row: {
           buyer_id: string
@@ -269,11 +308,50 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      confirm_order: { Args: { p_order_id: string }; Returns: undefined }
-      create_order: {
-        Args: { p_product_id: string; p_quantity?: number }
-        Returns: string
+      admin_grant_role: {
+        Args: {
+          p_role: Database["public"]["Enums"]["app_role"]
+          p_user_id: string
+        }
+        Returns: undefined
       }
+      admin_list_users: {
+        Args: never
+        Returns: {
+          created_at: string
+          display_name: string
+          email: string
+          id: string
+          roles: Database["public"]["Enums"]["app_role"][]
+          username: string
+          wallet_balance: number
+        }[]
+      }
+      admin_revoke_role: {
+        Args: {
+          p_role: Database["public"]["Enums"]["app_role"]
+          p_user_id: string
+        }
+        Returns: undefined
+      }
+      admin_set_wallet_balance: {
+        Args: { p_balance: number; p_user_id: string }
+        Returns: undefined
+      }
+      confirm_order: { Args: { p_order_id: string }; Returns: undefined }
+      create_order:
+        | {
+            Args: { p_product_id: string; p_quantity?: number }
+            Returns: string
+          }
+        | {
+            Args: {
+              p_discount_code?: string
+              p_product_id: string
+              p_quantity?: number
+            }
+            Returns: string
+          }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
