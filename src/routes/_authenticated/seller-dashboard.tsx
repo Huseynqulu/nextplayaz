@@ -21,7 +21,7 @@ type Product = {
   stock: number;
   category: "Games" | "Accounts" | "Keys" | "Services";
   platform: string;
-  delivery: "instant" | "manual";
+  delivery: "Instant" | "Manual";
   description: string | null;
   image_url: string | null;
   is_active: boolean;
@@ -47,7 +47,7 @@ function SellerDashboard() {
   const [form, setForm] = useState({
     title: "", description: "", price: "", old_price: "",
     stock: "1", category: "Games" as Product["category"], platform: "Steam",
-    delivery: "instant" as "instant" | "manual", image_url: "",
+    delivery: "Instant" as "Instant" | "Manual", image_url: "",
   });
 
   useEffect(() => {
@@ -73,7 +73,7 @@ function SellerDashboard() {
   useEffect(() => { if (isSeller) refresh(); }, [isSeller]);
 
   function resetForm() {
-    setForm({ title: "", description: "", price: "", old_price: "", stock: "1", category: "Games", platform: "Steam", delivery: "instant", image_url: "" });
+    setForm({ title: "", description: "", price: "", old_price: "", stock: "1", category: "Games", platform: "Steam", delivery: "Instant", image_url: "" });
     setEditing(null);
   }
 
@@ -197,8 +197,8 @@ function SellerDashboard() {
                 <label className="text-xs font-medium text-muted-foreground">Çatdırılma</label>
                 <select value={form.delivery} onChange={e => setForm(f => ({ ...f, delivery: e.target.value as any }))}
                   className="mt-1 w-full h-11 px-3 rounded-lg bg-surface border border-border text-sm">
-                  <option value="instant">Anında (avto)</option>
-                  <option value="manual">Manual</option>
+                  <option value="Instant">Anında (avto)</option>
+                  <option value="Manual">Manual</option>
                 </select>
               </div>
               <div className="sm:col-span-2">
