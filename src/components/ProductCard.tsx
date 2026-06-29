@@ -18,6 +18,12 @@ export function ProductCard({ p, variant = "default" }: { p: Product; variant?: 
   const canCart = isRealProductId(p.id) && p.stock > 0;
   const fav = canFav && isFav(p.id);
 
+  function addToCart(e: React.MouseEvent) {
+    e.preventDefault(); e.stopPropagation();
+    add({ id: p.id, slug: p.slug, title: p.title, image: p.image, price: p.price, sellerName: p.seller.name, stock: p.stock });
+    toast.success("Səbətə əlavə edildi");
+  }
+
   if (variant === "list") {
     return (
       <Link
