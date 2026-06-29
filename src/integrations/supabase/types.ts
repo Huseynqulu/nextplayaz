@@ -919,6 +919,14 @@ export type Database = {
             }
             Returns: undefined
           }
+      get_category_counts: {
+        Args: never
+        Returns: {
+          category: string
+          count: number
+        }[]
+      }
+      get_homepage_stats: { Args: never; Returns: Json }
       get_seller_stats: {
         Args: { p_seller_id: string }
         Returns: {
