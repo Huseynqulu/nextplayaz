@@ -267,6 +267,7 @@ function AdminPage() {
               ["applications", `Müraciətlər (${apps.filter(a => a.status === "pending").length})`],
               ["tickets", `Dəstək (${tickets.filter(t => t.status === "open" || t.status === "pending").length})`],
               ["users", "İstifadəçilər"],
+              ["topups", `Balans (${topups.filter(t => t.status === "pending").length})`],
               ["codes", "Endirim kodları"],
               ["products", "Məhsullar"],
             ] as const).map(([key, label]) => (
