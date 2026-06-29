@@ -145,6 +145,16 @@ function StaffPage() {
     setBusy(null);
   }
 
+  async function resolveDispute(o: OrderRow, refund: boolean) {
+    const label = refund ? "alıcı lehinə (tam geri qaytarma)" : "satıcı lehinə (ödəniş satıcıya)";
+    if (!confirm(`Etirazı ${label} həll etmək istəyirsiniz?`)) return;
+    setBusy(o.id);
+    const { error } = await supabase.rpc("admin_resolve_dispute" as any, { p_order_id: o.id, p_refund: refund });
+    if (error) toast.error(error.message);
+    else { toast.success(refund ? "Alıcıya tam qaytarıldı" : "Satıcı lehinə həll edildi"); await refresh(); }
+    setBusy(null);
+  }
+
   async function reopenOrder(o: OrderRow) {
     const reason = prompt("Yenidən açma səbəbi (məcburi):", "Müştəri dəstək vasitəsilə müraciət etdi");
     if (!reason || reason.trim().length < 3) return;
