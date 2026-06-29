@@ -918,6 +918,8 @@ function AdminPage() {
             </div>
           ) : tab === "banners" ? (
             <AdminBanners />
+          ) : tab === "reviews" ? (
+            <AdminReviews />
           ) : (
             <div className="space-y-2">
               {products.length === 0 && <p className="text-muted-foreground text-center py-12">Məhsul yoxdur.</p>}
