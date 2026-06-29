@@ -10,6 +10,7 @@ import { ChatImage } from "@/components/ChatImage";
 import { AdminBanners } from "@/components/AdminBanners";
 import AdminReviews from "@/components/AdminReviews";
 import { AdminGiftCards } from "@/components/AdminGiftCards";
+import { AdminGiftMarket } from "@/components/AdminGiftMarket";
 import { AdminAnalytics } from "@/components/AdminAnalytics";
 import { VerifiedBadge } from "@/components/VerifiedBadge";
 import { AdminBoostPricing } from "@/components/AdminBoostPricing";
