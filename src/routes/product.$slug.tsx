@@ -257,7 +257,7 @@ function ProductPage() {
           <div className="mt-16 grid lg:grid-cols-3 gap-10">
             <div className="lg:col-span-2">
               <h2 className="font-display text-2xl font-bold mb-4">Məhsul haqqında</h2>
-              <p className="text-muted-foreground leading-relaxed">{p.description}</p>
+              <p className="text-muted-foreground leading-relaxed whitespace-pre-wrap break-words">{p.description}</p>
               <h3 className="font-display text-lg font-semibold mt-8 mb-3">Çatdırılma qaydası</h3>
               <ul className="space-y-2 text-sm text-muted-foreground">
                 <li>• Ödəniş təsdiqləndikdən sonra məhsul avtomatik açılır</li>
