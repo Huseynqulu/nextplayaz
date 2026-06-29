@@ -37,7 +37,7 @@ function MarketplacePage() {
   const s = Route.useSearch();
   const navigate = useNavigate({ from: "/marketplace" });
   const update = (patch: Partial<typeof s>) =>
-    navigate({ search: (prev) => ({ ...prev, ...patch }) as any, replace: true });
+    navigate({ search: ((prev: any) => ({ ...prev, ...patch })) as any, replace: true });
 
   const [products, setProducts] = useState<import("@/lib/marketplace-data").Product[]>(mockProducts);
   const [loading, setLoading] = useState(true);
