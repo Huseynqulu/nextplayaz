@@ -167,7 +167,7 @@ function OrdersPage() {
           ) : orders.length === 0 ? (
             <div className="rounded-2xl border border-dashed border-border p-12 text-center">
               <Package className="h-10 w-10 mx-auto text-muted-foreground mb-3" />
-              <p className="text-muted-foreground">{tab === "buying" ? "Hələ sifariş yoxdur." : "Hələ satış yoxdur."}</p>
+              <p className="text-muted-foreground">Hələ sifariş yoxdur.</p>
             </div>
           ) : (
             <div className="space-y-3">
