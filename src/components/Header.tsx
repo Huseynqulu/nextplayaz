@@ -24,10 +24,10 @@ export function Header() {
   const isSeller = roles.includes("seller");
 
   const nav = [
-    { to: "/", label: "Ana səhifə" },
-    { to: "/marketplace", label: "Marketplace" },
-    { to: "/seller", label: "Satıcı ol" },
-    { to: "/support", label: "Dəstək" },
+    { to: "/", label: t("nav.home") },
+    { to: "/marketplace", label: t("nav.marketplace") },
+    { to: "/seller", label: t("nav.seller") },
+    { to: "/support", label: t("nav.support") },
   ] as const;
 
   async function handleSignOut() {
