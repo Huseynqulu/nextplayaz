@@ -73,7 +73,7 @@ function ReferralsPage() {
         <div className="grid sm:grid-cols-3 gap-3">
           <Stat label="Dəvət edilən" value={stats?.total_invited ?? 0} />
           <Stat label="Aktivləşmiş" value={stats?.rewarded_count ?? 0} />
-          <Stat label="Qazandığın bonus" value={`${(stats?.total_earned ?? 0).toFixed(2)} ₼`} highlight />
+          <Stat label="Qazandığın bonus" value={format(stats?.total_earned ?? 0)} highlight />
         </div>
 
         <div className="rounded-2xl border border-border bg-card-gradient p-6 card-shadow space-y-4">
@@ -113,7 +113,7 @@ function ReferralsPage() {
                     <p className="text-xs text-muted-foreground">{new Date(r.created_at).toLocaleDateString("az-AZ")}</p>
                   </div>
                   {r.status === "rewarded" ? (
-                    <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-neon/15 text-neon">+{Number(r.reward_amount).toFixed(2)} ₼</span>
+                    <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-neon/15 text-neon">+{format(r.reward_amount)}</span>
                   ) : (
                     <span className="px-2.5 py-1 rounded-full text-xs font-medium bg-surface text-muted-foreground">Sifariş gözlənir</span>
                   )}
