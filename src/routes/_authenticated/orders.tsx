@@ -21,7 +21,7 @@ type Order = {
   quantity: number;
   unit_price: number;
   total: number;
-  status: "pending" | "paid" | "delivered" | "completed" | "cancelled" | "refunded" | "disputed";
+  status: "pending" | "paid" | "delivered" | "completed" | "cancelled" | "refunded" | "dispute";
   delivery_payload: string | null;
   conversation_id: string | null;
   auto_confirm_at: string | null;
@@ -36,7 +36,7 @@ const STATUS_LABEL: Record<string, { label: string; cls: string; icon: any }> = 
   completed: { label: "Tamamlandı", cls: "bg-success/20 text-success", icon: CheckCircle2 },
   cancelled: { label: "Ləğv edildi", cls: "bg-muted text-muted-foreground", icon: Clock },
   refunded: { label: "Qaytarıldı", cls: "bg-muted text-muted-foreground", icon: Clock },
-  disputed: { label: "Mübahisəli", cls: "bg-destructive/20 text-destructive", icon: Clock },
+  dispute: { label: "Mübahisəli", cls: "bg-destructive/20 text-destructive", icon: Clock },
   pending: { label: "Gözləyir", cls: "bg-muted text-muted-foreground", icon: Clock },
 };
 
@@ -175,7 +175,7 @@ function OrdersPage() {
                               <AlertTriangle className="h-4 w-4" /> Etiraz et
                             </button>
                           )}
-                          {o.status === "disputed" && (
+                          {o.status === "dispute" && (
                             <span className="inline-flex items-center gap-1.5 h-9 px-3 rounded-lg bg-warning/10 border border-warning/40 text-warning text-xs font-semibold">
                               <AlertTriangle className="h-4 w-4" /> Etiraz açıqdır {o.disputed_reason ? `· ${o.disputed_reason}` : ""}
                             </span>
