@@ -1065,6 +1065,8 @@ function AdminPage() {
             <AdminReviews />
           ) : tab === "giftcards" ? (
             <AdminGiftCards />
+          ) : tab === "boost" ? (
+            <AdminBoostPricing />
           ) : (
             <div className="space-y-2">
               {products.length === 0 && <p className="text-muted-foreground text-center py-12">Məhsul yoxdur.</p>}
