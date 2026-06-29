@@ -565,6 +565,39 @@ function AdminPage() {
                 );
               })}
             </div>
+          ) : tab === "payments" ? (
+            <div className="space-y-3">
+              <p className="text-sm text-muted-foreground mb-2">Bu rekvizitlər istifadəçilərin <span className="text-neon font-semibold">Cüzdan</span> səhifəsində ödəniş üsulu seçildikdə avtomatik göstərilir.</p>
+              {paySettings.map((s, i) => (
+                <div key={s.method} className="rounded-xl border border-border bg-card-gradient p-4 card-shadow space-y-3">
+                  <div className="flex items-center justify-between gap-3 flex-wrap">
+                    <div>
+                      <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-surface mr-2">{s.method}</span>
+                      <input value={s.label} onChange={e => {
+                        const next = [...paySettings]; next[i] = { ...s, label: e.target.value }; setPaySettings(next);
+                      }} className="h-9 px-3 rounded-md bg-background border border-border text-sm font-semibold" />
+                    </div>
+                    <label className="inline-flex items-center gap-2 text-xs cursor-pointer">
+                      <input type="checkbox" checked={s.is_active} onChange={e => {
+                        const next = [...paySettings]; next[i] = { ...s, is_active: e.target.checked }; setPaySettings(next);
+                      }} className="h-4 w-4 accent-neon" />
+                      Aktiv
+                    </label>
+                  </div>
+                  <textarea value={s.instructions} onChange={e => {
+                    const next = [...paySettings]; next[i] = { ...s, instructions: e.target.value }; setPaySettings(next);
+                  }} rows={3} placeholder="Məs: m10 nömrəsi: +994 50 123 45 67, Ad: Eli Novruzov"
+                    className="w-full px-3 py-2 rounded-md bg-background border border-border text-sm font-mono resize-none" />
+                  <div className="flex justify-end">
+                    <button disabled={busy === s.method} onClick={() => savePaymentSetting(s)}
+                      className="h-9 px-4 rounded-md bg-neon text-background text-sm font-semibold neon-ring disabled:opacity-50 inline-flex items-center gap-1.5">
+                      {busy === s.method ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <CheckCircle2 className="h-3.5 w-3.5" />}
+                      Yadda saxla
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
           ) : (
             <div className="space-y-2">
               {products.length === 0 && <p className="text-muted-foreground text-center py-12">Məhsul yoxdur.</p>}
