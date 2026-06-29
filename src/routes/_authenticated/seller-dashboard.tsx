@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
 import { Loader2, Plus, Package, Trash2, Pencil } from "lucide-react";
+import { SellerAnalytics } from "@/components/SellerAnalytics";
 
 export const Route = createFileRoute("/_authenticated/seller-dashboard")({
   component: SellerDashboard,
