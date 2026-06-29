@@ -7,7 +7,7 @@ import { ProductCard } from "./ProductCard";
 import { fetchProducts } from "@/lib/products";
 
 export function TrendingSection() {
-  const [items, setItems] = useState<Product[]>(mock.slice(0, 4));
+  const [items, setItems] = useState<Product[]>([]);
   useEffect(() => {
     (async () => {
       const all = await fetchProducts();
