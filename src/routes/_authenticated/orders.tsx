@@ -199,7 +199,7 @@ function OrdersPage() {
                         </div>
 
                         {/* Buyer actions */}
-                        {tab === "buying" && o.delivery_payload && (
+                        {o.delivery_payload && (
                           <div className="mt-3 p-3 rounded-lg bg-background border border-border">
                             <p className="text-xs text-muted-foreground mb-1">Çatdırılma məlumatı:</p>
                             <code className="text-sm break-all">{o.delivery_payload}</code>
@@ -213,13 +213,13 @@ function OrdersPage() {
                             </Link>
                           )}
 
-                          {tab === "buying" && (o.status === "delivered" || o.status === "paid") && (
+                          {(o.status === "delivered" || o.status === "paid") && (
                             <button disabled={busy === o.id} onClick={() => confirm(o)}
                               className="inline-flex items-center gap-1.5 h-9 px-3 rounded-lg bg-success text-background text-sm font-semibold hover:opacity-90 disabled:opacity-50">
                               <CheckCircle2 className="h-4 w-4" /> Çatdırılmanı təsdiq et
                             </button>
                           )}
-                          {tab === "buying" && (o.status === "paid" || o.status === "delivered") && (
+                          {(o.status === "paid" || o.status === "delivered") && (
                             <button disabled={busy === o.id} onClick={() => openDispute(o)}
                               className="inline-flex items-center gap-1.5 h-9 px-3 rounded-lg border border-destructive/40 text-destructive text-sm font-semibold hover:bg-destructive/10 disabled:opacity-50">
                               <AlertTriangle className="h-4 w-4" /> Etiraz et
@@ -230,12 +230,12 @@ function OrdersPage() {
                               <AlertTriangle className="h-4 w-4" /> Etiraz açıqdır {o.disputed_reason ? `· ${o.disputed_reason}` : ""}
                             </span>
                           )}
-                          {tab === "buying" && o.auto_confirm_at && o.status === "delivered" && (
+                          {o.auto_confirm_at && o.status === "delivered" && (
                             <span className="text-[11px] text-muted-foreground self-center">
                               Avtomatik təsdiq: {new Date(o.auto_confirm_at).toLocaleString("az-AZ")}
                             </span>
                           )}
-                          {tab === "buying" && o.status === "completed" && (
+                          {o.status === "completed" && (
                             reviewedIds.has(o.product_id) ? (
                               <span className="inline-flex items-center gap-1 text-[11px] text-success self-center">
                                 <Star className="h-3 w-3 fill-success" /> Rəy verilib
@@ -250,28 +250,10 @@ function OrdersPage() {
                             )
                           )}
                         </div>
-
-                        {/* Seller actions */}
-                        {tab === "selling" && o.status === "paid" && (
-                          <div className="mt-3 flex gap-2 flex-wrap">
-                            <input
-                              value={payloadInput[o.id] ?? ""}
-                              onChange={e => setPayloadInput(p => ({ ...p, [o.id]: e.target.value }))}
-                              placeholder="Açar / hesab məlumatı..."
-                              className="flex-1 min-w-[200px] h-9 px-3 rounded-lg bg-background border border-border text-sm focus:outline-none focus:ring-2 focus:ring-ring"
-                            />
-                            <button
-                              disabled={busy === o.id}
-                              onClick={() => deliver(o)}
-                              className="inline-flex items-center gap-1.5 h-9 px-3 rounded-lg bg-neon text-background text-sm font-semibold hover:opacity-90 disabled:opacity-50"
-                            >
-                              <Truck className="h-4 w-4" /> Çatdır
-                            </button>
-                          </div>
-                        )}
                       </div>
                     </div>
                   </div>
+
                 );
               })}
             </div>
