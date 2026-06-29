@@ -124,7 +124,7 @@ function MarketplacePage() {
             </p>
           </div>
 
-          {filtered.length === 0 ? (
+          {loading ? (<div className="py-20 grid place-items-center"><Loader2 className="h-6 w-6 animate-spin text-neon" /></div>) : filtered.length === 0 ? (
             <div className="py-20 text-center">
               <p className="text-lg text-muted-foreground">Heç bir nəticə tapılmadı.</p>
             </div>
