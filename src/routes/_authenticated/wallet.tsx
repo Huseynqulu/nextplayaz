@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { Wallet, Loader2, Upload, Receipt, Copy, CheckCircle2, XCircle, Clock, ArrowDownToLine, ArrowUpFromLine } from "lucide-react";
 import { useCurrency } from "@/lib/currency";
 import { GiftCardRedeem } from "@/components/GiftCardRedeem";
+import { LoyaltyCard } from "@/components/LoyaltyCard";
 
 export const Route = createFileRoute("/_authenticated/wallet")({
   component: WalletPage,
@@ -179,8 +180,9 @@ function WalletPage() {
             </button>
           </div>
 
-          <div className="mb-8">
+          <div className="grid md:grid-cols-2 gap-4 mb-8">
             <GiftCardRedeem onRedeemed={() => refresh()} />
+            <LoyaltyCard onChanged={() => refresh()} />
           </div>
 
 
