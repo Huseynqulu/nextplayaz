@@ -12,6 +12,7 @@ import AdminReviews from "@/components/AdminReviews";
 import { AdminGiftCards } from "@/components/AdminGiftCards";
 import { AdminAnalytics } from "@/components/AdminAnalytics";
 import { VerifiedBadge } from "@/components/VerifiedBadge";
+import { AdminBoostPricing } from "@/components/AdminBoostPricing";
 
 export const Route = createFileRoute("/_authenticated/admin")({
   component: AdminPage,
