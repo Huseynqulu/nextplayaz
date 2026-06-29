@@ -47,6 +47,7 @@ const STATUS_LABEL: Record<string, { label: string; cls: string; icon: any }> = 
 
 function OrdersPage() {
   const { user } = useAuth();
+  const { format } = useCurrency();
   const [tab, setTab] = useState<"buying" | "selling">("buying");
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
