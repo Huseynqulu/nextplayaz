@@ -242,6 +242,21 @@ function SupportTicketsPage() {
                 <textarea value={form.message} onChange={e => setForm({...form, message: e.target.value})} maxLength={2000} rows={6} placeholder="Probleminizi ətraflı təsvir edin..." className="w-full px-3 py-2 rounded-lg bg-background border border-border text-sm mt-1 resize-none" />
               </div>
 
+              <div>
+                <label className="text-xs text-muted-foreground">Şəkil (ixtiyari)</label>
+                <input ref={formFileRef} type="file" accept="image/*" hidden onChange={e => pickFile(e.target.files?.[0] ?? null, setFormFile, setFormPreview)} />
+                {formPreview ? (
+                  <div className="relative inline-block mt-2">
+                    <img src={formPreview} alt="" className="max-h-40 rounded-lg border border-border" />
+                    <button onClick={() => pickFile(null, setFormFile, setFormPreview)} className="absolute -top-2 -right-2 h-6 w-6 grid place-items-center rounded-full bg-destructive text-destructive-foreground"><X className="h-3.5 w-3.5" /></button>
+                  </div>
+                ) : (
+                  <button type="button" onClick={() => formFileRef.current?.click()} className="mt-2 h-10 px-3 inline-flex items-center gap-2 rounded-md bg-surface border border-border hover:border-primary text-sm">
+                    <Paperclip className="h-4 w-4" /> Şəkil əlavə et
+                  </button>
+                )}
+              </div>
+
               <button onClick={create} disabled={busy} className="w-full h-11 rounded-lg bg-neon text-background font-semibold disabled:opacity-50">
                 {busy ? <Loader2 className="h-4 w-4 animate-spin mx-auto" /> : "Müraciəti göndər"}
               </button>
