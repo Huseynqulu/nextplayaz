@@ -1,9 +1,15 @@
 import { Link } from "@tanstack/react-router";
-import { Star, Zap, ShieldCheck } from "lucide-react";
+import { Star, Zap, ShieldCheck, Heart } from "lucide-react";
 import type { Product } from "@/lib/marketplace-data";
+import { useFavorites, isRealProductId } from "@/lib/favorites";
+import { useAuth } from "@/hooks/use-auth";
 
 export function ProductCard({ p }: { p: Product }) {
   const discount = p.oldPrice ? Math.round((1 - p.price / p.oldPrice) * 100) : 0;
+  const { isFav, toggle } = useFavorites();
+  const { user } = useAuth();
+  const canFav = !!user && isRealProductId(p.id);
+  const fav = canFav && isFav(p.id);
 
   return (
     <Link
@@ -35,11 +41,25 @@ export function ProductCard({ p }: { p: Product }) {
           </span>
         )}
 
-        <div className="absolute top-3 right-3 flex items-center gap-1 px-2 py-1 rounded-md bg-background/70 backdrop-blur text-[11px]">
+        {canFav && (
+          <button
+            type="button"
+            aria-label={fav ? "İstək siyahısından çıxar" : "İstək siyahısına əlavə et"}
+            onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggle(p.id); }}
+            className={`absolute top-3 right-3 grid h-8 w-8 place-items-center rounded-md backdrop-blur transition ${
+              fav ? "bg-destructive/90 text-destructive-foreground" : "bg-background/70 hover:bg-background text-foreground"
+            }`}
+          >
+            <Heart className={`h-4 w-4 ${fav ? "fill-current" : ""}`} />
+          </button>
+        )}
+
+        <div className={`absolute ${canFav ? "top-12" : "top-3"} right-3 flex items-center gap-1 px-2 py-1 rounded-md bg-background/70 backdrop-blur text-[11px]`}>
           <Star className="h-3 w-3 fill-warning text-warning" />
           <span className="font-semibold">{p.rating}</span>
           <span className="text-muted-foreground">({p.reviews})</span>
         </div>
+
 
         <div className="absolute bottom-3 left-3 flex gap-1.5">
           <span className="px-2 py-0.5 rounded text-[10px] font-medium bg-background/70 backdrop-blur border border-border">

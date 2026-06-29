@@ -91,14 +91,17 @@ function RootShell({ children }: { children: React.ReactNode }) {
 
 import { Toaster } from "sonner";
 import { I18nProvider } from "@/lib/i18n";
+import { FavoritesProvider } from "@/lib/favorites";
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   return (
     <QueryClientProvider client={queryClient}>
       <I18nProvider>
-        <Outlet />
-        <Toaster theme="dark" position="top-right" richColors />
+        <FavoritesProvider>
+          <Outlet />
+          <Toaster theme="dark" position="top-right" richColors />
+        </FavoritesProvider>
       </I18nProvider>
     </QueryClientProvider>
   );
