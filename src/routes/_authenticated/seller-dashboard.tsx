@@ -26,6 +26,7 @@ type Product = {
   delivery: "Instant" | "Manual";
   description: string | null;
   image_url: string | null;
+  image_urls?: string[] | null;
   is_active: boolean;
   boost_expires_at?: string | null;
   boost_tier?: number | null;
