@@ -70,13 +70,14 @@ function AdminPage() {
 
   async function refresh() {
     setLoading(true);
-    const [{ data: a }, { data: p }, { data: u }, { data: dc }, { data: tk }, { data: tu }, { count: uc }, { count: sc }, { count: pc }, { count: oc }] = await Promise.all([
+    const [{ data: a }, { data: p }, { data: u }, { data: dc }, { data: tk }, { data: tu }, { data: ps }, { count: uc }, { count: sc }, { count: pc }, { count: oc }] = await Promise.all([
       supabase.from("seller_applications").select("*").order("created_at", { ascending: false }),
       supabase.from("products").select("id, title, price, stock, category, is_active, seller_id, created_at").order("created_at", { ascending: false }).limit(50),
       supabase.rpc("admin_list_users"),
       supabase.from("discount_codes").select("*").order("created_at", { ascending: false }),
       supabase.from("support_tickets").select("*").order("updated_at", { ascending: false }),
       supabase.from("wallet_topups").select("*").order("created_at", { ascending: false }),
+      supabase.from("payment_settings").select("*").order("label"),
       supabase.from("profiles").select("*", { count: "exact", head: true }),
       supabase.from("user_roles").select("*", { count: "exact", head: true }).eq("role", "seller"),
       supabase.from("products").select("*", { count: "exact", head: true }),
@@ -88,6 +89,7 @@ function AdminPage() {
     setCodes((dc as any) ?? []);
     setTickets((tk as any) ?? []);
     setTopups((tu as any) ?? []);
+    setPaySettings((ps as any) ?? []);
     setStats({ users: uc ?? 0, sellers: sc ?? 0, products: pc ?? 0, orders: oc ?? 0 });
     setLoading(false);
   }
