@@ -397,6 +397,7 @@ function AdminPage() {
               ["banners", "Bannerlər"],
               ["reviews", "Rəylər"],
               ["giftcards", "Hədiyyə kartları"],
+              ["boost", "🚀 Boost qiymətləri"],
               ["codes", "Endirim kodları"],
               ["products", "Məhsullar"],
             ] as const).map(([key, label]) => (
