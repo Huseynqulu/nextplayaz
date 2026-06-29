@@ -897,6 +897,10 @@ export type Database = {
         Args: { p_other_user: string; p_product_id?: string }
         Returns: string
       }
+      submit_review: {
+        Args: { p_comment?: string; p_product_id: string; p_rating: number }
+        Returns: string
+      }
       touch_last_seen: { Args: never; Returns: undefined }
     }
     Enums: {
