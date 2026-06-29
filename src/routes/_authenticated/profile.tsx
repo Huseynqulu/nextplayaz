@@ -137,13 +137,35 @@ function ProfilePage() {
 
         <div className="mt-8 rounded-2xl border border-border bg-card-gradient p-7 card-shadow">
           <h2 className="font-display text-xl font-bold mb-4 flex items-center gap-2">
-            <ShieldCheck className="h-5 w-5 text-neon" /> Hesab məlumatları
+            <ShieldCheck className="h-5 w-5 text-neon" /> Profil tənzimləmələri
           </h2>
-          <div className="grid sm:grid-cols-2 gap-4 text-sm">
-            <Row label="İstifadəçi adı" value={profile.username ?? "—"} />
-            <Row label="Email" value={user!.email ?? "—"} />
-            <Row label="Ad" value={profile.display_name ?? "—"} />
-            <Row label="Qoşulma tarixi" value={new Date(user!.created_at).toLocaleDateString("az")} />
+          <div className="grid sm:grid-cols-2 gap-4">
+            <Field label="Ad (görünən)">
+              <input value={form.display_name} onChange={e => setForm(f => ({ ...f, display_name: e.target.value }))}
+                placeholder="Ad Soyad" maxLength={50}
+                className="w-full h-11 px-3 rounded-lg bg-background border border-border focus:border-primary outline-none text-sm" />
+            </Field>
+            <Field label="İstifadəçi adı (@username)">
+              <input value={form.username} onChange={e => setForm(f => ({ ...f, username: e.target.value }))}
+                placeholder="username" maxLength={20}
+                className="w-full h-11 px-3 rounded-lg bg-background border border-border focus:border-primary outline-none text-sm" />
+            </Field>
+            {isSeller && (
+              <Field label={<span className="inline-flex items-center gap-1.5"><Store className="h-3.5 w-3.5 text-neon" /> Mağaza adı</span>}>
+                <input value={form.shop_name} onChange={e => setForm(f => ({ ...f, shop_name: e.target.value }))}
+                  placeholder="Məs: NextShop Games" maxLength={50}
+                  className="w-full h-11 px-3 rounded-lg bg-background border border-border focus:border-primary outline-none text-sm" />
+                <p className="text-[11px] text-muted-foreground mt-1">Mağaza adı təyin edilərsə alıcılar bunu görəcək.</p>
+              </Field>
+            )}
+            <Field label="Email"><div className="h-11 px-3 grid items-center rounded-lg bg-surface border border-border text-sm text-muted-foreground">{user!.email}</div></Field>
+          </div>
+          <div className="mt-5 flex justify-end">
+            <button onClick={saveProfile} disabled={saving}
+              className="inline-flex items-center gap-2 h-11 px-5 rounded-xl bg-neon text-background font-semibold neon-ring disabled:opacity-50">
+              {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+              Yadda saxla
+            </button>
           </div>
         </div>
         <div className="mt-6">
