@@ -350,6 +350,7 @@ function AdminPage() {
               ["categories", "Kateqoriyalar"],
               ["banners", "Bannerlər"],
               ["reviews", "Rəylər"],
+              ["giftcards", "Hədiyyə kartları"],
               ["codes", "Endirim kodları"],
               ["products", "Məhsullar"],
             ] as const).map(([key, label]) => (
