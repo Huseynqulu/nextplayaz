@@ -60,14 +60,15 @@ function OrdersPage() {
   const [reviewRating, setReviewRating] = useState(5);
   const [reviewHover, setReviewHover] = useState(0);
   const [reviewComment, setReviewComment] = useState("");
-  const [reviewedIds, setReviewedIds] = useState<Set<string>>(new Set());
+  const [myReviews, setMyReviews] = useState<Record<string, { rating: number; comment: string | null }>>({});
   const [reviewSubmitting, setReviewSubmitting] = useState(false);
 
   function openReview(o: Order) {
     setReviewOrder(o);
-    setReviewRating(5);
+    const existing = myReviews[o.product_id];
+    setReviewRating(existing?.rating ?? 5);
     setReviewHover(0);
-    setReviewComment("");
+    setReviewComment(existing?.comment ?? "");
   }
   async function submitReview() {
     if (!reviewOrder) return;
@@ -79,8 +80,8 @@ function OrdersPage() {
     });
     setReviewSubmitting(false);
     if (error) { toast.error(error.message); return; }
-    toast.success("Rəyiniz əlavə edildi");
-    setReviewedIds(s => new Set(s).add(reviewOrder.product_id));
+    toast.success("Rəyiniz yadda saxlanıldı");
+    setMyReviews(m => ({ ...m, [reviewOrder.product_id]: { rating: reviewRating, comment: reviewComment.trim() || null } }));
     setReviewOrder(null);
   }
 
@@ -95,8 +96,10 @@ function OrdersPage() {
     if (error) toast.error(error.message);
     setOrders((data as any) ?? []);
     const { data: revs } = await supabase
-      .from("reviews").select("product_id").eq("reviewer_id", user.id);
-    setReviewedIds(new Set(((revs as any[]) ?? []).map(r => r.product_id)));
+      .from("reviews").select("product_id, rating, comment").eq("reviewer_id", user.id);
+    const map: Record<string, { rating: number; comment: string | null }> = {};
+    for (const r of ((revs as any[]) ?? [])) map[r.product_id] = { rating: r.rating, comment: r.comment };
+    setMyReviews(map);
     setLoading(false);
   }
   useEffect(() => { refresh(); /* eslint-disable-next-line */ }, [user]);
@@ -236,10 +239,14 @@ function OrdersPage() {
                             </span>
                           )}
                           {o.status === "completed" && (
-                            reviewedIds.has(o.product_id) ? (
-                              <span className="inline-flex items-center gap-1 text-[11px] text-success self-center">
-                                <Star className="h-3 w-3 fill-success" /> Rəy verilib
-                              </span>
+                            myReviews[o.product_id] ? (
+                              <button
+                                onClick={() => openReview(o)}
+                                className="inline-flex items-center gap-1 h-8 px-3 rounded-lg border border-success/40 text-success text-xs font-medium hover:bg-success/10"
+                                title="Rəyinizi dəyişdirin"
+                              >
+                                <Star className="h-3 w-3 fill-success" /> Rəyi dəyiş ({myReviews[o.product_id].rating}★)
+                              </button>
                             ) : (
                               <button
                                 onClick={() => openReview(o)}
@@ -335,7 +342,7 @@ function OrdersPage() {
           <div className="w-full max-w-md rounded-2xl border border-border bg-card card-shadow overflow-hidden" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between p-5 border-b border-border">
               <h3 className="font-display text-lg font-bold inline-flex items-center gap-2">
-                <Star className="h-5 w-5 text-warning fill-warning" /> Məhsulu dəyərləndir
+                <Star className="h-5 w-5 text-warning fill-warning" /> {myReviews[reviewOrder.product_id] ? "Rəyi dəyişdir" : "Məhsulu dəyərləndir"}
               </h3>
               <button onClick={() => !reviewSubmitting && setReviewOrder(null)} className="text-muted-foreground hover:text-foreground" aria-label="Bağla">
                 <X className="h-5 w-5" />
@@ -374,7 +381,7 @@ function OrdersPage() {
               <button onClick={() => setReviewOrder(null)} disabled={reviewSubmitting} className="h-11 px-4 rounded-xl border border-border text-sm font-medium hover:bg-surface disabled:opacity-50">Ləğv et</button>
               <button onClick={submitReview} disabled={reviewSubmitting} className="flex-1 h-11 rounded-xl bg-neon text-background font-semibold neon-ring disabled:opacity-50 inline-flex items-center justify-center gap-2">
                 {reviewSubmitting && <Loader2 className="h-4 w-4 animate-spin" />}
-                Rəyi göndər
+                {myReviews[reviewOrder.product_id] ? "Rəyi yenilə" : "Rəyi göndər"}
               </button>
             </div>
           </div>
