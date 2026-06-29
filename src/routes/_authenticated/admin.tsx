@@ -705,31 +705,53 @@ function AdminPage() {
               {disputes.map(d => (
                 <div key={d.id} className="rounded-xl border border-warning/30 bg-card-gradient p-4 card-shadow">
                   <div className="flex items-start justify-between gap-3 flex-wrap">
-                    <div className="min-w-0">
+                    <div className="min-w-0 flex-1">
                       <p className="font-semibold truncate">{d.product?.title ?? "Məhsul"}</p>
-                      <p className="text-xs text-muted-foreground">Sifariş: {d.id.slice(0, 8)} · {Number(d.total).toFixed(2)} ₼ · {new Date(d.disputed_at ?? d.created_at).toLocaleString("az-AZ")}</p>
+                      <p className="text-xs text-muted-foreground">Sifariş: {d.id.slice(0, 8)} · {Number(d.total).toFixed(2)} ₼ · {d.disputed_at ? new Date(d.disputed_at).toLocaleString("az-AZ") : "—"}</p>
                       <p className="text-xs mt-1"><span className="text-muted-foreground">Alıcı:</span> {d.buyer_id.slice(0,8)} · <span className="text-muted-foreground">Satıcı:</span> {d.seller_id.slice(0,8)}</p>
                       {d.disputed_reason && (
                         <div className="mt-2 p-3 rounded-lg bg-warning/10 border border-warning/30 text-sm">
                           <span className="font-semibold text-warning">Səbəb: </span>{d.disputed_reason}
                         </div>
                       )}
+                      {d.conversation_id && (
+                        <a href={`/messages/${d.conversation_id}`} className="inline-block mt-2 text-xs text-neon hover:underline">↳ Söhbətə bax</a>
+                      )}
                     </div>
-                    <div className="flex flex-col gap-2 shrink-0">
+                    <div className="flex flex-col gap-2 shrink-0 w-full sm:w-auto">
                       <button disabled={busy === d.id} onClick={async () => {
-                        if (!confirm("Alıcıya geri qaytarılsın?")) return;
+                        if (!confirm("Alıcıya tam geri qaytarılsın?")) return;
                         setBusy(d.id);
-                        const { error } = await supabase.rpc("admin_resolve_dispute" as any, { p_order_id: d.id, p_refund_buyer: true });
+                        const { error } = await supabase.rpc("admin_resolve_dispute" as any, { p_order_id: d.id, p_refund: true });
                         setBusy(null);
                         if (error) toast.error(error.message); else { toast.success("Alıcıya qaytarıldı"); refresh(); }
-                      }} className="h-9 px-3 rounded-md bg-destructive text-destructive-foreground text-xs font-semibold disabled:opacity-50">Alıcıya qaytar</button>
+                      }} className="h-9 px-3 rounded-md bg-destructive text-destructive-foreground text-xs font-semibold disabled:opacity-50">Tam qaytar</button>
+                      <button disabled={busy === d.id} onClick={async () => {
+                        const raw = prompt(`Alıcıya qaytarılacaq məbləğ (maks ${Number(d.total).toFixed(2)} ₼):`, (Number(d.total) / 2).toFixed(2));
+                        if (!raw) return;
+                        const amount = Number(raw);
+                        if (!Number.isFinite(amount) || amount <= 0 || amount > Number(d.total)) { toast.error("Yanlış məbləğ"); return; }
+                        const notes = prompt("Qeyd (ixtiyari):", "") ?? "";
+                        setBusy(d.id);
+                        const { error } = await supabase.rpc("admin_partial_refund" as any, { p_order_id: d.id, p_refund_amount: amount, p_notes: notes || null });
+                        setBusy(null);
+                        if (error) toast.error(error.message); else { toast.success(`${amount.toFixed(2)} ₼ alıcıya qaytarıldı`); refresh(); }
+                      }} className="h-9 px-3 rounded-md bg-warning/20 text-warning border border-warning/40 text-xs font-semibold disabled:opacity-50">Qismən qaytar</button>
                       <button disabled={busy === d.id} onClick={async () => {
                         if (!confirm("Satıcıya ödəniş köçürülsün?")) return;
                         setBusy(d.id);
-                        const { error } = await supabase.rpc("admin_resolve_dispute" as any, { p_order_id: d.id, p_refund_buyer: false });
+                        const { error } = await supabase.rpc("admin_resolve_dispute" as any, { p_order_id: d.id, p_refund: false });
                         setBusy(null);
                         if (error) toast.error(error.message); else { toast.success("Satıcıya köçürüldü"); refresh(); }
                       }} className="h-9 px-3 rounded-md bg-success text-background text-xs font-semibold disabled:opacity-50">Satıcıya ver</button>
+                      <button disabled={busy === d.id} onClick={async () => {
+                        const reason = prompt("Ləğv səbəbi:", "") ?? "";
+                        if (!confirm(`Sifariş ləğv edilsin? Alıcıya ${Number(d.total).toFixed(2)} ₼ qaytarılacaq.`)) return;
+                        setBusy(d.id);
+                        const { error } = await supabase.rpc("staff_cancel_order" as any, { p_order_id: d.id, p_reason: reason || null });
+                        setBusy(null);
+                        if (error) toast.error(error.message); else { toast.success("Ləğv edildi"); refresh(); }
+                      }} className="h-9 px-3 rounded-md bg-surface border border-border text-xs font-semibold hover:border-destructive hover:text-destructive disabled:opacity-50">Sifarişi ləğv et</button>
                     </div>
                   </div>
                 </div>
