@@ -55,11 +55,23 @@ function ProductPage() {
   }
   async function handleShare() {
     const url = typeof window !== "undefined" ? window.location.href : "";
+    const copy = async () => {
+      try {
+        await navigator.clipboard.writeText(url);
+        toast.success("Link kopyalandı");
+      } catch {
+        const ta = document.createElement("textarea");
+        ta.value = url; document.body.appendChild(ta); ta.select();
+        try { document.execCommand("copy"); toast.success("Link kopyalandı"); } catch { toast.error("Kopyalanmadı"); }
+        document.body.removeChild(ta);
+      }
+    };
     try {
       if (navigator.share) { await navigator.share({ title: p.title, url }); return; }
-      await navigator.clipboard.writeText(url);
-      toast.success("Link kopyalandı");
-    } catch {}
+      await copy();
+    } catch (e: any) {
+      if (e?.name !== "AbortError") await copy();
+    }
   }
   const similar: typeof p[] = [];
   const isDbProduct = /^[0-9a-f]{8}-/i.test(p.id);
