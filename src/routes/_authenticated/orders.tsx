@@ -212,11 +212,11 @@ function OrdersPage() {
                           <div className="min-w-0">
                             <h3 className="font-semibold truncate">{o.product?.title ?? "Məhsul"}</h3>
                             <p className="text-xs text-muted-foreground mt-1">
-                              {o.quantity} ədəd · {Number(o.unit_price).toFixed(2)} ₼ · {new Date(o.created_at).toLocaleString("az-AZ")}
+                              {o.quantity} ədəd · {format(o.unit_price)} · {new Date(o.created_at).toLocaleString("az-AZ")}
                             </p>
                           </div>
                           <div className="text-right">
-                            <div className="font-display text-lg font-bold text-gradient">{Number(o.total).toFixed(2)} ₼</div>
+                            <div className="font-display text-lg font-bold text-gradient">{format(o.total)}</div>
                             <span className={`inline-flex items-center gap-1 mt-1 px-2 py-0.5 rounded text-[10px] font-bold uppercase ${s.cls}`}>
                               <Icon className="h-3 w-3" /> {s.label}
                             </span>
