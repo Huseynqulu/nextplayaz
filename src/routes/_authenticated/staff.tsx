@@ -1,11 +1,13 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
-import { Loader2, LifeBuoy, MessageSquare, Package, Send, ArrowLeft, Ban, ShieldCheck } from "lucide-react";
+import { Loader2, LifeBuoy, MessageSquare, Package, Send, ArrowLeft, Ban, ShieldCheck, AlertTriangle, Paperclip, X } from "lucide-react";
+import { uploadChatAttachment } from "@/lib/chat-attachments";
+import { ChatImage } from "@/components/ChatImage";
 
 export const Route = createFileRoute("/_authenticated/staff")({
   component: StaffPage,
@@ -13,13 +15,13 @@ export const Route = createFileRoute("/_authenticated/staff")({
 });
 
 type Ticket = { id: string; user_id: string; order_id: string | null; subject: string; message: string; category: string; status: string; priority: string; created_at: string; updated_at: string };
-type Msg = { id: string; sender_id: string; is_admin: boolean; body: string; created_at: string };
-type OrderRow = { id: string; buyer_id: string; seller_id: string; product_id: string; quantity: number; total: number; status: string; created_at: string };
+type Msg = { id: string; sender_id: string; is_admin: boolean; body: string; created_at: string; attachment_url?: string | null };
+type OrderRow = { id: string; buyer_id: string; seller_id: string; product_id: string; quantity: number; total: number; status: string; created_at: string; conversation_id?: string | null; disputed_at?: string | null; disputed_reason?: string | null };
 type Conv = { id: string; user_a: string; user_b: string; product_id: string | null; last_message_at: string | null; last_message_preview: string | null };
-type DMsg = { id: string; conversation_id: string; sender_id: string; body: string; created_at: string };
+type DMsg = { id: string; conversation_id: string; sender_id: string; body: string; created_at: string; kind?: string | null; attachment_url?: string | null };
 type Profile = { id: string; display_name: string | null; username: string | null };
 
-type Tab = "tickets" | "conversations" | "orders";
+type Tab = "tickets" | "conversations" | "orders" | "disputes";
 
 function StaffPage() {
   const { user } = useAuth();
@@ -34,14 +36,22 @@ function StaffPage() {
   const [activeTicket, setActiveTicket] = useState<Ticket | null>(null);
   const [tMsgs, setTMsgs] = useState<Msg[]>([]);
   const [reply, setReply] = useState("");
+  const [tReplyFile, setTReplyFile] = useState<File | null>(null);
+  const [tReplyPreview, setTReplyPreview] = useState<string | null>(null);
+  const tFileRef = useRef<HTMLInputElement>(null);
 
   const [orders, setOrders] = useState<OrderRow[]>([]);
-  const [oFilter, setOFilter] = useState<"all" | "paid" | "delivered" | "completed" | "cancelled">("paid");
+  const [oFilter, setOFilter] = useState<"all" | "paid" | "delivered" | "completed" | "cancelled" | "disputed">("paid");
 
   const [convs, setConvs] = useState<Conv[]>([]);
   const [activeConv, setActiveConv] = useState<Conv | null>(null);
+  const [activeConvOrder, setActiveConvOrder] = useState<OrderRow | null>(null);
   const [dms, setDms] = useState<DMsg[]>([]);
   const [profiles, setProfiles] = useState<Record<string, Profile>>({});
+  const [dmReply, setDmReply] = useState("");
+  const [dmFile, setDmFile] = useState<File | null>(null);
+  const [dmPreview, setDmPreview] = useState<string | null>(null);
+  const dmFileRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (!user) return;
@@ -72,6 +82,16 @@ function StaffPage() {
   }
   useEffect(() => { if (allowed) refresh(); }, [allowed]);
 
+  function pickImg(f: File | null, setF: (f: File | null) => void, setP: (s: string | null) => void) {
+    if (!f) { setF(null); setP(null); return; }
+    if (!f.type.startsWith("image/")) { toast.error("Yalnız şəkil"); return; }
+    if (f.size > 8 * 1024 * 1024) { toast.error("Maks 8MB"); return; }
+    setF(f);
+    const r = new FileReader();
+    r.onload = () => setP(r.result as string);
+    r.readAsDataURL(f);
+  }
+
   async function openTicket(t: Ticket) {
     setActiveTicket(t);
     setTMsgs([]);
@@ -79,13 +99,18 @@ function StaffPage() {
     setTMsgs((data as any) ?? []);
   }
   async function sendReply() {
-    if (!reply.trim() || !activeTicket || !user) return;
+    if ((!reply.trim() && !tReplyFile) || !activeTicket || !user) return;
     setBusy("reply");
-    const { error } = await supabase.from("support_messages").insert({
-      ticket_id: activeTicket.id, sender_id: user.id, is_admin: true, body: reply.trim(),
-    });
-    if (error) toast.error(error.message);
-    else { setReply(""); await openTicket(activeTicket); }
+    try {
+      let attachment_url: string | null = null;
+      if (tReplyFile) attachment_url = await uploadChatAttachment(tReplyFile, user.id);
+      const { error } = await supabase.from("support_messages").insert({
+        ticket_id: activeTicket.id, sender_id: user.id, is_admin: true, body: reply.trim(), attachment_url,
+      } as any);
+      if (error) throw error;
+      setReply(""); setTReplyFile(null); setTReplyPreview(null);
+      await openTicket(activeTicket);
+    } catch (e: any) { toast.error(e.message ?? "Xəta"); }
     setBusy(null);
   }
   async function closeTicket(t: Ticket) {
@@ -107,14 +132,48 @@ function StaffPage() {
     setBusy(null);
   }
 
+  async function partialRefund(o: OrderRow) {
+    const raw = prompt(`Alıcıya qaytarılacaq məbləğ (maks ${Number(o.total).toFixed(2)} ₼):`, (Number(o.total) / 2).toFixed(2));
+    if (!raw) return;
+    const amount = Number(raw);
+    if (!Number.isFinite(amount) || amount <= 0 || amount > Number(o.total)) { toast.error("Yanlış məbləğ"); return; }
+    const notes = prompt("Qeyd (ixtiyari):", "") ?? "";
+    setBusy(o.id);
+    const { error } = await supabase.rpc("admin_partial_refund" as any, { p_order_id: o.id, p_refund_amount: amount, p_notes: notes || null });
+    if (error) toast.error(error.message);
+    else { toast.success(`${amount.toFixed(2)} ₼ alıcıya qaytarıldı`); await refresh(); }
+    setBusy(null);
+  }
+
   async function openConv(c: Conv) {
     setActiveConv(c);
     setDms([]);
     const { data } = await supabase.from("dm_messages").select("*").eq("conversation_id", c.id).order("created_at");
     setDms((data as any) ?? []);
+    const linked = orders.find(o => o.conversation_id === c.id) ?? null;
+    setActiveConvOrder(linked);
+  }
+
+  async function sendStaffDM() {
+    if (!activeConv || !user || (!dmReply.trim() && !dmFile)) return;
+    setBusy("dm");
+    try {
+      let attachment_url: string | null = null;
+      if (dmFile) attachment_url = await uploadChatAttachment(dmFile, user.id);
+      const { error } = await supabase.from("dm_messages").insert({
+        conversation_id: activeConv.id, sender_id: user.id, body: dmReply.trim(),
+        kind: "staff" as any, attachment_url,
+      } as any);
+      if (error) throw error;
+      setDmReply(""); setDmFile(null); setDmPreview(null);
+      await openConv(activeConv);
+    } catch (e: any) { toast.error(e.message ?? "Xəta"); }
+    setBusy(null);
   }
 
   const nameOf = (id: string) => profiles[id]?.display_name || profiles[id]?.username || id.slice(0, 8);
+  const canReplyInConv = !!activeConvOrder && (activeConvOrder.status === "disputed" || (activeConvOrder.status as any) === "dispute");
+  const disputes = orders.filter(o => o.status === "disputed" || (o.status as any) === "dispute");
 
   if (allowed === null) return <div className="min-h-screen flex items-center justify-center bg-background"><Loader2 className="h-6 w-6 animate-spin text-neon" /></div>;
   if (!allowed) return null;
@@ -129,18 +188,19 @@ function StaffPage() {
           </div>
           <div>
             <h1 className="text-2xl font-bold">Dəstək Paneli</h1>
-            <p className="text-sm text-muted-foreground">Müraciətlər, mesajlaşmalar və sifariş ləğvi</p>
+            <p className="text-sm text-muted-foreground">Müraciətlər, mesajlaşmalar, etirazlar və sifariş ləğvi</p>
           </div>
         </div>
 
         <div className="flex gap-2 border-b border-border mb-6 overflow-x-auto">
           {([
             ["tickets", `Müraciətlər (${tickets.filter(t => t.status !== "closed").length})`, LifeBuoy],
+            ["disputes", `Etirazlar (${disputes.length})`, AlertTriangle],
             ["conversations", "Mesajlaşmalar", MessageSquare],
             ["orders", "Sifarişlər", Package],
           ] as const).map(([k, label, Icon]) => (
             <button key={k} onClick={() => setTab(k as Tab)}
-              className={`h-11 px-4 inline-flex items-center gap-2 text-sm font-semibold border-b-2 transition ${tab === k ? "border-neon text-neon" : "border-transparent text-muted-foreground hover:text-foreground"}`}>
+              className={`h-11 px-4 inline-flex items-center gap-2 text-sm font-semibold border-b-2 transition whitespace-nowrap ${tab === k ? "border-neon text-neon" : "border-transparent text-muted-foreground hover:text-foreground"}`}>
               <Icon className="h-4 w-4" /> {label}
             </button>
           ))}
@@ -166,21 +226,32 @@ function StaffPage() {
                 {tMsgs.map(m => (
                   <div key={m.id} className={`max-w-[80%] rounded-lg p-3 text-sm ${m.is_admin ? "ml-auto bg-neon/10 border border-neon/30" : "bg-surface border border-border"}`}>
                     <div className="text-[10px] uppercase font-bold mb-1 opacity-70">{m.is_admin ? "Dəstək" : "İstifadəçi"} • {new Date(m.created_at).toLocaleString("az-AZ")}</div>
-                    <div className="whitespace-pre-wrap">{m.body}</div>
+                    {m.body && <div className="whitespace-pre-wrap">{m.body}</div>}
+                    {m.attachment_url && <div className="mt-2"><ChatImage path={m.attachment_url} /></div>}
                   </div>
                 ))}
               </div>
-              <div className="p-4 border-t border-border flex gap-2">
-                <textarea value={reply} onChange={e => setReply(e.target.value)} rows={2} placeholder="Cavab yazın..."
-                  className="flex-1 px-3 py-2 rounded-md bg-background border border-border text-sm resize-none" />
-                <button disabled={busy === "reply" || !reply.trim()} onClick={sendReply}
-                  className="px-4 rounded-md bg-neon text-background font-semibold neon-ring disabled:opacity-50 inline-flex items-center gap-1.5">
-                  {busy === "reply" ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />} Göndər
-                </button>
-                {activeTicket.status !== "closed" && (
-                  <button disabled={busy === activeTicket.id} onClick={() => closeTicket(activeTicket)}
-                    className="px-3 rounded-md border border-border text-xs hover:border-destructive hover:text-destructive">Bağla</button>
+              <div className="p-4 border-t border-border space-y-2">
+                {tReplyPreview && (
+                  <div className="relative inline-block">
+                    <img src={tReplyPreview} alt="" className="max-h-28 rounded-lg border border-border" />
+                    <button onClick={() => pickImg(null, setTReplyFile, setTReplyPreview)} className="absolute -top-2 -right-2 h-6 w-6 grid place-items-center rounded-full bg-destructive text-destructive-foreground"><X className="h-3.5 w-3.5" /></button>
+                  </div>
                 )}
+                <div className="flex gap-2">
+                  <input ref={tFileRef} type="file" accept="image/*" hidden onChange={e => pickImg(e.target.files?.[0] ?? null, setTReplyFile, setTReplyPreview)} />
+                  <button type="button" onClick={() => tFileRef.current?.click()} className="h-10 w-10 self-end grid place-items-center rounded-md bg-surface border border-border hover:border-primary"><Paperclip className="h-4 w-4" /></button>
+                  <textarea value={reply} onChange={e => setReply(e.target.value)} rows={2} placeholder="Cavab yazın..."
+                    className="flex-1 px-3 py-2 rounded-md bg-background border border-border text-sm resize-none" />
+                  <button disabled={busy === "reply" || (!reply.trim() && !tReplyFile)} onClick={sendReply}
+                    className="px-4 self-end rounded-md bg-neon text-background font-semibold neon-ring disabled:opacity-50 inline-flex items-center gap-1.5">
+                    {busy === "reply" ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />} Göndər
+                  </button>
+                  {activeTicket.status !== "closed" && (
+                    <button disabled={busy === activeTicket.id} onClick={() => closeTicket(activeTicket)}
+                      className="px-3 self-end rounded-md border border-border text-xs hover:border-destructive hover:text-destructive">Bağla</button>
+                  )}
+                </div>
               </div>
             </div>
           ) : (
@@ -204,35 +275,107 @@ function StaffPage() {
               )}
             </div>
           )
+        ) : tab === "disputes" ? (
+          <div className="space-y-3">
+            {disputes.length === 0 && <p className="text-sm text-muted-foreground text-center py-8">Aktiv etiraz yoxdur</p>}
+            {disputes.map(o => (
+              <div key={o.id} className="rounded-xl border border-warning/40 bg-card-gradient p-4 card-shadow">
+                <div className="flex items-start justify-between gap-3 flex-wrap">
+                  <div className="space-y-1 min-w-0 flex-1">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="px-2 py-0.5 rounded text-[10px] uppercase font-bold bg-warning/20 text-warning">ETİRAZ</span>
+                      <span className="font-semibold">{Number(o.total).toFixed(2)} ₼</span>
+                      <span className="text-xs text-muted-foreground">{o.disputed_at ? new Date(o.disputed_at).toLocaleString("az-AZ") : ""}</span>
+                    </div>
+                    <div className="text-xs text-muted-foreground">Alıcı: <span className="text-foreground">{nameOf(o.buyer_id)}</span> → Satıcı: <span className="text-foreground">{nameOf(o.seller_id)}</span></div>
+                    {o.disputed_reason && <div className="mt-2 p-3 rounded-lg bg-warning/10 border border-warning/30 text-sm"><span className="font-semibold text-warning">Səbəb: </span>{o.disputed_reason}</div>}
+                    <div className="text-[10px] text-muted-foreground">ID: {o.id.slice(0, 8)}</div>
+                  </div>
+                  <div className="flex flex-col gap-2 shrink-0">
+                    {o.conversation_id && (
+                      <button onClick={() => { const c = convs.find(x => x.id === o.conversation_id); if (c) { setTab("conversations"); openConv(c); } }}
+                        className="h-9 px-3 rounded-md text-xs font-semibold bg-neon/10 text-neon border border-neon/30 inline-flex items-center gap-1.5">
+                        <MessageSquare className="h-3.5 w-3.5" /> Söhbətə bax & cavab ver
+                      </button>
+                    )}
+                    <button disabled={busy === o.id} onClick={() => partialRefund(o)}
+                      className="h-9 px-3 rounded-md text-xs font-semibold bg-warning/20 text-warning border border-warning/40 disabled:opacity-50">Qismən qaytar</button>
+                    <button disabled={busy === o.id} onClick={() => cancelOrder(o)}
+                      className="h-9 px-3 rounded-md text-xs font-semibold bg-destructive/10 text-destructive border border-destructive/30 disabled:opacity-50 inline-flex items-center gap-1.5">
+                      {busy === o.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Ban className="h-3.5 w-3.5" />} Sifarişi ləğv et
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
         ) : tab === "conversations" ? (
           <div className="grid md:grid-cols-[320px_1fr] gap-4">
             <div className="space-y-2 max-h-[600px] overflow-y-auto">
               {convs.length === 0 && <p className="text-sm text-muted-foreground py-8 text-center">Mesajlaşma yoxdur</p>}
-              {convs.map(c => (
-                <button key={c.id} onClick={() => openConv(c)}
-                  className={`w-full text-left rounded-lg border p-3 transition ${activeConv?.id === c.id ? "border-neon bg-neon/5" : "border-border bg-card-gradient hover:border-primary"}`}>
-                  <div className="text-sm font-semibold truncate">{nameOf(c.user_a)} ↔ {nameOf(c.user_b)}</div>
-                  <div className="text-xs text-muted-foreground truncate">{c.last_message_preview ?? "—"}</div>
-                  <div className="text-[10px] text-muted-foreground mt-1">{c.last_message_at ? new Date(c.last_message_at).toLocaleString("az-AZ") : ""}</div>
-                </button>
-              ))}
+              {convs.map(c => {
+                const linked = orders.find(o => o.conversation_id === c.id);
+                const isDisp = linked && (linked.status === "disputed" || (linked.status as any) === "dispute");
+                return (
+                  <button key={c.id} onClick={() => openConv(c)}
+                    className={`w-full text-left rounded-lg border p-3 transition ${activeConv?.id === c.id ? "border-neon bg-neon/5" : isDisp ? "border-warning/40 bg-warning/5 hover:border-warning" : "border-border bg-card-gradient hover:border-primary"}`}>
+                    <div className="flex items-center gap-1.5">
+                      {isDisp && <span className="px-1.5 py-0.5 rounded text-[9px] font-bold uppercase bg-warning/20 text-warning">Etiraz</span>}
+                      <div className="text-sm font-semibold truncate">{nameOf(c.user_a)} ↔ {nameOf(c.user_b)}</div>
+                    </div>
+                    <div className="text-xs text-muted-foreground truncate">{c.last_message_preview ?? "—"}</div>
+                    <div className="text-[10px] text-muted-foreground mt-1">{c.last_message_at ? new Date(c.last_message_at).toLocaleString("az-AZ") : ""}</div>
+                  </button>
+                );
+              })}
             </div>
-            <div className="rounded-xl border border-border bg-card-gradient card-shadow min-h-[400px]">
+            <div className="rounded-xl border border-border bg-card-gradient card-shadow min-h-[400px] flex flex-col">
               {!activeConv ? (
                 <div className="grid place-items-center h-full text-sm text-muted-foreground p-8">Söhbət seçin</div>
               ) : (
                 <>
-                  <div className="p-3 border-b border-border text-sm font-semibold">{nameOf(activeConv.user_a)} ↔ {nameOf(activeConv.user_b)}</div>
-                  <div className="p-4 space-y-2 max-h-[520px] overflow-y-auto">
-                    {dms.length === 0 && <p className="text-xs text-muted-foreground text-center py-6">Mesaj yoxdur</p>}
-                    {dms.map(m => (
-                      <div key={m.id} className={`max-w-[75%] rounded-lg p-2.5 text-sm ${m.sender_id === activeConv.user_a ? "bg-surface border border-border" : "ml-auto bg-primary/10 border border-primary/30"}`}>
-                        <div className="text-[10px] uppercase font-bold mb-1 opacity-70">{nameOf(m.sender_id)} • {new Date(m.created_at).toLocaleString("az-AZ")}</div>
-                        <div className="whitespace-pre-wrap">{m.body}</div>
-                      </div>
-                    ))}
+                  <div className="p-3 border-b border-border text-sm font-semibold flex items-center justify-between">
+                    <span>{nameOf(activeConv.user_a)} ↔ {nameOf(activeConv.user_b)}</span>
+                    {activeConvOrder && <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded bg-surface">{activeConvOrder.status}</span>}
                   </div>
-                  <div className="p-3 border-t border-border text-[11px] text-muted-foreground italic">Yalnız oxuma rejimi — dəstək komandası bu mesajlaşmaya cavab verə bilməz.</div>
+                  <div className="p-4 space-y-2 flex-1 max-h-[480px] overflow-y-auto">
+                    {dms.length === 0 && <p className="text-xs text-muted-foreground text-center py-6">Mesaj yoxdur</p>}
+                    {dms.map(m => {
+                      const isStaff = m.kind === "staff" || m.kind === "system";
+                      return (
+                        <div key={m.id} className={`max-w-[75%] rounded-lg p-2.5 text-sm ${isStaff ? "mx-auto bg-neon/10 border border-neon/40 text-center" : m.sender_id === activeConv.user_a ? "bg-surface border border-border" : "ml-auto bg-primary/10 border border-primary/30"}`}>
+                          <div className="text-[10px] uppercase font-bold mb-1 opacity-70">
+                            {isStaff ? "NextPlay Dəstək" : nameOf(m.sender_id)} • {new Date(m.created_at).toLocaleString("az-AZ")}
+                          </div>
+                          {m.body && <div className="whitespace-pre-wrap">{m.body}</div>}
+                          {m.attachment_url && <div className="mt-2"><ChatImage path={m.attachment_url} /></div>}
+                        </div>
+                      );
+                    })}
+                  </div>
+                  {canReplyInConv ? (
+                    <div className="p-3 border-t border-border space-y-2">
+                      <div className="text-[11px] text-warning">⚠ Etiraz edilmiş sifariş — "NextPlay Dəstək" adı ilə cavab verə bilərsən.</div>
+                      {dmPreview && (
+                        <div className="relative inline-block">
+                          <img src={dmPreview} alt="" className="max-h-24 rounded-lg border border-border" />
+                          <button onClick={() => pickImg(null, setDmFile, setDmPreview)} className="absolute -top-2 -right-2 h-6 w-6 grid place-items-center rounded-full bg-destructive text-destructive-foreground"><X className="h-3.5 w-3.5" /></button>
+                        </div>
+                      )}
+                      <div className="flex gap-2">
+                        <input ref={dmFileRef} type="file" accept="image/*" hidden onChange={e => pickImg(e.target.files?.[0] ?? null, setDmFile, setDmPreview)} />
+                        <button type="button" onClick={() => dmFileRef.current?.click()} className="h-10 w-10 self-end grid place-items-center rounded-md bg-surface border border-border hover:border-primary"><Paperclip className="h-4 w-4" /></button>
+                        <textarea value={dmReply} onChange={e => setDmReply(e.target.value)} rows={2} placeholder="NextPlay Dəstək olaraq yaz..."
+                          className="flex-1 px-3 py-2 rounded-md bg-background border border-border text-sm resize-none" />
+                        <button disabled={busy === "dm" || (!dmReply.trim() && !dmFile)} onClick={sendStaffDM}
+                          className="px-4 self-end rounded-md bg-neon text-background font-semibold neon-ring disabled:opacity-50 inline-flex items-center gap-1.5">
+                          {busy === "dm" ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />} Göndər
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="p-3 border-t border-border text-[11px] text-muted-foreground italic">Yalnız oxuma rejimi — yalnız etiraz edilmiş sifarişlərdə cavab verə bilərsən.</div>
+                  )}
                 </>
               )}
             </div>
@@ -240,7 +383,7 @@ function StaffPage() {
         ) : (
           <div className="space-y-3">
             <div className="flex gap-2 flex-wrap">
-              {(["all","paid","delivered","completed","cancelled"] as const).map(s => (
+              {(["all","paid","delivered","completed","cancelled","disputed"] as const).map(s => (
                 <button key={s} onClick={() => setOFilter(s)} className={`h-8 px-3 rounded-md text-xs font-semibold ${oFilter === s ? "bg-neon text-background" : "bg-surface border border-border"}`}>{s}</button>
               ))}
             </div>
@@ -260,11 +403,14 @@ function StaffPage() {
                     </div>
                     <div className="text-[10px] text-muted-foreground">{new Date(o.created_at).toLocaleString("az-AZ")} • ID: {o.id.slice(0, 8)}</div>
                   </div>
-                  <button disabled={!canCancel || busy === o.id} onClick={() => cancelOrder(o)}
-                    className="h-9 px-3 rounded-md text-xs font-semibold bg-destructive/10 text-destructive border border-destructive/30 hover:bg-destructive/20 disabled:opacity-40 disabled:cursor-not-allowed inline-flex items-center gap-1.5">
-                    {busy === o.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Ban className="h-3.5 w-3.5" />}
-                    Ləğv et
-                  </button>
+                  <div className="flex gap-2">
+                    <button disabled={!canCancel || busy === o.id} onClick={() => partialRefund(o)}
+                      className="h-9 px-3 rounded-md text-xs font-semibold bg-warning/10 text-warning border border-warning/30 hover:bg-warning/20 disabled:opacity-40">Qismən qaytar</button>
+                    <button disabled={!canCancel || busy === o.id} onClick={() => cancelOrder(o)}
+                      className="h-9 px-3 rounded-md text-xs font-semibold bg-destructive/10 text-destructive border border-destructive/30 hover:bg-destructive/20 disabled:opacity-40 inline-flex items-center gap-1.5">
+                      {busy === o.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Ban className="h-3.5 w-3.5" />} Ləğv et
+                    </button>
+                  </div>
                 </div>
               );
             })}

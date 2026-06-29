@@ -1,11 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
-import { Loader2, LifeBuoy, Plus, ArrowLeft, Send, ShoppingBag } from "lucide-react";
+import { Loader2, LifeBuoy, Plus, ArrowLeft, Send, ShoppingBag, Paperclip, X } from "lucide-react";
+import { uploadChatAttachment } from "@/lib/chat-attachments";
+import { ChatImage } from "@/components/ChatImage";
 
 export const Route = createFileRoute("/_authenticated/support-tickets")({
   component: SupportTicketsPage,
@@ -16,7 +18,7 @@ type Ticket = {
   id: string; subject: string; message: string; category: string; status: string;
   priority: string; order_id: string | null; created_at: string; updated_at: string;
 };
-type Msg = { id: string; sender_id: string; is_admin: boolean; body: string; created_at: string };
+type Msg = { id: string; sender_id: string; is_admin: boolean; body: string; created_at: string; attachment_url?: string | null };
 type OrderOpt = { id: string; product_title: string; created_at: string };
 
 const CATEGORIES: { value: string; label: string }[] = [
@@ -49,6 +51,22 @@ function SupportTicketsPage() {
   const [busy, setBusy] = useState(false);
   const [creating, setCreating] = useState(false);
   const [form, setForm] = useState({ category: "general", subject: "", message: "", order_id: "" });
+  const [replyFile, setReplyFile] = useState<File | null>(null);
+  const [replyPreview, setReplyPreview] = useState<string | null>(null);
+  const [formFile, setFormFile] = useState<File | null>(null);
+  const [formPreview, setFormPreview] = useState<string | null>(null);
+  const replyFileRef = useRef<HTMLInputElement>(null);
+  const formFileRef = useRef<HTMLInputElement>(null);
+
+  function pickFile(f: File | null, setF: (f: File | null) => void, setP: (s: string | null) => void) {
+    if (!f) { setF(null); setP(null); return; }
+    if (!f.type.startsWith("image/")) { toast.error("Yalnız şəkil"); return; }
+    if (f.size > 8 * 1024 * 1024) { toast.error("Maks 8MB"); return; }
+    setF(f);
+    const r = new FileReader();
+    r.onload = () => setP(r.result as string);
+    r.readAsDataURL(f);
+  }
 
   async function refresh() {
     if (!user) return;
@@ -70,36 +88,45 @@ function SupportTicketsPage() {
   }
 
   async function send() {
-    if (!active || !reply.trim()) return;
+    if (!active || (!reply.trim() && !replyFile)) return;
     setBusy(true);
-    const { error } = await supabase.from("support_messages").insert({
-      ticket_id: active.id, sender_id: user!.id, is_admin: false, body: reply.trim(),
-    });
-    if (error) toast.error(error.message);
-    else {
-      setReply("");
+    try {
+      let attachment_url: string | null = null;
+      if (replyFile) attachment_url = await uploadChatAttachment(replyFile, user!.id);
+      const { error } = await supabase.from("support_messages").insert({
+        ticket_id: active.id, sender_id: user!.id, is_admin: false, body: reply.trim(), attachment_url,
+      } as any);
+      if (error) throw error;
+      setReply(""); setReplyFile(null); setReplyPreview(null);
       const { data } = await supabase.from("support_messages").select("*").eq("ticket_id", active.id).order("created_at");
       setMessages((data as any) ?? []);
       await refresh();
-    }
+    } catch (e: any) { toast.error(e.message ?? "Xəta"); }
     setBusy(false);
   }
 
   async function create() {
     if (!form.subject.trim() || !form.message.trim()) { toast.error("Mövzu və mesaj tələb olunur"); return; }
     setBusy(true);
-    const payload: any = {
-      user_id: user!.id, category: form.category, subject: form.subject.trim(),
-      message: form.message.trim(), order_id: form.order_id || null,
-    };
-    const { error } = await supabase.from("support_tickets").insert(payload);
-    if (error) toast.error(error.message);
-    else {
+    try {
+      const payload: any = {
+        user_id: user!.id, category: form.category, subject: form.subject.trim(),
+        message: form.message.trim(), order_id: form.order_id || null,
+      };
+      const { data: ins, error } = await supabase.from("support_tickets").insert(payload).select("id").single();
+      if (error) throw error;
+      if (formFile && ins) {
+        const att = await uploadChatAttachment(formFile, user!.id);
+        await supabase.from("support_messages").insert({
+          ticket_id: ins.id, sender_id: user!.id, is_admin: false, body: "", attachment_url: att,
+        } as any);
+      }
       toast.success("Müraciət göndərildi");
       setForm({ category: "general", subject: "", message: "", order_id: "" });
+      setFormFile(null); setFormPreview(null);
       setCreating(false);
       await refresh();
-    }
+    } catch (e: any) { toast.error(e.message ?? "Xəta"); }
     setBusy(false);
   }
 
@@ -153,17 +180,28 @@ function SupportTicketsPage() {
                     <div className="text-[10px] uppercase text-muted-foreground mb-1">
                       {m.is_admin ? "Dəstək komandası" : "Sən"} · {new Date(m.created_at).toLocaleString("az-AZ")}
                     </div>
-                    <p className="text-sm whitespace-pre-wrap">{m.body}</p>
+                    {m.body && <p className="text-sm whitespace-pre-wrap">{m.body}</p>}
+                    {m.attachment_url && <div className="mt-2"><ChatImage path={m.attachment_url} /></div>}
                   </div>
                 ))}
               </div>
 
               {active.status !== "closed" && (
-                <div className="p-4 border-t border-border flex gap-2">
-                  <textarea value={reply} onChange={e => setReply(e.target.value)} rows={2} placeholder="Cavab yaz..." className="flex-1 px-3 py-2 rounded-lg bg-background border border-border text-sm resize-none" />
-                  <button onClick={send} disabled={busy || !reply.trim()} className="h-10 self-end px-4 rounded-lg bg-neon text-background font-semibold inline-flex items-center gap-1.5 disabled:opacity-50">
-                    {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />} Göndər
-                  </button>
+                <div className="p-4 border-t border-border space-y-2">
+                  {replyPreview && (
+                    <div className="relative inline-block">
+                      <img src={replyPreview} alt="" className="max-h-32 rounded-lg border border-border" />
+                      <button onClick={() => pickFile(null, setReplyFile, setReplyPreview)} className="absolute -top-2 -right-2 h-6 w-6 grid place-items-center rounded-full bg-destructive text-destructive-foreground"><X className="h-3.5 w-3.5" /></button>
+                    </div>
+                  )}
+                  <div className="flex gap-2">
+                    <input ref={replyFileRef} type="file" accept="image/*" hidden onChange={e => pickFile(e.target.files?.[0] ?? null, setReplyFile, setReplyPreview)} />
+                    <button type="button" onClick={() => replyFileRef.current?.click()} className="h-10 w-10 self-end grid place-items-center rounded-md bg-surface border border-border hover:border-primary" title="Şəkil əlavə et"><Paperclip className="h-4 w-4" /></button>
+                    <textarea value={reply} onChange={e => setReply(e.target.value)} rows={2} placeholder="Cavab yaz..." className="flex-1 px-3 py-2 rounded-lg bg-background border border-border text-sm resize-none" />
+                    <button onClick={send} disabled={busy || (!reply.trim() && !replyFile)} className="h-10 self-end px-4 rounded-lg bg-neon text-background font-semibold inline-flex items-center gap-1.5 disabled:opacity-50">
+                      {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />} Göndər
+                    </button>
+                  </div>
                 </div>
               )}
             </div>
@@ -202,6 +240,21 @@ function SupportTicketsPage() {
               <div>
                 <label className="text-xs text-muted-foreground">Mesaj</label>
                 <textarea value={form.message} onChange={e => setForm({...form, message: e.target.value})} maxLength={2000} rows={6} placeholder="Probleminizi ətraflı təsvir edin..." className="w-full px-3 py-2 rounded-lg bg-background border border-border text-sm mt-1 resize-none" />
+              </div>
+
+              <div>
+                <label className="text-xs text-muted-foreground">Şəkil (ixtiyari)</label>
+                <input ref={formFileRef} type="file" accept="image/*" hidden onChange={e => pickFile(e.target.files?.[0] ?? null, setFormFile, setFormPreview)} />
+                {formPreview ? (
+                  <div className="relative inline-block mt-2">
+                    <img src={formPreview} alt="" className="max-h-40 rounded-lg border border-border" />
+                    <button onClick={() => pickFile(null, setFormFile, setFormPreview)} className="absolute -top-2 -right-2 h-6 w-6 grid place-items-center rounded-full bg-destructive text-destructive-foreground"><X className="h-3.5 w-3.5" /></button>
+                  </div>
+                ) : (
+                  <button type="button" onClick={() => formFileRef.current?.click()} className="mt-2 h-10 px-3 inline-flex items-center gap-2 rounded-md bg-surface border border-border hover:border-primary text-sm">
+                    <Paperclip className="h-4 w-4" /> Şəkil əlavə et
+                  </button>
+                )}
               </div>
 
               <button onClick={create} disabled={busy} className="w-full h-11 rounded-lg bg-neon text-background font-semibold disabled:opacity-50">

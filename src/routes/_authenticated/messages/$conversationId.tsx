@@ -4,16 +4,18 @@ import { Footer } from "@/components/Footer";
 import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
-import { ArrowLeft, Send, Loader2, User as UserIcon, Check, CheckCheck } from "lucide-react";
+import { ArrowLeft, Send, Loader2, User as UserIcon, CheckCheck, Paperclip, X, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 import { isOnline, formatLastSeen } from "@/lib/presence";
+import { uploadChatAttachment } from "@/lib/chat-attachments";
+import { ChatImage } from "@/components/ChatImage";
 
 export const Route = createFileRoute("/_authenticated/messages/$conversationId")({
   component: ThreadPage,
   head: () => ({ meta: [{ title: "Söhbət — NextPlay.az" }] }),
 });
 
-type Msg = { id: string; conversation_id: string; sender_id: string; body: string; created_at: string; read_at: string | null; kind?: string };
+type Msg = { id: string; conversation_id: string; sender_id: string; body: string; created_at: string; read_at: string | null; kind?: string; attachment_url?: string | null };
 type Conv = { id: string; user_a: string; user_b: string; product_id: string | null; order_id: string | null };
 type ProfileLite = { id: string; display_name: string | null; username: string | null; avatar_url: string | null; last_seen_at: string | null };
 
@@ -28,8 +30,11 @@ function ThreadPage() {
   const [loading, setLoading] = useState(true);
   const [text, setText] = useState("");
   const [sending, setSending] = useState(false);
+  const [pendingFile, setPendingFile] = useState<File | null>(null);
+  const [preview, setPreview] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const fileRef = useRef<HTMLInputElement>(null);
 
   async function markRead() {
     await supabase.rpc("mark_conversation_read" as any, { p_conversation_id: conversationId });
@@ -88,14 +93,31 @@ function ThreadPage() {
   async function send() {
     if (!user || !conv) return;
     const body = text.trim();
-    if (!body) return;
+    if (!body && !pendingFile) return;
     if (body.length > 4000) { toast.error("Mesaj çox uzundur"); return; }
     setSending(true);
-    const { error } = await supabase.from("dm_messages").insert({ conversation_id: conv.id, sender_id: user.id, body });
-    setSending(false);
-    if (error) { toast.error(error.message); return; }
-    setText("");
-    inputRef.current?.focus();
+    try {
+      let attachment_url: string | null = null;
+      if (pendingFile) attachment_url = await uploadChatAttachment(pendingFile, user.id);
+      const { error } = await supabase.from("dm_messages").insert({
+        conversation_id: conv.id, sender_id: user.id, body: body || "", attachment_url,
+      } as any);
+      if (error) throw error;
+      setText(""); setPendingFile(null); setPreview(null);
+      inputRef.current?.focus();
+    } catch (e: any) {
+      toast.error(e.message ?? "Göndərmə alınmadı");
+    } finally { setSending(false); }
+  }
+
+  function onPickFile(f: File | null) {
+    if (!f) { setPendingFile(null); setPreview(null); return; }
+    if (!f.type.startsWith("image/")) { toast.error("Yalnız şəkil"); return; }
+    if (f.size > 8 * 1024 * 1024) { toast.error("Maks 8MB"); return; }
+    setPendingFile(f);
+    const reader = new FileReader();
+    reader.onload = () => setPreview(reader.result as string);
+    reader.readAsDataURL(f);
   }
 
   const online = isOnline(other?.last_seen_at);
@@ -143,6 +165,22 @@ function ThreadPage() {
                     </div>
                   );
                 }
+                if (m.kind === "staff") {
+                  return (
+                    <div key={m.id} className="flex justify-center my-2">
+                      <div className="max-w-[85%] px-3.5 py-2 rounded-2xl bg-primary/10 border border-primary/40 text-sm whitespace-pre-wrap break-words">
+                        <div className="flex items-center gap-1.5 text-[10px] uppercase font-bold text-primary mb-1">
+                          <ShieldCheck className="h-3 w-3" /> NextPlay Dəstək
+                        </div>
+                        {m.body}
+                        {m.attachment_url && <div className="mt-2"><ChatImage path={m.attachment_url} /></div>}
+                        <div className="text-[10px] mt-1 text-muted-foreground">
+                          {new Date(m.created_at).toLocaleTimeString("az-AZ", { hour: "2-digit", minute: "2-digit" })}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                }
                 const mine = m.sender_id === user!.id;
                 return (
                   <div key={m.id} className={`flex ${mine ? "justify-end" : "justify-start"}`}>
@@ -150,6 +188,7 @@ function ThreadPage() {
                       mine ? "bg-neon text-background rounded-br-sm" : "bg-surface text-foreground rounded-bl-sm border border-border"
                     }`}>
                       {m.body}
+                      {m.attachment_url && <div className="mt-2"><ChatImage path={m.attachment_url} /></div>}
                       <div className={`flex items-center gap-1 text-[10px] mt-1 ${mine ? "text-background/70 justify-end" : "text-muted-foreground"}`}>
                         <span>{new Date(m.created_at).toLocaleTimeString("az-AZ", { hour: "2-digit", minute: "2-digit" })}</span>
                         {mine && (
@@ -164,15 +203,30 @@ function ThreadPage() {
               })}
             </div>
 
-            <div className="border-t border-border p-3 flex items-end gap-2">
-              <textarea ref={inputRef} value={text} onChange={e => setText(e.target.value)}
-                onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); } }}
-                rows={1} maxLength={4000} placeholder="Mesaj yazın..."
-                className="flex-1 resize-none px-3 py-2.5 rounded-lg bg-background border border-border text-sm max-h-32" />
-              <button onClick={send} disabled={sending || !text.trim()}
-                className="h-11 w-11 grid place-items-center rounded-lg bg-neon text-background neon-ring disabled:opacity-50 shrink-0">
-                {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
-              </button>
+            <div className="border-t border-border p-3 space-y-2">
+              {preview && (
+                <div className="relative inline-block">
+                  <img src={preview} alt="" className="max-h-32 rounded-lg border border-border" />
+                  <button onClick={() => onPickFile(null)} className="absolute -top-2 -right-2 h-6 w-6 grid place-items-center rounded-full bg-destructive text-destructive-foreground">
+                    <X className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              )}
+              <div className="flex items-end gap-2">
+                <input ref={fileRef} type="file" accept="image/*" hidden onChange={e => onPickFile(e.target.files?.[0] ?? null)} />
+                <button type="button" onClick={() => fileRef.current?.click()}
+                  className="h-11 w-11 grid place-items-center rounded-lg bg-surface border border-border hover:border-primary shrink-0" title="Şəkil əlavə et">
+                  <Paperclip className="h-4 w-4" />
+                </button>
+                <textarea ref={inputRef} value={text} onChange={e => setText(e.target.value)}
+                  onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); } }}
+                  rows={1} maxLength={4000} placeholder="Mesaj yazın..."
+                  className="flex-1 resize-none px-3 py-2.5 rounded-lg bg-background border border-border text-sm max-h-32" />
+                <button onClick={send} disabled={sending || (!text.trim() && !pendingFile)}
+                  className="h-11 w-11 grid place-items-center rounded-lg bg-neon text-background neon-ring disabled:opacity-50 shrink-0">
+                  {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+                </button>
+              </div>
             </div>
           </div>
         </div>
