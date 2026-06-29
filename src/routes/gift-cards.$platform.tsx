@@ -123,14 +123,14 @@ function PlatformGiftCards() {
             {denoms.map(d => {
               const has = counts[d.id] > 0;
               return (
-                <Link key={d.id} to="/gift-cards/$platform/$denom" params={{ platform: pl.slug, denom: d.id }}
-                  className={`rounded-xl border p-4 text-center transition ${
+                <div key={d.id}
+                  className={`rounded-xl border p-4 text-center transition flex flex-col ${
                     has ? "border-border bg-card-gradient hover:border-neon hover:bg-neon/5" : "border-border bg-surface/40 opacity-70"
                   }`}>
                   <div className="font-display text-2xl font-bold text-gradient">{Number(d.face_value).toFixed(0)} {d.currency}</div>
                   {d.region && <div className="text-[10px] mt-1 px-2 py-0.5 rounded-full bg-surface border border-border inline-block">{d.region}</div>}
                   {d.label && <div className="text-xs text-muted-foreground mt-1">{d.label}</div>}
-                  <div className="mt-3 pt-3 border-t border-border/60">
+                  <div className="mt-3 pt-3 border-t border-border/60 flex-1">
                     {has ? (
                       <>
                         <div className="text-[10px] text-muted-foreground uppercase">Ən ucuz</div>
@@ -141,7 +141,17 @@ function PlatformGiftCards() {
                       <div className="text-xs text-muted-foreground">Satışda deyil</div>
                     )}
                   </div>
-                </Link>
+                  {has ? (
+                    <Link to="/gift-cards/$platform/$denom" params={{ platform: pl.slug, denom: d.id }}
+                      className="mt-3 inline-flex items-center justify-center h-9 rounded-lg bg-neon text-neon-foreground text-xs font-bold hover:opacity-90 transition">
+                      Al →
+                    </Link>
+                  ) : (
+                    <button disabled className="mt-3 h-9 rounded-lg bg-surface text-muted-foreground text-xs font-semibold cursor-not-allowed">
+                      Stokda yoxdur
+                    </button>
+                  )}
+                </div>
               );
             })}
           </div>

@@ -82,30 +82,30 @@ export function SearchBox({ variant = "desktop" }: { variant?: "desktop" | "mobi
             <div className="px-4 py-6 text-center text-sm text-muted-foreground">Nəticə tapılmadı</div>
           ) : (
             <>
-              {hits.map((h) => (
-                <Link
-                  key={h.id}
-                  to="/product/$slug"
-                  params={{ slug: h.slug }}
-                  onClick={() => { setOpen(false); setQ(""); }}
-                  className="flex items-center gap-3 px-3 py-2.5 hover:bg-surface transition border-b border-border last:border-0"
-                >
-                  {h.image_url ? (
-                    <img src={h.image_url} alt="" className="h-10 w-10 rounded-md object-cover" />
-                  ) : (
-                    <div className="h-10 w-10 rounded-md bg-surface grid place-items-center">
-                      <Package className="h-4 w-4 text-muted-foreground" />
-                    </div>
-                  )}
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium truncate">{h.title}</p>
-                  </div>
-                  <span className="text-sm font-bold text-gradient shrink-0">{format(h.price)}</span>
-                </Link>
-              ))}
+              <div className="grid grid-cols-2 gap-2 p-2">
+                {hits.map((h) => (
+                  <Link
+                    key={h.id}
+                    to="/product/$slug"
+                    params={{ slug: h.slug }}
+                    onClick={() => { setOpen(false); setQ(""); }}
+                    className="flex flex-col rounded-lg border border-border bg-card-gradient p-2 hover:border-neon hover:bg-neon/5 transition"
+                  >
+                    {h.image_url ? (
+                      <img src={h.image_url} alt="" className="h-20 w-full rounded-md object-cover mb-2" />
+                    ) : (
+                      <div className="h-20 w-full rounded-md bg-surface grid place-items-center mb-2">
+                        <Package className="h-5 w-5 text-muted-foreground" />
+                      </div>
+                    )}
+                    <p className="text-xs font-medium line-clamp-2 mb-1 min-h-[2rem]">{h.title}</p>
+                    <span className="text-sm font-bold text-gradient">{format(h.price)}</span>
+                  </Link>
+                ))}
+              </div>
               <button
                 onClick={submit as any}
-                className="w-full px-4 py-2.5 text-center text-xs font-semibold text-neon hover:bg-surface transition"
+                className="w-full px-4 py-2.5 text-center text-xs font-semibold text-neon hover:bg-surface transition border-t border-border"
               >
                 "{q.trim()}" üçün bütün nəticələrə bax →
               </button>
