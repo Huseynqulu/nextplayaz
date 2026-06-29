@@ -33,7 +33,7 @@ function SupportPage() {
         <section className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 py-16">
           <div className="grid sm:grid-cols-3 gap-4 mb-12">
             {[
-              { icon: MessageCircle, t: "Canlı çat", d: "5 dəqiqədə cavab" },
+              { icon: MessageCircle, t: "Canlı çat", d: "Gün ərzində cavab" },
               { icon: Mail, t: "Email", d: "support@nextplay.az" },
               { icon: ShieldQuestion, t: "Bilik bazası", d: "Tez-tez verilən suallar" },
             ].map((c, i) => (
