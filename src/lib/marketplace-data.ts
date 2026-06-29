@@ -14,6 +14,7 @@ export type Product = {
   oldPrice?: number;
   platform: "Steam" | "PS5" | "PS4" | "Xbox" | "EA" | "Battle.net" | "Epic" | "Rockstar";
   category: "Games" | "Accounts" | "Keys" | "Services";
+  subcategory?: string | null;
   image: string;
   images?: string[];
   stock: number;

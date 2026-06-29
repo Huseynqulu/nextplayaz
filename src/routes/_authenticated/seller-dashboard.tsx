@@ -53,10 +53,16 @@ function SellerDashboard() {
 
   const [form, setForm] = useState({
     title: "", description: "", price: "", old_price: "",
-    stock: "1", category: "Games" as Product["category"], platform: "Steam",
+    stock: "1", category: "Games" as Product["category"], subcategory: "", platform: "Steam",
     delivery: "Instant" as "Instant" | "Manual", image_urls: [] as string[],
     stock_items: "", auto_message_enabled: false, auto_message: "",
   });
+  const [subcats, setSubcats] = useState<{ slug: string; label_az: string; category_slug: string }[]>([]);
+  useEffect(() => {
+    supabase.from("subcategories" as any).select("slug,label_az,category_slug").eq("is_active", true).order("sort_order")
+      .then(({ data }) => setSubcats(((data as any) ?? []) as any));
+  }, []);
+  const currentSubs = subcats.filter(s => s.category_slug === form.category);
 
   useEffect(() => {
     if (!user) return;
@@ -75,7 +81,7 @@ function SellerDashboard() {
   useEffect(() => { if (isSeller) refresh(); }, [isSeller]);
 
   function resetForm() {
-    setForm({ title: "", description: "", price: "", old_price: "", stock: "1", category: "Games", platform: "Steam", delivery: "Instant", image_urls: [], stock_items: "", auto_message_enabled: false, auto_message: "" });
+    setForm({ title: "", description: "", price: "", old_price: "", stock: "1", category: "Games", subcategory: "", platform: "Steam", delivery: "Instant", image_urls: [], stock_items: "", auto_message_enabled: false, auto_message: "" });
     setEditing(null);
   }
 
@@ -84,12 +90,12 @@ function SellerDashboard() {
     // Load existing undelivered stock items + auto-message fields
     const [{ data: items }, { data: full }] = await Promise.all([
       supabase.from("product_stock_items" as any).select("content").eq("product_id", p.id).is("delivered_at", null).order("created_at"),
-      supabase.from("products").select("auto_message_enabled, auto_message").eq("id", p.id).maybeSingle(),
+      supabase.from("products").select("auto_message_enabled, auto_message, subcategory").eq("id", p.id).maybeSingle(),
     ]);
     setForm({
       title: p.title, description: p.description ?? "",
       price: String(p.price), old_price: p.old_price ? String(p.old_price) : "",
-      stock: String(p.stock), category: p.category, platform: p.platform,
+      stock: String(p.stock), category: p.category, subcategory: (full as any)?.subcategory ?? "", platform: p.platform,
       delivery: p.delivery, image_urls: (p.image_urls && p.image_urls.length ? p.image_urls : (p.image_url ? [p.image_url] : [])),
       stock_items: ((items as any) ?? []).map((i: any) => i.content).join("\n"),
       auto_message_enabled: !!(full as any)?.auto_message_enabled,
@@ -118,6 +124,7 @@ function SellerDashboard() {
         old_price: form.old_price ? Number(form.old_price) : null,
         stock: stockNum,
         category: form.category,
+        subcategory: form.subcategory || null,
         platform: form.platform,
         delivery: form.delivery,
         image_url: form.image_urls[0] ?? null,
@@ -223,9 +230,22 @@ function SellerDashboard() {
               </div>
               <div>
                 <label className="text-xs font-medium text-muted-foreground">Kateqoriya</label>
-                <select value={form.category} onChange={e => setForm(f => ({ ...f, category: e.target.value as any }))}
+                <select value={form.category} onChange={e => setForm(f => ({ ...f, category: e.target.value as any, subcategory: "" }))}
                   className="mt-1 w-full h-11 px-3 rounded-lg bg-surface border border-border text-sm">
                   {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+                </select>
+              </div>
+              <div>
+                <label className="text-xs font-medium text-muted-foreground">
+                  Alt-kateqoriya {currentSubs.length === 0 && <span className="opacity-60">(yoxdur)</span>}
+                </label>
+                <select
+                  value={form.subcategory}
+                  onChange={e => setForm(f => ({ ...f, subcategory: e.target.value }))}
+                  disabled={currentSubs.length === 0}
+                  className="mt-1 w-full h-11 px-3 rounded-lg bg-surface border border-border text-sm disabled:opacity-60">
+                  <option value="">— Seçilməyib —</option>
+                  {currentSubs.map(s => <option key={s.slug} value={s.slug}>{s.label_az}</option>)}
                 </select>
               </div>
               <div>

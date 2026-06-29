@@ -4,6 +4,7 @@ import { Footer } from "@/components/Footer";
 import { ProductCard } from "@/components/ProductCard";
 import { categories, platforms, products as mockProducts } from "@/lib/marketplace-data";
 import { fetchProducts } from "@/lib/products";
+import { supabase } from "@/integrations/supabase/client";
 import { useEffect, useMemo, useState } from "react";
 import { Search, SlidersHorizontal, Loader2, X, Zap, ShieldCheck, Star } from "lucide-react";
 import { z } from "zod";
@@ -12,6 +13,7 @@ import { zodValidator, fallback } from "@tanstack/zod-adapter";
 const searchSchema = z.object({
   q: fallback(z.string(), "").default(""),
   cat: fallback(z.string(), "all").default("all"),
+  sub: fallback(z.string(), "all").default("all"),
   platform: fallback(z.string(), "all").default("all"),
   delivery: fallback(z.enum(["all", "Instant", "Manual"]), "all").default("all"),
   min: fallback(z.number().min(0), 0).default(0),
@@ -42,9 +44,15 @@ function MarketplacePage() {
   const [products, setProducts] = useState<import("@/lib/marketplace-data").Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [qLocal, setQLocal] = useState(s.q);
+  const [subcats, setSubcats] = useState<{ slug: string; label_az: string; category_slug: string }[]>([]);
 
   useEffect(() => { fetchProducts().then(p => { setProducts(p); setLoading(false); }); }, []);
+  useEffect(() => {
+    supabase.from("subcategories" as any).select("slug,label_az,category_slug").eq("is_active", true).order("sort_order")
+      .then(({ data }) => setSubcats(((data as any) ?? []) as any));
+  }, []);
   useEffect(() => { setQLocal(s.q); }, [s.q]);
+  const currentSubs = s.cat !== "all" ? subcats.filter(x => x.category_slug === s.cat) : [];
 
   // Debounce free-text search → URL
   useEffect(() => {
@@ -56,6 +64,7 @@ function MarketplacePage() {
   const filtered = useMemo(() => {
     let r = products.slice();
     if (s.cat !== "all") r = r.filter(p => p.category === s.cat);
+    if (s.sub !== "all") r = r.filter(p => p.subcategory === s.sub);
     if (s.platform !== "all") r = r.filter(p => p.platform === s.platform);
     if (s.delivery !== "all") r = r.filter(p => p.delivery === s.delivery);
     if (s.verified) r = r.filter(p => p.seller?.verified);
@@ -81,6 +90,7 @@ function MarketplacePage() {
 
   const activeCount =
     (s.cat !== "all" ? 1 : 0) +
+    (s.sub !== "all" ? 1 : 0) +
     (s.platform !== "all" ? 1 : 0) +
     (s.delivery !== "all" ? 1 : 0) +
     (s.verified ? 1 : 0) +
@@ -89,7 +99,7 @@ function MarketplacePage() {
     (s.rating > 0 ? 1 : 0);
 
   const reset = () => navigate({
-    search: { q: "", cat: "all", platform: "all", delivery: "all", min: 0, max: 0, rating: 0, verified: false, inStock: true, sort: "popular" } as any,
+    search: { q: "", cat: "all", sub: "all", platform: "all", delivery: "all", min: 0, max: 0, rating: 0, verified: false, inStock: true, sort: "popular" } as any,
     replace: true,
   });
 
@@ -131,7 +141,7 @@ function MarketplacePage() {
 
             <div className="mt-6 flex flex-wrap gap-2">
               {categories.map(c => (
-                <button key={c.id} onClick={() => update({ cat: c.id })}
+                <button key={c.id} onClick={() => update({ cat: c.id, sub: "all" })}
                   className={`px-4 py-2 rounded-full text-sm font-medium transition border ${
                     s.cat === c.id
                       ? "bg-neon text-background border-transparent neon-ring"
@@ -141,6 +151,25 @@ function MarketplacePage() {
                 </button>
               ))}
             </div>
+
+            {currentSubs.length > 0 && (
+              <div className="mt-3 flex flex-wrap gap-2">
+                <button onClick={() => update({ sub: "all" })}
+                  className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition ${
+                    s.sub === "all" ? "bg-primary text-primary-foreground border-transparent" : "bg-background border-border text-muted-foreground hover:text-foreground"
+                  }`}>
+                  Hamısı
+                </button>
+                {currentSubs.map(sc => (
+                  <button key={sc.slug} onClick={() => update({ sub: sc.slug })}
+                    className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition ${
+                      s.sub === sc.slug ? "bg-primary text-primary-foreground border-transparent" : "bg-background border-border text-muted-foreground hover:text-foreground"
+                    }`}>
+                    {sc.label_az}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
         </section>
 
@@ -233,7 +262,8 @@ function MarketplacePage() {
                   {s.q && (
                     <Chip label={`"${s.q}"`} onClear={() => { setQLocal(""); update({ q: "" }); }} />
                   )}
-                  {s.cat !== "all" && <Chip label={s.cat} onClear={() => update({ cat: "all" })} />}
+                  {s.cat !== "all" && <Chip label={s.cat} onClear={() => update({ cat: "all", sub: "all" })} />}
+                  {s.sub !== "all" && <Chip label={subcats.find(x => x.slug === s.sub)?.label_az ?? s.sub} onClear={() => update({ sub: "all" })} />}
                   {s.platform !== "all" && <Chip label={s.platform} onClear={() => update({ platform: "all" })} />}
                   {s.delivery !== "all" && <Chip label={s.delivery === "Instant" ? "⚡ Anında" : "Əl ilə"} onClear={() => update({ delivery: "all" })} />}
                   {s.min > 0 && <Chip label={`≥ ${s.min}₼`} onClear={() => update({ min: 0 })} />}

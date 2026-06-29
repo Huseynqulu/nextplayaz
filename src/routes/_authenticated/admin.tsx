@@ -33,6 +33,7 @@ type TicketMsg = { id: string; sender_id: string; is_admin: boolean; body: strin
 type TopUp = { id: string; user_id: string; amount: number; method: string; sender_note: string | null; receipt_url: string | null; status: "pending"|"approved"|"rejected"; admin_notes: string | null; created_at: string };
 type PaymentSetting = { method: string; label: string; instructions: string; is_active: boolean };
 type Category = { slug: string; label_az: string; label_en: string; label_ru: string; sort_order: number; is_active: boolean };
+type Subcategory = { id?: string; category_slug: string; slug: string; label_az: string; label_en: string; label_ru: string; sort_order: number; is_active: boolean };
 
 type Tab = "analytics" | "applications" | "users" | "codes" | "products" | "tickets" | "topups" | "withdrawals" | "platform" | "payments" | "categories" | "disputes" | "banners" | "reviews" | "giftcards";
 
@@ -66,6 +67,9 @@ function AdminPage() {
   const [topups, setTopups] = useState<TopUp[]>([]);
   const [paySettings, setPaySettings] = useState<PaymentSetting[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [subcategories, setSubcategories] = useState<Subcategory[]>([]);
+  const [expandedCat, setExpandedCat] = useState<string | null>(null);
+  const [newSub, setNewSub] = useState<Record<string, Subcategory>>({});
   const [newCategory, setNewCategory] = useState<Category>({ slug: "", label_az: "", label_en: "", label_ru: "", sort_order: 10, is_active: true });
   const [stats, setStats] = useState({ users: 0, sellers: 0, products: 0, orders: 0 });
   const [loading, setLoading] = useState(true);
@@ -134,6 +138,8 @@ function AdminPage() {
     setTopups((tu as any) ?? []);
     setPaySettings((ps as any) ?? []);
     setCategories((cats as any) ?? []);
+    const { data: subs } = await supabase.from("subcategories" as any).select("*").order("sort_order");
+    setSubcategories((subs as any) ?? []);
     setStats({ users: uc ?? 0, sellers: sc ?? 0, products: pc ?? 0, orders: oc ?? 0 });
     setLoading(false);
   }
@@ -158,6 +164,30 @@ function AdminPage() {
   async function addNewCategory() {
     await saveCategory(newCategory);
     setNewCategory({ slug: "", label_az: "", label_en: "", label_ru: "", sort_order: 10, is_active: true });
+  }
+  async function saveSub(s: Subcategory) {
+    if (!s.slug || !s.label_az || !s.category_slug) { toast.error("Slug və AZ ad tələb olunur"); return; }
+    setBusy(`sub:${s.category_slug}:${s.slug}`);
+    const { error } = await supabase.rpc("admin_upsert_subcategory" as any, {
+      p_category_slug: s.category_slug, p_slug: s.slug.trim(), p_label_az: s.label_az,
+      p_label_en: s.label_en || s.label_az, p_label_ru: s.label_ru || s.label_az,
+      p_sort_order: s.sort_order, p_is_active: s.is_active,
+    });
+    setBusy(null);
+    if (error) toast.error(error.message); else { toast.success("Yadda saxlandı"); await refresh(); }
+  }
+  async function deleteSub(category_slug: string, slug: string) {
+    if (!confirm(`"${slug}" alt-kateqoriya silinsin?`)) return;
+    setBusy(`sub:${category_slug}:${slug}`);
+    const { error } = await supabase.rpc("admin_delete_subcategory" as any, { p_category_slug: category_slug, p_slug: slug });
+    setBusy(null);
+    if (error) toast.error(error.message); else { toast.success("Silindi"); await refresh(); }
+  }
+  async function addNewSub(category_slug: string) {
+    const draft = newSub[category_slug];
+    if (!draft) return;
+    await saveSub({ ...draft, category_slug });
+    setNewSub(s => ({ ...s, [category_slug]: { category_slug, slug: "", label_az: "", label_en: "", label_ru: "", sort_order: 10, is_active: true } }));
   }
 
   async function openTicket(t: AdminTicket) {
@@ -761,8 +791,75 @@ function AdminPage() {
                         className="h-9 w-9 grid place-items-center rounded-md bg-destructive text-destructive-foreground disabled:opacity-50" title="Sil">
                         <Trash2 className="h-4 w-4" />
                       </button>
+                      <button onClick={() => setExpandedCat(expandedCat === c.slug ? null : c.slug)}
+                        className="h-9 px-3 rounded-md bg-surface border border-border text-xs font-semibold hover:border-primary/40" title="Alt-kateqoriyalar">
+                        {expandedCat === c.slug ? "▲" : "▼"} Alt
+                      </button>
                     </div>
                   </div>
+
+                  {expandedCat === c.slug && (
+                    <div className="mt-4 pt-4 border-t border-border space-y-2">
+                      <h4 className="text-xs font-bold uppercase text-muted-foreground tracking-wide">Alt-kateqoriyalar — {c.label_az}</h4>
+                      {subcategories.filter(s => s.category_slug === c.slug).map((s, si) => {
+                        const idx = subcategories.findIndex(x => x.category_slug === c.slug && x.slug === s.slug);
+                        const key = `sub:${c.slug}:${s.slug}`;
+                        return (
+                          <div key={s.slug} className="grid sm:grid-cols-[100px_1fr_1fr_1fr_80px_auto] gap-2 items-center">
+                            <span className="px-2 py-0.5 rounded text-[11px] font-bold bg-background text-center">{s.slug}</span>
+                            <input value={s.label_az} onChange={e => { const n = [...subcategories]; n[idx] = { ...s, label_az: e.target.value }; setSubcategories(n); }}
+                              className="h-9 px-3 rounded-md bg-background border border-border text-sm" />
+                            <input value={s.label_en} onChange={e => { const n = [...subcategories]; n[idx] = { ...s, label_en: e.target.value }; setSubcategories(n); }}
+                              className="h-9 px-3 rounded-md bg-background border border-border text-sm" />
+                            <input value={s.label_ru} onChange={e => { const n = [...subcategories]; n[idx] = { ...s, label_ru: e.target.value }; setSubcategories(n); }}
+                              className="h-9 px-3 rounded-md bg-background border border-border text-sm" />
+                            <input type="number" value={s.sort_order} onChange={e => { const n = [...subcategories]; n[idx] = { ...s, sort_order: Number(e.target.value) }; setSubcategories(n); }}
+                              className="h-9 px-2 rounded-md bg-background border border-border text-sm text-center" />
+                            <div className="flex items-center gap-1.5">
+                              <label className="inline-flex items-center gap-1.5 text-xs cursor-pointer">
+                                <input type="checkbox" checked={s.is_active} onChange={e => { const n = [...subcategories]; n[idx] = { ...s, is_active: e.target.checked }; setSubcategories(n); }}
+                                  className="h-4 w-4 accent-neon" />
+                                Aktiv
+                              </label>
+                              <button disabled={busy === key} onClick={() => saveSub(s)}
+                                className="h-9 w-9 grid place-items-center rounded-md bg-neon text-background disabled:opacity-50" title="Yadda saxla">
+                                {busy === key ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
+                              </button>
+                              <button disabled={busy === key} onClick={() => deleteSub(c.slug, s.slug)}
+                                className="h-9 w-9 grid place-items-center rounded-md bg-destructive text-destructive-foreground disabled:opacity-50" title="Sil">
+                                <Trash2 className="h-4 w-4" />
+                              </button>
+                            </div>
+                          </div>
+                        );
+                      })}
+                      {subcategories.filter(s => s.category_slug === c.slug).length === 0 && (
+                        <p className="text-xs text-muted-foreground">Bu kateqoriyada alt-kateqoriya yoxdur.</p>
+                      )}
+                      {(() => {
+                        const d = newSub[c.slug] ?? { category_slug: c.slug, slug: "", label_az: "", label_en: "", label_ru: "", sort_order: 10, is_active: true };
+                        const set = (patch: Partial<Subcategory>) => setNewSub(ns => ({ ...ns, [c.slug]: { ...d, ...patch } as Subcategory }));
+                        return (
+                          <div className="grid sm:grid-cols-[100px_1fr_1fr_1fr_80px_auto] gap-2 items-center pt-2 mt-2 border-t border-dashed border-border">
+                            <input value={d.slug} onChange={e => set({ slug: e.target.value })} placeholder="slug"
+                              className="h-9 px-2 rounded-md bg-background border border-border text-xs font-bold" />
+                            <input value={d.label_az} onChange={e => set({ label_az: e.target.value })} placeholder="Ad (AZ)"
+                              className="h-9 px-3 rounded-md bg-background border border-border text-sm" />
+                            <input value={d.label_en} onChange={e => set({ label_en: e.target.value })} placeholder="Name (EN)"
+                              className="h-9 px-3 rounded-md bg-background border border-border text-sm" />
+                            <input value={d.label_ru} onChange={e => set({ label_ru: e.target.value })} placeholder="Имя (RU)"
+                              className="h-9 px-3 rounded-md bg-background border border-border text-sm" />
+                            <input type="number" value={d.sort_order} onChange={e => set({ sort_order: Number(e.target.value) })}
+                              className="h-9 px-2 rounded-md bg-background border border-border text-sm text-center" />
+                            <button onClick={() => addNewSub(c.slug)}
+                              className="h-9 px-3 rounded-md bg-neon text-background text-xs font-semibold neon-ring inline-flex items-center gap-1.5">
+                              <Plus className="h-4 w-4" /> Əlavə
+                            </button>
+                          </div>
+                        );
+                      })()}
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
