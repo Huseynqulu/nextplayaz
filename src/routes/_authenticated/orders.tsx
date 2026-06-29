@@ -95,6 +95,11 @@ function OrdersPage() {
       .order("created_at", { ascending: false });
     if (error) toast.error(error.message);
     setOrders((data as any) ?? []);
+    if (tab === "buying") {
+      const { data: revs } = await supabase
+        .from("reviews").select("product_id").eq("reviewer_id", user.id);
+      setReviewedIds(new Set(((revs as any[]) ?? []).map(r => r.product_id)));
+    }
     setLoading(false);
   }
   useEffect(() => { refresh(); /* eslint-disable-next-line */ }, [user, tab]);
