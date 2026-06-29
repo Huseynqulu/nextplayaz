@@ -473,6 +473,11 @@ function AdminPage() {
                         className={`h-9 px-3 rounded-md text-xs font-semibold disabled:opacity-50 ${u.roles.includes("admin") ? "bg-neon/20 text-neon" : "bg-surface border border-border"}`}>
                         {u.roles.includes("admin") ? "Admin ✓" : "Admin et"}
                       </button>
+                      <button disabled={busy === u.id + "verify"} onClick={() => toggleVerified(u)}
+                        className={`h-9 px-3 rounded-md text-xs font-semibold disabled:opacity-50 ${u.verified_at ? "bg-sky-500/20 text-sky-300" : "bg-surface border border-border"}`}>
+                        {u.verified_at ? "✓ Doğrulanmış" : "Doğrula (KYC)"}
+                      </button>
+
                     </div>
                   </div>
                 </div>
