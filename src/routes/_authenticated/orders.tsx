@@ -51,6 +51,11 @@ function OrdersPage() {
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState<string | null>(null);
   const [payloadInput, setPayloadInput] = useState<Record<string, string>>({});
+  const [disputeOrder, setDisputeOrder] = useState<Order | null>(null);
+  const [disputeReason, setDisputeReason] = useState("");
+  const [disputeVideoUrl, setDisputeVideoUrl] = useState("");
+  const [disputeFile, setDisputeFile] = useState<File | null>(null);
+  const [disputeSubmitting, setDisputeSubmitting] = useState(false);
 
   async function refresh() {
     if (!user) return;
