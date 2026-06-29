@@ -1156,6 +1156,7 @@ export type Database = {
           id: string
           roles: Database["public"]["Enums"]["app_role"][]
           username: string
+          verified_at: string
           wallet_balance: number
         }[]
       }
