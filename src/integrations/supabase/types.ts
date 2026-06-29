@@ -919,6 +919,14 @@ export type Database = {
             }
             Returns: undefined
           }
+      get_seller_stats: {
+        Args: { p_seller_id: string }
+        Returns: {
+          avg_rating: number
+          completed_sales: number
+          reviews_count: number
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
