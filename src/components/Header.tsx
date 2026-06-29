@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useT } from "@/lib/i18n";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { useOnlinePresence } from "@/lib/presence";
+import { NotificationBell } from "@/components/NotificationBell";
 
 export function Header() {
   const t = useT();
@@ -89,6 +90,7 @@ export function Header() {
               <MessageSquare className="h-5 w-5" />
             </Link>
           )}
+          <NotificationBell />
 
           {user ? (
             <div className="relative">
