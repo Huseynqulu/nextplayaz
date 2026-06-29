@@ -1074,6 +1074,7 @@ export type Database = {
           seller_tier: string | null
           shop_name: string | null
           username: string | null
+          verified_at: string | null
         }
         Insert: {
           avatar_url?: string | null
@@ -1085,6 +1086,7 @@ export type Database = {
           seller_tier?: string | null
           shop_name?: string | null
           username?: string | null
+          verified_at?: string | null
         }
         Update: {
           avatar_url?: string | null
@@ -1096,6 +1098,7 @@ export type Database = {
           seller_tier?: string | null
           shop_name?: string | null
           username?: string | null
+          verified_at?: string | null
         }
         Relationships: []
       }
