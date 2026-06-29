@@ -85,6 +85,7 @@ function AdminPage() {
   const [withdrawFilter, setWithdrawFilter] = useState<"all" | "pending" | "approved" | "rejected">("pending");
   const [ledger, setLedger] = useState<LedgerEntry[]>([]);
   const [platformBalance, setPlatformBalance] = useState(0);
+  const [userSearch, setUserSearch] = useState("");
 
 
   // new code form
@@ -440,8 +441,25 @@ function AdminPage() {
 
           ) : tab === "users" ? (
             <div className="space-y-2">
-              {users.length === 0 && <p className="text-muted-foreground text-center py-12">İstifadəçi yoxdur.</p>}
-              {users.map(u => (
+              <input
+                value={userSearch}
+                onChange={e => setUserSearch(e.target.value)}
+                placeholder="ID, email, ad və ya istifadəçi adı ilə axtar..."
+                className="w-full h-10 px-3 rounded-lg bg-background border border-border text-sm mb-2"
+              />
+              {(() => {
+                const q = userSearch.trim().toLowerCase();
+                const filtered = q
+                  ? users.filter(u =>
+                      u.id.toLowerCase().includes(q) ||
+                      (u.email ?? "").toLowerCase().includes(q) ||
+                      (u.display_name ?? "").toLowerCase().includes(q) ||
+                      (u.username ?? "").toLowerCase().includes(q)
+                    )
+                  : users;
+                return <>
+                  {filtered.length === 0 && <p className="text-muted-foreground text-center py-12">İstifadəçi tapılmadı.</p>}
+                  {filtered.map(u => (
                 <div key={u.id} className="rounded-xl border border-border bg-card-gradient p-4">
                   <div className="flex flex-wrap items-center justify-between gap-3">
                     <div className="min-w-0 flex-1">
@@ -482,6 +500,8 @@ function AdminPage() {
                   </div>
                 </div>
               ))}
+                </>;
+              })()}
             </div>
           ) : tab === "codes" ? (
             <div className="space-y-4">

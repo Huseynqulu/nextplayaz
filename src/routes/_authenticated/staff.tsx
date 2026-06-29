@@ -42,6 +42,7 @@ function StaffPage() {
 
   const [orders, setOrders] = useState<OrderRow[]>([]);
   const [oFilter, setOFilter] = useState<"all" | "paid" | "delivered" | "completed" | "cancelled" | "disputed">("paid");
+  const [orderSearch, setOrderSearch] = useState("");
 
   const [convs, setConvs] = useState<Conv[]>([]);
   const [activeConv, setActiveConv] = useState<Conv | null>(null);
@@ -411,12 +412,24 @@ function StaffPage() {
           </div>
         ) : (
           <div className="space-y-3">
+            <input
+              value={orderSearch}
+              onChange={e => setOrderSearch(e.target.value)}
+              placeholder="Sifariş ID, alıcı/satıcı ID ilə axtar..."
+              className="w-full h-10 px-3 rounded-lg bg-background border border-border text-sm"
+            />
             <div className="flex gap-2 flex-wrap">
               {(["all","paid","delivered","completed","cancelled","disputed"] as const).map(s => (
                 <button key={s} onClick={() => setOFilter(s)} className={`h-8 px-3 rounded-md text-xs font-semibold ${oFilter === s ? "bg-neon text-background" : "bg-surface border border-border"}`}>{s}</button>
               ))}
             </div>
-            {orders.filter(o => oFilter === "all" || o.status === oFilter).map(o => {
+            {(() => {
+              const q = orderSearch.trim().toLowerCase();
+              const filtered = orders
+                .filter(o => oFilter === "all" || o.status === oFilter)
+                .filter(o => !q || o.id.toLowerCase().includes(q) || o.buyer_id.toLowerCase().includes(q) || o.seller_id.toLowerCase().includes(q) || o.product_id.toLowerCase().includes(q));
+              return <>
+                {filtered.map(o => {
               const canCancel = !["completed","cancelled","refunded"].includes(o.status);
               return (
                 <div key={o.id} className="rounded-xl border border-border bg-card-gradient p-4 card-shadow flex items-center justify-between gap-3 flex-wrap">
@@ -430,7 +443,7 @@ function StaffPage() {
                       Alıcı: <Link to="/messages" className="text-foreground">{nameOf(o.buyer_id)}</Link> →
                       Satıcı: <span className="text-foreground">{nameOf(o.seller_id)}</span>
                     </div>
-                    <div className="text-[10px] text-muted-foreground">{new Date(o.created_at).toLocaleString("az-AZ")} • ID: {o.id.slice(0, 8)}</div>
+                    <div className="text-[10px] text-muted-foreground font-mono">{new Date(o.created_at).toLocaleString("az-AZ")} • ID: {o.id}</div>
                   </div>
                   <div className="flex gap-2 flex-wrap">
                     {o.status === "completed" && (
@@ -448,10 +461,12 @@ function StaffPage() {
                   </div>
                 </div>
               );
-            })}
-            {orders.filter(o => oFilter === "all" || o.status === oFilter).length === 0 && (
-              <p className="text-sm text-muted-foreground text-center py-8">Sifariş yoxdur</p>
-            )}
+                })}
+                {filtered.length === 0 && (
+                  <p className="text-sm text-muted-foreground text-center py-8">Sifariş tapılmadı</p>
+                )}
+              </>;
+            })()}
           </div>
         )}
       </main>
