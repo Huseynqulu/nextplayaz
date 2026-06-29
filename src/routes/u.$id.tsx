@@ -60,8 +60,20 @@ function SellerProfilePage() {
   const navigate = useNavigate();
   const [busy, setBusy] = useState(false);
   const online = isOnline(profile.last_seen_at);
-  const name = profile.display_name || profile.username || "Satıcı";
+  const shopName: string | null = profile.shop_name ?? null;
+  const realName = profile.display_name || profile.username || "Satıcı";
+  const name = shopName || realName;
   const initials = name.slice(0, 2).toUpperCase();
+  const [catFilter, setCatFilter] = useState<string>("all");
+  const cats = useMemo(() => {
+    const set = new Set<string>();
+    products.forEach((p: any) => { if (p.category) set.add(p.category); });
+    return Array.from(set);
+  }, [products]);
+  const visibleProducts = useMemo(
+    () => catFilter === "all" ? products : products.filter((p: any) => p.category === catFilter),
+    [products, catFilter]
+  );
 
   async function startChat() {
     if (!user) { toast.info("Daxil olun"); navigate({ to: "/login" }); return; }
