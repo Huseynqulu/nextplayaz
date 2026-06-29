@@ -50,9 +50,9 @@ export function Footer() {
         <div className="mt-12 pt-8 border-t border-border flex flex-col sm:flex-row justify-between items-center gap-4">
           <p className="text-xs text-muted-foreground">© {new Date().getFullYear()} NextPlay.az — {t("footer.rights")}</p>
           <div className="flex gap-6 text-xs text-muted-foreground">
-            <a href="#" className="hover:text-foreground transition">{t("footer.terms")}</a>
-            <a href="#" className="hover:text-foreground transition">{t("footer.privacy")}</a>
-            <a href="#" className="hover:text-foreground transition">{t("footer.refund")}</a>
+            <Link to="/terms" className="hover:text-foreground transition">{t("footer.terms")}</Link>
+            <Link to="/privacy" className="hover:text-foreground transition">{t("footer.privacy")}</Link>
+            <Link to="/refund" className="hover:text-foreground transition">{t("footer.refund")}</Link>
           </div>
         </div>
       </div>
