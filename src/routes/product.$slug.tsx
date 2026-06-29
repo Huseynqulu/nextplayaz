@@ -36,6 +36,7 @@ function ProductPage() {
   const navigate = useNavigate();
   const [qty, setQty] = useState(1);
   const [buying, setBuying] = useState(false);
+  const [code, setCode] = useState("");
   const discount = p.oldPrice ? Math.round((1 - p.price / p.oldPrice) * 100) : 0;
   const similar = mockProducts.filter(x => x.id !== p.id && x.category === p.category).slice(0, 4);
   const isDbProduct = /^[0-9a-f]{8}-/i.test(p.id);
@@ -51,7 +52,11 @@ function ProductPage() {
       return;
     }
     setBuying(true);
-    const { data, error } = await supabase.rpc("create_order", { p_product_id: p.id, p_quantity: qty });
+    const { data, error } = await supabase.rpc("create_order", {
+      p_product_id: p.id,
+      p_quantity: qty,
+      p_discount_code: code.trim() || null,
+    } as any);
     setBuying(false);
     if (error) {
       toast.error(error.message);
@@ -61,6 +66,7 @@ function ProductPage() {
     navigate({ to: "/orders" });
     void data;
   }
+
 
   return (
     <div className="min-h-screen flex flex-col">
