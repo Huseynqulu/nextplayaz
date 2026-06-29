@@ -85,6 +85,7 @@ function AdminPage() {
   const [withdrawFilter, setWithdrawFilter] = useState<"all" | "pending" | "approved" | "rejected">("pending");
   const [ledger, setLedger] = useState<LedgerEntry[]>([]);
   const [platformBalance, setPlatformBalance] = useState(0);
+  const [userSearch, setUserSearch] = useState("");
 
 
   // new code form
