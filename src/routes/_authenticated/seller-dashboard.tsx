@@ -142,6 +142,9 @@ function SellerDashboard() {
       if (isInstant && lines.length === 0) {
         throw new Error("Anında çatdırılma üçün ən azı 1 stok elementi əlavə edin");
       }
+      if (form.is_gift_card && !form.gift_denomination_id) {
+        throw new Error("Hədiyyə kartı üçün platforma və nominal seçin");
+      }
       const payload = {
         seller_id: user.id,
         title: form.title.trim(),
@@ -159,6 +162,7 @@ function SellerDashboard() {
         image_urls: form.image_urls,
         auto_message_enabled: form.auto_message_enabled,
         auto_message: form.auto_message_enabled ? (form.auto_message.trim() || null) : null,
+        gift_denomination_id: form.is_gift_card ? form.gift_denomination_id : null,
       };
       let productId = editing?.id;
       if (editing) {
