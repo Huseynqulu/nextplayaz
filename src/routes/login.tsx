@@ -1,7 +1,11 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
-import { Mail, Lock, Gamepad2 } from "lucide-react";
+import { Mail, Lock, Gamepad2, Loader2 } from "lucide-react";
+import { useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { lovable } from "@/integrations/lovable";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/login")({
   component: LoginPage,
@@ -9,6 +13,38 @@ export const Route = createFileRoute("/login")({
 });
 
 function LoginPage() {
+  const navigate = useNavigate();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setLoading(true);
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    setLoading(false);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    toast.success("Xoş gəldin!");
+    navigate({ to: "/" });
+  }
+
+  async function handleGoogle() {
+    setLoading(true);
+    const result = await lovable.auth.signInWithOAuth("google", {
+      redirect_uri: window.location.origin,
+    });
+    if (result.error) {
+      setLoading(false);
+      toast.error("Google ilə daxil olmaq alınmadı");
+      return;
+    }
+    if (result.redirected) return;
+    navigate({ to: "/" });
+  }
+
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
@@ -22,22 +58,23 @@ function LoginPage() {
             <p className="mt-2 text-muted-foreground text-sm">Gaming aləminə davam et</p>
           </div>
 
-          <form className="rounded-2xl border border-border bg-card-gradient p-7 card-shadow space-y-4" onSubmit={e => e.preventDefault()}>
-            <Field icon={<Mail className="h-4 w-4" />} type="email" placeholder="Email" />
-            <Field icon={<Lock className="h-4 w-4" />} type="password" placeholder="Şifrə" />
+          <form className="rounded-2xl border border-border bg-card-gradient p-7 card-shadow space-y-4" onSubmit={handleSubmit}>
+            <Field icon={<Mail className="h-4 w-4" />} type="email" placeholder="Email" required value={email} onChange={e => setEmail(e.target.value)} />
+            <Field icon={<Lock className="h-4 w-4" />} type="password" placeholder="Şifrə" required minLength={6} value={password} onChange={e => setPassword(e.target.value)} />
 
             <div className="flex items-center justify-between text-sm">
               <label className="flex items-center gap-2 text-muted-foreground"><input type="checkbox" className="accent-primary" /> Məni xatırla</label>
               <a href="#" className="text-neon hover:underline">Şifrəni unutdun?</a>
             </div>
 
-            <button type="submit" className="w-full h-11 rounded-xl bg-neon text-background font-semibold neon-ring hover:scale-[1.01] transition">
+            <button type="submit" disabled={loading} className="w-full h-11 rounded-xl bg-neon text-background font-semibold neon-ring hover:scale-[1.01] transition disabled:opacity-60 flex items-center justify-center gap-2">
+              {loading && <Loader2 className="h-4 w-4 animate-spin" />}
               Daxil ol
             </button>
 
             <div className="flex items-center gap-3 text-xs text-muted-foreground"><div className="flex-1 h-px bg-border" /> və ya <div className="flex-1 h-px bg-border" /></div>
 
-            <button type="button" className="w-full h-11 rounded-xl border border-border bg-background hover:bg-surface transition font-medium text-sm">
+            <button type="button" onClick={handleGoogle} disabled={loading} className="w-full h-11 rounded-xl border border-border bg-background hover:bg-surface transition font-medium text-sm disabled:opacity-60">
               Google ilə davam et
             </button>
           </form>
