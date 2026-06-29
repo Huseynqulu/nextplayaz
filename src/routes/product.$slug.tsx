@@ -47,6 +47,8 @@ function ProductPage() {
   const discount = p.oldPrice ? Math.round((1 - p.price / p.oldPrice) * 100) : 0;
   const similar: typeof p[] = [];
   const isDbProduct = /^[0-9a-f]{8}-/i.test(p.id);
+  const gallery = Array.from(new Set([p.image, ...((p.images ?? []) as string[])].filter(Boolean)));
+  const [activeImg, setActiveImg] = useState(gallery[0] ?? p.image);
 
   function openBuy() {
     if (!user) {
