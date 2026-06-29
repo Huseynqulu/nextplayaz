@@ -97,6 +97,8 @@ function RegisterPage() {
             <Field icon={<Mail className="h-4 w-4" />} type="email" placeholder="Email" required value={email} onChange={e => setEmail(e.target.value)} />
             <Field icon={<Lock className="h-4 w-4" />} type="password" placeholder="Şifrə (min 6)" required minLength={6} value={password} onChange={e => setPassword(e.target.value)} />
             <Field icon={<Lock className="h-4 w-4" />} type="password" placeholder="Şifrəni təsdiqlə" required minLength={6} value={confirm} onChange={e => setConfirm(e.target.value)} />
+            <Field icon={<Gift className="h-4 w-4" />} placeholder="Referal kodu (istəyə görə)" value={ref} onChange={e => setRef(e.target.value.toUpperCase())} />
+            {ref && <p className="text-xs text-neon -mt-2">🎁 Qeydiyyatdan sonra ilk sifarişdə 2 ₼ bonus qazanacaqsan!</p>}
 
             <label className="flex gap-2 text-xs text-muted-foreground">
               <input type="checkbox" required className="accent-primary mt-0.5" />
