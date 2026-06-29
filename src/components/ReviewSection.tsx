@@ -28,12 +28,20 @@ export function ReviewSection({ productId }: { productId: string }) {
 
   async function load() {
     setLoading(true);
-    const { data } = await supabase
+    const { data: revs } = await supabase
       .from("reviews")
-      .select("id, rating, comment, created_at, reviewer_id, reviewer:profiles!reviews_reviewer_id_fkey(display_name, username, avatar_url)")
+      .select("id, rating, comment, created_at, reviewer_id")
       .eq("product_id", productId)
       .order("created_at", { ascending: false });
-    const list = (data as any as Review[]) ?? [];
+    const base = (revs as any[]) ?? [];
+    const ids = Array.from(new Set(base.map(r => r.reviewer_id)));
+    let profMap = new Map<string, any>();
+    if (ids.length) {
+      const { data: profs } = await supabase
+        .from("profiles").select("id, display_name, username, avatar_url").in("id", ids);
+      (profs ?? []).forEach((p: any) => profMap.set(p.id, p));
+    }
+    const list: Review[] = base.map(r => ({ ...r, reviewer: profMap.get(r.reviewer_id) ?? null }));
     setReviews(list);
     if (user) {
       const mine = list.find(r => r.reviewer_id === user.id) ?? null;
