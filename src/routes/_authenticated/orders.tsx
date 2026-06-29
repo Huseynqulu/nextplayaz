@@ -60,14 +60,15 @@ function OrdersPage() {
   const [reviewRating, setReviewRating] = useState(5);
   const [reviewHover, setReviewHover] = useState(0);
   const [reviewComment, setReviewComment] = useState("");
-  const [reviewedIds, setReviewedIds] = useState<Set<string>>(new Set());
+  const [myReviews, setMyReviews] = useState<Record<string, { rating: number; comment: string | null }>>({});
   const [reviewSubmitting, setReviewSubmitting] = useState(false);
 
   function openReview(o: Order) {
     setReviewOrder(o);
-    setReviewRating(5);
+    const existing = myReviews[o.product_id];
+    setReviewRating(existing?.rating ?? 5);
     setReviewHover(0);
-    setReviewComment("");
+    setReviewComment(existing?.comment ?? "");
   }
   async function submitReview() {
     if (!reviewOrder) return;
