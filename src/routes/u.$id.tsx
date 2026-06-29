@@ -114,7 +114,7 @@ function SellerProfilePage() {
               <p className="text-muted-foreground py-10 text-center">Hələ aktiv məhsul yoxdur.</p>
             ) : (
               <div className="grid gap-5 grid-cols-2 lg:grid-cols-4">
-                {products.map(p => <ProductCard key={p.id} p={p} />)}
+                {products.map((p: ReturnType<typeof dbToProduct>) => <ProductCard key={p.id} p={p} />)}
               </div>
             )}
           </section>
@@ -125,7 +125,7 @@ function SellerProfilePage() {
               <p className="text-muted-foreground py-10 text-center">Hələ rəy yoxdur.</p>
             ) : (
               <div className="space-y-3">
-                {reviews.map(r => (
+                {reviews.map((r: ReviewRow) => (
                   <div key={r.id} className="rounded-2xl border border-border bg-surface/40 p-5">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-1">
