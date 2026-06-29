@@ -1059,6 +1059,7 @@ export type Database = {
     Functions: {
       _gen_gift_code: { Args: never; Returns: string }
       _gen_ref_code: { Args: never; Returns: string }
+      admin_analytics: { Args: { p_days?: number }; Returns: Json }
       admin_approve_topup: {
         Args: { p_notes?: string; p_topup_id: string }
         Returns: undefined
