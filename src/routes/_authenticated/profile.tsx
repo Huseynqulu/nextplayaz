@@ -4,7 +4,7 @@ import { Footer } from "@/components/Footer";
 import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
-import { Wallet, ShieldCheck, Package, Star, Loader2, Camera, User as UserIcon } from "lucide-react";
+import { Wallet, ShieldCheck, Package, Star, Loader2, Camera, Store, Save } from "lucide-react";
 import { toast } from "sonner";
 import { TwoFactorSetup } from "@/components/TwoFactorSetup";
 
