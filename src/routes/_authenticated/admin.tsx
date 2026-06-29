@@ -28,7 +28,20 @@ type TopUp = { id: string; user_id: string; amount: number; method: string; send
 type PaymentSetting = { method: string; label: string; instructions: string; is_active: boolean };
 type Category = { slug: string; label_az: string; label_en: string; label_ru: string; sort_order: number; is_active: boolean };
 
-type Tab = "applications" | "users" | "codes" | "products" | "tickets" | "topups" | "payments" | "categories";
+type Tab = "applications" | "users" | "codes" | "products" | "tickets" | "topups" | "payments" | "categories" | "disputes";
+
+type Dispute = {
+  id: string;
+  buyer_id: string;
+  seller_id: string;
+  product_id: string;
+  total: number;
+  status: string;
+  disputed_at: string | null;
+  disputed_reason: string | null;
+  created_at: string;
+  product?: { title: string } | null;
+};
 
 function AdminPage() {
   const { user } = useAuth();
@@ -57,6 +70,7 @@ function AdminPage() {
   const [ticketMsgs, setTicketMsgs] = useState<TicketMsg[]>([]);
   const [ticketUser, setTicketUser] = useState<{ email: string | null; name: string | null } | null>(null);
   const [reply, setReply] = useState("");
+  const [disputes, setDisputes] = useState<Dispute[]>([]);
 
 
   // new code form
@@ -87,6 +101,8 @@ function AdminPage() {
       supabase.from("products").select("*", { count: "exact", head: true }),
       supabase.from("orders").select("*", { count: "exact", head: true }),
     ]);
+    const { data: ds } = await supabase.from("orders").select("id,buyer_id,seller_id,product_id,total,status,disputed_at,disputed_reason,created_at,product:products(title)").eq("status", "dispute" as any).order("disputed_at", { ascending: false });
+    setDisputes((ds as any) ?? []);
     setApps((a as any) ?? []);
     setProducts((p as any) ?? []);
     setUsers((u as any) ?? []);
@@ -306,6 +322,7 @@ function AdminPage() {
             {([
               ["applications", `Müraciətlər (${apps.filter(a => a.status === "pending").length})`],
               ["tickets", `Dəstək (${tickets.filter(t => t.status === "open" || t.status === "pending").length})`],
+              ["disputes", `Etirazlar (${disputes.length})`],
               ["users", "İstifadəçilər"],
               ["topups", `Balans (${topups.filter(t => t.status === "pending").length})`],
               ["payments", "Rekvizitlər"],
@@ -676,6 +693,42 @@ function AdminPage() {
                         className="h-9 w-9 grid place-items-center rounded-md bg-destructive text-destructive-foreground disabled:opacity-50" title="Sil">
                         <Trash2 className="h-4 w-4" />
                       </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : tab === "disputes" ? (
+            <div className="space-y-3">
+              {disputes.length === 0 && <p className="text-muted-foreground text-center py-12">Açıq etiraz yoxdur.</p>}
+              {disputes.map(d => (
+                <div key={d.id} className="rounded-xl border border-warning/30 bg-card-gradient p-4 card-shadow">
+                  <div className="flex items-start justify-between gap-3 flex-wrap">
+                    <div className="min-w-0">
+                      <p className="font-semibold truncate">{d.product?.title ?? "Məhsul"}</p>
+                      <p className="text-xs text-muted-foreground">Sifariş: {d.id.slice(0, 8)} · {Number(d.total).toFixed(2)} ₼ · {new Date(d.disputed_at ?? d.created_at).toLocaleString("az-AZ")}</p>
+                      <p className="text-xs mt-1"><span className="text-muted-foreground">Alıcı:</span> {d.buyer_id.slice(0,8)} · <span className="text-muted-foreground">Satıcı:</span> {d.seller_id.slice(0,8)}</p>
+                      {d.disputed_reason && (
+                        <div className="mt-2 p-3 rounded-lg bg-warning/10 border border-warning/30 text-sm">
+                          <span className="font-semibold text-warning">Səbəb: </span>{d.disputed_reason}
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex flex-col gap-2 shrink-0">
+                      <button disabled={busy === d.id} onClick={async () => {
+                        if (!confirm("Alıcıya geri qaytarılsın?")) return;
+                        setBusy(d.id);
+                        const { error } = await supabase.rpc("admin_resolve_dispute" as any, { p_order_id: d.id, p_refund_buyer: true });
+                        setBusy(null);
+                        if (error) toast.error(error.message); else { toast.success("Alıcıya qaytarıldı"); refresh(); }
+                      }} className="h-9 px-3 rounded-md bg-destructive text-destructive-foreground text-xs font-semibold disabled:opacity-50">Alıcıya qaytar</button>
+                      <button disabled={busy === d.id} onClick={async () => {
+                        if (!confirm("Satıcıya ödəniş köçürülsün?")) return;
+                        setBusy(d.id);
+                        const { error } = await supabase.rpc("admin_resolve_dispute" as any, { p_order_id: d.id, p_refund_buyer: false });
+                        setBusy(null);
+                        if (error) toast.error(error.message); else { toast.success("Satıcıya köçürüldü"); refresh(); }
+                      }} className="h-9 px-3 rounded-md bg-success text-background text-xs font-semibold disabled:opacity-50">Satıcıya ver</button>
                     </div>
                   </div>
                 </div>

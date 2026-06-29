@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { MessageSquare, Loader2, User as UserIcon } from "lucide-react";
+import { isOnline } from "@/lib/presence";
 
 export const Route = createFileRoute("/_authenticated/messages/")({
   component: InboxPage,
@@ -15,13 +16,14 @@ type Conv = {
   id: string; user_a: string; user_b: string; product_id: string | null;
   last_message_at: string; last_message_preview: string | null;
 };
-type ProfileLite = { id: string; display_name: string | null; username: string | null; avatar_url: string | null };
+type ProfileLite = { id: string; display_name: string | null; username: string | null; avatar_url: string | null; last_seen_at: string | null };
 
 function InboxPage() {
   const { user } = useAuth();
   const [convs, setConvs] = useState<Conv[]>([]);
   const [profiles, setProfiles] = useState<Record<string, ProfileLite>>({});
   const [products, setProducts] = useState<Record<string, { title: string; slug: string }>>({});
+  const [unread, setUnread] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
@@ -38,13 +40,19 @@ function InboxPage() {
       setConvs(list);
       const otherIds = Array.from(new Set(list.map(c => c.user_a === user.id ? c.user_b : c.user_a)));
       const prodIds = Array.from(new Set(list.map(c => c.product_id).filter(Boolean) as string[]));
-      const [{ data: ps }, { data: pr }] = await Promise.all([
-        otherIds.length ? supabase.from("profiles").select("id,display_name,username,avatar_url").in("id", otherIds) : Promise.resolve({ data: [] } as any),
+      const [{ data: ps }, { data: pr }, { data: unreadRows }] = await Promise.all([
+        otherIds.length ? supabase.from("profiles").select("id,display_name,username,avatar_url,last_seen_at").in("id", otherIds) : Promise.resolve({ data: [] } as any),
         prodIds.length ? supabase.from("products").select("id,title,slug").in("id", prodIds) : Promise.resolve({ data: [] } as any),
+        list.length
+          ? supabase.from("dm_messages").select("conversation_id").in("conversation_id", list.map(c => c.id)).is("read_at", null).neq("sender_id", user.id)
+          : Promise.resolve({ data: [] } as any),
       ]);
       if (!active) return;
       setProfiles(Object.fromEntries(((ps ?? []) as ProfileLite[]).map(p => [p.id, p])));
       setProducts(Object.fromEntries(((pr ?? []) as any[]).map(p => [p.id, { title: p.title, slug: p.slug }])));
+      const counts: Record<string, number> = {};
+      ((unreadRows ?? []) as { conversation_id: string }[]).forEach(r => { counts[r.conversation_id] = (counts[r.conversation_id] ?? 0) + 1; });
+      setUnread(counts);
       setLoading(false);
     })();
 
@@ -84,19 +92,27 @@ function InboxPage() {
                 const otherId = c.user_a === user!.id ? c.user_b : c.user_a;
                 const p = profiles[otherId];
                 const prod = c.product_id ? products[c.product_id] : null;
+                const u = unread[c.id] ?? 0;
+                const online = isOnline(p?.last_seen_at);
                 return (
                   <button key={c.id} onClick={() => navigate({ to: "/messages/$conversationId", params: { conversationId: c.id } })}
                     className="w-full text-left rounded-xl border border-border bg-card-gradient p-4 hover:border-primary transition flex items-center gap-3 card-shadow">
-                    <div className="h-11 w-11 rounded-full bg-surface grid place-items-center overflow-hidden shrink-0">
-                      {p?.avatar_url ? <img src={p.avatar_url} alt="" className="h-full w-full object-cover" /> : <UserIcon className="h-5 w-5 text-muted-foreground" />}
+                    <div className="relative shrink-0">
+                      <div className="h-11 w-11 rounded-full bg-surface grid place-items-center overflow-hidden">
+                        {p?.avatar_url ? <img src={p.avatar_url} alt="" className="h-full w-full object-cover" /> : <UserIcon className="h-5 w-5 text-muted-foreground" />}
+                      </div>
+                      <span className={`absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-background ${online ? "bg-success" : "bg-muted"}`} />
                     </div>
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center justify-between gap-2">
-                        <p className="font-semibold truncate">{p?.display_name ?? p?.username ?? "İstifadəçi"}</p>
+                        <p className={`truncate ${u > 0 ? "font-bold" : "font-semibold"}`}>{p?.display_name ?? p?.username ?? "İstifadəçi"}</p>
                         <span className="text-[11px] text-muted-foreground shrink-0">{new Date(c.last_message_at).toLocaleString("az-AZ", { dateStyle: "short", timeStyle: "short" })}</span>
                       </div>
                       {prod && <p className="text-[11px] text-neon truncate">↳ {prod.title}</p>}
-                      <p className="text-sm text-muted-foreground truncate">{c.last_message_preview ?? "—"}</p>
+                      <div className="flex items-center gap-2">
+                        <p className={`text-sm truncate flex-1 ${u > 0 ? "text-foreground font-medium" : "text-muted-foreground"}`}>{c.last_message_preview ?? "—"}</p>
+                        {u > 0 && <span className="shrink-0 min-w-[20px] h-5 px-1.5 rounded-full bg-neon text-background text-[11px] font-bold grid place-items-center">{u}</span>}
+                      </div>
                     </div>
                   </button>
                 );

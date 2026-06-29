@@ -1,10 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
-import { Wallet, ShieldCheck, Package, Star, Loader2 } from "lucide-react";
+import { Wallet, ShieldCheck, Package, Star, Loader2, Camera, User as UserIcon } from "lucide-react";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/profile")({
   component: ProfilePage,
@@ -24,29 +25,48 @@ function ProfilePage() {
   const [roles, setRoles] = useState<string[]>([]);
   const [orderCount, setOrderCount] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [uploading, setUploading] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
+  async function load() {
     if (!user) return;
-    (async () => {
-      const [{ data: p }, { data: r }, { count }] = await Promise.all([
-        supabase.from("profiles").select("username, display_name, avatar_url, wallet_balance").eq("id", user.id).maybeSingle(),
-        supabase.from("user_roles").select("role").eq("user_id", user.id),
-        supabase.from("orders").select("*", { count: "exact", head: true }).eq("buyer_id", user.id),
-      ]);
-      setProfile(p);
-      setRoles(r?.map(x => x.role) ?? []);
-      setOrderCount(count ?? 0);
-      setLoading(false);
-    })();
-  }, [user]);
+    const [{ data: p }, { data: r }, { count }] = await Promise.all([
+      supabase.from("profiles").select("username, display_name, avatar_url, wallet_balance").eq("id", user.id).maybeSingle(),
+      supabase.from("user_roles").select("role").eq("user_id", user.id),
+      supabase.from("orders").select("*", { count: "exact", head: true }).eq("buyer_id", user.id),
+    ]);
+    setProfile(p);
+    setRoles(r?.map(x => x.role) ?? []);
+    setOrderCount(count ?? 0);
+    setLoading(false);
+  }
+  useEffect(() => { void load(); /* eslint-disable-next-line */ }, [user]);
+
+  async function onPickFile(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file || !user) return;
+    if (file.size > 4 * 1024 * 1024) { toast.error("Maks 4 MB"); return; }
+    if (!file.type.startsWith("image/")) { toast.error("Yalnız şəkil"); return; }
+    setUploading(true);
+    const ext = file.name.split(".").pop() || "jpg";
+    const path = `${user.id}/avatar-${Date.now()}.${ext}`;
+    const { error: upErr } = await supabase.storage.from("avatars").upload(path, file, { upsert: true, contentType: file.type });
+    if (upErr) { toast.error(upErr.message); setUploading(false); return; }
+    // Long-lived signed URL (bucket is private)
+    const { data: signed } = await supabase.storage.from("avatars").createSignedUrl(path, 60 * 60 * 24 * 365 * 5);
+    const url = signed?.signedUrl ?? null;
+    const { error: updErr } = await supabase.from("profiles").update({ avatar_url: url }).eq("id", user.id);
+    setUploading(false);
+    if (updErr) { toast.error(updErr.message); return; }
+    toast.success("Profil şəkli yeniləndi");
+    void load();
+  }
 
   if (loading || !profile) {
     return (
       <div className="min-h-screen flex flex-col">
         <Header />
-        <main className="flex-1 grid place-items-center">
-          <Loader2 className="h-6 w-6 animate-spin text-neon" />
-        </main>
+        <main className="flex-1 grid place-items-center"><Loader2 className="h-6 w-6 animate-spin text-neon" /></main>
         <Footer />
       </div>
     );
@@ -62,8 +82,17 @@ function ProfilePage() {
         <div className="rounded-3xl border border-border bg-card-gradient p-8 card-shadow relative overflow-hidden">
           <div className="absolute -top-20 -right-20 h-80 w-80 rounded-full bg-primary/20 blur-3xl" />
           <div className="relative flex flex-col sm:flex-row items-start sm:items-center gap-6">
-            <div className="grid h-20 w-20 place-items-center rounded-2xl bg-neon text-background text-3xl font-bold neon-ring">
-              {(profile.display_name ?? profile.username ?? "U")[0].toUpperCase()}
+            <div className="relative">
+              <div className="h-24 w-24 rounded-2xl overflow-hidden bg-neon text-background grid place-items-center text-4xl font-bold neon-ring">
+                {profile.avatar_url
+                  ? <img src={profile.avatar_url} alt="" className="h-full w-full object-cover" />
+                  : (profile.display_name ?? profile.username ?? "U")[0].toUpperCase()}
+              </div>
+              <button onClick={() => fileRef.current?.click()} disabled={uploading}
+                className="absolute -bottom-2 -right-2 h-9 w-9 grid place-items-center rounded-full bg-background border border-border hover:border-primary disabled:opacity-50">
+                {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Camera className="h-4 w-4" />}
+              </button>
+              <input ref={fileRef} type="file" accept="image/*" hidden onChange={onPickFile} />
             </div>
             <div className="flex-1">
               <h1 className="font-display text-3xl font-bold">{profile.display_name ?? profile.username}</h1>
