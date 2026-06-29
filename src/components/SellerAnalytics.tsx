@@ -21,6 +21,7 @@ type OrderRow = {
 const COUNTED = new Set(["paid", "delivered", "completed"]);
 
 export function SellerAnalytics({ sellerId }: { sellerId: string }) {
+  const { format } = useCurrency();
   const [loading, setLoading] = useState(true);
   const [rows, setRows] = useState<OrderRow[]>([]);
 
