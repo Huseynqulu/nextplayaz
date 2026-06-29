@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Hero } from "@/components/Hero";
+import { BannerCarousel } from "@/components/BannerCarousel";
 import { CategoriesSection } from "@/components/CategoriesSection";
 import { FeaturedProducts } from "@/components/FeaturedProducts";
 import { TrendingSection } from "@/components/TrendingSection";
@@ -19,6 +20,7 @@ function HomePage() {
       <Header />
       <main className="flex-1">
         <Hero />
+        <BannerCarousel />
         <CategoriesSection />
         <FeaturedProducts />
         <StatsSection />
@@ -30,3 +32,4 @@ function HomePage() {
     </div>
   );
 }
+

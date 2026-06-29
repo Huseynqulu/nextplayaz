@@ -14,6 +14,54 @@ export type Database = {
   }
   public: {
     Tables: {
+      banners: {
+        Row: {
+          bg_color: string | null
+          created_at: string
+          ends_at: string | null
+          id: string
+          image_url: string | null
+          is_active: boolean
+          link_url: string | null
+          sort_order: number
+          starts_at: string | null
+          subtitle: string | null
+          text_color: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          bg_color?: string | null
+          created_at?: string
+          ends_at?: string | null
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          link_url?: string | null
+          sort_order?: number
+          starts_at?: string | null
+          subtitle?: string | null
+          text_color?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          bg_color?: string | null
+          created_at?: string
+          ends_at?: string | null
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          link_url?: string | null
+          sort_order?: number
+          starts_at?: string | null
+          subtitle?: string | null
+          text_color?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       categories: {
         Row: {
           created_at: string
@@ -505,6 +553,8 @@ export type Database = {
           display_name: string | null
           id: string
           last_seen_at: string | null
+          referral_code: string | null
+          referred_by: string | null
           updated_at: string
           username: string | null
           wallet_balance: number
@@ -515,6 +565,8 @@ export type Database = {
           display_name?: string | null
           id: string
           last_seen_at?: string | null
+          referral_code?: string | null
+          referred_by?: string | null
           updated_at?: string
           username?: string | null
           wallet_balance?: number
@@ -525,11 +577,76 @@ export type Database = {
           display_name?: string | null
           id?: string
           last_seen_at?: string | null
+          referral_code?: string | null
+          referred_by?: string | null
           updated_at?: string
           username?: string | null
           wallet_balance?: number
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "profiles_referred_by_fkey"
+            columns: ["referred_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      referrals: {
+        Row: {
+          created_at: string
+          id: string
+          qualifying_order_id: string | null
+          referee_id: string
+          referrer_id: string
+          reward_amount: number
+          rewarded_at: string | null
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          qualifying_order_id?: string | null
+          referee_id: string
+          referrer_id: string
+          reward_amount?: number
+          rewarded_at?: string | null
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          qualifying_order_id?: string | null
+          referee_id?: string
+          referrer_id?: string
+          reward_amount?: number
+          rewarded_at?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "referrals_qualifying_order_id_fkey"
+            columns: ["qualifying_order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "referrals_referee_id_fkey"
+            columns: ["referee_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "referrals_referrer_id_fkey"
+            columns: ["referrer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       reviews: {
         Row: {
@@ -827,6 +944,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      _gen_ref_code: { Args: never; Returns: string }
       admin_approve_topup: {
         Args: { p_notes?: string; p_topup_id: string }
         Returns: undefined
@@ -835,6 +953,7 @@ export type Database = {
         Args: { p_id: string; p_notes?: string }
         Returns: undefined
       }
+      admin_delete_banner: { Args: { p_id: string }; Returns: undefined }
       admin_delete_category: { Args: { p_slug: string }; Returns: undefined }
       admin_grant_role: {
         Args: {
@@ -886,6 +1005,22 @@ export type Database = {
         Args: { p_balance: number; p_user_id: string }
         Returns: undefined
       }
+      admin_upsert_banner: {
+        Args: {
+          p_bg_color: string
+          p_ends_at: string
+          p_id: string
+          p_image_url: string
+          p_is_active: boolean
+          p_link_url: string
+          p_sort_order: number
+          p_starts_at: string
+          p_subtitle: string
+          p_text_color: string
+          p_title: string
+        }
+        Returns: string
+      }
       admin_upsert_category: {
         Args: {
           p_icon?: string
@@ -927,6 +1062,15 @@ export type Database = {
         }[]
       }
       get_homepage_stats: { Args: never; Returns: Json }
+      get_referral_stats: {
+        Args: never
+        Returns: {
+          code: string
+          rewarded_count: number
+          total_earned: number
+          total_invited: number
+        }[]
+      }
       get_seller_stats: {
         Args: { p_seller_id: string }
         Returns: {
@@ -954,6 +1098,7 @@ export type Database = {
         Args: { p_order_id: string; p_payload: string }
         Returns: undefined
       }
+      redeem_referral_signup: { Args: { p_code: string }; Returns: undefined }
       release_seller_funds: { Args: never; Returns: number }
       request_withdrawal: {
         Args: {
