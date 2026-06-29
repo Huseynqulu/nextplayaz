@@ -70,6 +70,7 @@ function AdminPage() {
   const [ticketMsgs, setTicketMsgs] = useState<TicketMsg[]>([]);
   const [ticketUser, setTicketUser] = useState<{ email: string | null; name: string | null } | null>(null);
   const [reply, setReply] = useState("");
+  const [disputes, setDisputes] = useState<Dispute[]>([]);
 
 
   // new code form
