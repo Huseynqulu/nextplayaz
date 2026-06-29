@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { dbToProduct, type DbProduct } from "@/lib/products";
 import { isOnline, formatLastSeen } from "@/lib/presence";
 import { ShieldCheck, Star, MessageCircle, Loader2 } from "lucide-react";
+import { SellerTierBadge } from "@/components/SellerTierBadge";
 import { useAuth } from "@/hooks/use-auth";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -85,6 +86,7 @@ function SellerProfilePage() {
                 <div className="flex flex-wrap items-center gap-2">
                   <h1 className="font-display text-2xl sm:text-3xl font-bold">{name}</h1>
                   <ShieldCheck className="h-5 w-5 text-neon" />
+                  <SellerTierBadge sellerId={profile.id} size="md" showStats />
                   <span className={`px-2 py-0.5 rounded-full text-[11px] font-semibold ${online ? "bg-success/15 text-success" : "bg-surface text-muted-foreground"}`}>
                     {online ? "● Onlayn" : "Offline"}
                   </span>

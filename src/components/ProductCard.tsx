@@ -3,6 +3,7 @@ import { Star, Zap, ShieldCheck, Heart } from "lucide-react";
 import type { Product } from "@/lib/marketplace-data";
 import { useFavorites, isRealProductId } from "@/lib/favorites";
 import { useAuth } from "@/hooks/use-auth";
+import { SellerTierBadge } from "@/components/SellerTierBadge";
 
 export function ProductCard({ p }: { p: Product }) {
   const discount = p.oldPrice ? Math.round((1 - p.price / p.oldPrice) * 100) : 0;
@@ -79,12 +80,13 @@ export function ProductCard({ p }: { p: Product }) {
           {p.title}
         </h3>
 
-        <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+        <div className="flex items-center gap-1.5 text-xs text-muted-foreground flex-wrap">
           {p.seller.verified && <ShieldCheck className="h-3.5 w-3.5 text-neon" />}
           <span className="truncate">{p.seller.name}</span>
           <span>·</span>
           <Star className="h-3 w-3 fill-warning text-warning" />
           <span>{p.seller.rating}</span>
+          {(p as any).sellerId && <SellerTierBadge sellerId={(p as any).sellerId} />}
         </div>
 
         <div className="flex items-end justify-between mt-auto pt-2">
