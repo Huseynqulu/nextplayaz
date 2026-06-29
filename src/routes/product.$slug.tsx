@@ -36,6 +36,7 @@ function ProductPage() {
   const { product: p } = Route.useLoaderData();
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { format } = useCurrency();
   const [qty, setQty] = useState(1);
   const [buying, setBuying] = useState(false);
   const [contacting, setContacting] = useState(false);
