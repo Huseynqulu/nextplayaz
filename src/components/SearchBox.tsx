@@ -68,14 +68,8 @@ export function SearchBox({ variant = "desktop" }: { variant?: "desktop" | "mobi
           onFocus={() => setOpen(true)}
           placeholder=""
           aria-label="Axtar"
-          className="w-full h-10 pl-10 pr-20 rounded-lg bg-surface border border-border text-sm focus:outline-none focus:ring-2 focus:ring-ring transition"
+          className="w-full h-10 pl-10 pr-3 rounded-lg bg-surface border border-border text-sm focus:outline-none focus:ring-2 focus:ring-ring transition"
         />
-        <button
-          type="submit"
-          className="absolute right-1 top-1/2 -translate-y-1/2 h-8 px-3 rounded-md bg-neon text-background text-xs font-semibold hover:opacity-90 transition"
-        >
-          Axtar
-        </button>
       </form>
 
       {open && q.trim().length >= 2 && (
