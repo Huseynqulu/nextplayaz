@@ -5,8 +5,12 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
-import { Loader2, Package, CheckCircle2, Truck, Clock, ShoppingBag, AlertTriangle, MessageSquare } from "lucide-react";
+import { Loader2, Package, CheckCircle2, Truck, Clock, ShoppingBag, AlertTriangle, MessageSquare, Upload, Video, X } from "lucide-react";
 import { Link } from "@tanstack/react-router";
+import { uploadChatAttachment } from "@/lib/chat-attachments";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 export const Route = createFileRoute("/_authenticated/orders")({
   component: OrdersPage,
@@ -47,6 +51,11 @@ function OrdersPage() {
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState<string | null>(null);
   const [payloadInput, setPayloadInput] = useState<Record<string, string>>({});
+  const [disputeOrder, setDisputeOrder] = useState<Order | null>(null);
+  const [disputeReason, setDisputeReason] = useState("");
+  const [disputeVideoUrl, setDisputeVideoUrl] = useState("");
+  const [disputeFile, setDisputeFile] = useState<File | null>(null);
+  const [disputeSubmitting, setDisputeSubmitting] = useState(false);
 
   async function refresh() {
     if (!user) return;
@@ -79,13 +88,45 @@ function OrdersPage() {
     if (error) toast.error(error.message); else { toast.success("Təsdiq edildi, satıcıya ödəniş köçürüldü"); refresh(); }
   }
 
-  async function dispute(o: Order) {
-    const reason = prompt("Etirazınızın səbəbi (minimum 5 simvol):");
-    if (!reason || reason.trim().length < 5) { if (reason !== null) toast.error("Səbəb çox qısadır"); return; }
-    setBusy(o.id);
-    const { error } = await supabase.rpc("dispute_order" as any, { p_order_id: o.id, p_reason: reason.trim() });
-    setBusy(null);
-    if (error) toast.error(error.message); else { toast.success("Etiraz göndərildi, admin baxacaq"); refresh(); }
+  function openDispute(o: Order) {
+    setDisputeOrder(o);
+    setDisputeReason("");
+    setDisputeVideoUrl("");
+    setDisputeFile(null);
+  }
+
+  async function submitDispute() {
+    if (!disputeOrder || !user) return;
+    const reason = disputeReason.trim();
+    const url = disputeVideoUrl.trim();
+    if (reason.length < 5) { toast.error("Səbəb minimum 5 simvol olmalıdır"); return; }
+    if (!url && !disputeFile) {
+      toast.error("Video linki (Streamable və s.) və ya ekran görüntüsü mütləq əlavə edilməlidir");
+      return;
+    }
+    if (url && !/^https?:\/\/.{8,}/i.test(url)) {
+      toast.error("Video linki düzgün deyil (https://... formatında olmalıdır)");
+      return;
+    }
+    setDisputeSubmitting(true);
+    try {
+      let path: string | null = null;
+      if (disputeFile) path = await uploadChatAttachment(disputeFile, user.id);
+      const { error } = await supabase.rpc("dispute_order" as any, {
+        p_order_id: disputeOrder.id,
+        p_reason: reason,
+        p_evidence_url: url || null,
+        p_evidence_path: path,
+      });
+      if (error) throw error;
+      toast.success("Etiraz göndərildi, dəstək baxacaq");
+      setDisputeOrder(null);
+      refresh();
+    } catch (e: any) {
+      toast.error(e.message ?? "Xəta baş verdi");
+    } finally {
+      setDisputeSubmitting(false);
+    }
   }
 
   return (
@@ -170,7 +211,7 @@ function OrdersPage() {
                             </button>
                           )}
                           {tab === "buying" && (o.status === "paid" || o.status === "delivered") && (
-                            <button disabled={busy === o.id} onClick={() => dispute(o)}
+                            <button disabled={busy === o.id} onClick={() => openDispute(o)}
                               className="inline-flex items-center gap-1.5 h-9 px-3 rounded-lg border border-destructive/40 text-destructive text-sm font-semibold hover:bg-destructive/10 disabled:opacity-50">
                               <AlertTriangle className="h-4 w-4" /> Etiraz et
                             </button>
@@ -214,6 +255,76 @@ function OrdersPage() {
           )}
         </div>
       </main>
+
+      <Dialog open={!!disputeOrder} onOpenChange={(o) => !o && setDisputeOrder(null)}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5 text-destructive" /> Sifarişə etiraz et
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="rounded-lg bg-warning/10 border border-warning/30 p-3 text-xs text-warning-foreground">
+              <strong>Diqqət:</strong> Etiraz baxılması üçün <u>video qeyd</u> (Streamable, Google Drive, YouTube unlisted və s.) və ya <u>ekran görüntüsü</u> mütləq əlavə edilməlidir. Sübut olmadan etiraz nəzərə alınmayacaq.
+            </div>
+            <div>
+              <label className="text-sm font-medium block mb-1.5">Səbəb (min. 5 simvol)</label>
+              <textarea
+                value={disputeReason}
+                onChange={(e) => setDisputeReason(e.target.value)}
+                rows={3}
+                placeholder="Problemi qısa izah edin..."
+                className="w-full px-3 py-2 rounded-lg bg-background border border-border text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+              />
+            </div>
+            <div>
+              <label className="text-sm font-medium block mb-1.5 flex items-center gap-1.5">
+                <Video className="h-4 w-4" /> Video linki (Streamable, Drive, YouTube...)
+              </label>
+              <Input
+                type="url"
+                placeholder="https://streamable.com/..."
+                value={disputeVideoUrl}
+                onChange={(e) => setDisputeVideoUrl(e.target.value)}
+              />
+              <p className="text-[11px] text-muted-foreground mt-1">
+                Streamable üçün: streamable.com saytına daxil olub videonu yükləyin, linki buraya yapışdırın.
+              </p>
+            </div>
+            <div className="text-center text-xs text-muted-foreground">— və ya —</div>
+            <div>
+              <label className="text-sm font-medium block mb-1.5 flex items-center gap-1.5">
+                <Upload className="h-4 w-4" /> Ekran görüntüsü (şəkil, max 8MB)
+              </label>
+              {disputeFile ? (
+                <div className="flex items-center gap-2 p-2 rounded-lg border border-border bg-surface">
+                  <img src={URL.createObjectURL(disputeFile)} alt="" className="h-12 w-12 rounded object-cover" />
+                  <span className="text-sm flex-1 truncate">{disputeFile.name}</span>
+                  <button onClick={() => setDisputeFile(null)} className="p-1 hover:bg-background rounded">
+                    <X className="h-4 w-4" />
+                  </button>
+                </div>
+              ) : (
+                <Input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => setDisputeFile(e.target.files?.[0] ?? null)}
+                />
+              )}
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDisputeOrder(null)} disabled={disputeSubmitting}>
+              Ləğv et
+            </Button>
+            <Button onClick={submitDispute} disabled={disputeSubmitting} className="bg-destructive hover:bg-destructive/90">
+              {disputeSubmitting && <Loader2 className="h-4 w-4 animate-spin" />}
+              Etirazı göndər
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       <Footer />
     </div>
   );

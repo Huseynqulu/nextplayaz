@@ -181,6 +181,8 @@ export type Database = {
           created_at: string
           delivered_at: string | null
           delivery_payload: string | null
+          dispute_evidence_path: string | null
+          dispute_evidence_url: string | null
           disputed_at: string | null
           disputed_reason: string | null
           funds_release_at: string | null
@@ -207,6 +209,8 @@ export type Database = {
           created_at?: string
           delivered_at?: string | null
           delivery_payload?: string | null
+          dispute_evidence_path?: string | null
+          dispute_evidence_url?: string | null
           disputed_at?: string | null
           disputed_reason?: string | null
           funds_release_at?: string | null
@@ -233,6 +237,8 @@ export type Database = {
           created_at?: string
           delivered_at?: string | null
           delivery_payload?: string | null
+          dispute_evidence_path?: string | null
+          dispute_evidence_url?: string | null
           disputed_at?: string | null
           disputed_reason?: string | null
           funds_release_at?: string | null
@@ -843,10 +849,17 @@ export type Database = {
         }
         Returns: string
       }
-      dispute_order: {
-        Args: { p_order_id: string; p_reason: string }
-        Returns: undefined
-      }
+      dispute_order:
+        | { Args: { p_order_id: string; p_reason: string }; Returns: undefined }
+        | {
+            Args: {
+              p_evidence_path?: string
+              p_evidence_url?: string
+              p_order_id: string
+              p_reason: string
+            }
+            Returns: undefined
+          }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
