@@ -145,6 +145,16 @@ function StaffPage() {
     setBusy(null);
   }
 
+  async function resolveDispute(o: OrderRow, refund: boolean) {
+    const label = refund ? "alıcı lehinə (tam geri qaytarma)" : "satıcı lehinə (ödəniş satıcıya)";
+    if (!confirm(`Etirazı ${label} həll etmək istəyirsiniz?`)) return;
+    setBusy(o.id);
+    const { error } = await supabase.rpc("admin_resolve_dispute" as any, { p_order_id: o.id, p_refund: refund });
+    if (error) toast.error(error.message);
+    else { toast.success(refund ? "Alıcıya tam qaytarıldı" : "Satıcı lehinə həll edildi"); await refresh(); }
+    setBusy(null);
+  }
+
   async function reopenOrder(o: OrderRow) {
     const reason = prompt("Yenidən açma səbəbi (məcburi):", "Müştəri dəstək vasitəsilə müraciət etdi");
     if (!reason || reason.trim().length < 3) return;
@@ -309,6 +319,14 @@ function StaffPage() {
                         <MessageSquare className="h-3.5 w-3.5" /> Söhbətə bax & cavab ver
                       </button>
                     )}
+                    <button disabled={busy === o.id} onClick={() => resolveDispute(o, false)}
+                      className="h-9 px-3 rounded-md text-xs font-semibold bg-success/15 text-success border border-success/40 disabled:opacity-50 inline-flex items-center gap-1.5">
+                      ✅ Satıcı lehinə həll et
+                    </button>
+                    <button disabled={busy === o.id} onClick={() => resolveDispute(o, true)}
+                      className="h-9 px-3 rounded-md text-xs font-semibold bg-primary/10 text-primary border border-primary/30 disabled:opacity-50 inline-flex items-center gap-1.5">
+                      💰 Alıcıya tam qaytar
+                    </button>
                     <button disabled={busy === o.id} onClick={() => partialRefund(o)}
                       className="h-9 px-3 rounded-md text-xs font-semibold bg-warning/20 text-warning border border-warning/40 disabled:opacity-50">Qismən qaytar</button>
                     <button disabled={busy === o.id} onClick={() => cancelOrder(o)}
