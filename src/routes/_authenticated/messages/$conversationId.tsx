@@ -93,14 +93,31 @@ function ThreadPage() {
   async function send() {
     if (!user || !conv) return;
     const body = text.trim();
-    if (!body) return;
+    if (!body && !pendingFile) return;
     if (body.length > 4000) { toast.error("Mesaj çox uzundur"); return; }
     setSending(true);
-    const { error } = await supabase.from("dm_messages").insert({ conversation_id: conv.id, sender_id: user.id, body });
-    setSending(false);
-    if (error) { toast.error(error.message); return; }
-    setText("");
-    inputRef.current?.focus();
+    try {
+      let attachment_url: string | null = null;
+      if (pendingFile) attachment_url = await uploadChatAttachment(pendingFile, user.id);
+      const { error } = await supabase.from("dm_messages").insert({
+        conversation_id: conv.id, sender_id: user.id, body: body || "", attachment_url,
+      } as any);
+      if (error) throw error;
+      setText(""); setPendingFile(null); setPreview(null);
+      inputRef.current?.focus();
+    } catch (e: any) {
+      toast.error(e.message ?? "Göndərmə alınmadı");
+    } finally { setSending(false); }
+  }
+
+  function onPickFile(f: File | null) {
+    if (!f) { setPendingFile(null); setPreview(null); return; }
+    if (!f.type.startsWith("image/")) { toast.error("Yalnız şəkil"); return; }
+    if (f.size > 8 * 1024 * 1024) { toast.error("Maks 8MB"); return; }
+    setPendingFile(f);
+    const reader = new FileReader();
+    reader.onload = () => setPreview(reader.result as string);
+    reader.readAsDataURL(f);
   }
 
   const online = isOnline(other?.last_seen_at);
