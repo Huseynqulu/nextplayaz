@@ -106,8 +106,10 @@ function RootComponent() {
       <I18nProvider>
         <CurrencyProvider>
           <FavoritesProvider>
-            <Outlet />
-            <Toaster theme="dark" position="top-right" richColors />
+            <CartProvider>
+              <Outlet />
+              <Toaster theme="dark" position="top-right" richColors />
+            </CartProvider>
           </FavoritesProvider>
         </CurrencyProvider>
       </I18nProvider>
