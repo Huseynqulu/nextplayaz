@@ -255,6 +255,76 @@ function OrdersPage() {
           )}
         </div>
       </main>
+
+      <Dialog open={!!disputeOrder} onOpenChange={(o) => !o && setDisputeOrder(null)}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5 text-destructive" /> Sifarişə etiraz et
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="rounded-lg bg-warning/10 border border-warning/30 p-3 text-xs text-warning-foreground">
+              <strong>Diqqət:</strong> Etiraz baxılması üçün <u>video qeyd</u> (Streamable, Google Drive, YouTube unlisted və s.) və ya <u>ekran görüntüsü</u> mütləq əlavə edilməlidir. Sübut olmadan etiraz nəzərə alınmayacaq.
+            </div>
+            <div>
+              <label className="text-sm font-medium block mb-1.5">Səbəb (min. 5 simvol)</label>
+              <textarea
+                value={disputeReason}
+                onChange={(e) => setDisputeReason(e.target.value)}
+                rows={3}
+                placeholder="Problemi qısa izah edin..."
+                className="w-full px-3 py-2 rounded-lg bg-background border border-border text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+              />
+            </div>
+            <div>
+              <label className="text-sm font-medium block mb-1.5 flex items-center gap-1.5">
+                <Video className="h-4 w-4" /> Video linki (Streamable, Drive, YouTube...)
+              </label>
+              <Input
+                type="url"
+                placeholder="https://streamable.com/..."
+                value={disputeVideoUrl}
+                onChange={(e) => setDisputeVideoUrl(e.target.value)}
+              />
+              <p className="text-[11px] text-muted-foreground mt-1">
+                Streamable üçün: streamable.com saytına daxil olub videonu yükləyin, linki buraya yapışdırın.
+              </p>
+            </div>
+            <div className="text-center text-xs text-muted-foreground">— və ya —</div>
+            <div>
+              <label className="text-sm font-medium block mb-1.5 flex items-center gap-1.5">
+                <Upload className="h-4 w-4" /> Ekran görüntüsü (şəkil, max 8MB)
+              </label>
+              {disputeFile ? (
+                <div className="flex items-center gap-2 p-2 rounded-lg border border-border bg-surface">
+                  <img src={URL.createObjectURL(disputeFile)} alt="" className="h-12 w-12 rounded object-cover" />
+                  <span className="text-sm flex-1 truncate">{disputeFile.name}</span>
+                  <button onClick={() => setDisputeFile(null)} className="p-1 hover:bg-background rounded">
+                    <X className="h-4 w-4" />
+                  </button>
+                </div>
+              ) : (
+                <Input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => setDisputeFile(e.target.files?.[0] ?? null)}
+                />
+              )}
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDisputeOrder(null)} disabled={disputeSubmitting}>
+              Ləğv et
+            </Button>
+            <Button onClick={submitDispute} disabled={disputeSubmitting} className="bg-destructive hover:bg-destructive/90">
+              {disputeSubmitting && <Loader2 className="h-4 w-4 animate-spin" />}
+              Etirazı göndər
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       <Footer />
     </div>
   );
