@@ -110,9 +110,19 @@ export function ProductCard({ p }: { p: Product }) {
               {format(p.price)}
             </span>
           </div>
-          <span className="text-[10px] uppercase tracking-wider text-muted-foreground">
-            {p.stock} stok
-          </span>
+          <div className="flex items-center gap-2">
+            <span className="text-[10px] uppercase tracking-wider text-muted-foreground">{p.stock} stok</span>
+            {canCart && (
+              <button
+                type="button"
+                onClick={addToCart}
+                aria-label="Səbətə əlavə et"
+                className="grid h-8 w-8 place-items-center rounded-lg bg-neon/15 hover:bg-neon hover:text-background text-neon transition"
+              >
+                <ShoppingCart className="h-4 w-4" />
+              </button>
+            )}
+          </div>
         </div>
       </div>
     </Link>
