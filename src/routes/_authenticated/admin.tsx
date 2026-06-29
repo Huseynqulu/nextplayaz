@@ -491,6 +491,66 @@ function AdminPage() {
                 ))}
               </div>
             )
+          ) : tab === "topups" ? (
+            <div className="space-y-3">
+              <div className="flex gap-2 flex-wrap mb-2">
+                {(["all","pending","approved","rejected"] as const).map(f => {
+                  const n = f === "all" ? topups.length : topups.filter(t => t.status === f).length;
+                  return (
+                    <button key={f} onClick={() => setTopupFilter(f)}
+                      className={`h-8 px-3 rounded-full text-xs font-semibold transition ${topupFilter === f ? "bg-neon text-background" : "bg-surface border border-border text-muted-foreground hover:text-foreground"}`}>
+                      {f === "all" ? "Hamısı" : f === "pending" ? "Gözləyən" : f === "approved" ? "Təsdiqli" : "Rədd"} ({n})
+                    </button>
+                  );
+                })}
+              </div>
+              {topups.filter(t => topupFilter === "all" || t.status === topupFilter).length === 0 && (
+                <p className="text-muted-foreground text-center py-12">Balans müraciəti yoxdur.</p>
+              )}
+              {topups.filter(t => topupFilter === "all" || t.status === topupFilter).map(t => {
+                const u = users.find(x => x.id === t.user_id);
+                return (
+                  <div key={t.id} className="rounded-xl border border-border bg-card-gradient p-4">
+                    <div className="flex flex-wrap items-start justify-between gap-3">
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <Receipt className="h-4 w-4 text-neon" />
+                          <span className="font-bold text-lg">{Number(t.amount).toFixed(2)} ₼</span>
+                          <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-surface">{t.method}</span>
+                          <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${
+                            t.status === "approved" ? "bg-success/20 text-success" :
+                            t.status === "rejected" ? "bg-destructive/20 text-destructive" : "bg-warning/20 text-warning"
+                          }`}>{t.status}</span>
+                        </div>
+                        <p className="text-xs text-muted-foreground mt-1">{u?.display_name ?? u?.username ?? "—"} · {u?.email ?? t.user_id.slice(0,8)}</p>
+                        {t.sender_note && <p className="text-xs mt-1.5 bg-surface/50 px-2 py-1 rounded">Qeyd: {t.sender_note}</p>}
+                        {t.admin_notes && <p className="text-xs mt-1.5 bg-neon/5 border border-neon/20 px-2 py-1 rounded">Admin: {t.admin_notes}</p>}
+                        <p className="text-[11px] text-muted-foreground mt-2">{new Date(t.created_at).toLocaleString("az-AZ")}</p>
+                      </div>
+                      <div className="flex gap-2 flex-wrap">
+                        {t.receipt_url && (
+                          <button onClick={() => viewReceipt(t)} className="inline-flex items-center gap-1.5 h-9 px-3 rounded-lg bg-surface border border-border text-sm font-semibold hover:border-primary">
+                            <Eye className="h-4 w-4" /> Qəbz
+                          </button>
+                        )}
+                        {t.status === "pending" && (
+                          <>
+                            <button disabled={busy === t.id} onClick={() => decideTopup(t, true)}
+                              className="inline-flex items-center gap-1.5 h-9 px-3 rounded-lg bg-success text-background text-sm font-semibold hover:opacity-90 disabled:opacity-50">
+                              <CheckCircle2 className="h-4 w-4" /> Təsdiq
+                            </button>
+                            <button disabled={busy === t.id} onClick={() => decideTopup(t, false)}
+                              className="inline-flex items-center gap-1.5 h-9 px-3 rounded-lg bg-destructive text-destructive-foreground text-sm font-semibold hover:opacity-90 disabled:opacity-50">
+                              <XCircle className="h-4 w-4" /> Rədd
+                            </button>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           ) : (
             <div className="space-y-2">
               {products.length === 0 && <p className="text-muted-foreground text-center py-12">Məhsul yoxdur.</p>}
