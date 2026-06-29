@@ -160,10 +160,10 @@ function ProductPage() {
 
               <div className="mt-6 p-5 rounded-2xl bg-card-gradient border border-border card-shadow">
                 <div className="flex items-end gap-3">
-                  <span className="font-display text-4xl font-bold text-gradient">{p.price.toFixed(2)} ₼</span>
+                  <span className="font-display text-4xl font-bold text-gradient">{format(p.price)}</span>
                   {p.oldPrice && (
                     <>
-                      <span className="text-lg text-muted-foreground line-through pb-1">{p.oldPrice.toFixed(2)} ₼</span>
+                      <span className="text-lg text-muted-foreground line-through pb-1">{format(p.oldPrice)}</span>
                       <span className="ml-auto px-2 py-1 rounded-md text-xs font-bold bg-destructive text-destructive-foreground pb-1">-{discount}%</span>
                     </>
                   )}
@@ -190,7 +190,7 @@ function ProductPage() {
                     onClick={openBuy}
                     className="flex-1 h-11 rounded-xl bg-neon text-background font-semibold neon-ring hover:scale-[1.01] transition disabled:opacity-50 inline-flex items-center justify-center gap-2"
                   >
-                    Sifariş ver — {(p.price * qty).toFixed(2)} ₼
+                    Sifariş ver — {format(p.price * qty)}
                   </button>
                   <button onClick={messageSeller} disabled={contacting} className="grid h-11 w-11 place-items-center rounded-xl border border-border hover:border-primary disabled:opacity-50" aria-label="Satıcıya mesaj">
                     {contacting ? <Loader2 className="h-4 w-4 animate-spin" /> : <MessageCircle className="h-4 w-4" />}
@@ -295,7 +295,7 @@ function ProductPage() {
               </button>
             </div>
             <div className="max-h-[55vh] overflow-y-auto px-5 py-4 text-sm space-y-3 text-muted-foreground">
-              <p><b className="text-foreground">1. Escrow qoruması.</b> Ödədiyiniz <span className="text-neon font-semibold">{(p.price * qty).toFixed(2)} ₼</span> NextPlay tərəfindən saxlanılır və yalnız sifarişi təsdiqlədikdən sonra satıcıya köçürülür.</p>
+              <p><b className="text-foreground">1. Escrow qoruması.</b> Ödədiyiniz <span className="text-neon font-semibold">{format(p.price * qty)}</span> NextPlay tərəfindən saxlanılır və yalnız sifarişi təsdiqlədikdən sonra satıcıya köçürülür.</p>
               <p><b className="text-foreground">2. Çatdırılma müddəti.</b> Satıcı sifarişi 24 saat ərzində mesaj vasitəsi ilə təhvil verməlidir. Anında çatdırılma məhsullarında məlumat dərhal göstərilir.</p>
               <p><b className="text-foreground">3. Avtomatik təsdiq.</b> Çatdırılmadan 24 saat sonra sifariş təsdiq etməsəniz, sistem onu avtomatik tamamlayır və vəsait satıcıya keçir.</p>
               <p><b className="text-foreground">4. Etiraz hüququ.</b> Problem yaranarsa, "Etiraz et" düyməsi ilə dəstəyə müraciət edə bilərsiniz. Etiraz üçün <b>video sübut və ya ekran görüntüsü</b> mütləqdir.</p>
@@ -327,7 +327,7 @@ function ProductPage() {
                 className="flex-1 h-11 rounded-xl bg-neon text-background font-semibold neon-ring transition disabled:opacity-40 disabled:cursor-not-allowed inline-flex items-center justify-center gap-2"
               >
                 {buying && <Loader2 className="h-4 w-4 animate-spin" />}
-                {agreed ? `Razıyam — ${(p.price * qty).toFixed(2)} ₼ ödə` : "Şərtləri qəbul edin"}
+                {agreed ? `Razıyam — ${format(p.price * qty)} ödə` : "Şərtləri qəbul edin"}
               </button>
             </div>
           </div>
