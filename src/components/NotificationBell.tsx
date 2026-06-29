@@ -63,7 +63,7 @@ export function NotificationBell() {
   const unread = items.filter((n) => !n.read_at).length;
 
   async function markAllRead() {
-    await supabase.rpc("mark_notifications_read", { p_ids: null });
+    await supabase.rpc("mark_notifications_read", { p_ids: undefined as unknown as string[] });
     setItems((prev) => prev.map((n) => ({ ...n, read_at: n.read_at ?? new Date().toISOString() })));
   }
 
