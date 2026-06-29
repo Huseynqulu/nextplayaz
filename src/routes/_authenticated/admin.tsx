@@ -225,7 +225,7 @@ function AdminPage() {
   async function decideTopup(t: TopUp, approve: boolean) {
     const notes = prompt(approve ? "Qeyd (ixtiyari):" : "Rədd səbəbi (ixtiyari):", "") ?? "";
     setBusy(t.id);
-    const { error } = await supabase.rpc(approve ? "admin_approve_topup" : "admin_reject_topup", { p_topup_id: t.id, p_notes: notes || null });
+    const { error } = await supabase.rpc(approve ? "admin_approve_topup" : "admin_reject_topup", { p_topup_id: t.id, p_notes: notes || undefined });
     if (error) toast.error(error.message);
     else { toast.success(approve ? `+${t.amount} ₼ əlavə edildi` : "Rədd edildi"); await refresh(); }
     setBusy(null);
