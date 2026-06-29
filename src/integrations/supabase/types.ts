@@ -284,6 +284,44 @@ export type Database = {
         }
         Relationships: []
       }
+      loyalty_ledger: {
+        Row: {
+          created_at: string
+          delta: number
+          id: string
+          notes: string | null
+          order_id: string | null
+          reason: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          delta: number
+          id?: string
+          notes?: string | null
+          order_id?: string | null
+          reason: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          delta?: number
+          id?: string
+          notes?: string | null
+          order_id?: string | null
+          reason?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "loyalty_ledger_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       notifications: {
         Row: {
           body: string | null
@@ -598,6 +636,7 @@ export type Database = {
           display_name: string | null
           id: string
           last_seen_at: string | null
+          loyalty_points: number
           referral_code: string | null
           referred_by: string | null
           sales_count: number
@@ -614,6 +653,7 @@ export type Database = {
           display_name?: string | null
           id: string
           last_seen_at?: string | null
+          loyalty_points?: number
           referral_code?: string | null
           referred_by?: string | null
           sales_count?: number
@@ -630,6 +670,7 @@ export type Database = {
           display_name?: string | null
           id?: string
           last_seen_at?: string | null
+          loyalty_points?: number
           referral_code?: string | null
           referred_by?: string | null
           sales_count?: number
@@ -1278,6 +1319,7 @@ export type Database = {
       }
       recalc_seller_tier: { Args: { _seller_id: string }; Returns: undefined }
       redeem_gift_card: { Args: { p_code: string }; Returns: number }
+      redeem_loyalty_points: { Args: { p_points: number }; Returns: Json }
       redeem_referral_signup: { Args: { p_code: string }; Returns: undefined }
       release_seller_funds: { Args: never; Returns: number }
       request_withdrawal: {
