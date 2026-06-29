@@ -371,6 +371,57 @@ function OrdersPage() {
         </DialogContent>
       </Dialog>
 
+      {reviewOrder && (
+        <div className="fixed inset-0 z-50 grid place-items-center bg-background/80 backdrop-blur-sm p-4" onClick={() => !reviewSubmitting && setReviewOrder(null)}>
+          <div className="w-full max-w-md rounded-2xl border border-border bg-card card-shadow overflow-hidden" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between p-5 border-b border-border">
+              <h3 className="font-display text-lg font-bold inline-flex items-center gap-2">
+                <Star className="h-5 w-5 text-warning fill-warning" /> Məhsulu dəyərləndir
+              </h3>
+              <button onClick={() => !reviewSubmitting && setReviewOrder(null)} className="text-muted-foreground hover:text-foreground" aria-label="Bağla">
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            <div className="p-5 space-y-4">
+              <p className="text-sm text-muted-foreground line-clamp-2">{reviewOrder.product?.title}</p>
+              <div className="flex items-center justify-center gap-1 py-2" onMouseLeave={() => setReviewHover(0)}>
+                {[1,2,3,4,5].map(n => {
+                  const filled = (reviewHover || reviewRating) >= n;
+                  return (
+                    <button
+                      key={n}
+                      type="button"
+                      onMouseEnter={() => setReviewHover(n)}
+                      onClick={() => setReviewRating(n)}
+                      className="p-1 transition-transform hover:scale-110"
+                      aria-label={`${n} ulduz`}
+                    >
+                      <Star className={`h-9 w-9 ${filled ? "text-warning fill-warning" : "text-muted-foreground/40"}`} />
+                    </button>
+                  );
+                })}
+              </div>
+              <textarea
+                value={reviewComment}
+                onChange={e => setReviewComment(e.target.value)}
+                rows={4}
+                maxLength={500}
+                placeholder="Təcrübənizi paylaşın (istəyə bağlı)…"
+                className="w-full px-3 py-2 rounded-lg bg-surface border border-border focus:border-primary outline-none text-sm resize-none"
+              />
+              <div className="text-[11px] text-muted-foreground text-right">{reviewComment.length}/500</div>
+            </div>
+            <div className="flex gap-2 p-4 border-t border-border">
+              <button onClick={() => setReviewOrder(null)} disabled={reviewSubmitting} className="h-11 px-4 rounded-xl border border-border text-sm font-medium hover:bg-surface disabled:opacity-50">Ləğv et</button>
+              <button onClick={submitReview} disabled={reviewSubmitting} className="flex-1 h-11 rounded-xl bg-neon text-background font-semibold neon-ring disabled:opacity-50 inline-flex items-center justify-center gap-2">
+                {reviewSubmitting && <Loader2 className="h-4 w-4 animate-spin" />}
+                Rəyi göndər
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <Footer />
     </div>
   );
