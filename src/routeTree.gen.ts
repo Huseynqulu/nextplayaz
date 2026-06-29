@@ -14,8 +14,10 @@ import { Route as SellerRouteImport } from './routes/seller'
 import { Route as RegisterRouteImport } from './routes/register'
 import { Route as MarketplaceRouteImport } from './routes/marketplace'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ProductSlugRouteImport } from './routes/product.$slug'
+import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
 
 const SupportRoute = SupportRouteImport.update({
   id: '/support',
@@ -42,6 +44,10 @@ const LoginRoute = LoginRouteImport.update({
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -52,6 +58,11 @@ const ProductSlugRoute = ProductSlugRouteImport.update({
   path: '/product/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedProfileRoute = AuthenticatedProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -60,6 +71,7 @@ export interface FileRoutesByFullPath {
   '/register': typeof RegisterRoute
   '/seller': typeof SellerRoute
   '/support': typeof SupportRoute
+  '/profile': typeof AuthenticatedProfileRoute
   '/product/$slug': typeof ProductSlugRoute
 }
 export interface FileRoutesByTo {
@@ -69,16 +81,19 @@ export interface FileRoutesByTo {
   '/register': typeof RegisterRoute
   '/seller': typeof SellerRoute
   '/support': typeof SupportRoute
+  '/profile': typeof AuthenticatedProfileRoute
   '/product/$slug': typeof ProductSlugRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/login': typeof LoginRoute
   '/marketplace': typeof MarketplaceRoute
   '/register': typeof RegisterRoute
   '/seller': typeof SellerRoute
   '/support': typeof SupportRoute
+  '/_authenticated/profile': typeof AuthenticatedProfileRoute
   '/product/$slug': typeof ProductSlugRoute
 }
 export interface FileRouteTypes {
@@ -90,6 +105,7 @@ export interface FileRouteTypes {
     | '/register'
     | '/seller'
     | '/support'
+    | '/profile'
     | '/product/$slug'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -99,20 +115,24 @@ export interface FileRouteTypes {
     | '/register'
     | '/seller'
     | '/support'
+    | '/profile'
     | '/product/$slug'
   id:
     | '__root__'
     | '/'
+    | '/_authenticated'
     | '/login'
     | '/marketplace'
     | '/register'
     | '/seller'
     | '/support'
+    | '/_authenticated/profile'
     | '/product/$slug'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   LoginRoute: typeof LoginRoute
   MarketplaceRoute: typeof MarketplaceRoute
   RegisterRoute: typeof RegisterRoute
@@ -158,6 +178,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -172,11 +199,30 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProductSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/profile': {
+      id: '/_authenticated/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof AuthenticatedProfileRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
+interface AuthenticatedRouteRouteChildren {
+  AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
+}
+
+const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedProfileRoute: AuthenticatedProfileRoute,
+}
+
+const AuthenticatedRouteRouteWithChildren =
+  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   LoginRoute: LoginRoute,
   MarketplaceRoute: MarketplaceRoute,
   RegisterRoute: RegisterRoute,
