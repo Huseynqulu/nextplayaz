@@ -2,7 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { ProductCard } from "@/components/ProductCard";
-import { categories, platforms, products as mockProducts } from "@/lib/marketplace-data";
+import { categories, products as mockProducts } from "@/lib/marketplace-data";
 import { fetchProducts } from "@/lib/products";
 import { supabase } from "@/integrations/supabase/client";
 import { useEffect, useMemo, useState } from "react";
@@ -15,6 +15,7 @@ const searchSchema = z.object({
   cat: fallback(z.string(), "all").default("all"),
   sub: fallback(z.string(), "all").default("all"),
   platform: fallback(z.string(), "all").default("all"),
+  psub: fallback(z.string(), "all").default("all"),
   delivery: fallback(z.enum(["all", "Instant", "Manual"]), "all").default("all"),
   min: fallback(z.number().min(0), 0).default(0),
   max: fallback(z.number().min(0), 0).default(0),
@@ -45,14 +46,21 @@ function MarketplacePage() {
   const [loading, setLoading] = useState(true);
   const [qLocal, setQLocal] = useState(s.q);
   const [subcats, setSubcats] = useState<{ slug: string; label_az: string; category_slug: string }[]>([]);
+  const [platforms, setPlatforms] = useState<{ slug: string; label_az: string }[]>([]);
+  const [psubs, setPsubs] = useState<{ slug: string; label_az: string; platform_slug: string }[]>([]);
 
   useEffect(() => { fetchProducts().then(p => { setProducts(p); setLoading(false); }); }, []);
   useEffect(() => {
     supabase.from("subcategories" as any).select("slug,label_az,category_slug").eq("is_active", true).order("sort_order")
       .then(({ data }) => setSubcats(((data as any) ?? []) as any));
+    supabase.from("platforms" as any).select("slug,label_az").eq("is_active", true).order("sort_order")
+      .then(({ data }) => setPlatforms(((data as any) ?? []) as any));
+    supabase.from("platform_subcategories" as any).select("slug,label_az,platform_slug").eq("is_active", true).order("sort_order")
+      .then(({ data }) => setPsubs(((data as any) ?? []) as any));
   }, []);
   useEffect(() => { setQLocal(s.q); }, [s.q]);
   const currentSubs = s.cat !== "all" ? subcats.filter(x => x.category_slug === s.cat) : [];
+  const currentPsubs = s.platform !== "all" ? psubs.filter(x => x.platform_slug === s.platform) : [];
 
   // Debounce free-text search → URL
   useEffect(() => {
@@ -66,6 +74,7 @@ function MarketplacePage() {
     if (s.cat !== "all") r = r.filter(p => p.category === s.cat);
     if (s.sub !== "all") r = r.filter(p => p.subcategory === s.sub);
     if (s.platform !== "all") r = r.filter(p => p.platform === s.platform);
+    if (s.psub !== "all") r = r.filter(p => (p as any).platformSubcategory === s.psub);
     if (s.delivery !== "all") r = r.filter(p => p.delivery === s.delivery);
     if (s.verified) r = r.filter(p => p.seller?.verified);
     if (s.inStock) r = r.filter(p => (p.stock ?? 0) > 0);
@@ -92,6 +101,7 @@ function MarketplacePage() {
     (s.cat !== "all" ? 1 : 0) +
     (s.sub !== "all" ? 1 : 0) +
     (s.platform !== "all" ? 1 : 0) +
+    (s.psub !== "all" ? 1 : 0) +
     (s.delivery !== "all" ? 1 : 0) +
     (s.verified ? 1 : 0) +
     (s.min > 0 ? 1 : 0) +
@@ -99,7 +109,7 @@ function MarketplacePage() {
     (s.rating > 0 ? 1 : 0);
 
   const reset = () => navigate({
-    search: { q: "", cat: "all", sub: "all", platform: "all", delivery: "all", min: 0, max: 0, rating: 0, verified: false, inStock: true, sort: "popular" } as any,
+    search: { q: "", cat: "all", sub: "all", platform: "all", psub: "all", delivery: "all", min: 0, max: 0, rating: 0, verified: false, inStock: true, sort: "popular" } as any,
     replace: true,
   });
 
@@ -190,12 +200,23 @@ function MarketplacePage() {
               <div className="space-y-4 text-sm">
                 <div>
                   <label className="block text-xs text-muted-foreground mb-1.5">Platforma</label>
-                  <select value={s.platform} onChange={e => update({ platform: e.target.value })}
+                  <select value={s.platform} onChange={e => update({ platform: e.target.value, psub: "all" })}
                     className="w-full h-10 px-3 rounded-lg bg-background border border-border focus:outline-none focus:ring-2 focus:ring-ring">
                     <option value="all">Bütün platformalar</option>
-                    {platforms.map(p => <option key={p} value={p}>{p}</option>)}
+                    {platforms.map(p => <option key={p.slug} value={p.label_az}>{p.label_az}</option>)}
                   </select>
                 </div>
+
+                {currentPsubs.length > 0 && (
+                  <div>
+                    <label className="block text-xs text-muted-foreground mb-1.5">Alt kateqoriya</label>
+                    <select value={s.psub} onChange={e => update({ psub: e.target.value })}
+                      className="w-full h-10 px-3 rounded-lg bg-background border border-border focus:outline-none focus:ring-2 focus:ring-ring">
+                      <option value="all">Hamısı</option>
+                      {currentPsubs.map(p => <option key={p.slug} value={p.slug}>{p.label_az}</option>)}
+                    </select>
+                  </div>
+                )}
 
                 <div>
                   <label className="block text-xs text-muted-foreground mb-1.5">Çatdırılma</label>
@@ -264,7 +285,8 @@ function MarketplacePage() {
                   )}
                   {s.cat !== "all" && <Chip label={s.cat} onClear={() => update({ cat: "all", sub: "all" })} />}
                   {s.sub !== "all" && <Chip label={subcats.find(x => x.slug === s.sub)?.label_az ?? s.sub} onClear={() => update({ sub: "all" })} />}
-                  {s.platform !== "all" && <Chip label={s.platform} onClear={() => update({ platform: "all" })} />}
+                  {s.platform !== "all" && <Chip label={s.platform} onClear={() => update({ platform: "all", psub: "all" })} />}
+                  {s.psub !== "all" && <Chip label={psubs.find(x => x.slug === s.psub)?.label_az ?? s.psub} onClear={() => update({ psub: "all" })} />}
                   {s.delivery !== "all" && <Chip label={s.delivery === "Instant" ? "⚡ Anında" : "Əl ilə"} onClear={() => update({ delivery: "all" })} />}
                   {s.min > 0 && <Chip label={`≥ ${s.min}₼`} onClear={() => update({ min: 0 })} />}
                   {s.max > 0 && <Chip label={`≤ ${s.max}₼`} onClear={() => update({ max: 0 })} />}

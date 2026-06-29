@@ -36,7 +36,10 @@ type PaymentSetting = { method: string; label: string; instructions: string; is_
 type Category = { slug: string; label_az: string; label_en: string; label_ru: string; sort_order: number; is_active: boolean };
 type Subcategory = { id?: string; category_slug: string; slug: string; label_az: string; label_en: string; label_ru: string; sort_order: number; is_active: boolean };
 
-type Tab = "analytics" | "applications" | "users" | "codes" | "products" | "tickets" | "topups" | "withdrawals" | "platform" | "payments" | "categories" | "disputes" | "banners" | "reviews" | "giftcards" | "boost";
+type Tab = "analytics" | "applications" | "users" | "codes" | "products" | "tickets" | "topups" | "withdrawals" | "platform" | "payments" | "categories" | "platforms" | "disputes" | "banners" | "reviews" | "giftcards" | "boost";
+
+type PlatformRow = { slug: string; label_az: string; label_en: string; label_ru: string; sort_order: number; is_active: boolean };
+type PlatformSub = { platform_slug: string; slug: string; label_az: string; label_en: string; label_ru: string; sort_order: number; is_active: boolean };
 
 type Withdrawal = { id: string; user_id: string; amount: number; fee: number; net_amount: number; method: string; destination: string; account_holder: string | null; status: "pending"|"approved"|"rejected"; admin_notes: string | null; created_at: string };
 type LedgerEntry = { id: string; entry_type: string; amount: number; order_id: string | null; withdrawal_id: string | null; user_id: string | null; notes: string | null; created_at: string };
@@ -71,6 +74,11 @@ function AdminPage() {
   const [subcategories, setSubcategories] = useState<Subcategory[]>([]);
   const [expandedCat, setExpandedCat] = useState<string | null>(null);
   const [newSub, setNewSub] = useState<Record<string, Subcategory>>({});
+  const [platformsList, setPlatformsList] = useState<PlatformRow[]>([]);
+  const [platformSubs, setPlatformSubs] = useState<PlatformSub[]>([]);
+  const [expandedPlatform, setExpandedPlatform] = useState<string | null>(null);
+  const [newPlatform, setNewPlatform] = useState<PlatformRow>({ slug: "", label_az: "", label_en: "", label_ru: "", sort_order: 10, is_active: true });
+  const [newPSub, setNewPSub] = useState<Record<string, PlatformSub>>({});
   const [newCategory, setNewCategory] = useState<Category>({ slug: "", label_az: "", label_en: "", label_ru: "", sort_order: 10, is_active: true });
   const [stats, setStats] = useState({ users: 0, sellers: 0, products: 0, orders: 0 });
   const [loading, setLoading] = useState(true);
@@ -139,10 +147,62 @@ function AdminPage() {
     setTopups((tu as any) ?? []);
     setPaySettings((ps as any) ?? []);
     setCategories((cats as any) ?? []);
-    const { data: subs } = await supabase.from("subcategories" as any).select("*").order("sort_order");
+    const [{ data: subs }, { data: pls }, { data: psubs }] = await Promise.all([
+      supabase.from("subcategories" as any).select("*").order("sort_order"),
+      supabase.from("platforms" as any).select("*").order("sort_order"),
+      supabase.from("platform_subcategories" as any).select("*").order("sort_order"),
+    ]);
     setSubcategories((subs as any) ?? []);
+    setPlatformsList((pls as any) ?? []);
+    setPlatformSubs((psubs as any) ?? []);
     setStats({ users: uc ?? 0, sellers: sc ?? 0, products: pc ?? 0, orders: oc ?? 0 });
     setLoading(false);
+  }
+
+  async function savePlatform(p: PlatformRow) {
+    if (!p.slug || !p.label_az) { toast.error("Slug və AZ ad tələb olunur"); return; }
+    setBusy(`pl:${p.slug}`);
+    const { error } = await supabase.from("platforms" as any).upsert({
+      slug: p.slug.trim(), label_az: p.label_az, label_en: p.label_en || p.label_az,
+      label_ru: p.label_ru || p.label_az, sort_order: p.sort_order, is_active: p.is_active,
+    });
+    setBusy(null);
+    if (error) toast.error(error.message); else { toast.success("Yadda saxlandı"); await refresh(); }
+  }
+  async function deletePlatform(slug: string) {
+    if (!confirm(`"${slug}" platforması silinsin?`)) return;
+    setBusy(`pl:${slug}`);
+    const { error } = await supabase.from("platforms" as any).delete().eq("slug", slug);
+    setBusy(null);
+    if (error) toast.error(error.message); else { toast.success("Silindi"); await refresh(); }
+  }
+  async function addNewPlatform() {
+    await savePlatform(newPlatform);
+    setNewPlatform({ slug: "", label_az: "", label_en: "", label_ru: "", sort_order: 10, is_active: true });
+  }
+  async function savePSub(s: PlatformSub) {
+    if (!s.slug || !s.label_az || !s.platform_slug) { toast.error("Slug və AZ ad tələb olunur"); return; }
+    setBusy(`psub:${s.platform_slug}:${s.slug}`);
+    const { error } = await supabase.from("platform_subcategories" as any).upsert({
+      platform_slug: s.platform_slug, slug: s.slug.trim(), label_az: s.label_az,
+      label_en: s.label_en || s.label_az, label_ru: s.label_ru || s.label_az,
+      sort_order: s.sort_order, is_active: s.is_active,
+    }, { onConflict: "platform_slug,slug" });
+    setBusy(null);
+    if (error) toast.error(error.message); else { toast.success("Yadda saxlandı"); await refresh(); }
+  }
+  async function deletePSub(platform_slug: string, slug: string) {
+    if (!confirm(`"${slug}" alt-kateqoriya silinsin?`)) return;
+    setBusy(`psub:${platform_slug}:${slug}`);
+    const { error } = await supabase.from("platform_subcategories" as any).delete().eq("platform_slug", platform_slug).eq("slug", slug);
+    setBusy(null);
+    if (error) toast.error(error.message); else { toast.success("Silindi"); await refresh(); }
+  }
+  async function addNewPSub(platform_slug: string) {
+    const draft = newPSub[platform_slug];
+    if (!draft) return;
+    await savePSub({ ...draft, platform_slug });
+    setNewPSub(s => ({ ...s, [platform_slug]: { platform_slug, slug: "", label_az: "", label_en: "", label_ru: "", sort_order: 10, is_active: true } }));
   }
 
   async function saveCategory(c: Category) {
@@ -394,6 +454,7 @@ function AdminPage() {
               ["platform", `Platforma (${platformBalance.toFixed(2)} ₼)`],
               ["payments", "Rekvizitlər"],
               ["categories", "Kateqoriyalar"],
+              ["platforms", "Platformalar"],
               ["banners", "Bannerlər"],
               ["reviews", "Rəylər"],
               ["giftcards", "Hədiyyə kartları"],

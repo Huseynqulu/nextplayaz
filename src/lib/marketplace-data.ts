@@ -12,7 +12,8 @@ export type Product = {
   description: string;
   price: number;
   oldPrice?: number;
-  platform: "Steam" | "PS5" | "PS4" | "Xbox" | "EA" | "Battle.net" | "Epic" | "Rockstar";
+  platform: string;
+  platformSubcategory?: string | null;
   category: "Games" | "Accounts" | "Keys" | "Services";
   subcategory?: string | null;
   image: string;
