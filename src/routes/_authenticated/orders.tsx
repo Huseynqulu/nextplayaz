@@ -23,6 +23,9 @@ type Order = {
   total: number;
   status: "pending" | "paid" | "delivered" | "completed" | "cancelled" | "refunded" | "disputed";
   delivery_payload: string | null;
+  conversation_id: string | null;
+  auto_confirm_at: string | null;
+  disputed_reason: string | null;
   created_at: string;
   product: { title: string; slug: string; image_url: string | null } | null;
 };
