@@ -132,6 +132,7 @@ export type Database = {
       }
       dm_messages: {
         Row: {
+          attachment_url: string | null
           body: string
           conversation_id: string
           created_at: string
@@ -141,6 +142,7 @@ export type Database = {
           sender_id: string
         }
         Insert: {
+          attachment_url?: string | null
           body: string
           conversation_id: string
           created_at?: string
@@ -150,6 +152,7 @@ export type Database = {
           sender_id: string
         }
         Update: {
+          attachment_url?: string | null
           body?: string
           conversation_id?: string
           created_at?: string
@@ -441,6 +444,7 @@ export type Database = {
       }
       support_messages: {
         Row: {
+          attachment_url: string | null
           body: string
           created_at: string
           id: string
@@ -449,6 +453,7 @@ export type Database = {
           ticket_id: string
         }
         Insert: {
+          attachment_url?: string | null
           body: string
           created_at?: string
           id?: string
@@ -457,6 +462,7 @@ export type Database = {
           ticket_id: string
         }
         Update: {
+          attachment_url?: string | null
           body?: string
           created_at?: string
           id?: string
@@ -618,6 +624,10 @@ export type Database = {
           username: string
           wallet_balance: number
         }[]
+      }
+      admin_partial_refund: {
+        Args: { p_notes?: string; p_order_id: string; p_refund_amount: number }
+        Returns: undefined
       }
       admin_reject_topup: {
         Args: { p_notes?: string; p_topup_id: string }
