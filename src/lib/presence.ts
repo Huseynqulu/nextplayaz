@@ -25,7 +25,7 @@ export function useOnlinePresence() {
   useEffect(() => {
     if (!user) return;
     let alive = true;
-    const ping = () => { void supabase.rpc("touch_last_seen" as any); };
+    const ping = () => { supabase.rpc("touch_last_seen" as any).then(() => {}, () => {}); };
     ping();
     const id = setInterval(() => { if (alive) ping(); }, 60_000);
     const onVis = () => { if (document.visibilityState === "visible") ping(); };

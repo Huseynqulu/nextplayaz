@@ -71,12 +71,6 @@ function MarketplacePage() {
                   placeholder="Məhsul axtar..."
                   className="w-full h-12 pl-12 pr-4 rounded-xl bg-background border border-border focus:outline-none focus:ring-2 focus:ring-ring"
                 />
-                <input
-                  value={q}
-                  onChange={e => setQ(e.target.value)}
-                  placeholder="Məhsul axtar..."
-                  className="w-full h-12 pl-12 pr-4 rounded-xl bg-background border border-border focus:outline-none focus:ring-2 focus:ring-ring"
-                />
               </div>
               <select
                 value={platform}
