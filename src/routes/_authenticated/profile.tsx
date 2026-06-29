@@ -42,9 +42,28 @@ function ProfilePage() {
     setProfile(p);
     setRoles(r?.map(x => x.role) ?? []);
     setOrderCount(count ?? 0);
+    if (p) setForm({ display_name: p.display_name ?? "", username: p.username ?? "", shop_name: p.shop_name ?? "" });
     setLoading(false);
   }
   useEffect(() => { void load(); /* eslint-disable-next-line */ }, [user]);
+
+  async function saveProfile() {
+    if (!user) return;
+    const display_name = form.display_name.trim();
+    const username = form.username.trim();
+    const shop_name = form.shop_name.trim();
+    if (username && !/^[a-zA-Z0-9_]{3,20}$/.test(username)) {
+      toast.error("İstifadəçi adı: 3-20 hərf/rəqəm/_"); return;
+    }
+    setSaving(true);
+    const payload: any = { display_name: display_name || null, username: username || null };
+    if (roles.includes("seller") || roles.includes("admin")) payload.shop_name = shop_name || null;
+    const { error } = await supabase.from("profiles").update(payload).eq("id", user.id);
+    setSaving(false);
+    if (error) { toast.error(error.message); return; }
+    toast.success("Profil yeniləndi");
+    void load();
+  }
 
   async function onPickFile(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
