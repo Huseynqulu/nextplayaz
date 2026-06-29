@@ -88,36 +88,45 @@ function SupportTicketsPage() {
   }
 
   async function send() {
-    if (!active || !reply.trim()) return;
+    if (!active || (!reply.trim() && !replyFile)) return;
     setBusy(true);
-    const { error } = await supabase.from("support_messages").insert({
-      ticket_id: active.id, sender_id: user!.id, is_admin: false, body: reply.trim(),
-    });
-    if (error) toast.error(error.message);
-    else {
-      setReply("");
+    try {
+      let attachment_url: string | null = null;
+      if (replyFile) attachment_url = await uploadChatAttachment(replyFile, user!.id);
+      const { error } = await supabase.from("support_messages").insert({
+        ticket_id: active.id, sender_id: user!.id, is_admin: false, body: reply.trim(), attachment_url,
+      } as any);
+      if (error) throw error;
+      setReply(""); setReplyFile(null); setReplyPreview(null);
       const { data } = await supabase.from("support_messages").select("*").eq("ticket_id", active.id).order("created_at");
       setMessages((data as any) ?? []);
       await refresh();
-    }
+    } catch (e: any) { toast.error(e.message ?? "Xəta"); }
     setBusy(false);
   }
 
   async function create() {
     if (!form.subject.trim() || !form.message.trim()) { toast.error("Mövzu və mesaj tələb olunur"); return; }
     setBusy(true);
-    const payload: any = {
-      user_id: user!.id, category: form.category, subject: form.subject.trim(),
-      message: form.message.trim(), order_id: form.order_id || null,
-    };
-    const { error } = await supabase.from("support_tickets").insert(payload);
-    if (error) toast.error(error.message);
-    else {
+    try {
+      const payload: any = {
+        user_id: user!.id, category: form.category, subject: form.subject.trim(),
+        message: form.message.trim(), order_id: form.order_id || null,
+      };
+      const { data: ins, error } = await supabase.from("support_tickets").insert(payload).select("id").single();
+      if (error) throw error;
+      if (formFile && ins) {
+        const att = await uploadChatAttachment(formFile, user!.id);
+        await supabase.from("support_messages").insert({
+          ticket_id: ins.id, sender_id: user!.id, is_admin: false, body: "", attachment_url: att,
+        } as any);
+      }
       toast.success("Müraciət göndərildi");
       setForm({ category: "general", subject: "", message: "", order_id: "" });
+      setFormFile(null); setFormPreview(null);
       setCreating(false);
       await refresh();
-    }
+    } catch (e: any) { toast.error(e.message ?? "Xəta"); }
     setBusy(false);
   }
 
