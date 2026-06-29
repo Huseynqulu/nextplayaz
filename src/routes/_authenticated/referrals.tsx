@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Copy, Gift, Loader2, Share2, Users } from "lucide-react";
 import { toast } from "sonner";
+import { useCurrency } from "@/lib/currency";
 
 export const Route = createFileRoute("/_authenticated/referrals")({
   component: ReferralsPage,
