@@ -5,10 +5,10 @@ import { ProductCard } from "@/components/ProductCard";
 import { supabase } from "@/integrations/supabase/client";
 import { dbToProduct, type DbProduct } from "@/lib/products";
 import { isOnline, formatLastSeen } from "@/lib/presence";
-import { ShieldCheck, Star, MessageCircle, Loader2 } from "lucide-react";
+import { ShieldCheck, Star, MessageCircle, Loader2, Store } from "lucide-react";
 import { SellerTierBadge } from "@/components/SellerTierBadge";
 import { useAuth } from "@/hooks/use-auth";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { useNavigate } from "@tanstack/react-router";
 
@@ -18,7 +18,7 @@ export const Route = createFileRoute("/u/$id")({
   loader: async ({ params }) => {
     const { data: profileRaw } = await supabase
       .from("public_profiles" as any)
-      .select("id, display_name, username, avatar_url, created_at, last_seen_at")
+      .select("id, display_name, username, shop_name, avatar_url, created_at, last_seen_at")
       .eq("id", params.id)
       .maybeSingle();
     const profile = profileRaw as any;
@@ -33,7 +33,12 @@ export const Route = createFileRoute("/u/$id")({
       supabase.from("orders").select("id", { count: "exact", head: true }).eq("seller_id", params.id).eq("status", "completed"),
     ]);
 
-    const products = (prods ?? []).map(d => dbToProduct(d as unknown as DbProduct, profile.display_name || profile.username || "Satıcı"));
+    const sellerLite = {
+      name: profile.display_name || profile.username || "Satıcı",
+      shopName: profile.shop_name ?? null,
+      avatarUrl: profile.avatar_url ?? null,
+    };
+    const products = (prods ?? []).map(d => dbToProduct(d as unknown as DbProduct, sellerLite));
     const reviews = (revs as ReviewRow[] | null) ?? [];
     const avgRating = reviews.length ? reviews.reduce((s, r) => s + r.rating, 0) / reviews.length : 0;
     return { profile, products, reviews, salesCount: salesCount ?? 0, avgRating };
@@ -55,8 +60,20 @@ function SellerProfilePage() {
   const navigate = useNavigate();
   const [busy, setBusy] = useState(false);
   const online = isOnline(profile.last_seen_at);
-  const name = profile.display_name || profile.username || "Satıcı";
+  const shopName: string | null = profile.shop_name ?? null;
+  const realName = profile.display_name || profile.username || "Satıcı";
+  const name = shopName || realName;
   const initials = name.slice(0, 2).toUpperCase();
+  const [catFilter, setCatFilter] = useState<string>("all");
+  const cats = useMemo(() => {
+    const set = new Set<string>();
+    products.forEach((p: any) => { if (p.category) set.add(p.category); });
+    return Array.from(set);
+  }, [products]);
+  const visibleProducts = useMemo(
+    () => catFilter === "all" ? products : products.filter((p: any) => p.category === catFilter),
+    [products, catFilter]
+  );
 
   async function startChat() {
     if (!user) { toast.info("Daxil olun"); navigate({ to: "/login" }); return; }
@@ -85,13 +102,16 @@ function SellerProfilePage() {
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex flex-wrap items-center gap-2">
-                  <h1 className="font-display text-2xl sm:text-3xl font-bold">{name}</h1>
+                  <h1 className="font-display text-2xl sm:text-3xl font-bold inline-flex items-center gap-2">
+                    {shopName && <Store className="h-6 w-6 text-neon" />}{name}
+                  </h1>
                   <ShieldCheck className="h-5 w-5 text-neon" />
                   <SellerTierBadge sellerId={profile.id} size="md" showStats />
                   <span className={`px-2 py-0.5 rounded-full text-[11px] font-semibold ${online ? "bg-success/15 text-success" : "bg-surface text-muted-foreground"}`}>
                     {online ? "● Onlayn" : "Offline"}
                   </span>
                 </div>
+                {shopName && <p className="text-sm text-muted-foreground mt-0.5">Sahibi: <span className="text-foreground font-medium">{realName}</span></p>}
                 <p className="text-sm text-muted-foreground mt-1">@{profile.username ?? profile.id.slice(0, 8)} · {formatLastSeen(profile.last_seen_at)}</p>
                 <div className="flex flex-wrap items-center gap-5 mt-4 text-sm">
                   <span className="flex items-center gap-1.5"><Star className="h-4 w-4 fill-warning text-warning" /> <b>{avgRating.toFixed(1)}</b> <span className="text-muted-foreground">({reviews.length} rəy)</span></span>
@@ -112,12 +132,31 @@ function SellerProfilePage() {
           </div>
 
           <section className="mt-10">
-            <h2 className="font-display text-xl font-bold mb-5">Məhsullar ({products.length})</h2>
-            {products.length === 0 ? (
-              <p className="text-muted-foreground py-10 text-center">Hələ aktiv məhsul yoxdur.</p>
+            <div className="flex items-end justify-between mb-5 flex-wrap gap-3">
+              <h2 className="font-display text-xl font-bold">Məhsullar ({visibleProducts.length})</h2>
+              {cats.length > 1 && (
+                <div className="flex flex-wrap gap-2">
+                  <button onClick={() => setCatFilter("all")}
+                    className={`px-3 py-1.5 rounded-full text-xs font-medium border transition ${catFilter === "all" ? "bg-neon text-background border-transparent" : "bg-surface border-border text-muted-foreground hover:text-foreground"}`}>
+                    Hamısı ({products.length})
+                  </button>
+                  {cats.map(c => {
+                    const count = products.filter((p: any) => p.category === c).length;
+                    return (
+                      <button key={c} onClick={() => setCatFilter(c)}
+                        className={`px-3 py-1.5 rounded-full text-xs font-medium border transition ${catFilter === c ? "bg-neon text-background border-transparent" : "bg-surface border-border text-muted-foreground hover:text-foreground"}`}>
+                        {c} ({count})
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+            {visibleProducts.length === 0 ? (
+              <p className="text-muted-foreground py-10 text-center">Bu kateqoriyada məhsul yoxdur.</p>
             ) : (
               <div className="grid gap-5 grid-cols-2 lg:grid-cols-4">
-                {products.map((p: ReturnType<typeof dbToProduct>) => <ProductCard key={p.id} p={p} />)}
+                {visibleProducts.map((p: ReturnType<typeof dbToProduct>) => <ProductCard key={p.id} p={p} />)}
               </div>
             )}
           </section>

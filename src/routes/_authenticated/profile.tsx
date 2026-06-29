@@ -4,7 +4,7 @@ import { Footer } from "@/components/Footer";
 import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
-import { Wallet, ShieldCheck, Package, Star, Loader2, Camera, User as UserIcon } from "lucide-react";
+import { Wallet, ShieldCheck, Package, Star, Loader2, Camera, Store, Save } from "lucide-react";
 import { toast } from "sonner";
 import { TwoFactorSetup } from "@/components/TwoFactorSetup";
 
@@ -16,6 +16,7 @@ export const Route = createFileRoute("/_authenticated/profile")({
 type Profile = {
   username: string | null;
   display_name: string | null;
+  shop_name: string | null;
   avatar_url: string | null;
   wallet_balance: number;
 };
@@ -27,6 +28,8 @@ function ProfilePage() {
   const [orderCount, setOrderCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [form, setForm] = useState({ display_name: "", username: "", shop_name: "" });
   const fileRef = useRef<HTMLInputElement>(null);
 
   async function load() {
@@ -39,9 +42,28 @@ function ProfilePage() {
     setProfile(p);
     setRoles(r?.map(x => x.role) ?? []);
     setOrderCount(count ?? 0);
+    if (p) setForm({ display_name: p.display_name ?? "", username: p.username ?? "", shop_name: p.shop_name ?? "" });
     setLoading(false);
   }
   useEffect(() => { void load(); /* eslint-disable-next-line */ }, [user]);
+
+  async function saveProfile() {
+    if (!user) return;
+    const display_name = form.display_name.trim();
+    const username = form.username.trim();
+    const shop_name = form.shop_name.trim();
+    if (username && !/^[a-zA-Z0-9_]{3,20}$/.test(username)) {
+      toast.error("İstifadəçi adı: 3-20 hərf/rəqəm/_"); return;
+    }
+    setSaving(true);
+    const payload: any = { display_name: display_name || null, username: username || null };
+    if (roles.includes("seller") || roles.includes("admin")) payload.shop_name = shop_name || null;
+    const { error } = await supabase.from("profiles").update(payload).eq("id", user.id);
+    setSaving(false);
+    if (error) { toast.error(error.message); return; }
+    toast.success("Profil yeniləndi");
+    void load();
+  }
 
   async function onPickFile(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -115,13 +137,35 @@ function ProfilePage() {
 
         <div className="mt-8 rounded-2xl border border-border bg-card-gradient p-7 card-shadow">
           <h2 className="font-display text-xl font-bold mb-4 flex items-center gap-2">
-            <ShieldCheck className="h-5 w-5 text-neon" /> Hesab məlumatları
+            <ShieldCheck className="h-5 w-5 text-neon" /> Profil tənzimləmələri
           </h2>
-          <div className="grid sm:grid-cols-2 gap-4 text-sm">
-            <Row label="İstifadəçi adı" value={profile.username ?? "—"} />
-            <Row label="Email" value={user!.email ?? "—"} />
-            <Row label="Ad" value={profile.display_name ?? "—"} />
-            <Row label="Qoşulma tarixi" value={new Date(user!.created_at).toLocaleDateString("az")} />
+          <div className="grid sm:grid-cols-2 gap-4">
+            <Field label="Ad (görünən)">
+              <input value={form.display_name} onChange={e => setForm(f => ({ ...f, display_name: e.target.value }))}
+                placeholder="Ad Soyad" maxLength={50}
+                className="w-full h-11 px-3 rounded-lg bg-background border border-border focus:border-primary outline-none text-sm" />
+            </Field>
+            <Field label="İstifadəçi adı (@username)">
+              <input value={form.username} onChange={e => setForm(f => ({ ...f, username: e.target.value }))}
+                placeholder="username" maxLength={20}
+                className="w-full h-11 px-3 rounded-lg bg-background border border-border focus:border-primary outline-none text-sm" />
+            </Field>
+            {isSeller && (
+              <Field label={<span className="inline-flex items-center gap-1.5"><Store className="h-3.5 w-3.5 text-neon" /> Mağaza adı</span>}>
+                <input value={form.shop_name} onChange={e => setForm(f => ({ ...f, shop_name: e.target.value }))}
+                  placeholder="Məs: NextShop Games" maxLength={50}
+                  className="w-full h-11 px-3 rounded-lg bg-background border border-border focus:border-primary outline-none text-sm" />
+                <p className="text-[11px] text-muted-foreground mt-1">Mağaza adı təyin edilərsə alıcılar bunu görəcək.</p>
+              </Field>
+            )}
+            <Field label="Email"><div className="h-11 px-3 grid items-center rounded-lg bg-surface border border-border text-sm text-muted-foreground">{user!.email}</div></Field>
+          </div>
+          <div className="mt-5 flex justify-end">
+            <button onClick={saveProfile} disabled={saving}
+              className="inline-flex items-center gap-2 h-11 px-5 rounded-xl bg-neon text-background font-semibold neon-ring disabled:opacity-50">
+              {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+              Yadda saxla
+            </button>
           </div>
         </div>
         <div className="mt-6">
@@ -148,6 +192,15 @@ function StatCard({ icon: Icon, label, value, accent }: { icon: React.ComponentT
       </div>
       <p className="font-display text-3xl font-bold text-gradient">{value}</p>
     </div>
+  );
+}
+
+function Field({ label, children }: { label: React.ReactNode; children: React.ReactNode }) {
+  return (
+    <label className="block">
+      <span className="block text-xs font-medium text-muted-foreground mb-1.5">{label}</span>
+      {children}
+    </label>
   );
 }
 

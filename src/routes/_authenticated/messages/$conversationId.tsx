@@ -17,7 +17,7 @@ export const Route = createFileRoute("/_authenticated/messages/$conversationId")
 
 type Msg = { id: string; conversation_id: string; sender_id: string; body: string; created_at: string; read_at: string | null; kind?: string; attachment_url?: string | null };
 type Conv = { id: string; user_a: string; user_b: string; product_id: string | null; order_id: string | null };
-type ProfileLite = { id: string; display_name: string | null; username: string | null; avatar_url: string | null; last_seen_at: string | null };
+type ProfileLite = { id: string; display_name: string | null; username: string | null; shop_name?: string | null; avatar_url: string | null; last_seen_at: string | null };
 
 function ThreadPage() {
   const { conversationId } = Route.useParams();
@@ -52,7 +52,7 @@ function ThreadPage() {
       setConv(conv);
       const otherId = conv.user_a === user.id ? conv.user_b : conv.user_a;
       const [{ data: p }, { data: pr }, { data: msgs }] = await Promise.all([
-        supabase.from("public_profiles" as any).select("id,display_name,username,avatar_url,last_seen_at").eq("id", otherId).maybeSingle(),
+        supabase.from("public_profiles" as any).select("id,display_name,username,shop_name,avatar_url,last_seen_at").eq("id", otherId).maybeSingle(),
         conv.product_id ? supabase.from("products").select("title,slug").eq("id", conv.product_id).maybeSingle() : Promise.resolve({ data: null } as any),
         supabase.from("dm_messages").select("*").eq("conversation_id", conversationId).order("created_at", { ascending: true }),
       ]);
@@ -130,21 +130,27 @@ function ThreadPage() {
           <div className="rounded-2xl border border-border bg-card-gradient card-shadow flex flex-col h-[calc(100vh-220px)] min-h-[520px]">
             <div className="flex items-center gap-3 p-4 border-b border-border">
               <button onClick={() => navigate({ to: "/messages" })} className="grid h-9 w-9 place-items-center rounded-lg hover:bg-surface"><ArrowLeft className="h-4 w-4" /></button>
-              <div className="relative shrink-0">
-                <div className="h-10 w-10 rounded-full bg-surface grid place-items-center overflow-hidden">
-                  {other?.avatar_url ? <img src={other.avatar_url} alt="" className="h-full w-full object-cover" /> : <UserIcon className="h-5 w-5 text-muted-foreground" />}
-                </div>
-                <span className={`absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-background ${online ? "bg-success" : "bg-muted"}`} />
-              </div>
-              <div className="min-w-0 flex-1">
-                <p className="font-semibold truncate">{other?.display_name ?? other?.username ?? "İstifadəçi"}</p>
-                <p className="text-[11px] text-muted-foreground">{online ? "● Onlayn" : formatLastSeen(other?.last_seen_at)}</p>
-                {product && (
-                  <Link to="/product/$slug" params={{ slug: product.slug }} className="text-[11px] text-neon hover:underline truncate block">
-                    ↳ {product.title}
-                  </Link>
-                )}
-              </div>
+              {other ? (
+                <Link to="/u/$id" params={{ id: other.id }} className="flex items-center gap-3 min-w-0 flex-1 hover:opacity-90 group">
+                  <div className="relative shrink-0">
+                    <div className="h-10 w-10 rounded-full bg-surface grid place-items-center overflow-hidden">
+                      {other.avatar_url ? <img src={other.avatar_url} alt="" className="h-full w-full object-cover" /> : <UserIcon className="h-5 w-5 text-muted-foreground" />}
+                    </div>
+                    <span className={`absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-background ${online ? "bg-success" : "bg-muted"}`} />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="font-semibold truncate group-hover:text-neon transition">
+                      {((other as any).shop_name as string | null) || other.display_name || other.username || "İstifadəçi"}
+                    </p>
+                    <p className="text-[11px] text-muted-foreground">{online ? "● Onlayn" : formatLastSeen(other.last_seen_at)}</p>
+                    {product && (
+                      <span className="text-[11px] text-neon truncate block">↳ {product.title}</span>
+                    )}
+                  </div>
+                </Link>
+              ) : (
+                <div className="flex-1" />
+              )}
               {conv?.order_id && (
                 <Link to="/orders" className="text-xs px-2.5 h-8 inline-flex items-center rounded-md border border-border hover:border-primary">Sifariş</Link>
               )}

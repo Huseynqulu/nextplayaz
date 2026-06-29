@@ -555,6 +555,7 @@ export type Database = {
           last_seen_at: string | null
           referral_code: string | null
           referred_by: string | null
+          shop_name: string | null
           updated_at: string
           username: string | null
           wallet_balance: number
@@ -567,6 +568,7 @@ export type Database = {
           last_seen_at?: string | null
           referral_code?: string | null
           referred_by?: string | null
+          shop_name?: string | null
           updated_at?: string
           username?: string | null
           wallet_balance?: number
@@ -579,6 +581,7 @@ export type Database = {
           last_seen_at?: string | null
           referral_code?: string | null
           referred_by?: string | null
+          shop_name?: string | null
           updated_at?: string
           username?: string | null
           wallet_balance?: number
@@ -969,6 +972,7 @@ export type Database = {
           display_name: string | null
           id: string | null
           last_seen_at: string | null
+          shop_name: string | null
           username: string | null
         }
         Insert: {
@@ -977,6 +981,7 @@ export type Database = {
           display_name?: string | null
           id?: string | null
           last_seen_at?: string | null
+          shop_name?: string | null
           username?: string | null
         }
         Update: {
@@ -985,6 +990,7 @@ export type Database = {
           display_name?: string | null
           id?: string | null
           last_seen_at?: string | null
+          shop_name?: string | null
           username?: string | null
         }
         Relationships: []
@@ -1124,6 +1130,7 @@ export type Database = {
           last_seen_at: string
           referral_code: string
           referred_by: string
+          shop_name: string
           updated_at: string
           username: string
           wallet_balance: number
