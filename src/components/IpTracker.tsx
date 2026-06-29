@@ -13,8 +13,8 @@ export function IpTracker() {
       done = true;
       try { await record(); } catch {}
       try {
-        const { data: prof } = await supabase
-          .from("profiles")
+        const { data: prof } = await (supabase
+          .from("profiles") as any)
           .select("banned_at, ban_reason")
           .eq("id", data.session.user.id)
           .maybeSingle();
