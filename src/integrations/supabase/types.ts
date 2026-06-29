@@ -707,6 +707,7 @@ export type Database = {
         | "cancelled"
         | "paid"
         | "refunded"
+        | "disputed"
       ticket_category:
         | "order"
         | "payment"
@@ -864,6 +865,7 @@ export const Constants = {
         "cancelled",
         "paid",
         "refunded",
+        "disputed",
       ],
       ticket_category: [
         "order",
