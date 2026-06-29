@@ -548,6 +548,92 @@ export type Database = {
           },
         ]
       }
+      platform_subcategories: {
+        Row: {
+          created_at: string
+          id: string
+          is_active: boolean
+          label_az: string
+          label_en: string
+          label_ru: string
+          platform_slug: string
+          slug: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          label_az: string
+          label_en: string
+          label_ru: string
+          platform_slug: string
+          slug: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          label_az?: string
+          label_en?: string
+          label_ru?: string
+          platform_slug?: string
+          slug?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "platform_subcategories_platform_slug_fkey"
+            columns: ["platform_slug"]
+            isOneToOne: false
+            referencedRelation: "platforms"
+            referencedColumns: ["slug"]
+          },
+        ]
+      }
+      platforms: {
+        Row: {
+          created_at: string
+          icon: string | null
+          id: string
+          is_active: boolean
+          label_az: string
+          label_en: string
+          label_ru: string
+          slug: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          icon?: string | null
+          id?: string
+          is_active?: boolean
+          label_az: string
+          label_en: string
+          label_ru: string
+          slug: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          icon?: string | null
+          id?: string
+          is_active?: boolean
+          label_az?: string
+          label_en?: string
+          label_ru?: string
+          slug?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       product_stock_items: {
         Row: {
           content: string
@@ -606,6 +692,7 @@ export type Database = {
           is_active: boolean
           old_price: number | null
           platform: string
+          platform_subcategory: string | null
           price: number
           rating: number
           reviews_count: number
@@ -631,6 +718,7 @@ export type Database = {
           is_active?: boolean
           old_price?: number | null
           platform: string
+          platform_subcategory?: string | null
           price: number
           rating?: number
           reviews_count?: number
@@ -656,6 +744,7 @@ export type Database = {
           is_active?: boolean
           old_price?: number | null
           platform?: string
+          platform_subcategory?: string | null
           price?: number
           rating?: number
           reviews_count?: number

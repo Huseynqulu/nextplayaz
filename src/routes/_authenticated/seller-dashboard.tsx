@@ -33,7 +33,7 @@ type Product = {
 };
 
 const CATEGORIES = ["Games", "Accounts", "Keys", "Services"] as const;
-const PLATFORMS = ["Steam", "PS5", "PS4", "Xbox", "EA", "Battle.net", "Epic", "Rockstar"];
+
 
 function slugify(s: string) {
   return s.toLowerCase().normalize("NFKD").replace(/[^\w\s-]/g, "").trim().replace(/\s+/g, "-").slice(0, 80) + "-" + Math.random().toString(36).slice(2, 6);
@@ -53,16 +53,29 @@ function SellerDashboard() {
 
   const [form, setForm] = useState({
     title: "", description: "", price: "", old_price: "",
-    stock: "1", category: "Games" as Product["category"], subcategory: "", platform: "Steam",
+    stock: "1", category: "Games" as Product["category"], subcategory: "",
+    platform: "", platform_subcategory: "",
     delivery: "Instant" as "Instant" | "Manual", image_urls: [] as string[],
     stock_items: "", auto_message_enabled: false, auto_message: "",
   });
   const [subcats, setSubcats] = useState<{ slug: string; label_az: string; category_slug: string }[]>([]);
+  const [platformList, setPlatformList] = useState<{ slug: string; label_az: string }[]>([]);
+  const [psubs, setPsubs] = useState<{ slug: string; label_az: string; platform_slug: string }[]>([]);
   useEffect(() => {
     supabase.from("subcategories" as any).select("slug,label_az,category_slug").eq("is_active", true).order("sort_order")
       .then(({ data }) => setSubcats(((data as any) ?? []) as any));
+    supabase.from("platforms" as any).select("slug,label_az").eq("is_active", true).order("sort_order")
+      .then(({ data }) => {
+        const list = ((data as any) ?? []) as { slug: string; label_az: string }[];
+        setPlatformList(list);
+        setForm(f => f.platform ? f : { ...f, platform: list[0]?.label_az ?? "" });
+      });
+    supabase.from("platform_subcategories" as any).select("slug,label_az,platform_slug").eq("is_active", true).order("sort_order")
+      .then(({ data }) => setPsubs(((data as any) ?? []) as any));
   }, []);
   const currentSubs = subcats.filter(s => s.category_slug === form.category);
+  const currentPlatformSlug = platformList.find(p => p.label_az === form.platform)?.slug;
+  const currentPsubs = currentPlatformSlug ? psubs.filter(p => p.platform_slug === currentPlatformSlug) : [];
 
   useEffect(() => {
     if (!user) return;
@@ -81,7 +94,7 @@ function SellerDashboard() {
   useEffect(() => { if (isSeller) refresh(); }, [isSeller]);
 
   function resetForm() {
-    setForm({ title: "", description: "", price: "", old_price: "", stock: "1", category: "Games", subcategory: "", platform: "Steam", delivery: "Instant", image_urls: [], stock_items: "", auto_message_enabled: false, auto_message: "" });
+    setForm({ title: "", description: "", price: "", old_price: "", stock: "1", category: "Games", subcategory: "", platform: platformList[0]?.label_az ?? "", platform_subcategory: "", delivery: "Instant", image_urls: [], stock_items: "", auto_message_enabled: false, auto_message: "" });
     setEditing(null);
   }
 
@@ -90,12 +103,13 @@ function SellerDashboard() {
     // Load existing undelivered stock items + auto-message fields
     const [{ data: items }, { data: full }] = await Promise.all([
       supabase.from("product_stock_items" as any).select("content").eq("product_id", p.id).is("delivered_at", null).order("created_at"),
-      supabase.from("products").select("auto_message_enabled, auto_message, subcategory").eq("id", p.id).maybeSingle(),
+      supabase.from("products").select("auto_message_enabled, auto_message, subcategory, platform_subcategory").eq("id", p.id).maybeSingle(),
     ]);
     setForm({
       title: p.title, description: p.description ?? "",
       price: String(p.price), old_price: p.old_price ? String(p.old_price) : "",
-      stock: String(p.stock), category: p.category, subcategory: (full as any)?.subcategory ?? "", platform: p.platform,
+      stock: String(p.stock), category: p.category, subcategory: (full as any)?.subcategory ?? "",
+      platform: p.platform, platform_subcategory: (full as any)?.platform_subcategory ?? "",
       delivery: p.delivery, image_urls: (p.image_urls && p.image_urls.length ? p.image_urls : (p.image_url ? [p.image_url] : [])),
       stock_items: ((items as any) ?? []).map((i: any) => i.content).join("\n"),
       auto_message_enabled: !!(full as any)?.auto_message_enabled,
@@ -127,6 +141,7 @@ function SellerDashboard() {
         category: form.category,
         subcategory: form.subcategory || null,
         platform: form.platform,
+        platform_subcategory: form.platform_subcategory || null,
         delivery: form.delivery,
         image_url: form.image_urls[0] ?? null,
         image_urls: form.image_urls,
@@ -251,9 +266,22 @@ function SellerDashboard() {
               </div>
               <div>
                 <label className="text-xs font-medium text-muted-foreground">Platforma</label>
-                <select value={form.platform} onChange={e => setForm(f => ({ ...f, platform: e.target.value }))}
+                <select value={form.platform} onChange={e => setForm(f => ({ ...f, platform: e.target.value, platform_subcategory: "" }))}
                   className="mt-1 w-full h-11 px-3 rounded-lg bg-surface border border-border text-sm">
-                  {PLATFORMS.map(p => <option key={p} value={p}>{p}</option>)}
+                  {platformList.length === 0 && <option value="">— Yoxdur —</option>}
+                  {platformList.map(p => <option key={p.slug} value={p.label_az}>{p.label_az}</option>)}
+                </select>
+              </div>
+              <div>
+                <label className="text-xs font-medium text-muted-foreground">
+                  Platforma alt-kateqoriyası {currentPsubs.length === 0 && <span className="opacity-60">(yoxdur)</span>}
+                </label>
+                <select value={form.platform_subcategory}
+                  onChange={e => setForm(f => ({ ...f, platform_subcategory: e.target.value }))}
+                  disabled={currentPsubs.length === 0}
+                  className="mt-1 w-full h-11 px-3 rounded-lg bg-surface border border-border text-sm disabled:opacity-60">
+                  <option value="">— Seçilməyib —</option>
+                  {currentPsubs.map(p => <option key={p.slug} value={p.slug}>{p.label_az}</option>)}
                 </select>
               </div>
               <div>

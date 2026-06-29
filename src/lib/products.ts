@@ -9,6 +9,7 @@ export type DbProduct = {
   price: number;
   old_price: number | null;
   platform: string;
+  platform_subcategory?: string | null;
   category: "Games" | "Accounts" | "Keys" | "Services";
   subcategory?: string | null;
   image_url: string | null;
@@ -38,6 +39,7 @@ export function dbToProduct(p: DbProduct, seller?: SellerLite | string): Product
     price: Number(p.price),
     oldPrice: p.old_price ? Number(p.old_price) : undefined,
     platform: p.platform as Product["platform"],
+    platformSubcategory: p.platform_subcategory ?? null,
     category: p.category,
     subcategory: p.subcategory ?? null,
     image: p.image_url || FALLBACK_IMG,

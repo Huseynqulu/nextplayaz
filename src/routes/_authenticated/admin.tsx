@@ -36,7 +36,10 @@ type PaymentSetting = { method: string; label: string; instructions: string; is_
 type Category = { slug: string; label_az: string; label_en: string; label_ru: string; sort_order: number; is_active: boolean };
 type Subcategory = { id?: string; category_slug: string; slug: string; label_az: string; label_en: string; label_ru: string; sort_order: number; is_active: boolean };
 
-type Tab = "analytics" | "applications" | "users" | "codes" | "products" | "tickets" | "topups" | "withdrawals" | "platform" | "payments" | "categories" | "disputes" | "banners" | "reviews" | "giftcards" | "boost";
+type Tab = "analytics" | "applications" | "users" | "codes" | "products" | "tickets" | "topups" | "withdrawals" | "platform" | "payments" | "categories" | "platforms" | "disputes" | "banners" | "reviews" | "giftcards" | "boost";
+
+type PlatformRow = { slug: string; label_az: string; label_en: string; label_ru: string; sort_order: number; is_active: boolean };
+type PlatformSub = { platform_slug: string; slug: string; label_az: string; label_en: string; label_ru: string; sort_order: number; is_active: boolean };
 
 type Withdrawal = { id: string; user_id: string; amount: number; fee: number; net_amount: number; method: string; destination: string; account_holder: string | null; status: "pending"|"approved"|"rejected"; admin_notes: string | null; created_at: string };
 type LedgerEntry = { id: string; entry_type: string; amount: number; order_id: string | null; withdrawal_id: string | null; user_id: string | null; notes: string | null; created_at: string };
@@ -71,6 +74,11 @@ function AdminPage() {
   const [subcategories, setSubcategories] = useState<Subcategory[]>([]);
   const [expandedCat, setExpandedCat] = useState<string | null>(null);
   const [newSub, setNewSub] = useState<Record<string, Subcategory>>({});
+  const [platformsList, setPlatformsList] = useState<PlatformRow[]>([]);
+  const [platformSubs, setPlatformSubs] = useState<PlatformSub[]>([]);
+  const [expandedPlatform, setExpandedPlatform] = useState<string | null>(null);
+  const [newPlatform, setNewPlatform] = useState<PlatformRow>({ slug: "", label_az: "", label_en: "", label_ru: "", sort_order: 10, is_active: true });
+  const [newPSub, setNewPSub] = useState<Record<string, PlatformSub>>({});
   const [newCategory, setNewCategory] = useState<Category>({ slug: "", label_az: "", label_en: "", label_ru: "", sort_order: 10, is_active: true });
   const [stats, setStats] = useState({ users: 0, sellers: 0, products: 0, orders: 0 });
   const [loading, setLoading] = useState(true);
@@ -139,10 +147,62 @@ function AdminPage() {
     setTopups((tu as any) ?? []);
     setPaySettings((ps as any) ?? []);
     setCategories((cats as any) ?? []);
-    const { data: subs } = await supabase.from("subcategories" as any).select("*").order("sort_order");
+    const [{ data: subs }, { data: pls }, { data: psubs }] = await Promise.all([
+      supabase.from("subcategories" as any).select("*").order("sort_order"),
+      supabase.from("platforms" as any).select("*").order("sort_order"),
+      supabase.from("platform_subcategories" as any).select("*").order("sort_order"),
+    ]);
     setSubcategories((subs as any) ?? []);
+    setPlatformsList((pls as any) ?? []);
+    setPlatformSubs((psubs as any) ?? []);
     setStats({ users: uc ?? 0, sellers: sc ?? 0, products: pc ?? 0, orders: oc ?? 0 });
     setLoading(false);
+  }
+
+  async function savePlatform(p: PlatformRow) {
+    if (!p.slug || !p.label_az) { toast.error("Slug və AZ ad tələb olunur"); return; }
+    setBusy(`pl:${p.slug}`);
+    const { error } = await supabase.from("platforms" as any).upsert({
+      slug: p.slug.trim(), label_az: p.label_az, label_en: p.label_en || p.label_az,
+      label_ru: p.label_ru || p.label_az, sort_order: p.sort_order, is_active: p.is_active,
+    });
+    setBusy(null);
+    if (error) toast.error(error.message); else { toast.success("Yadda saxlandı"); await refresh(); }
+  }
+  async function deletePlatform(slug: string) {
+    if (!confirm(`"${slug}" platforması silinsin?`)) return;
+    setBusy(`pl:${slug}`);
+    const { error } = await supabase.from("platforms" as any).delete().eq("slug", slug);
+    setBusy(null);
+    if (error) toast.error(error.message); else { toast.success("Silindi"); await refresh(); }
+  }
+  async function addNewPlatform() {
+    await savePlatform(newPlatform);
+    setNewPlatform({ slug: "", label_az: "", label_en: "", label_ru: "", sort_order: 10, is_active: true });
+  }
+  async function savePSub(s: PlatformSub) {
+    if (!s.slug || !s.label_az || !s.platform_slug) { toast.error("Slug və AZ ad tələb olunur"); return; }
+    setBusy(`psub:${s.platform_slug}:${s.slug}`);
+    const { error } = await supabase.from("platform_subcategories" as any).upsert({
+      platform_slug: s.platform_slug, slug: s.slug.trim(), label_az: s.label_az,
+      label_en: s.label_en || s.label_az, label_ru: s.label_ru || s.label_az,
+      sort_order: s.sort_order, is_active: s.is_active,
+    }, { onConflict: "platform_slug,slug" });
+    setBusy(null);
+    if (error) toast.error(error.message); else { toast.success("Yadda saxlandı"); await refresh(); }
+  }
+  async function deletePSub(platform_slug: string, slug: string) {
+    if (!confirm(`"${slug}" alt-kateqoriya silinsin?`)) return;
+    setBusy(`psub:${platform_slug}:${slug}`);
+    const { error } = await supabase.from("platform_subcategories" as any).delete().eq("platform_slug", platform_slug).eq("slug", slug);
+    setBusy(null);
+    if (error) toast.error(error.message); else { toast.success("Silindi"); await refresh(); }
+  }
+  async function addNewPSub(platform_slug: string) {
+    const draft = newPSub[platform_slug];
+    if (!draft) return;
+    await savePSub({ ...draft, platform_slug });
+    setNewPSub(s => ({ ...s, [platform_slug]: { platform_slug, slug: "", label_az: "", label_en: "", label_ru: "", sort_order: 10, is_active: true } }));
   }
 
   async function saveCategory(c: Category) {
@@ -394,6 +454,7 @@ function AdminPage() {
               ["platform", `Platforma (${platformBalance.toFixed(2)} ₼)`],
               ["payments", "Rekvizitlər"],
               ["categories", "Kateqoriyalar"],
+              ["platforms", "Platformalar"],
               ["banners", "Bannerlər"],
               ["reviews", "Rəylər"],
               ["giftcards", "Hədiyyə kartları"],
@@ -864,6 +925,127 @@ function AdminPage() {
                   )}
                 </div>
               ))}
+            </div>
+          ) : tab === "platforms" ? (
+            <div className="space-y-3">
+              <div className="rounded-2xl border border-border bg-card-gradient p-4 card-shadow">
+                <h3 className="font-semibold mb-3 inline-flex items-center gap-2"><Plus className="h-4 w-4 text-neon" /> Yeni platforma əlavə et</h3>
+                <div className="grid sm:grid-cols-5 gap-2">
+                  <input value={newPlatform.slug} onChange={e => setNewPlatform({ ...newPlatform, slug: e.target.value })}
+                    placeholder="slug (məs: pc)" className="h-10 px-3 rounded-md bg-background border border-border text-sm" />
+                  <input value={newPlatform.label_az} onChange={e => setNewPlatform({ ...newPlatform, label_az: e.target.value })}
+                    placeholder="Ad (AZ)" className="h-10 px-3 rounded-md bg-background border border-border text-sm" />
+                  <input value={newPlatform.label_en} onChange={e => setNewPlatform({ ...newPlatform, label_en: e.target.value })}
+                    placeholder="Name (EN)" className="h-10 px-3 rounded-md bg-background border border-border text-sm" />
+                  <input value={newPlatform.label_ru} onChange={e => setNewPlatform({ ...newPlatform, label_ru: e.target.value })}
+                    placeholder="Имя (RU)" className="h-10 px-3 rounded-md bg-background border border-border text-sm" />
+                  <button onClick={addNewPlatform} disabled={busy === `pl:${newPlatform.slug}`}
+                    className="h-10 px-4 rounded-md bg-neon text-background text-sm font-semibold neon-ring disabled:opacity-50 inline-flex items-center justify-center gap-1.5">
+                    <Plus className="h-4 w-4" /> Əlavə et
+                  </button>
+                </div>
+              </div>
+              {platformsList.length === 0 && <p className="text-muted-foreground text-center py-12">Platforma yoxdur.</p>}
+              {platformsList.map((p, i) => {
+                const key = `pl:${p.slug}`;
+                return (
+                  <div key={p.slug} className="rounded-xl border border-border bg-card-gradient p-4 card-shadow">
+                    <div className="grid sm:grid-cols-[100px_1fr_1fr_1fr_80px_auto] gap-2 items-center">
+                      <span className="px-2 py-0.5 rounded text-[11px] font-bold bg-surface text-center">{p.slug}</span>
+                      <input value={p.label_az} onChange={e => { const n = [...platformsList]; n[i] = { ...p, label_az: e.target.value }; setPlatformsList(n); }}
+                        className="h-9 px-3 rounded-md bg-background border border-border text-sm" />
+                      <input value={p.label_en} onChange={e => { const n = [...platformsList]; n[i] = { ...p, label_en: e.target.value }; setPlatformsList(n); }}
+                        className="h-9 px-3 rounded-md bg-background border border-border text-sm" />
+                      <input value={p.label_ru} onChange={e => { const n = [...platformsList]; n[i] = { ...p, label_ru: e.target.value }; setPlatformsList(n); }}
+                        className="h-9 px-3 rounded-md bg-background border border-border text-sm" />
+                      <input type="number" value={p.sort_order} onChange={e => { const n = [...platformsList]; n[i] = { ...p, sort_order: Number(e.target.value) }; setPlatformsList(n); }}
+                        className="h-9 px-2 rounded-md bg-background border border-border text-sm text-center" />
+                      <div className="flex items-center gap-1.5">
+                        <label className="inline-flex items-center gap-1.5 text-xs cursor-pointer">
+                          <input type="checkbox" checked={p.is_active} onChange={e => { const n = [...platformsList]; n[i] = { ...p, is_active: e.target.checked }; setPlatformsList(n); }}
+                            className="h-4 w-4 accent-neon" />
+                          Aktiv
+                        </label>
+                        <button disabled={busy === key} onClick={() => savePlatform(p)}
+                          className="h-9 w-9 grid place-items-center rounded-md bg-neon text-background disabled:opacity-50" title="Yadda saxla">
+                          {busy === key ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
+                        </button>
+                        <button disabled={busy === key} onClick={() => deletePlatform(p.slug)}
+                          className="h-9 w-9 grid place-items-center rounded-md bg-destructive text-destructive-foreground disabled:opacity-50" title="Sil">
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                        <button onClick={() => setExpandedPlatform(expandedPlatform === p.slug ? null : p.slug)}
+                          className="h-9 px-3 rounded-md bg-surface border border-border text-xs font-semibold hover:border-primary/40" title="Alt-kateqoriyalar">
+                          {expandedPlatform === p.slug ? "▲" : "▼"} Alt
+                        </button>
+                      </div>
+                    </div>
+
+                    {expandedPlatform === p.slug && (
+                      <div className="mt-4 pt-4 border-t border-border space-y-2">
+                        <h4 className="text-xs font-bold uppercase text-muted-foreground tracking-wide">Alt-kateqoriyalar — {p.label_az}</h4>
+                        {platformSubs.filter(s => s.platform_slug === p.slug).map(s => {
+                          const idx = platformSubs.findIndex(x => x.platform_slug === p.slug && x.slug === s.slug);
+                          const k = `psub:${p.slug}:${s.slug}`;
+                          return (
+                            <div key={s.slug} className="grid sm:grid-cols-[100px_1fr_1fr_1fr_80px_auto] gap-2 items-center">
+                              <span className="px-2 py-0.5 rounded text-[11px] font-bold bg-background text-center">{s.slug}</span>
+                              <input value={s.label_az} onChange={e => { const n = [...platformSubs]; n[idx] = { ...s, label_az: e.target.value }; setPlatformSubs(n); }}
+                                className="h-9 px-3 rounded-md bg-background border border-border text-sm" />
+                              <input value={s.label_en} onChange={e => { const n = [...platformSubs]; n[idx] = { ...s, label_en: e.target.value }; setPlatformSubs(n); }}
+                                className="h-9 px-3 rounded-md bg-background border border-border text-sm" />
+                              <input value={s.label_ru} onChange={e => { const n = [...platformSubs]; n[idx] = { ...s, label_ru: e.target.value }; setPlatformSubs(n); }}
+                                className="h-9 px-3 rounded-md bg-background border border-border text-sm" />
+                              <input type="number" value={s.sort_order} onChange={e => { const n = [...platformSubs]; n[idx] = { ...s, sort_order: Number(e.target.value) }; setPlatformSubs(n); }}
+                                className="h-9 px-2 rounded-md bg-background border border-border text-sm text-center" />
+                              <div className="flex items-center gap-1.5">
+                                <label className="inline-flex items-center gap-1.5 text-xs cursor-pointer">
+                                  <input type="checkbox" checked={s.is_active} onChange={e => { const n = [...platformSubs]; n[idx] = { ...s, is_active: e.target.checked }; setPlatformSubs(n); }}
+                                    className="h-4 w-4 accent-neon" />
+                                  Aktiv
+                                </label>
+                                <button disabled={busy === k} onClick={() => savePSub(s)}
+                                  className="h-9 w-9 grid place-items-center rounded-md bg-neon text-background disabled:opacity-50" title="Yadda saxla">
+                                  {busy === k ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
+                                </button>
+                                <button disabled={busy === k} onClick={() => deletePSub(p.slug, s.slug)}
+                                  className="h-9 w-9 grid place-items-center rounded-md bg-destructive text-destructive-foreground disabled:opacity-50" title="Sil">
+                                  <Trash2 className="h-4 w-4" />
+                                </button>
+                              </div>
+                            </div>
+                          );
+                        })}
+                        {platformSubs.filter(s => s.platform_slug === p.slug).length === 0 && (
+                          <p className="text-xs text-muted-foreground">Bu platformada alt-kateqoriya yoxdur.</p>
+                        )}
+                        {(() => {
+                          const d = newPSub[p.slug] ?? { platform_slug: p.slug, slug: "", label_az: "", label_en: "", label_ru: "", sort_order: 10, is_active: true };
+                          const set = (patch: Partial<PlatformSub>) => setNewPSub(ns => ({ ...ns, [p.slug]: { ...d, ...patch } as PlatformSub }));
+                          return (
+                            <div className="grid sm:grid-cols-[100px_1fr_1fr_1fr_80px_auto] gap-2 items-center pt-2 mt-2 border-t border-dashed border-border">
+                              <input value={d.slug} onChange={e => set({ slug: e.target.value })} placeholder="slug"
+                                className="h-9 px-2 rounded-md bg-background border border-border text-xs font-bold" />
+                              <input value={d.label_az} onChange={e => set({ label_az: e.target.value })} placeholder="Ad (AZ)"
+                                className="h-9 px-3 rounded-md bg-background border border-border text-sm" />
+                              <input value={d.label_en} onChange={e => set({ label_en: e.target.value })} placeholder="Name (EN)"
+                                className="h-9 px-3 rounded-md bg-background border border-border text-sm" />
+                              <input value={d.label_ru} onChange={e => set({ label_ru: e.target.value })} placeholder="Имя (RU)"
+                                className="h-9 px-3 rounded-md bg-background border border-border text-sm" />
+                              <input type="number" value={d.sort_order} onChange={e => set({ sort_order: Number(e.target.value) })}
+                                className="h-9 px-2 rounded-md bg-background border border-border text-sm text-center" />
+                              <button onClick={() => addNewPSub(p.slug)}
+                                className="h-9 px-3 rounded-md bg-neon text-background text-xs font-semibold neon-ring inline-flex items-center gap-1.5">
+                                <Plus className="h-4 w-4" /> Əlavə
+                              </button>
+                            </div>
+                          );
+                        })()}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           ) : tab === "withdrawals" ? (
             <div className="space-y-3">
