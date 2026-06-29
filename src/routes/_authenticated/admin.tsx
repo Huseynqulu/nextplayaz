@@ -112,6 +112,14 @@ function AdminPage() {
     ]);
     const { data: ds } = await supabase.from("orders").select("id,buyer_id,seller_id,product_id,total,status,disputed_at,disputed_reason,created_at,conversation_id,product:products(title)").in("status", ["disputed", "dispute"] as any).order("disputed_at", { ascending: false });
     setDisputes((ds as any) ?? []);
+    const [{ data: wds }, { data: lg }] = await Promise.all([
+      supabase.from("wallet_withdrawals" as any).select("*").order("created_at", { ascending: false }),
+      supabase.from("platform_ledger" as any).select("*").order("created_at", { ascending: false }).limit(200),
+    ]);
+    setWithdrawals((wds as any) ?? []);
+    const ledgerRows = (lg as any) ?? [];
+    setLedger(ledgerRows);
+    setPlatformBalance(ledgerRows.reduce((sum: number, r: LedgerEntry) => sum + Number(r.amount), 0));
     setApps((a as any) ?? []);
     setProducts((p as any) ?? []);
     setUsers((u as any) ?? []);
