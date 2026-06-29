@@ -6,7 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Gift, Loader2, ChevronRight } from "lucide-react";
 import { useCurrency } from "@/lib/currency";
 
-export const Route = createFileRoute("/gift-cards/$platform")({
+export const Route = createFileRoute("/gift-cards/$platform/")({
   component: PlatformGiftCards,
   head: ({ params }) => ({
     meta: [

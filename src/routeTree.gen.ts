@@ -23,7 +23,6 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as UIdRouteImport } from './routes/u.$id'
 import { Route as ProductSlugRouteImport } from './routes/product.$slug'
-import { Route as GiftCardsPlatformRouteImport } from './routes/gift-cards.$platform'
 import { Route as AuthenticatedWalletRouteImport } from './routes/_authenticated/wallet'
 import { Route as AuthenticatedSupportTicketsRouteImport } from './routes/_authenticated/support-tickets'
 import { Route as AuthenticatedStaffRouteImport } from './routes/_authenticated/staff'
@@ -34,6 +33,7 @@ import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedOrdersRouteImport } from './routes/_authenticated/orders'
 import { Route as AuthenticatedFavoritesRouteImport } from './routes/_authenticated/favorites'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
+import { Route as GiftCardsPlatformIndexRouteImport } from './routes/gift-cards.$platform.index'
 import { Route as AuthenticatedMessagesIndexRouteImport } from './routes/_authenticated/messages/index'
 import { Route as GiftCardsPlatformDenomRouteImport } from './routes/gift-cards.$platform.$denom'
 import { Route as AuthenticatedMessagesConversationIdRouteImport } from './routes/_authenticated/messages/$conversationId'
@@ -107,11 +107,6 @@ const ProductSlugRoute = ProductSlugRouteImport.update({
   path: '/product/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
-const GiftCardsPlatformRoute = GiftCardsPlatformRouteImport.update({
-  id: '/$platform',
-  path: '/$platform',
-  getParentRoute: () => GiftCardsRoute,
-} as any)
 const AuthenticatedWalletRoute = AuthenticatedWalletRouteImport.update({
   id: '/wallet',
   path: '/wallet',
@@ -165,6 +160,11 @@ const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
   path: '/admin',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const GiftCardsPlatformIndexRoute = GiftCardsPlatformIndexRouteImport.update({
+  id: '/$platform/',
+  path: '/$platform/',
+  getParentRoute: () => GiftCardsRoute,
+} as any)
 const AuthenticatedMessagesIndexRoute =
   AuthenticatedMessagesIndexRouteImport.update({
     id: '/messages/',
@@ -172,9 +172,9 @@ const AuthenticatedMessagesIndexRoute =
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const GiftCardsPlatformDenomRoute = GiftCardsPlatformDenomRouteImport.update({
-  id: '/$denom',
-  path: '/$denom',
-  getParentRoute: () => GiftCardsPlatformRoute,
+  id: '/$platform/$denom',
+  path: '/$platform/$denom',
+  getParentRoute: () => GiftCardsRoute,
 } as any)
 const AuthenticatedMessagesConversationIdRoute =
   AuthenticatedMessagesConversationIdRouteImport.update({
@@ -205,12 +205,12 @@ export interface FileRoutesByFullPath {
   '/staff': typeof AuthenticatedStaffRoute
   '/support-tickets': typeof AuthenticatedSupportTicketsRoute
   '/wallet': typeof AuthenticatedWalletRoute
-  '/gift-cards/$platform': typeof GiftCardsPlatformRouteWithChildren
   '/product/$slug': typeof ProductSlugRoute
   '/u/$id': typeof UIdRoute
   '/messages/$conversationId': typeof AuthenticatedMessagesConversationIdRoute
   '/gift-cards/$platform/$denom': typeof GiftCardsPlatformDenomRoute
   '/messages/': typeof AuthenticatedMessagesIndexRoute
+  '/gift-cards/$platform/': typeof GiftCardsPlatformIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -234,12 +234,12 @@ export interface FileRoutesByTo {
   '/staff': typeof AuthenticatedStaffRoute
   '/support-tickets': typeof AuthenticatedSupportTicketsRoute
   '/wallet': typeof AuthenticatedWalletRoute
-  '/gift-cards/$platform': typeof GiftCardsPlatformRouteWithChildren
   '/product/$slug': typeof ProductSlugRoute
   '/u/$id': typeof UIdRoute
   '/messages/$conversationId': typeof AuthenticatedMessagesConversationIdRoute
   '/gift-cards/$platform/$denom': typeof GiftCardsPlatformDenomRoute
   '/messages': typeof AuthenticatedMessagesIndexRoute
+  '/gift-cards/$platform': typeof GiftCardsPlatformIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -265,12 +265,12 @@ export interface FileRoutesById {
   '/_authenticated/staff': typeof AuthenticatedStaffRoute
   '/_authenticated/support-tickets': typeof AuthenticatedSupportTicketsRoute
   '/_authenticated/wallet': typeof AuthenticatedWalletRoute
-  '/gift-cards/$platform': typeof GiftCardsPlatformRouteWithChildren
   '/product/$slug': typeof ProductSlugRoute
   '/u/$id': typeof UIdRoute
   '/_authenticated/messages/$conversationId': typeof AuthenticatedMessagesConversationIdRoute
   '/gift-cards/$platform/$denom': typeof GiftCardsPlatformDenomRoute
   '/_authenticated/messages/': typeof AuthenticatedMessagesIndexRoute
+  '/gift-cards/$platform/': typeof GiftCardsPlatformIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -296,12 +296,12 @@ export interface FileRouteTypes {
     | '/staff'
     | '/support-tickets'
     | '/wallet'
-    | '/gift-cards/$platform'
     | '/product/$slug'
     | '/u/$id'
     | '/messages/$conversationId'
     | '/gift-cards/$platform/$denom'
     | '/messages/'
+    | '/gift-cards/$platform/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -325,12 +325,12 @@ export interface FileRouteTypes {
     | '/staff'
     | '/support-tickets'
     | '/wallet'
-    | '/gift-cards/$platform'
     | '/product/$slug'
     | '/u/$id'
     | '/messages/$conversationId'
     | '/gift-cards/$platform/$denom'
     | '/messages'
+    | '/gift-cards/$platform'
   id:
     | '__root__'
     | '/'
@@ -355,12 +355,12 @@ export interface FileRouteTypes {
     | '/_authenticated/staff'
     | '/_authenticated/support-tickets'
     | '/_authenticated/wallet'
-    | '/gift-cards/$platform'
     | '/product/$slug'
     | '/u/$id'
     | '/_authenticated/messages/$conversationId'
     | '/gift-cards/$platform/$denom'
     | '/_authenticated/messages/'
+    | '/gift-cards/$platform/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -480,13 +480,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProductSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/gift-cards/$platform': {
-      id: '/gift-cards/$platform'
-      path: '/$platform'
-      fullPath: '/gift-cards/$platform'
-      preLoaderRoute: typeof GiftCardsPlatformRouteImport
-      parentRoute: typeof GiftCardsRoute
-    }
     '/_authenticated/wallet': {
       id: '/_authenticated/wallet'
       path: '/wallet'
@@ -557,6 +550,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/gift-cards/$platform/': {
+      id: '/gift-cards/$platform/'
+      path: '/$platform'
+      fullPath: '/gift-cards/$platform/'
+      preLoaderRoute: typeof GiftCardsPlatformIndexRouteImport
+      parentRoute: typeof GiftCardsRoute
+    }
     '/_authenticated/messages/': {
       id: '/_authenticated/messages/'
       path: '/messages'
@@ -566,10 +566,10 @@ declare module '@tanstack/react-router' {
     }
     '/gift-cards/$platform/$denom': {
       id: '/gift-cards/$platform/$denom'
-      path: '/$denom'
+      path: '/$platform/$denom'
       fullPath: '/gift-cards/$platform/$denom'
       preLoaderRoute: typeof GiftCardsPlatformDenomRouteImport
-      parentRoute: typeof GiftCardsPlatformRoute
+      parentRoute: typeof GiftCardsRoute
     }
     '/_authenticated/messages/$conversationId': {
       id: '/_authenticated/messages/$conversationId'
@@ -615,23 +615,14 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
 const AuthenticatedRouteRouteWithChildren =
   AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
 
-interface GiftCardsPlatformRouteChildren {
-  GiftCardsPlatformDenomRoute: typeof GiftCardsPlatformDenomRoute
-}
-
-const GiftCardsPlatformRouteChildren: GiftCardsPlatformRouteChildren = {
-  GiftCardsPlatformDenomRoute: GiftCardsPlatformDenomRoute,
-}
-
-const GiftCardsPlatformRouteWithChildren =
-  GiftCardsPlatformRoute._addFileChildren(GiftCardsPlatformRouteChildren)
-
 interface GiftCardsRouteChildren {
-  GiftCardsPlatformRoute: typeof GiftCardsPlatformRouteWithChildren
+  GiftCardsPlatformDenomRoute: typeof GiftCardsPlatformDenomRoute
+  GiftCardsPlatformIndexRoute: typeof GiftCardsPlatformIndexRoute
 }
 
 const GiftCardsRouteChildren: GiftCardsRouteChildren = {
-  GiftCardsPlatformRoute: GiftCardsPlatformRouteWithChildren,
+  GiftCardsPlatformDenomRoute: GiftCardsPlatformDenomRoute,
+  GiftCardsPlatformIndexRoute: GiftCardsPlatformIndexRoute,
 }
 
 const GiftCardsRouteWithChildren = GiftCardsRoute._addFileChildren(
