@@ -112,7 +112,7 @@ function AdminPage() {
     setBusy(null);
   }
 
-  async function setTicketStatus(s: string) {
+  async function setTicketStatus(s: "open" | "pending" | "answered" | "closed") {
     if (!activeTicket) return;
     setBusy("status");
     const { error } = await supabase.from("support_tickets").update({ status: s }).eq("id", activeTicket.id);
