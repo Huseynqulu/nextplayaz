@@ -60,7 +60,8 @@ function MarketplacePage() {
   }, []);
   useEffect(() => { setQLocal(s.q); }, [s.q]);
   const currentSubs = s.cat !== "all" ? subcats.filter(x => x.category_slug === s.cat) : [];
-  const currentPsubs = s.platform !== "all" ? psubs.filter(x => x.platform_slug === s.platform) : [];
+  const currentPlatformSlug = platforms.find(p => p.label_az === s.platform)?.slug;
+  const currentPsubs = s.platform !== "all" && currentPlatformSlug ? psubs.filter(x => x.platform_slug === currentPlatformSlug) : [];
 
   // Debounce free-text search → URL
   useEffect(() => {
