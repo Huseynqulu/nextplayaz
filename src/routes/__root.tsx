@@ -98,6 +98,7 @@ import { I18nProvider } from "@/lib/i18n";
 import { CurrencyProvider } from "@/lib/currency";
 import { FavoritesProvider } from "@/lib/favorites";
 import { CartProvider } from "@/lib/cart";
+import { IpTracker } from "@/components/IpTracker";
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
@@ -107,6 +108,7 @@ function RootComponent() {
         <CurrencyProvider>
           <FavoritesProvider>
             <CartProvider>
+              <IpTracker />
               <Outlet />
               <Toaster theme="dark" position="top-right" richColors />
             </CartProvider>
