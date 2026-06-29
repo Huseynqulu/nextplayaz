@@ -11,6 +11,7 @@ export type DbProduct = {
   platform: string;
   category: "Games" | "Accounts" | "Keys" | "Services";
   image_url: string | null;
+  image_urls?: string[] | null;
   stock: number;
   rating: number;
   reviews_count: number;
