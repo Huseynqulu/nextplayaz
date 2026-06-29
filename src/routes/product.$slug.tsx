@@ -45,7 +45,7 @@ function ProductPage() {
   const [showTerms, setShowTerms] = useState(false);
   const [agreed, setAgreed] = useState(false);
   const discount = p.oldPrice ? Math.round((1 - p.price / p.oldPrice) * 100) : 0;
-  const similar = mockProducts.filter(x => x.id !== p.id && x.category === p.category).slice(0, 4);
+  const similar: typeof p[] = [];
   const isDbProduct = /^[0-9a-f]{8}-/i.test(p.id);
 
   function openBuy() {
