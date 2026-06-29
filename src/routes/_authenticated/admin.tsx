@@ -347,6 +347,7 @@ function AdminPage() {
               ["platform", `Platforma (${platformBalance.toFixed(2)} ₼)`],
               ["payments", "Rekvizitlər"],
               ["categories", "Kateqoriyalar"],
+              ["banners", "Bannerlər"],
               ["codes", "Endirim kodları"],
               ["products", "Məhsullar"],
             ] as const).map(([key, label]) => (
