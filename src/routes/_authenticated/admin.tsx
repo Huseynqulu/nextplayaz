@@ -500,6 +500,8 @@ function AdminPage() {
                   </div>
                 </div>
               ))}
+                </>;
+              })()}
             </div>
           ) : tab === "codes" ? (
             <div className="space-y-4">
