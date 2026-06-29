@@ -101,7 +101,7 @@ function SellerDashboard() {
   useEffect(() => { if (isSeller) refresh(); }, [isSeller]);
 
   function resetForm() {
-    setForm({ title: "", description: "", price: "", old_price: "", stock: "1", category: "Games", subcategory: "", platform: platformList[0]?.label_az ?? "", platform_subcategory: "", delivery: "Instant", image_urls: [], stock_items: "", auto_message_enabled: false, auto_message: "" });
+    setForm({ title: "", description: "", price: "", old_price: "", stock: "1", category: "Games", subcategory: "", platform: platformList[0]?.label_az ?? "", platform_subcategory: "", delivery: "Instant", image_urls: [], stock_items: "", auto_message_enabled: false, auto_message: "", is_gift_card: false, gift_platform_id: "", gift_denomination_id: "" });
     setEditing(null);
   }
 
@@ -110,8 +110,10 @@ function SellerDashboard() {
     // Load existing undelivered stock items + auto-message fields
     const [{ data: items }, { data: full }] = await Promise.all([
       supabase.from("product_stock_items" as any).select("content").eq("product_id", p.id).is("delivered_at", null).order("created_at"),
-      supabase.from("products").select("auto_message_enabled, auto_message, subcategory, platform_subcategory").eq("id", p.id).maybeSingle(),
+      supabase.from("products").select("auto_message_enabled, auto_message, subcategory, platform_subcategory, gift_denomination_id").eq("id", p.id).maybeSingle(),
     ]);
+    const giftDenomId = (full as any)?.gift_denomination_id ?? "";
+    const giftPlatId = giftDenomId ? (giftDenoms.find(d => d.id === giftDenomId)?.platform_id ?? "") : "";
     setForm({
       title: p.title, description: p.description ?? "",
       price: String(p.price), old_price: p.old_price ? String(p.old_price) : "",
@@ -121,6 +123,9 @@ function SellerDashboard() {
       stock_items: ((items as any) ?? []).map((i: any) => i.content).join("\n"),
       auto_message_enabled: !!(full as any)?.auto_message_enabled,
       auto_message: (full as any)?.auto_message ?? "",
+      is_gift_card: !!giftDenomId,
+      gift_platform_id: giftPlatId,
+      gift_denomination_id: giftDenomId,
     });
     setShowForm(true);
     setTimeout(() => window.scrollTo({ top: 0, behavior: "smooth" }), 50);
