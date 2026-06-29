@@ -38,11 +38,14 @@ function AdminPage() {
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [codes, setCodes] = useState<DiscountCode[]>([]);
   const [tickets, setTickets] = useState<AdminTicket[]>([]);
+  const [topups, setTopups] = useState<TopUp[]>([]);
   const [stats, setStats] = useState({ users: 0, sellers: 0, products: 0, orders: 0 });
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState<string | null>(null);
   const [appFilter, setAppFilter] = useState<"all" | "pending" | "approved" | "rejected">("all");
   const [ticketFilter, setTicketFilter] = useState<"all" | "open" | "pending" | "answered" | "closed">("all");
+  const [topupFilter, setTopupFilter] = useState<"all" | "pending" | "approved" | "rejected">("pending");
+  const [topupReceipt, setTopupReceipt] = useState<{ id: string; url: string } | null>(null);
   const [viewing, setViewing] = useState<Application | null>(null);
   const [signed, setSigned] = useState<{ front?: string; back?: string; selfie?: string }>({});
   const [activeTicket, setActiveTicket] = useState<AdminTicket | null>(null);
