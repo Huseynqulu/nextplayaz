@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { dbToProduct, type DbProduct } from "@/lib/products";
 import { isOnline, formatLastSeen } from "@/lib/presence";
 import { ShieldCheck, Star, MessageCircle, Loader2 } from "lucide-react";
+import { SellerTierBadge } from "@/components/SellerTierBadge";
 import { useAuth } from "@/hooks/use-auth";
 import { useState } from "react";
 import { toast } from "sonner";
