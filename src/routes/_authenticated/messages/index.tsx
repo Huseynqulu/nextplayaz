@@ -23,6 +23,7 @@ function InboxPage() {
   const [convs, setConvs] = useState<Conv[]>([]);
   const [profiles, setProfiles] = useState<Record<string, ProfileLite>>({});
   const [products, setProducts] = useState<Record<string, { title: string; slug: string }>>({});
+  const [unread, setUnread] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
