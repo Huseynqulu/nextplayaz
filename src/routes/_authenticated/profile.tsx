@@ -28,6 +28,8 @@ function ProfilePage() {
   const [orderCount, setOrderCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [form, setForm] = useState({ display_name: "", username: "", shop_name: "" });
   const fileRef = useRef<HTMLInputElement>(null);
 
   async function load() {
