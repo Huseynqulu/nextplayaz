@@ -24,6 +24,7 @@ type Profile = {
 
 function ProfilePage() {
   const { user } = useAuth();
+  const { format } = useCurrency();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [roles, setRoles] = useState<string[]>([]);
   const [orderCount, setOrderCount] = useState(0);
