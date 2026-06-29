@@ -26,8 +26,9 @@ type AdminTicket = { id: string; user_id: string; order_id: string | null; subje
 type TicketMsg = { id: string; sender_id: string; is_admin: boolean; body: string; created_at: string };
 type TopUp = { id: string; user_id: string; amount: number; method: string; sender_note: string | null; receipt_url: string | null; status: "pending"|"approved"|"rejected"; admin_notes: string | null; created_at: string };
 type PaymentSetting = { method: string; label: string; instructions: string; is_active: boolean };
+type Category = { slug: string; label_az: string; label_en: string; label_ru: string; sort_order: number; is_active: boolean };
 
-type Tab = "applications" | "users" | "codes" | "products" | "tickets" | "topups" | "payments";
+type Tab = "applications" | "users" | "codes" | "products" | "tickets" | "topups" | "payments" | "categories";
 
 function AdminPage() {
   const { user } = useAuth();
@@ -41,6 +42,8 @@ function AdminPage() {
   const [tickets, setTickets] = useState<AdminTicket[]>([]);
   const [topups, setTopups] = useState<TopUp[]>([]);
   const [paySettings, setPaySettings] = useState<PaymentSetting[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [newCategory, setNewCategory] = useState<Category>({ slug: "", label_az: "", label_en: "", label_ru: "", sort_order: 10, is_active: true });
   const [stats, setStats] = useState({ users: 0, sellers: 0, products: 0, orders: 0 });
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState<string | null>(null);
@@ -70,7 +73,7 @@ function AdminPage() {
 
   async function refresh() {
     setLoading(true);
-    const [{ data: a }, { data: p }, { data: u }, { data: dc }, { data: tk }, { data: tu }, { data: ps }, { count: uc }, { count: sc }, { count: pc }, { count: oc }] = await Promise.all([
+    const [{ data: a }, { data: p }, { data: u }, { data: dc }, { data: tk }, { data: tu }, { data: ps }, { data: cats }, { count: uc }, { count: sc }, { count: pc }, { count: oc }] = await Promise.all([
       supabase.from("seller_applications").select("*").order("created_at", { ascending: false }),
       supabase.from("products").select("id, title, price, stock, category, is_active, seller_id, created_at").order("created_at", { ascending: false }).limit(50),
       supabase.rpc("admin_list_users"),
@@ -78,6 +81,7 @@ function AdminPage() {
       supabase.from("support_tickets").select("*").order("updated_at", { ascending: false }),
       supabase.from("wallet_topups").select("*").order("created_at", { ascending: false }),
       supabase.from("payment_settings").select("*").order("label"),
+      supabase.from("categories" as any).select("*").order("sort_order"),
       supabase.from("profiles").select("*", { count: "exact", head: true }),
       supabase.from("user_roles").select("*", { count: "exact", head: true }).eq("role", "seller"),
       supabase.from("products").select("*", { count: "exact", head: true }),
@@ -90,8 +94,31 @@ function AdminPage() {
     setTickets((tk as any) ?? []);
     setTopups((tu as any) ?? []);
     setPaySettings((ps as any) ?? []);
+    setCategories((cats as any) ?? []);
     setStats({ users: uc ?? 0, sellers: sc ?? 0, products: pc ?? 0, orders: oc ?? 0 });
     setLoading(false);
+  }
+
+  async function saveCategory(c: Category) {
+    if (!c.slug || !c.label_az) { toast.error("Slug və AZ ad tələb olunur"); return; }
+    setBusy(c.slug);
+    const { error } = await supabase.rpc("admin_upsert_category" as any, {
+      p_slug: c.slug.trim(), p_label_az: c.label_az, p_label_en: c.label_en || c.label_az,
+      p_label_ru: c.label_ru || c.label_az, p_sort_order: c.sort_order, p_is_active: c.is_active,
+    });
+    setBusy(null);
+    if (error) toast.error(error.message); else { toast.success("Yadda saxlandı"); await refresh(); }
+  }
+  async function deleteCategory(slug: string) {
+    if (!confirm(`"${slug}" kateqoriyası silinsin?`)) return;
+    setBusy(slug);
+    const { error } = await supabase.rpc("admin_delete_category" as any, { p_slug: slug });
+    setBusy(null);
+    if (error) toast.error(error.message); else { toast.success("Silindi"); await refresh(); }
+  }
+  async function addNewCategory() {
+    await saveCategory(newCategory);
+    setNewCategory({ slug: "", label_az: "", label_en: "", label_ru: "", sort_order: 10, is_active: true });
   }
 
   async function openTicket(t: AdminTicket) {
