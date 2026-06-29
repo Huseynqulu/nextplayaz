@@ -35,7 +35,7 @@ function FavoritesPage() {
           .from("public_profiles" as any)
           .select("id, display_name, username")
           .in("id", sellerIds);
-        (profs ?? []).forEach((p) => nameMap.set(p.id, p.display_name || p.username || "Satıcı"));
+        ((profs as any[]) ?? []).forEach((p: any) => nameMap.set(p.id, p.display_name || p.username || "Satıcı"));
       }
       setItems((data ?? []).map((d) => dbToProduct(d as unknown as DbProduct, nameMap.get(d.seller_id))));
       setLoading(false);
