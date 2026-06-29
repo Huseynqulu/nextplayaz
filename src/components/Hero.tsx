@@ -1,8 +1,10 @@
 import { Link } from "@tanstack/react-router";
 import { ArrowRight, ShieldCheck, Zap, Trophy } from "lucide-react";
 import hero from "@/assets/hero.jpg";
+import { useT } from "@/lib/i18n";
 
 export function Hero() {
+  const t = useT();
   return (
     <section className="relative overflow-hidden bg-hero">
       <div className="absolute inset-0 bg-grid opacity-40" />
@@ -16,17 +18,16 @@ export function Hero() {
         <div className="max-w-2xl" style={{ animation: "rise 0.8s cubic-bezier(0.16,1,0.3,1)" }}>
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-neon/40 bg-neon/10 text-xs font-medium text-neon mb-6 backdrop-blur">
             <span className="h-1.5 w-1.5 rounded-full bg-neon animate-pulse" />
-            Azərbaycanın #1 Gaming Marketplace-i
+            {t("hero.badge")}
           </div>
 
           <h1 className="font-display text-5xl sm:text-6xl lg:text-7xl font-bold tracking-tight leading-[1.05]">
-            Gaming aləminin <br />
-            <span className="text-gradient">yeni mərkəzi</span>
+            {t("hero.title1")} <br />
+            <span className="text-gradient">{t("hero.title2")}</span>
           </h1>
 
           <p className="mt-6 text-lg text-muted-foreground max-w-xl leading-relaxed">
-            Oyunlar, hesablar, açarlar və premium gaming xidmətləri.
-            Escrow sistemi ilə qorunan ödənişlər. Yoxlanılmış satıcılar. Anında çatdırılma.
+            {t("hero.sub")}
           </p>
 
           <div className="mt-8 flex flex-wrap gap-3">
@@ -34,21 +35,21 @@ export function Hero() {
               to="/marketplace"
               className="inline-flex h-12 items-center gap-2 px-6 rounded-xl bg-neon text-background font-semibold neon-ring hover:scale-[1.02] transition"
             >
-              Marketplace-ə keç
+              {t("hero.cta1")}
               <ArrowRight className="h-4 w-4" />
             </Link>
             <Link
               to="/seller"
               className="inline-flex h-12 items-center px-6 rounded-xl border border-border bg-surface/60 backdrop-blur font-semibold hover:border-primary hover:bg-surface transition"
             >
-              Satıcı ol
+              {t("hero.cta2")}
             </Link>
           </div>
 
           <div className="mt-12 grid grid-cols-3 gap-6 max-w-lg">
-            <Stat icon={<Trophy className="h-4 w-4" />} value="5000+" label="Tamamlanmış sifariş" />
-            <Stat icon={<ShieldCheck className="h-4 w-4" />} value="100%" label="Escrow qorunma" />
-            <Stat icon={<Zap className="h-4 w-4" />} value="24/7" label="Online dəstək" />
+            <Stat icon={<Trophy className="h-4 w-4" />} value="5000+" label={t("hero.stat1")} />
+            <Stat icon={<ShieldCheck className="h-4 w-4" />} value="100%" label={t("hero.stat2")} />
+            <Stat icon={<Zap className="h-4 w-4" />} value="24/7" label={t("hero.stat3")} />
           </div>
         </div>
       </div>

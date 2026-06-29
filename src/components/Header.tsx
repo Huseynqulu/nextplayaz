@@ -3,8 +3,11 @@ import { Search, ShoppingBag, Menu, Gamepad2, LogOut, User as UserIcon, LayoutDa
 import { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
+import { useT } from "@/lib/i18n";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 
 export function Header() {
+  const t = useT();
   const [open, setOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const { user, signOut } = useAuth();
@@ -21,10 +24,10 @@ export function Header() {
   const isSeller = roles.includes("seller");
 
   const nav = [
-    { to: "/", label: "Ana səhifə" },
-    { to: "/marketplace", label: "Marketplace" },
-    { to: "/seller", label: "Satıcı ol" },
-    { to: "/support", label: "Dəstək" },
+    { to: "/", label: t("nav.home") },
+    { to: "/marketplace", label: t("nav.marketplace") },
+    { to: "/seller", label: t("nav.seller") },
+    { to: "/support", label: t("nav.support") },
   ] as const;
 
   async function handleSignOut() {
@@ -63,12 +66,13 @@ export function Header() {
         <div className="hidden md:flex flex-1 max-w-md ml-auto relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <input
-            placeholder="Oyun, hesab, açar axtar..."
+            placeholder={t("nav.search")}
             className="w-full h-10 pl-10 pr-4 rounded-lg bg-surface border border-border text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring transition"
           />
         </div>
 
         <div className="flex items-center gap-2 md:ml-2 ml-auto">
+          <LanguageSwitcher />
           <button className="hidden sm:grid h-10 w-10 place-items-center rounded-lg hover:bg-surface transition" aria-label="Cart">
             <ShoppingBag className="h-5 w-5" />
           </button>
@@ -91,30 +95,30 @@ export function Header() {
                   <div className="fixed inset-0 z-10" onClick={() => setMenuOpen(false)} />
                   <div className="absolute right-0 top-12 z-20 w-56 rounded-xl border border-border bg-popover shadow-xl card-shadow overflow-hidden">
                     <div className="px-4 py-3 border-b border-border">
-                      <p className="text-xs text-muted-foreground">Daxil olunub</p>
+                      <p className="text-xs text-muted-foreground">{t("auth.signedIn")}</p>
                       <p className="text-sm font-semibold truncate">{user.email}</p>
                     </div>
                     <Link to="/profile" onClick={() => setMenuOpen(false)} className="flex items-center gap-2 px-4 py-2.5 text-sm hover:bg-surface transition">
-                      <UserIcon className="h-4 w-4" /> Profil
+                      <UserIcon className="h-4 w-4" /> {t("menu.profile")}
                     </Link>
                     <Link to="/orders" onClick={() => setMenuOpen(false)} className="flex items-center gap-2 px-4 py-2.5 text-sm hover:bg-surface transition">
-                      <ShoppingBag className="h-4 w-4" /> Sifarişlərim
+                      <ShoppingBag className="h-4 w-4" /> {t("menu.orders")}
                     </Link>
                     <Link to="/seller" onClick={() => setMenuOpen(false)} className="flex items-center gap-2 px-4 py-2.5 text-sm hover:bg-surface transition">
-                      <LayoutDashboard className="h-4 w-4" /> Satıcı ol
+                      <LayoutDashboard className="h-4 w-4" /> {t("menu.becomeSeller")}
                     </Link>
                     {isSeller && (
                       <Link to="/seller-dashboard" onClick={() => setMenuOpen(false)} className="flex items-center gap-2 px-4 py-2.5 text-sm hover:bg-surface transition">
-                        <Package className="h-4 w-4" /> Məhsullarım
+                        <Package className="h-4 w-4" /> {t("menu.myProducts")}
                       </Link>
                     )}
                     {isAdmin && (
                       <Link to="/admin" onClick={() => setMenuOpen(false)} className="flex items-center gap-2 px-4 py-2.5 text-sm hover:bg-surface transition text-neon">
-                        <ShieldCheck className="h-4 w-4" /> Admin Panel
+                        <ShieldCheck className="h-4 w-4" /> {t("menu.admin")}
                       </Link>
                     )}
                     <button onClick={handleSignOut} className="w-full flex items-center gap-2 px-4 py-2.5 text-sm hover:bg-surface transition text-destructive">
-                      <LogOut className="h-4 w-4" /> Çıxış
+                      <LogOut className="h-4 w-4" /> {t("menu.signOut")}
                     </button>
                   </div>
                 </>
@@ -123,10 +127,10 @@ export function Header() {
           ) : (
             <>
               <Link to="/login" className="hidden sm:inline-flex h-10 items-center px-4 rounded-lg text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-surface transition">
-                Giriş
+                {t("auth.login")}
               </Link>
               <Link to="/register" className="inline-flex h-10 items-center px-4 rounded-lg text-sm font-semibold bg-neon text-background neon-ring hover:opacity-95 transition">
-                Qeydiyyat
+                {t("auth.register")}
               </Link>
             </>
           )}
