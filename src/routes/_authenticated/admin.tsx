@@ -29,7 +29,10 @@ type TopUp = { id: string; user_id: string; amount: number; method: string; send
 type PaymentSetting = { method: string; label: string; instructions: string; is_active: boolean };
 type Category = { slug: string; label_az: string; label_en: string; label_ru: string; sort_order: number; is_active: boolean };
 
-type Tab = "applications" | "users" | "codes" | "products" | "tickets" | "topups" | "payments" | "categories" | "disputes";
+type Tab = "applications" | "users" | "codes" | "products" | "tickets" | "topups" | "withdrawals" | "platform" | "payments" | "categories" | "disputes";
+
+type Withdrawal = { id: string; user_id: string; amount: number; fee: number; net_amount: number; method: string; destination: string; account_holder: string | null; status: "pending"|"approved"|"rejected"; admin_notes: string | null; created_at: string };
+type LedgerEntry = { id: string; entry_type: string; amount: number; order_id: string | null; withdrawal_id: string | null; user_id: string | null; notes: string | null; created_at: string };
 
 type Dispute = {
   id: string;
@@ -73,6 +76,10 @@ function AdminPage() {
   const [ticketUser, setTicketUser] = useState<{ email: string | null; name: string | null } | null>(null);
   const [reply, setReply] = useState("");
   const [disputes, setDisputes] = useState<Dispute[]>([]);
+  const [withdrawals, setWithdrawals] = useState<Withdrawal[]>([]);
+  const [withdrawFilter, setWithdrawFilter] = useState<"all" | "pending" | "approved" | "rejected">("pending");
+  const [ledger, setLedger] = useState<LedgerEntry[]>([]);
+  const [platformBalance, setPlatformBalance] = useState(0);
 
 
   // new code form
@@ -105,6 +112,14 @@ function AdminPage() {
     ]);
     const { data: ds } = await supabase.from("orders").select("id,buyer_id,seller_id,product_id,total,status,disputed_at,disputed_reason,created_at,conversation_id,product:products(title)").in("status", ["disputed", "dispute"] as any).order("disputed_at", { ascending: false });
     setDisputes((ds as any) ?? []);
+    const [{ data: wds }, { data: lg }] = await Promise.all([
+      supabase.from("wallet_withdrawals" as any).select("*").order("created_at", { ascending: false }),
+      supabase.from("platform_ledger" as any).select("*").order("created_at", { ascending: false }).limit(200),
+    ]);
+    setWithdrawals((wds as any) ?? []);
+    const ledgerRows = (lg as any) ?? [];
+    setLedger(ledgerRows);
+    setPlatformBalance(ledgerRows.reduce((sum: number, r: LedgerEntry) => sum + Number(r.amount), 0));
     setApps((a as any) ?? []);
     setProducts((p as any) ?? []);
     setUsers((u as any) ?? []);
@@ -327,6 +342,8 @@ function AdminPage() {
               ["disputes", `Etirazlar (${disputes.length})`],
               ["users", "İstifadəçilər"],
               ["topups", `Balans (${topups.filter(t => t.status === "pending").length})`],
+              ["withdrawals", `Pul çıxarış (${withdrawals.filter(w => w.status === "pending").length})`],
+              ["platform", `Platforma (${platformBalance.toFixed(2)} ₼)`],
               ["payments", "Rekvizitlər"],
               ["categories", "Kateqoriyalar"],
               ["codes", "Endirim kodları"],
@@ -700,6 +717,142 @@ function AdminPage() {
                   </div>
                 </div>
               ))}
+            </div>
+          ) : tab === "withdrawals" ? (
+            <div className="space-y-3">
+              <div className="flex gap-2 flex-wrap">
+                {(["pending","approved","rejected","all"] as const).map(s => (
+                  <button key={s} onClick={() => setWithdrawFilter(s)}
+                    className={`h-8 px-3 rounded-md text-xs font-semibold border ${withdrawFilter === s ? "bg-neon text-background border-neon" : "bg-surface border-border text-muted-foreground hover:text-foreground"}`}>
+                    {s === "all" ? "Hamısı" : s === "pending" ? "Gözləyən" : s === "approved" ? "Təsdiqli" : "Rədd"}
+                  </button>
+                ))}
+              </div>
+              {withdrawals.filter(w => withdrawFilter === "all" || w.status === withdrawFilter).length === 0 && (
+                <p className="text-muted-foreground text-center py-12">Çıxarış müraciəti yoxdur.</p>
+              )}
+              {withdrawals.filter(w => withdrawFilter === "all" || w.status === withdrawFilter).map(w => {
+                const u = users.find(x => x.id === w.user_id);
+                return (
+                  <div key={w.id} className="rounded-xl border border-border bg-card-gradient p-4 card-shadow">
+                    <div className="flex items-start justify-between gap-3 flex-wrap">
+                      <div className="min-w-0 flex-1">
+                        <p className="font-semibold">{u?.display_name ?? u?.email ?? w.user_id.slice(0,8)} <span className="text-xs text-muted-foreground font-normal">· {new Date(w.created_at).toLocaleString("az-AZ")}</span></p>
+                        <p className="text-sm mt-1">
+                          <span className="text-destructive font-bold">−{Number(w.amount).toFixed(2)} ₼</span>
+                          <span className="text-muted-foreground"> · komissya </span>
+                          <span className="text-warning font-mono">{Number(w.fee).toFixed(2)} ₼</span>
+                          <span className="text-muted-foreground"> · alacaq </span>
+                          <span className="text-success font-bold">{Number(w.net_amount).toFixed(2)} ₼</span>
+                        </p>
+                        <div className="mt-2 grid sm:grid-cols-2 gap-2 text-xs">
+                          <div className="rounded-md bg-surface/50 border border-border p-2">
+                            <div className="text-[10px] uppercase text-muted-foreground">Üsul</div>
+                            <div className="font-medium">{w.method}</div>
+                          </div>
+                          <div className="rounded-md bg-surface/50 border border-border p-2">
+                            <div className="text-[10px] uppercase text-muted-foreground">Hesab</div>
+                            <div className="font-mono break-all">{w.destination}</div>
+                          </div>
+                          {w.account_holder && (
+                            <div className="rounded-md bg-surface/50 border border-border p-2 sm:col-span-2">
+                              <div className="text-[10px] uppercase text-muted-foreground">Sahib</div>
+                              <div>{w.account_holder}</div>
+                            </div>
+                          )}
+                        </div>
+                        {w.admin_notes && <p className="text-xs mt-2 bg-background/50 px-2 py-1 rounded">Admin qeydi: {w.admin_notes}</p>}
+                      </div>
+                      <div className="flex flex-col gap-2 shrink-0">
+                        <span className={`inline-flex items-center justify-center px-2 py-0.5 rounded text-[10px] font-bold uppercase ${
+                          w.status === "approved" ? "bg-success/20 text-success" :
+                          w.status === "rejected" ? "bg-destructive/20 text-destructive" : "bg-warning/20 text-warning"
+                        }`}>{w.status}</span>
+                        {w.status === "pending" && (
+                          <>
+                            <button disabled={busy === w.id} onClick={async () => {
+                              const notes = prompt("Təsdiq qeydi (ixtiyari):", "") ?? "";
+                              if (!confirm(`${Number(w.net_amount).toFixed(2)} ₼ ${w.method} hesabına köçürdünüzmü? Təsdiq edilsin?`)) return;
+                              setBusy(w.id);
+                              const { error } = await supabase.rpc("admin_approve_withdrawal" as any, { p_id: w.id, p_notes: notes || null });
+                              setBusy(null);
+                              if (error) toast.error(error.message); else { toast.success("Təsdiqləndi"); refresh(); }
+                            }} className="h-9 px-3 rounded-md bg-success text-background text-xs font-semibold disabled:opacity-50">Təsdiq</button>
+                            <button disabled={busy === w.id} onClick={async () => {
+                              const notes = prompt("Rədd səbəbi:", "") ?? "";
+                              if (!notes) return;
+                              setBusy(w.id);
+                              const { error } = await supabase.rpc("admin_reject_withdrawal" as any, { p_id: w.id, p_notes: notes });
+                              setBusy(null);
+                              if (error) toast.error(error.message); else { toast.success("Rədd edildi, balans qaytarıldı"); refresh(); }
+                            }} className="h-9 px-3 rounded-md bg-destructive text-destructive-foreground text-xs font-semibold disabled:opacity-50">Rədd</button>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          ) : tab === "platform" ? (
+            <div className="space-y-6">
+              <div className="grid sm:grid-cols-3 gap-3">
+                <div className="rounded-xl border border-neon/30 bg-neon/5 p-5">
+                  <p className="text-xs uppercase text-muted-foreground">Cari platforma balansı</p>
+                  <p className="font-display text-3xl font-bold text-neon mt-2">{platformBalance.toFixed(2)} ₼</p>
+                  <p className="text-[11px] text-muted-foreground mt-1">Bütün komissyalar − manual payoutlar</p>
+                </div>
+                <div className="rounded-xl border border-border bg-card-gradient p-5">
+                  <p className="text-xs uppercase text-muted-foreground">Satış komissyası (cəm)</p>
+                  <p className="font-display text-2xl font-bold mt-2">
+                    {ledger.filter(l => l.entry_type === "commission_sale").reduce((s, l) => s + Number(l.amount), 0).toFixed(2)} ₼
+                  </p>
+                </div>
+                <div className="rounded-xl border border-border bg-card-gradient p-5">
+                  <p className="text-xs uppercase text-muted-foreground">Çıxarış komissyası (cəm)</p>
+                  <p className="font-display text-2xl font-bold mt-2">
+                    {ledger.filter(l => l.entry_type === "commission_withdrawal").reduce((s, l) => s + Number(l.amount), 0).toFixed(2)} ₼
+                  </p>
+                </div>
+              </div>
+
+              <div className="rounded-xl border border-border bg-card-gradient p-5">
+                <div className="flex items-center justify-between flex-wrap gap-3 mb-3">
+                  <h3 className="font-semibold">Manual payout qeyd et</h3>
+                  <button onClick={async () => {
+                    const raw = prompt(`Hesabınıza köçürdüyünüz məbləğ (cari balans: ${platformBalance.toFixed(2)} ₼):`, platformBalance.toFixed(2));
+                    if (!raw) return;
+                    const amt = Number(raw);
+                    if (!Number.isFinite(amt) || amt <= 0) { toast.error("Yanlış məbləğ"); return; }
+                    const notes = prompt("Qeyd (ixtiyari):", "") ?? "";
+                    const { error } = await supabase.rpc("admin_record_platform_payout" as any, { p_amount: amt, p_notes: notes || null });
+                    if (error) toast.error(error.message); else { toast.success("Payout qeyd edildi"); refresh(); }
+                  }} className="h-9 px-3 rounded-md bg-neon text-background text-xs font-semibold">Payout qeyd et</button>
+                </div>
+                <p className="text-xs text-muted-foreground">Platforma cüzdanından öz bank hesabınıza köçürmə etdikdə burada qeydiyyatdan keçirin — cari balansdan çıxılacaq.</p>
+              </div>
+
+              <div className="rounded-xl border border-border bg-card-gradient p-5">
+                <h3 className="font-semibold mb-3">Son əməliyyatlar (200)</h3>
+                {ledger.length === 0 ? (
+                  <p className="text-sm text-muted-foreground text-center py-8">Əməliyyat yoxdur.</p>
+                ) : (
+                  <div className="space-y-1.5 max-h-[500px] overflow-y-auto">
+                    {ledger.map(l => (
+                      <div key={l.id} className="flex items-center justify-between gap-3 text-xs border border-border rounded-md px-3 py-2 bg-surface/40">
+                        <div className="min-w-0">
+                          <span className="font-semibold">{l.entry_type}</span>
+                          {l.notes && <span className="text-muted-foreground"> · {l.notes}</span>}
+                          <div className="text-[10px] text-muted-foreground">{new Date(l.created_at).toLocaleString("az-AZ")}</div>
+                        </div>
+                        <span className={`font-mono font-bold ${Number(l.amount) >= 0 ? "text-success" : "text-destructive"}`}>
+                          {Number(l.amount) >= 0 ? "+" : ""}{Number(l.amount).toFixed(2)} ₼
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
           ) : tab === "disputes" ? (
             <div className="space-y-3">

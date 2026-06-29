@@ -54,15 +54,9 @@ function SellerDashboard() {
 
   useEffect(() => {
     if (!user) return;
-    (async () => {
-      const { data } = await supabase.rpc("has_role", { _user_id: user.id, _role: "seller" });
-      setIsSeller(!!data);
-      if (!data) {
-        toast.error("Satıcı statusunuz təsdiqlənməyib");
-        navigate({ to: "/seller" });
-      }
-    })();
-  }, [user, navigate]);
+    // Anyone authenticated can list products now
+    setIsSeller(true);
+  }, [user]);
 
   async function refresh() {
     if (!user) return;
