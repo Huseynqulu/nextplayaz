@@ -64,11 +64,12 @@ function AdminPage() {
 
   async function refresh() {
     setLoading(true);
-    const [{ data: a }, { data: p }, { data: u }, { data: dc }, { count: uc }, { count: sc }, { count: pc }, { count: oc }] = await Promise.all([
+    const [{ data: a }, { data: p }, { data: u }, { data: dc }, { data: tk }, { count: uc }, { count: sc }, { count: pc }, { count: oc }] = await Promise.all([
       supabase.from("seller_applications").select("*").order("created_at", { ascending: false }),
       supabase.from("products").select("id, title, price, stock, category, is_active, seller_id, created_at").order("created_at", { ascending: false }).limit(50),
       supabase.rpc("admin_list_users"),
       supabase.from("discount_codes").select("*").order("created_at", { ascending: false }),
+      supabase.from("support_tickets").select("*").order("updated_at", { ascending: false }),
       supabase.from("profiles").select("*", { count: "exact", head: true }),
       supabase.from("user_roles").select("*", { count: "exact", head: true }).eq("role", "seller"),
       supabase.from("products").select("*", { count: "exact", head: true }),
@@ -78,9 +79,48 @@ function AdminPage() {
     setProducts((p as any) ?? []);
     setUsers((u as any) ?? []);
     setCodes((dc as any) ?? []);
+    setTickets((tk as any) ?? []);
     setStats({ users: uc ?? 0, sellers: sc ?? 0, products: pc ?? 0, orders: oc ?? 0 });
     setLoading(false);
   }
+
+  async function openTicket(t: AdminTicket) {
+    setActiveTicket(t);
+    setReply("");
+    const [{ data: msgs }, { data: prof }] = await Promise.all([
+      supabase.from("support_messages").select("*").eq("ticket_id", t.id).order("created_at"),
+      supabase.rpc("admin_list_users"),
+    ]);
+    setTicketMsgs((msgs as any) ?? []);
+    const found = ((prof as any) ?? []).find((x: any) => x.id === t.user_id);
+    setTicketUser(found ? { email: found.email, name: found.display_name ?? found.username } : null);
+  }
+
+  async function sendReply() {
+    if (!activeTicket || !reply.trim()) return;
+    setBusy("reply");
+    const { error } = await supabase.from("support_messages").insert({
+      ticket_id: activeTicket.id, sender_id: user!.id, is_admin: true, body: reply.trim(),
+    });
+    if (error) toast.error(error.message);
+    else {
+      setReply("");
+      const { data } = await supabase.from("support_messages").select("*").eq("ticket_id", activeTicket.id).order("created_at");
+      setTicketMsgs((data as any) ?? []);
+      await refresh();
+    }
+    setBusy(null);
+  }
+
+  async function setTicketStatus(s: string) {
+    if (!activeTicket) return;
+    setBusy("status");
+    const { error } = await supabase.from("support_tickets").update({ status: s }).eq("id", activeTicket.id);
+    if (error) toast.error(error.message);
+    else { toast.success("Status yeniləndi"); setActiveTicket({ ...activeTicket, status: s }); await refresh(); }
+    setBusy(null);
+  }
+
 
   useEffect(() => { if (isAdmin) refresh(); }, [isAdmin]);
 
