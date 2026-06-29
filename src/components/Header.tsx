@@ -22,6 +22,7 @@ export function Header() {
   }, [user]);
   const isAdmin = roles.includes("admin");
   const isSeller = roles.includes("seller");
+  const isSupport = roles.includes("support");
 
   const nav = [
     { to: "/", label: t("nav.home") },
