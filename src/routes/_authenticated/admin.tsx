@@ -40,6 +40,7 @@ type Dispute = {
   disputed_at: string | null;
   disputed_reason: string | null;
   created_at: string;
+  conversation_id?: string | null;
   product?: { title: string } | null;
 };
 
