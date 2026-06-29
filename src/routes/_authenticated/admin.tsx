@@ -28,7 +28,20 @@ type TopUp = { id: string; user_id: string; amount: number; method: string; send
 type PaymentSetting = { method: string; label: string; instructions: string; is_active: boolean };
 type Category = { slug: string; label_az: string; label_en: string; label_ru: string; sort_order: number; is_active: boolean };
 
-type Tab = "applications" | "users" | "codes" | "products" | "tickets" | "topups" | "payments" | "categories";
+type Tab = "applications" | "users" | "codes" | "products" | "tickets" | "topups" | "payments" | "categories" | "disputes";
+
+type Dispute = {
+  id: string;
+  buyer_id: string;
+  seller_id: string;
+  product_id: string;
+  total: number;
+  status: string;
+  disputed_at: string | null;
+  disputed_reason: string | null;
+  created_at: string;
+  product?: { title: string } | null;
+};
 
 function AdminPage() {
   const { user } = useAuth();
