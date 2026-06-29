@@ -45,6 +45,7 @@ function MarketplacePage() {
   const [products, setProducts] = useState<import("@/lib/marketplace-data").Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [qLocal, setQLocal] = useState(s.q);
+  const [view, setView] = useState<"compact" | "grid" | "list">("compact");
   const [subcats, setSubcats] = useState<{ slug: string; label_az: string; category_slug: string }[]>([]);
   const [platforms, setPlatforms] = useState<{ slug: string; label_az: string }[]>([]);
   const [psubs, setPsubs] = useState<{ slug: string; label_az: string; platform_slug: string }[]>([]);
