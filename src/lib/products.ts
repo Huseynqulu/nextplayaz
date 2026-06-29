@@ -61,6 +61,7 @@ export async function fetchProducts(): Promise<Product[]> {
     .from("products")
     .select("*")
     .eq("is_active", true)
+    .is("gift_denomination_id", null)
     .order("boost_expires_at", { ascending: false, nullsFirst: false })
     .order("created_at", { ascending: false });
   if (error || !data) return [];
