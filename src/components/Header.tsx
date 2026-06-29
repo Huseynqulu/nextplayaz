@@ -122,6 +122,11 @@ export function Header() {
                         <Package className="h-4 w-4" /> {t("menu.myProducts")}
                       </Link>
                     )}
+                    {(isSupport || isAdmin) && (
+                      <Link to="/staff" onClick={() => setMenuOpen(false)} className="flex items-center gap-2 px-4 py-2.5 text-sm hover:bg-surface transition text-neon">
+                        <LifeBuoy className="h-4 w-4" /> Dəstək Paneli
+                      </Link>
+                    )}
                     {isAdmin && (
                       <Link to="/admin" onClick={() => setMenuOpen(false)} className="flex items-center gap-2 px-4 py-2.5 text-sm hover:bg-surface transition text-neon">
                         <ShieldCheck className="h-4 w-4" /> {t("menu.admin")}
