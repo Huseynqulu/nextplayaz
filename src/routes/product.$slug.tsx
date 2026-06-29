@@ -330,6 +330,21 @@ function ProductPage() {
               </button>
             </div>
             <div className="max-h-[55vh] overflow-y-auto px-5 py-4 text-sm space-y-3 text-muted-foreground">
+              <div className="rounded-xl border border-neon/30 bg-neon/5 p-4 space-y-1.5 text-foreground">
+                <div className="text-xs uppercase tracking-wider text-muted-foreground">Sifariş xülasəsi</div>
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">Məhsul</span>
+                  <span className="font-medium line-clamp-1 max-w-[60%] text-right">{p.title}</span>
+                </div>
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">Qiymət × Say</span>
+                  <span className="font-medium">{format(p.price)} × {qty}</span>
+                </div>
+                <div className="flex items-center justify-between pt-2 mt-1 border-t border-border">
+                  <span className="font-semibold">Ödəniləcək məbləğ</span>
+                  <span className="font-display text-xl font-bold text-neon">{format(p.price * qty)}</span>
+                </div>
+              </div>
               <p><b className="text-foreground">1. Escrow qoruması.</b> Ödədiyiniz <span className="text-neon font-semibold">{format(p.price * qty)}</span> NextPlay tərəfindən saxlanılır və yalnız sifarişi təsdiqlədikdən sonra satıcıya köçürülür.</p>
               <p><b className="text-foreground">2. Çatdırılma müddəti.</b> Satıcı sifarişi 24 saat ərzində mesaj vasitəsi ilə təhvil verməlidir. Anında çatdırılma məhsullarında məlumat dərhal göstərilir.</p>
               <p><b className="text-foreground">3. Avtomatik təsdiq.</b> Çatdırılmadan 24 saat sonra sifariş təsdiq etməsəniz, sistem onu avtomatik tamamlayır və vəsait satıcıya keçir.</p>
@@ -339,6 +354,7 @@ function ProductPage() {
               <p><b className="text-foreground">7. Komissiya.</b> NextPlay hər uğurlu sifarişdən 5% komissiya tutur — bu məbləğ satıcıdan tutulur, alıcı yalnız məhsul qiymətini ödəyir.</p>
               <p>Tam mətn üçün <Link to="/terms" target="_blank" className="text-neon hover:underline">Şərtlər</Link>, <Link to="/refund" target="_blank" className="text-neon hover:underline">Geri qaytarma</Link> və <Link to="/privacy" target="_blank" className="text-neon hover:underline">Məxfilik</Link> səhifələrinə baxın.</p>
             </div>
+
             <label className="flex items-start gap-2.5 px-5 py-3 border-t border-border bg-surface/40 cursor-pointer select-none">
               <input
                 type="checkbox"
