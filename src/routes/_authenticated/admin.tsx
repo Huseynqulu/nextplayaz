@@ -76,6 +76,10 @@ function AdminPage() {
   const [ticketUser, setTicketUser] = useState<{ email: string | null; name: string | null } | null>(null);
   const [reply, setReply] = useState("");
   const [disputes, setDisputes] = useState<Dispute[]>([]);
+  const [withdrawals, setWithdrawals] = useState<Withdrawal[]>([]);
+  const [withdrawFilter, setWithdrawFilter] = useState<"all" | "pending" | "approved" | "rejected">("pending");
+  const [ledger, setLedger] = useState<LedgerEntry[]>([]);
+  const [platformBalance, setPlatformBalance] = useState(0);
 
 
   // new code form
