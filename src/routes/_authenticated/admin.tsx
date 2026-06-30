@@ -1285,17 +1285,17 @@ function AdminPage() {
               ))}
             </div>
           ) : tab === "banners" ? (
-            <AdminBanners />
+            <Suspense fallback={<TabFallback />}><AdminBanners /></Suspense>
           ) : tab === "reviews" ? (
-            <AdminReviews />
+            <Suspense fallback={<TabFallback />}><AdminReviews /></Suspense>
           ) : tab === "giftcards" ? (
-            <AdminGiftCards />
+            <Suspense fallback={<TabFallback />}><AdminGiftCards /></Suspense>
           ) : tab === "giftmarket" ? (
-            <AdminGiftMarket />
+            <Suspense fallback={<TabFallback />}><AdminGiftMarket /></Suspense>
           ) : tab === "boost" ? (
-            <AdminBoostPricing />
+            <Suspense fallback={<TabFallback />}><AdminBoostPricing /></Suspense>
           ) : tab === "announcements" ? (
-            <AdminAnnouncements />
+            <Suspense fallback={<TabFallback />}><AdminAnnouncements /></Suspense>
           ) : (
             <div className="space-y-2">
               {products.length === 0 && <p className="text-muted-foreground text-center py-12">Məhsul yoxdur.</p>}
