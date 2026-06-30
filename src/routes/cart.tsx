@@ -8,6 +8,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Loader2, Minus, Plus, ShoppingCart, Trash2, Tag, ArrowRight } from "lucide-react";
+import { EmptyState } from "@/components/EmptyState";
 
 export const Route = createFileRoute("/cart")({
   component: CartPage,
