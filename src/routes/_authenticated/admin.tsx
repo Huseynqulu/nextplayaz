@@ -173,7 +173,7 @@ function AdminPage() {
     const { error } = await supabase.from("platforms" as any).upsert({
       slug: p.slug.trim(), label_az: p.label_az, label_en: p.label_en || p.label_az,
       label_ru: p.label_ru || p.label_az, sort_order: p.sort_order, is_active: p.is_active,
-    });
+    }, { onConflict: "slug" });
     setBusy(null);
     if (error) toast.error(error.message); else { toast.success("Yadda saxlandı"); await refresh(); }
   }
