@@ -49,6 +49,8 @@ function SellerOrdersPage() {
   const [busy, setBusy] = useState<string | null>(null);
   const [payloadInput, setPayloadInput] = useState<Record<string, string>>({});
   const [openOrder, setOpenOrder] = useState<Order | null>(null);
+  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [search, setSearch] = useState("");
 
   useEffect(() => {
     if (roles && !roles.includes("seller")) {
