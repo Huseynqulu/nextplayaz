@@ -153,15 +153,21 @@ function SellerOrdersPage() {
             return loading ? (
             <OrderListSkeleton count={4} />
           ) : orders.length === 0 ? (
-            <div className="rounded-2xl border border-dashed border-border p-12 text-center">
-              <Package className="h-10 w-10 mx-auto text-muted-foreground mb-3" />
-              <p className="text-muted-foreground">Hələ satış yoxdur.</p>
-            </div>
+            <EmptyState
+              icon={Package}
+              title="Hələ satış yoxdur"
+              description="Məhsulunu əlavə et və ilk satışını qazan. Toplu CSV yükləmə də mövcuddur."
+              ctaLabel="Məhsul əlavə et"
+              ctaTo="/seller-dashboard"
+              secondaryLabel="Bələdçi"
+              secondaryTo="/user-guide"
+            />
           ) : filtered.length === 0 ? (
-            <div className="rounded-2xl border border-dashed border-border p-12 text-center">
-              <Search className="h-10 w-10 mx-auto text-muted-foreground mb-3" />
-              <p className="text-muted-foreground">Filtrə uyğun sifariş tapılmadı.</p>
-            </div>
+            <EmptyState
+              icon={Search}
+              title="Nəticə tapılmadı"
+              description="Axtarış və ya status filtrini dəyişdirib yenidən cəhd et."
+            />
           ) : (
             <div className="space-y-3">
               {filtered.map(o => {
