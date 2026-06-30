@@ -56,7 +56,33 @@ function SellerDashboard() {
   const [boosting, setBoosting] = useState<Product | null>(null);
   const [step1Done, setStep1Done] = useState(false);
   const [platformQuery, setPlatformQuery] = useState("");
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [bulkDeleting, setBulkDeleting] = useState(false);
   const formRef = useRef<HTMLDivElement | null>(null);
+
+  function toggleSelect(id: string) {
+    setSelectedIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  }
+  function toggleSelectAll() {
+    if (selectedIds.size === items.length) setSelectedIds(new Set());
+    else setSelectedIds(new Set(items.map(i => i.id)));
+  }
+  async function bulkRemove() {
+    if (selectedIds.size === 0) return;
+    if (!confirm(`${selectedIds.size} məhsul silinsin? Bu əməliyyat geri qaytarıla bilməz.`)) return;
+    setBulkDeleting(true);
+    const ids = Array.from(selectedIds);
+    const { error } = await supabase.from("products").delete().in("id", ids);
+    setBulkDeleting(false);
+    if (error) { toast.error(error.message); return; }
+    toast.success(`${ids.length} məhsul silindi`);
+    setSelectedIds(new Set());
+    await refresh();
+  }
 
   function openNewProductForm() {
     resetForm();
