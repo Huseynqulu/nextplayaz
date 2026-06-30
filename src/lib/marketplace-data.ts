@@ -110,6 +110,17 @@ export const categories = [
   { id: "Services", label: "Xidmətlər", count: products.filter(p => p.category === "Services").length },
 ];
 
+export const CATEGORY_LABEL_AZ: Record<string, string> = {
+  Games: "Oyunlar",
+  Accounts: "Hesablar",
+  Keys: "Açarlar",
+  Services: "Xidmətlər",
+};
+export function categoryLabel(c?: string | null) {
+  if (!c) return "—";
+  return CATEGORY_LABEL_AZ[c] ?? c;
+}
+
 export const platforms = ["Steam", "PS5", "PS4", "Xbox", "EA", "Battle.net", "Epic", "Rockstar"] as const;
 
 export function getProduct(slug: string) {
