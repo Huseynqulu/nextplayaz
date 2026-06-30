@@ -270,7 +270,7 @@ function SupportTicketsPage() {
                 </button>
               </div>
               {loading ? (
-                <div className="flex justify-center py-20"><Loader2 className="h-6 w-6 animate-spin text-neon" /></div>
+                <TicketListSkeleton count={4} />
               ) : tickets.length === 0 ? (
                 <div className="rounded-2xl border border-dashed border-border p-12 text-center text-muted-foreground">
                   Hələ müraciətin yoxdur.
