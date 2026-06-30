@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { Star, Zap, Heart, ShoppingCart, BadgeCheck } from "lucide-react";
+import { Star, Zap, Heart, ShoppingCart, BadgeCheck, Flame } from "lucide-react";
 import { VerifiedBadge } from "@/components/VerifiedBadge";
 import type { Product } from "@/lib/marketplace-data";
 import { useFavorites, isRealProductId } from "@/lib/favorites";
@@ -8,6 +8,21 @@ import { SellerTierBadge } from "@/components/SellerTierBadge";
 import { useCurrency } from "@/lib/currency";
 import { useCart } from "@/lib/cart";
 import { toast } from "sonner";
+
+function formatSoldAgo(iso?: string | null): string | null {
+  if (!iso) return null;
+  const diffMs = Date.now() - new Date(iso).getTime();
+  if (diffMs < 0) return null;
+  const mins = Math.floor(diffMs / 60000);
+  if (mins < 1) return "indicə satıldı";
+  if (mins < 60) return `${mins} dəq əvvəl satıldı`;
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return `${hours} saat əvvəl satıldı`;
+  const days = Math.floor(hours / 24);
+  if (days <= 14) return `${days} gün əvvəl satıldı`;
+  return null;
+}
+
 
 export function ProductCard({ p, variant = "default" }: { p: Product; variant?: "default" | "compact" | "list" }) {
   const { format } = useCurrency();
@@ -18,6 +33,7 @@ export function ProductCard({ p, variant = "default" }: { p: Product; variant?: 
   const canFav = !!user && isRealProductId(p.id);
   const canCart = isRealProductId(p.id) && p.stock > 0;
   const fav = canFav && isFav(p.id);
+  const soldAgo = formatSoldAgo(p.lastSoldAt);
 
   function addToCart(e: React.MouseEvent) {
     e.preventDefault(); e.stopPropagation();
@@ -52,6 +68,12 @@ export function ProductCard({ p, variant = "default" }: { p: Product; variant?: 
               <span>·</span>
               <span>{p.platform}</span>
             </div>
+            {soldAgo && (
+              <div className="mt-1 inline-flex items-center gap-1 text-[10px] text-orange-400">
+                <Flame className="h-3 w-3" />
+                <span>{soldAgo}</span>
+              </div>
+            )}
           </div>
           <div className="flex items-end justify-between">
             <div className="flex items-baseline gap-2">
@@ -137,6 +159,14 @@ export function ProductCard({ p, variant = "default" }: { p: Product; variant?: 
           <Star className="h-2.5 w-2.5 fill-warning text-warning" />
           <span>{p.rating}</span>
         </div>
+
+        {soldAgo && (
+          <div className="inline-flex items-center gap-1 text-[10px] font-medium text-orange-400 bg-orange-500/10 border border-orange-500/25 rounded px-1.5 py-0.5 self-start animate-pulse">
+            <Flame className="h-3 w-3" />
+            <span>{soldAgo}</span>
+          </div>
+        )}
+
 
         <div className="flex items-end justify-between mt-auto pt-1">
           <div className="flex flex-col">

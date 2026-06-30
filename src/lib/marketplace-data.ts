@@ -25,6 +25,7 @@ export type Product = {
   delivery: "Instant" | "Manual";
   tag?: "HOT" | "NEW" | "-50%" | "TOP";
   sellerId?: string;
+  lastSoldAt?: string | null;
 };
 
 export const products: Product[] = [
