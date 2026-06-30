@@ -7,7 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { useState } from "react";
 import { toast } from "sonner";
-import { Loader2, Minus, Plus, ShoppingCart, Trash2, Tag, ArrowRight } from "lucide-react";
+import { Loader2, Minus, Plus, ShoppingCart, Trash2, Tag, Check, X } from "lucide-react";
 import { EmptyState } from "@/components/EmptyState";
 
 export const Route = createFileRoute("/cart")({
@@ -15,24 +15,56 @@ export const Route = createFileRoute("/cart")({
   head: () => ({ meta: [{ title: "Səbət — NextPlay.az" }] }),
 });
 
+type AppliedCode = { code: string; percent: number };
+
 function CartPage() {
   const { items, subtotal, setQty, remove, clear } = useCart();
   const { format } = useCurrency();
   const { user } = useAuth();
   const navigate = useNavigate();
   const [code, setCode] = useState("");
+  const [applied, setApplied] = useState<AppliedCode | null>(null);
+  const [applying, setApplying] = useState(false);
+  const [agreed, setAgreed] = useState(false);
   const [busy, setBusy] = useState(false);
+
+  const discountAmount = applied ? +(subtotal * applied.percent / 100).toFixed(2) : 0;
+  const total = +(subtotal - discountAmount).toFixed(2);
+
+  async function applyCode() {
+    const c = code.trim().toUpperCase();
+    if (!c) return;
+    setApplying(true);
+    const { data, error } = await supabase
+      .from("discount_codes")
+      .select("code, percent, is_active, expires_at, max_uses, used_count")
+      .ilike("code", c)
+      .maybeSingle();
+    setApplying(false);
+    if (error || !data) { toast.error("Endirim kodu tapılmadı"); return; }
+    if (!data.is_active) { toast.error("Bu kod aktiv deyil"); return; }
+    if (data.expires_at && new Date(data.expires_at) < new Date()) { toast.error("Kodun vaxtı bitib"); return; }
+    if (data.max_uses && data.used_count >= data.max_uses) { toast.error("Kod limiti dolub"); return; }
+    setApplied({ code: data.code, percent: data.percent });
+    toast.success(`${data.percent}% endirim tətbiq edildi`);
+  }
+
+  function removeCode() {
+    setApplied(null);
+    setCode("");
+  }
 
   async function checkout() {
     if (!user) { toast.info("Daxil olun"); navigate({ to: "/login" }); return; }
     if (!items.length) return;
+    if (!agreed) { toast.error("Alış-veriş şərtlərini qəbul edin"); return; }
     setBusy(true);
     const results: { ok: number; fail: { title: string; msg: string }[] } = { ok: 0, fail: [] };
     for (const it of items) {
       const { error } = await supabase.rpc("create_order", {
         p_product_id: it.id,
         p_quantity: it.qty,
-        p_discount_code: code.trim() || null,
+        p_discount_code: applied?.code || null,
       } as any);
       if (error) results.fail.push({ title: it.title, msg: error.message });
       else results.ok += 1;
@@ -101,30 +133,67 @@ function CartPage() {
                 <span className="text-muted-foreground">Məhsullar ({items.length})</span>
                 <span>{format(subtotal)}</span>
               </div>
+              {applied && (
+                <div className="flex items-center justify-between text-sm mb-1">
+                  <span className="text-muted-foreground">Endirim ({applied.percent}%)</span>
+                  <span className="text-success">−{format(discountAmount)}</span>
+                </div>
+              )}
               <div className="flex items-center justify-between text-sm mb-4">
                 <span className="text-muted-foreground">Komissiya</span>
                 <span className="text-success">Pulsuz</span>
               </div>
 
               <div className="mb-4">
-                <label className="text-xs text-muted-foreground mb-1.5 inline-flex items-center gap-1"><Tag className="h-3 w-3" /> Endirim kodu (istəyə görə)</label>
-                <input
-                  value={code}
-                  onChange={e => setCode(e.target.value)}
-                  placeholder="PROMO2026"
-                  className="w-full h-10 px-3 rounded-lg bg-surface border border-border text-sm focus:outline-none focus:border-neon"
-                />
+                <label className="text-xs text-muted-foreground mb-1.5 inline-flex items-center gap-1"><Tag className="h-3 w-3" /> Endirim kodu</label>
+                {applied ? (
+                  <div className="flex items-center justify-between gap-2 h-10 px-3 rounded-lg bg-success/10 border border-success/30 text-sm">
+                    <span className="inline-flex items-center gap-1.5 font-semibold text-success"><Check className="h-3.5 w-3.5" /> {applied.code} · {applied.percent}%</span>
+                    <button onClick={removeCode} className="text-muted-foreground hover:text-destructive" aria-label="Kodu sil"><X className="h-3.5 w-3.5" /></button>
+                  </div>
+                ) : (
+                  <div className="flex gap-2">
+                    <input
+                      value={code}
+                      onChange={e => setCode(e.target.value)}
+                      onKeyDown={e => { if (e.key === "Enter") applyCode(); }}
+                      placeholder="PROMO2026"
+                      className="flex-1 h-10 px-3 rounded-lg bg-surface border border-border text-sm focus:outline-none focus:border-neon"
+                    />
+                    <button
+                      onClick={applyCode}
+                      disabled={applying || !code.trim()}
+                      className="h-10 px-3 rounded-lg border border-neon/40 bg-neon/10 text-neon text-sm font-semibold hover:bg-neon/20 disabled:opacity-50"
+                    >
+                      {applying ? <Loader2 className="h-4 w-4 animate-spin" /> : "Tətbiq et"}
+                    </button>
+                  </div>
+                )}
               </div>
 
               <div className="border-t border-border pt-3 flex items-center justify-between mb-4">
                 <span className="font-semibold">Cəmi</span>
-                <span className="font-display text-2xl font-bold text-gradient">{format(subtotal)}</span>
+                <span className="font-display text-2xl font-bold text-gradient">{format(total)}</span>
               </div>
 
+              <label className="flex items-start gap-2 mb-4 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={agreed}
+                  onChange={e => setAgreed(e.target.checked)}
+                  className="mt-0.5 h-4 w-4 accent-neon shrink-0"
+                />
+                <span className="text-xs text-muted-foreground leading-relaxed">
+                  <Link to="/terms" className="text-neon hover:underline">Alış-veriş şərtlərini</Link>,{" "}
+                  <Link to="/refund" className="text-neon hover:underline">geri qaytarma siyasətini</Link> və{" "}
+                  <Link to="/privacy" className="text-neon hover:underline">məxfilik qaydalarını</Link> oxudum və qəbul edirəm.
+                </span>
+              </label>
+
               <button
-                disabled={busy}
+                disabled={busy || !agreed}
                 onClick={checkout}
-                className="w-full inline-flex items-center justify-center gap-2 h-12 rounded-xl bg-neon text-background font-bold neon-ring disabled:opacity-50"
+                className="w-full inline-flex items-center justify-center gap-2 h-12 rounded-xl bg-neon text-background font-bold neon-ring disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <ShoppingCart className="h-4 w-4" />}
                 {busy ? "Sifariş edilir..." : "Sifariş ver"}
