@@ -110,6 +110,7 @@ import { IpTracker } from "@/components/IpTracker";
 import { InstallAppBanner } from "@/components/InstallAppBanner";
 import { OnboardingTour } from "@/components/OnboardingTour";
 import { MobileTabBar } from "@/components/MobileTabBar";
+import { CommandPalette } from "@/components/CommandPalette";
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
@@ -124,6 +125,7 @@ function RootComponent() {
               <InstallAppBanner />
               <OnboardingTour />
               <MobileTabBar />
+              <CommandPalette />
               <Toaster theme="dark" position="top-right" richColors />
 
             </CartProvider>
