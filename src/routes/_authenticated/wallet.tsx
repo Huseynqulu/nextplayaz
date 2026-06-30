@@ -113,7 +113,7 @@ function WalletPage() {
   async function submitWithdraw() {
     if (!user) return;
     const num = Number(wAmount);
-    if (!Number.isFinite(num) || num < 5) { toast.error("Minimum 5 AZN çıxara bilərsiniz"); return; }
+    if (!Number.isFinite(num) || num < 20) { toast.error("Minimum 20 AZN çıxara bilərsiniz"); return; }
     if (num > balance) { toast.error("Balansda kifayət qədər vəsait yoxdur"); return; }
     if (wDest.trim().length < 4) { toast.error("Hesab məlumatını daxil edin"); return; }
 
