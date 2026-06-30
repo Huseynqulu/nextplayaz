@@ -113,7 +113,7 @@ function WalletPage() {
   async function submitWithdraw() {
     if (!user) return;
     const num = Number(wAmount);
-    if (!Number.isFinite(num) || num < 5) { toast.error("Minimum 5 AZN çıxara bilərsiniz"); return; }
+    if (!Number.isFinite(num) || num < 20) { toast.error("Minimum 20 AZN çıxara bilərsiniz"); return; }
     if (num > balance) { toast.error("Balansda kifayət qədər vəsait yoxdur"); return; }
     if (wDest.trim().length < 4) { toast.error("Hesab məlumatını daxil edin"); return; }
 
@@ -316,7 +316,7 @@ function WalletPage() {
                       className="mt-1.5 w-full h-11 px-3 rounded-lg bg-background border border-border text-sm" />
                   </div>
 
-                  <button disabled={wSubmitting || balance < 5} onClick={submitWithdraw}
+                  <button disabled={wSubmitting || balance < 20} onClick={submitWithdraw}
                     className="w-full h-11 rounded-lg bg-neon text-background font-semibold neon-ring disabled:opacity-50 inline-flex items-center justify-center gap-2">
                     {wSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <ArrowUpFromLine className="h-4 w-4" />}
                     Çıxarış müraciəti göndər
