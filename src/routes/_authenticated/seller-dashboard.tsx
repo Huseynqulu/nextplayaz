@@ -5,9 +5,10 @@ import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
-import { Loader2, Plus, Package, Trash2, Pencil, Rocket, ShoppingBag, Sparkles, ArrowDown } from "lucide-react";
+import { Loader2, Plus, Package, Trash2, Pencil, Rocket, ShoppingBag, Sparkles, ArrowDown, Upload } from "lucide-react";
 import { SellerAnalytics } from "@/components/SellerAnalytics";
 import { BoostDialog } from "@/components/BoostDialog";
+import { BulkUploadDialog } from "@/components/BulkUploadDialog";
 import { categoryLabel } from "@/lib/marketplace-data";
 
 export const Route = createFileRoute("/_authenticated/seller-dashboard")({
@@ -48,6 +49,7 @@ function SellerDashboard() {
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState<Product | null>(null);
+  const [bulkOpen, setBulkOpen] = useState(false);
   const [saving, setSaving] = useState(false);
   const [uploadingImg, setUploadingImg] = useState(false);
   const [boosting, setBoosting] = useState<Product | null>(null);
@@ -241,6 +243,12 @@ function SellerDashboard() {
                 <ShoppingBag className="h-4 w-4" /> Gələn sifarişlər
               </Link>
               <button
+                onClick={() => setBulkOpen(true)}
+                className="inline-flex items-center gap-2 h-11 px-5 rounded-lg border border-border bg-surface font-semibold hover:border-neon"
+              >
+                <Upload className="h-4 w-4" /> Toplu yüklə (CSV)
+              </button>
+              <button
                 onClick={() => showForm ? setShowForm(false) : openNewProductForm()}
                 className="inline-flex items-center gap-2 h-11 px-5 rounded-lg bg-neon text-background font-semibold neon-ring hover:opacity-95"
               >
@@ -248,6 +256,14 @@ function SellerDashboard() {
               </button>
             </div>
           </div>
+{user && (
+            <BulkUploadDialog
+              open={bulkOpen}
+              onClose={() => setBulkOpen(false)}
+              sellerId={user.id}
+              onDone={refresh}
+            />
+          )}
 
           {/* Onboarding helper — guides new sellers */}
           {!showForm && (
