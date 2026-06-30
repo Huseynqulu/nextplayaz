@@ -1,9 +1,17 @@
 import { useEffect, useState } from "react";
-import { Link } from "@tanstack/react-router";
+import { useNavigate } from "@tanstack/react-router";
 import { Bell, Check } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
+
+function resolveLink(link: string | null): string | null {
+  if (!link) return null;
+  // Normalize legacy "/messages?c=<id>" to "/messages/<id>"
+  const m = link.match(/^\/messages\?c=([0-9a-fA-F-]+)/);
+  if (m) return `/messages/${m[1]}`;
+  return link;
+}
 
 type Notification = {
   id: string;
