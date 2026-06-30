@@ -5,8 +5,9 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
-import { Loader2, Package, CheckCircle2, Truck, Clock, ShoppingBag, AlertTriangle, MessageSquare, ArrowLeft } from "lucide-react";
+import { Loader2, Package, CheckCircle2, Truck, Clock, ShoppingBag, AlertTriangle, MessageSquare, ArrowLeft, ChevronRight } from "lucide-react";
 import { useCurrency } from "@/lib/currency";
+import { SellerOrderDetailDialog } from "@/components/SellerOrderDetailDialog";
 
 export const Route = createFileRoute("/_authenticated/seller-orders")({
   component: SellerOrdersPage,
