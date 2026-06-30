@@ -154,7 +154,8 @@ export function SearchBox({ variant = "desktop" }: { variant?: "desktop" | "mobi
                       <p className="text-xs font-medium line-clamp-2 mb-1 min-h-[2rem]">{h.title}</p>
                       <span className="text-sm font-bold text-gradient">{format(h.price)}</span>
                     </Link>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
               <button
