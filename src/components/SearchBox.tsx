@@ -143,8 +143,8 @@ export function SearchBox({ variant = "desktop" }: { variant?: "desktop" | "mobi
                       onClick={() => { setOpen(false); setQ(""); }}
                       className="flex items-center justify-between gap-3 rounded-lg border border-border bg-card-gradient px-3 py-2 hover:border-neon hover:bg-neon/5 transition"
                     >
-                      <p className="text-xs font-medium line-clamp-1 flex-1 min-w-0">{h.title}</p>
-                      <span className="text-sm font-bold text-gradient shrink-0">{format(h.price)}</span>
+                      <p className="text-xs font-medium line-clamp-2 flex-1 min-w-0 break-words">{h.title}</p>
+                      <span className="text-sm font-bold text-gradient shrink-0 whitespace-nowrap">{format(h.price)}</span>
                     </Link>
                   ))}
                 </div>
