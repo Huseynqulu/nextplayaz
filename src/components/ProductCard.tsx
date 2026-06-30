@@ -117,6 +117,12 @@ export function ProductCard({ p, variant = "default" }: { p: Product; variant?: 
             {p.delivery === "Instant" ? "Anında" : "Əllə"}
           </span>
         </div>
+
+        {p.seller.verified && (
+          <div className="absolute bottom-2 right-2">
+            <VerifiedBadge verified={p.seller.verified} variant="floating" size={11} label="Doğrulanmış" />
+          </div>
+        )}
       </div>
 
       <div className={`flex flex-1 flex-col ${isCompact ? "p-2.5 gap-1.5" : "p-3 gap-2"}`}>
