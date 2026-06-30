@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as UserGuideRouteImport } from './routes/user-guide'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as SupportRouteImport } from './routes/support'
 import { Route as SellerRouteImport } from './routes/seller'
@@ -38,6 +39,11 @@ import { Route as AuthenticatedMessagesIndexRouteImport } from './routes/_authen
 import { Route as GiftCardsPlatformDenomRouteImport } from './routes/gift-cards.$platform.$denom'
 import { Route as AuthenticatedMessagesConversationIdRouteImport } from './routes/_authenticated/messages/$conversationId'
 
+const UserGuideRoute = UserGuideRouteImport.update({
+  id: '/user-guide',
+  path: '/user-guide',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TermsRoute = TermsRouteImport.update({
   id: '/terms',
   path: '/terms',
@@ -195,6 +201,7 @@ export interface FileRoutesByFullPath {
   '/seller': typeof SellerRoute
   '/support': typeof SupportRoute
   '/terms': typeof TermsRoute
+  '/user-guide': typeof UserGuideRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/favorites': typeof AuthenticatedFavoritesRoute
   '/orders': typeof AuthenticatedOrdersRoute
@@ -224,6 +231,7 @@ export interface FileRoutesByTo {
   '/seller': typeof SellerRoute
   '/support': typeof SupportRoute
   '/terms': typeof TermsRoute
+  '/user-guide': typeof UserGuideRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/favorites': typeof AuthenticatedFavoritesRoute
   '/orders': typeof AuthenticatedOrdersRoute
@@ -255,6 +263,7 @@ export interface FileRoutesById {
   '/seller': typeof SellerRoute
   '/support': typeof SupportRoute
   '/terms': typeof TermsRoute
+  '/user-guide': typeof UserGuideRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/favorites': typeof AuthenticatedFavoritesRoute
   '/_authenticated/orders': typeof AuthenticatedOrdersRoute
@@ -286,6 +295,7 @@ export interface FileRouteTypes {
     | '/seller'
     | '/support'
     | '/terms'
+    | '/user-guide'
     | '/admin'
     | '/favorites'
     | '/orders'
@@ -315,6 +325,7 @@ export interface FileRouteTypes {
     | '/seller'
     | '/support'
     | '/terms'
+    | '/user-guide'
     | '/admin'
     | '/favorites'
     | '/orders'
@@ -345,6 +356,7 @@ export interface FileRouteTypes {
     | '/seller'
     | '/support'
     | '/terms'
+    | '/user-guide'
     | '/_authenticated/admin'
     | '/_authenticated/favorites'
     | '/_authenticated/orders'
@@ -376,12 +388,20 @@ export interface RootRouteChildren {
   SellerRoute: typeof SellerRoute
   SupportRoute: typeof SupportRoute
   TermsRoute: typeof TermsRoute
+  UserGuideRoute: typeof UserGuideRoute
   ProductSlugRoute: typeof ProductSlugRoute
   UIdRoute: typeof UIdRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/user-guide': {
+      id: '/user-guide'
+      path: '/user-guide'
+      fullPath: '/user-guide'
+      preLoaderRoute: typeof UserGuideRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/terms': {
       id: '/terms'
       path: '/terms'
@@ -651,6 +671,7 @@ const rootRouteChildren: RootRouteChildren = {
   SellerRoute: SellerRoute,
   SupportRoute: SupportRoute,
   TermsRoute: TermsRoute,
+  UserGuideRoute: UserGuideRoute,
   ProductSlugRoute: ProductSlugRoute,
   UIdRoute: UIdRoute,
 }

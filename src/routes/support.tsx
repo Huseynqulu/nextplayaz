@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
-import { MessageCircle, Mail, ShieldQuestion, LifeBuoy } from "lucide-react";
+import { MessageCircle, Mail, ShieldQuestion, LifeBuoy, BookOpen, ArrowRight } from "lucide-react";
 
 export const Route = createFileRoute("/support")({
   component: SupportPage,
