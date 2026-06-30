@@ -613,7 +613,7 @@ function SellerDashboard() {
                       )}
                     </div>
                     <p className="text-xs text-muted-foreground">
-                      {p.category} · {p.platform} · {p.price} AZN · stok: {p.stock}
+                      {categoryLabel(p.category)} · {p.platform} · {p.price} AZN · stok: {p.stock}
                       {!p.is_active && <span className="ml-2 text-destructive">(deaktiv)</span>}
                     </p>
                   </div>
