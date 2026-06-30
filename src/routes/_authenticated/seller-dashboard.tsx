@@ -42,36 +42,6 @@ function slugify(s: string) {
   return s.toLowerCase().normalize("NFKD").replace(/[^\w\s-]/g, "").trim().replace(/\s+/g, "-").slice(0, 80) + "-" + Math.random().toString(36).slice(2, 6);
 }
 
-function UrlImageAdder({ onAdd }: { onAdd: (url: string) => void }) {
-  const [url, setUrl] = useState("");
-  const [checking, setChecking] = useState(false);
-  function add() {
-    const v = url.trim();
-    if (!v) return;
-    if (!/^https?:\/\//i.test(v)) { toast.error("URL http:// və ya https:// ilə başlamalıdır"); return; }
-    setChecking(true);
-    const img = new Image();
-    img.onload = () => { onAdd(v); setUrl(""); setChecking(false); toast.success("Şəkil əlavə edildi"); };
-    img.onerror = () => { setChecking(false); toast.error("Şəkil yüklənmədi — URL-i yoxlayın"); };
-    img.src = v;
-  }
-  return (
-    <div className="mt-3 flex flex-col sm:flex-row gap-2">
-      <input
-        type="url"
-        value={url}
-        onChange={e => setUrl(e.target.value)}
-        onKeyDown={e => { if (e.key === "Enter") { e.preventDefault(); add(); } }}
-        placeholder="https://example.com/şəkil.jpg"
-        className="flex-1 min-w-0 h-10 px-3 rounded-lg bg-surface border border-border text-sm focus:outline-none focus:ring-2 focus:ring-ring" />
-      <button type="button" onClick={add} disabled={checking || !url.trim()}
-        className="shrink-0 whitespace-nowrap inline-flex items-center justify-center gap-2 h-10 px-4 rounded-lg border border-border bg-surface hover:border-neon text-sm font-semibold disabled:opacity-50">
-        {checking ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
-        URL ilə əlavə et
-      </button>
-    </div>
-  );
-}
 
 function SellerDashboard() {
   const { user } = useAuth();
