@@ -854,9 +854,13 @@ export type Database = {
       profiles: {
         Row: {
           avatar_url: string | null
+          ban_reason: string | null
+          banned_at: string | null
           created_at: string
           display_name: string | null
           id: string
+          last_ip: string | null
+          last_ip_at: string | null
           last_seen_at: string | null
           loyalty_points: number
           referral_code: string | null
@@ -865,6 +869,7 @@ export type Database = {
           sales_total: number
           seller_tier: string
           shop_name: string | null
+          signup_ip: string | null
           updated_at: string
           username: string | null
           verified_at: string | null
@@ -872,9 +877,13 @@ export type Database = {
         }
         Insert: {
           avatar_url?: string | null
+          ban_reason?: string | null
+          banned_at?: string | null
           created_at?: string
           display_name?: string | null
           id: string
+          last_ip?: string | null
+          last_ip_at?: string | null
           last_seen_at?: string | null
           loyalty_points?: number
           referral_code?: string | null
@@ -883,6 +892,7 @@ export type Database = {
           sales_total?: number
           seller_tier?: string
           shop_name?: string | null
+          signup_ip?: string | null
           updated_at?: string
           username?: string | null
           verified_at?: string | null
@@ -890,9 +900,13 @@ export type Database = {
         }
         Update: {
           avatar_url?: string | null
+          ban_reason?: string | null
+          banned_at?: string | null
           created_at?: string
           display_name?: string | null
           id?: string
+          last_ip?: string | null
+          last_ip_at?: string | null
           last_seen_at?: string | null
           loyalty_points?: number
           referral_code?: string | null
@@ -901,6 +915,7 @@ export type Database = {
           sales_total?: number
           seller_tier?: string
           shop_name?: string | null
+          signup_ip?: string | null
           updated_at?: string
           username?: string | null
           verified_at?: string | null
