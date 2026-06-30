@@ -23,7 +23,8 @@ export type DbProduct = {
   last_sold_at?: string | null;
 };
 
-const FALLBACK_IMG = "https://images.unsplash.com/photo-1542751371-adc38448a05e?w=800&q=80";
+export const PRODUCT_PLACEHOLDER = "__np_placeholder__";
+const FALLBACK_IMG = PRODUCT_PLACEHOLDER;
 
 export type SellerLite = { name: string; avatarUrl?: string | null; shopName?: string | null; verified?: boolean };
 
