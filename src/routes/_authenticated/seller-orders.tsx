@@ -176,6 +176,13 @@ function SellerOrdersPage() {
         </div>
       </main>
       <Footer />
+      {openOrder && (
+        <SellerOrderDetailDialog
+          order={openOrder as any}
+          onClose={() => setOpenOrder(null)}
+          onChanged={refresh}
+        />
+      )}
     </div>
   );
 }
