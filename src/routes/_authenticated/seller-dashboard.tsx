@@ -50,10 +50,12 @@ function SellerDashboard() {
   const [saving, setSaving] = useState(false);
   const [uploadingImg, setUploadingImg] = useState(false);
   const [boosting, setBoosting] = useState<Product | null>(null);
+  const [step1Done, setStep1Done] = useState(false);
   const formRef = useRef<HTMLDivElement | null>(null);
 
   function openNewProductForm() {
     resetForm();
+    setStep1Done(false);
     setShowForm(true);
     setTimeout(() => {
       formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
