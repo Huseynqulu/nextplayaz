@@ -1322,7 +1322,7 @@ function AdminPage() {
               {[
                 ["Email", viewing.email],
                 ["Telefon", viewing.phone],
-                ["Kateqoriya", viewing.category],
+                ["Kateqoriya", categoryLabel(viewing.category)],
                 ["Status", viewing.status.toUpperCase()],
                 ["İstifadəçi ID", viewing.user_id],
                 ["Tarix", new Date(viewing.created_at).toLocaleString("az-AZ")],
