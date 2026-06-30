@@ -277,7 +277,9 @@ function ThreadPage() {
                   className="h-11 w-11 grid place-items-center rounded-lg bg-surface border border-border hover:border-primary shrink-0" title="Şəkil əlavə et">
                   <Paperclip className="h-4 w-4" />
                 </button>
-                <textarea ref={inputRef} value={text} onChange={e => setText(e.target.value)}
+                <textarea ref={inputRef} value={text}
+                  onChange={e => { setText(e.target.value); if (e.target.value.trim()) broadcastTyping(); else broadcastStopTyping(); }}
+                  onBlur={() => broadcastStopTyping()}
                   onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); } }}
                   rows={1} maxLength={4000} placeholder="Mesaj yazın..."
                   className="flex-1 resize-none px-3 py-2.5 rounded-lg bg-background border border-border text-sm max-h-32" />
