@@ -93,6 +93,7 @@ export function Header() {
 
         <div className="flex items-center gap-2 md:ml-2 ml-auto">
           <CommandPaletteTrigger />
+          <ThemeToggle />
           <LanguageSwitcher />
           <CartButton />
           {user && (
