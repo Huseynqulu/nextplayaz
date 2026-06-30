@@ -20,6 +20,7 @@ export type DbProduct = {
   seller_id: string;
   delivery: "Instant" | "Manual";
   is_active: boolean;
+  last_sold_at?: string | null;
 };
 
 const FALLBACK_IMG = "https://images.unsplash.com/photo-1542751371-adc38448a05e?w=800&q=80";
