@@ -19,6 +19,7 @@ type Review = {
 export function ReviewSection({ productId, sellerId }: { productId: string; sellerId?: string | null }) {
   const { user } = useAuth();
   const isSeller = !!user && !!sellerId && user.id === sellerId;
+  const [mode, setMode] = useState<"product" | "seller">("product");
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
   const [canReview, setCanReview] = useState(false);
@@ -36,11 +37,19 @@ export function ReviewSection({ productId, sellerId }: { productId: string; sell
 
   async function load() {
     setLoading(true);
+    let productIds: string[] = [productId];
+    if (mode === "seller" && sellerId) {
+      const { data: prods } = await supabase
+        .from("products").select("id").eq("seller_id", sellerId);
+      productIds = (prods ?? []).map((p: any) => p.id);
+      if (productIds.length === 0) productIds = [productId];
+    }
     const { data: revs } = await supabase
       .from("reviews")
       .select("id, rating, comment, created_at, reviewer_id, seller_reply, seller_replied_at")
-      .eq("product_id", productId)
+      .in("product_id", productIds)
       .order("created_at", { ascending: false });
+
     const base = (revs as any[]) ?? [];
     const ids = Array.from(new Set(base.map(r => r.reviewer_id)));
     let profMap = new Map<string, any>();
