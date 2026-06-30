@@ -69,14 +69,8 @@ export function Header() {
     <header className="sticky top-0 z-50 border-b border-border/60 bg-background/70 backdrop-blur-xl">
       <div className="mx-auto flex h-16 max-w-7xl items-center gap-4 px-4 sm:px-6 lg:px-8">
         <Link to="/" className="flex items-center gap-2 group">
-          <div className="relative grid h-9 w-9 place-items-center rounded-lg bg-neon shadow-neon">
-            <Gamepad2 className="h-5 w-5 text-background" strokeWidth={2.5} />
-            <div className="absolute inset-0 -z-10 rounded-lg blur-md opacity-70 bg-neon group-hover:opacity-100 transition" />
-          </div>
-          <span className="font-display text-xl font-bold tracking-tight">
-            NEXT<span className="text-gradient">PLAY</span>
-            <span className="text-muted-foreground text-sm">.az</span>
-          </span>
+          <img src={nextplayLogo} alt="NextPlay" className="h-10 w-auto drop-shadow-[0_0_12px_hsl(var(--neon)/0.4)] group-hover:drop-shadow-[0_0_18px_hsl(var(--neon)/0.6)] transition" />
+          <span className="font-display text-base font-bold tracking-tight text-muted-foreground">.az</span>
         </Link>
 
         <nav className="hidden lg:flex items-center gap-1 ml-6">
