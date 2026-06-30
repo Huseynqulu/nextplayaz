@@ -278,7 +278,7 @@ function SupportTicketsPage() {
                   title="Müraciətin yoxdur"
                   description="Hər hansı problem var? Yeni müraciət aç, dəstək komandamız 24/7 cavab verir."
                   ctaLabel="Yeni müraciət"
-                  ctaOnClick={() => setMode("new")}
+                  ctaOnClick={() => setCreating(true)}
                 />
               ) : (
                 <div className="space-y-2">
