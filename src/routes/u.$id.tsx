@@ -4,6 +4,7 @@ import { Footer } from "@/components/Footer";
 import { ProductCard } from "@/components/ProductCard";
 import { supabase } from "@/integrations/supabase/client";
 import { dbToProduct, type DbProduct } from "@/lib/products";
+import { categoryLabel } from "@/lib/marketplace-data";
 import { isOnline, formatLastSeen } from "@/lib/presence";
 import { ShieldCheck, Star, MessageCircle, Loader2, Store } from "lucide-react";
 import { SellerTierBadge } from "@/components/SellerTierBadge";
@@ -182,7 +183,7 @@ function SellerTabs({ products, visibleProducts, reviews, cats, catFilter, setCa
                 return (
                   <button key={c} onClick={() => setCatFilter(c)}
                     className={`px-3 py-1.5 rounded-full text-xs font-medium border transition ${catFilter === c ? "bg-neon text-background border-transparent" : "bg-surface border-border text-muted-foreground hover:text-foreground"}`}>
-                    {c} ({count})
+                    {categoryLabel(c)} ({count})
                   </button>
                 );
               })}

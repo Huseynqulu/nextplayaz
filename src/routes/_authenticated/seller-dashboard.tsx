@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { Loader2, Plus, Package, Trash2, Pencil, Rocket, ShoppingBag, Sparkles, ArrowDown } from "lucide-react";
 import { SellerAnalytics } from "@/components/SellerAnalytics";
 import { BoostDialog } from "@/components/BoostDialog";
+import { categoryLabel } from "@/lib/marketplace-data";
 
 export const Route = createFileRoute("/_authenticated/seller-dashboard")({
   component: SellerDashboard,
@@ -612,7 +613,7 @@ function SellerDashboard() {
                       )}
                     </div>
                     <p className="text-xs text-muted-foreground">
-                      {p.category} · {p.platform} · {p.price} AZN · stok: {p.stock}
+                      {categoryLabel(p.category)} · {p.platform} · {p.price} AZN · stok: {p.stock}
                       {!p.is_active && <span className="ml-2 text-destructive">(deaktiv)</span>}
                     </p>
                   </div>

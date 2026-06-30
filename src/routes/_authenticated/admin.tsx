@@ -7,6 +7,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
 import { Loader2, CheckCircle2, XCircle, ShieldCheck, Package, Users, FileText, Ticket, Wallet, Trash2, Plus, Eye, X, FileImage, LifeBuoy, Send, ArrowLeft, Receipt, Image as ImageIcon } from "lucide-react";
 import { ChatImage } from "@/components/ChatImage";
+import { categoryLabel } from "@/lib/marketplace-data";
 import { AdminBanners } from "@/components/AdminBanners";
 import AdminReviews from "@/components/AdminReviews";
 import { AdminGiftCards } from "@/components/AdminGiftCards";
@@ -514,7 +515,7 @@ function AdminPage() {
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2 flex-wrap">
                         <h3 className="font-semibold">{a.first_name} {a.last_name}</h3>
-                        <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-surface">{a.category}</span>
+                        <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-surface">{categoryLabel(a.category)}</span>
                         <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${
                           a.status === "approved" ? "bg-success/20 text-success" :
                           a.status === "rejected" ? "bg-destructive/20 text-destructive" : "bg-warning/20 text-warning"
@@ -1293,7 +1294,7 @@ function AdminPage() {
                 <div key={p.id} className="rounded-xl border border-border bg-card-gradient p-4 flex items-center justify-between gap-3">
                   <div className="min-w-0">
                     <p className="font-medium truncate">{p.title}</p>
-                    <p className="text-xs text-muted-foreground">{p.category} · {p.price} AZN · stok: {p.stock}</p>
+                    <p className="text-xs text-muted-foreground">{categoryLabel(p.category)} · {p.price} AZN · stok: {p.stock}</p>
                   </div>
                   <button disabled={busy === p.id} onClick={() => toggleProduct(p)}
                     className={`h-8 px-3 rounded-md text-xs font-semibold ${p.is_active ? "bg-success/20 text-success" : "bg-muted text-muted-foreground"}`}>
@@ -1321,7 +1322,7 @@ function AdminPage() {
               {[
                 ["Email", viewing.email],
                 ["Telefon", viewing.phone],
-                ["Kateqoriya", viewing.category],
+                ["Kateqoriya", categoryLabel(viewing.category)],
                 ["Status", viewing.status.toUpperCase()],
                 ["İstifadəçi ID", viewing.user_id],
                 ["Tarix", new Date(viewing.created_at).toLocaleString("az-AZ")],
