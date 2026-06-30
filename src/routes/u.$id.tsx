@@ -217,19 +217,50 @@ function SellerTabs({ products, visibleProducts, reviews, cats, catFilter, setCa
           <p className="text-muted-foreground py-10 text-center">Hələ rəy yoxdur.</p>
         ) : (
           <div className="space-y-3">
-            {reviews.map((r) => (
-              <div key={r.id} className="rounded-2xl border border-border bg-surface/40 p-5">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-1">
-                    {[...Array(5)].map((_, i) => (
-                      <Star key={i} className={`h-4 w-4 ${i < r.rating ? "fill-warning text-warning" : "text-muted"}`} />
-                    ))}
+            {reviews.map((r) => {
+              const rname = r.reviewer?.display_name || r.reviewer?.username || "İstifadəçi";
+              const initials = rname.slice(0, 2).toUpperCase();
+              return (
+                <div key={r.id} className="rounded-2xl border border-border bg-surface/40 p-5">
+                  <div className="flex items-start gap-3">
+                    <Link to="/u/$id" params={{ id: r.reviewer_id }} className="shrink-0">
+                      {r.reviewer?.avatar_url ? (
+                        <img src={r.reviewer.avatar_url} alt={rname} className="h-10 w-10 rounded-xl object-cover" />
+                      ) : (
+                        <div className="grid h-10 w-10 place-items-center rounded-xl bg-neon/15 border border-neon/30 text-neon font-bold text-sm">{initials}</div>
+                      )}
+                    </Link>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between gap-3 flex-wrap">
+                        <Link to="/u/$id" params={{ id: r.reviewer_id }} className="font-semibold hover:text-primary text-sm">{rname}</Link>
+                        <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-0.5">
+                            {[...Array(5)].map((_, i) => (
+                              <Star key={i} className={`h-3.5 w-3.5 ${i < r.rating ? "fill-warning text-warning" : "text-muted"}`} />
+                            ))}
+                          </div>
+                          <span className="text-xs text-muted-foreground">{new Date(r.created_at).toLocaleDateString("az-AZ")}</span>
+                        </div>
+                      </div>
+                      {r.comment && <p className="mt-2 text-sm leading-relaxed">{r.comment}</p>}
+                      {r.seller_reply && (
+                        <div className="mt-3 ml-2 pl-4 border-l-2 border-neon/40 bg-neon/5 rounded-r-lg p-3">
+                          <div className="flex items-center justify-between gap-2 mb-1">
+                            <div className="flex items-center gap-1.5 text-xs font-semibold text-neon">
+                              <Store className="h-3.5 w-3.5" /> Satıcı cavabı
+                            </div>
+                            <span className="text-[11px] text-muted-foreground">
+                              {r.seller_replied_at && new Date(r.seller_replied_at).toLocaleDateString("az-AZ")}
+                            </span>
+                          </div>
+                          <p className="text-sm leading-relaxed whitespace-pre-wrap">{r.seller_reply}</p>
+                        </div>
+                      )}
+                    </div>
                   </div>
-                  <span className="text-xs text-muted-foreground">{new Date(r.created_at).toLocaleDateString("az-AZ")}</span>
                 </div>
-                {r.comment && <p className="mt-2 text-sm">{r.comment}</p>}
-              </div>
-            ))}
+              );
+            })}
           </div>
         )
       )}
