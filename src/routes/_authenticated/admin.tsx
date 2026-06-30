@@ -465,6 +465,7 @@ function AdminPage() {
           <div className="flex gap-1 mb-6 border-b border-border overflow-x-auto">
             {([
               ["analytics", "📊 Analitika"],
+              ["announcements", "📢 Elanlar"],
               ["applications", `Müraciətlər (${apps.filter(a => a.status === "pending").length})`],
               ["tickets", `Dəstək (${tickets.filter(t => t.status === "open" || t.status === "pending").length})`],
               ["disputes", `Etirazlar (${disputes.length})`],
