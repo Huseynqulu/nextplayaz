@@ -1652,6 +1652,7 @@ export type Database = {
         Returns: undefined
       }
       recalc_seller_tier: { Args: { _seller_id: string }; Returns: undefined }
+      record_user_ip: { Args: { p_ip: string }; Returns: undefined }
       redeem_gift_card: { Args: { p_code: string }; Returns: number }
       redeem_loyalty_points: { Args: { p_points: number }; Returns: Json }
       redeem_referral_signup: { Args: { p_code: string }; Returns: undefined }
