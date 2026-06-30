@@ -193,6 +193,9 @@ function ThreadPage() {
                       <VerifiedBadge verified={(other as any).verified_at} variant="pill" size={12} />
                     </p>
                     <p className="text-[11px] text-muted-foreground">{online ? "● Onlayn" : formatLastSeen(other.last_seen_at)}</p>
+                    {avgRespMin != null && (
+                      <p className="text-[11px] text-neon/80">⚡ Adətən {formatResp(avgRespMin)} içində cavab verir</p>
+                    )}
                     {product && (
                       <span className="text-[11px] text-neon truncate block">↳ {product.title}</span>
                     )}
