@@ -40,9 +40,10 @@ export function FeaturedProducts() {
         </Link>
       </div>
 
-      <div className="grid gap-5 grid-cols-2 lg:grid-cols-4">
-        {items.map(p => <ProductCard key={p.id} p={p} />)}
+      <div className="grid gap-3 grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+        {items.map(p => <ProductCard key={p.id} p={p} variant="compact" />)}
       </div>
+
     </section>
   );
 }

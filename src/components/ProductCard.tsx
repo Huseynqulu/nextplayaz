@@ -139,9 +139,6 @@ export function ProductCard({ p, variant = "default" }: { p: Product; variant?: 
           <span>{p.rating}</span>
           <span>·</span>
           <span className="truncate">{p.platform}</span>
-          {p.seller.verified && (
-            <VerifiedBadge verified={p.seller.verified} variant="floating" size={11} label="Doğrulanmış" />
-          )}
         </div>
 
         {soldAgo && (
