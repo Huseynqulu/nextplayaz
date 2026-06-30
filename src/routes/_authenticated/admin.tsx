@@ -15,6 +15,7 @@ import { AdminGiftMarket } from "@/components/AdminGiftMarket";
 import { AdminAnalytics } from "@/components/AdminAnalytics";
 import { VerifiedBadge } from "@/components/VerifiedBadge";
 import { AdminBoostPricing } from "@/components/AdminBoostPricing";
+import { AdminAnnouncements } from "@/components/AdminAnnouncements";
 
 export const Route = createFileRoute("/_authenticated/admin")({
   component: AdminPage,
