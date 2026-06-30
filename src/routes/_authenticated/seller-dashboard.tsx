@@ -51,6 +51,7 @@ function SellerDashboard() {
   const [uploadingImg, setUploadingImg] = useState(false);
   const [boosting, setBoosting] = useState<Product | null>(null);
   const [step1Done, setStep1Done] = useState(false);
+  const [platformQuery, setPlatformQuery] = useState("");
   const formRef = useRef<HTMLDivElement | null>(null);
 
   function openNewProductForm() {
