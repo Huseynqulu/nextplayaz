@@ -137,7 +137,7 @@ function SellerDashboard() {
       gift_denomination_id: giftDenomId,
     });
     setShowForm(true);
-    setTimeout(() => window.scrollTo({ top: 0, behavior: "smooth" }), 50);
+    setTimeout(() => formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 80);
   }
 
   async function submit(e: React.FormEvent) {
