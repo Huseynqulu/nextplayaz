@@ -182,8 +182,9 @@ function ThreadPage() {
                     <span className={`absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-background ${online ? "bg-success" : "bg-muted"}`} />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="font-semibold truncate group-hover:text-neon transition">
-                      {((other as any).shop_name as string | null) || other.display_name || other.username || "İstifadəçi"}
+                    <p className="font-semibold truncate group-hover:text-neon transition inline-flex items-center gap-1.5">
+                      <span className="truncate">{((other as any).shop_name as string | null) || other.display_name || other.username || "İstifadəçi"}</span>
+                      <VerifiedBadge verified={(other as any).verified_at} variant="pill" size={12} />
                     </p>
                     <p className="text-[11px] text-muted-foreground">{online ? "● Onlayn" : formatLastSeen(other.last_seen_at)}</p>
                     {product && (
