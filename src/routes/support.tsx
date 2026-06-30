@@ -30,6 +30,24 @@ function SupportPage() {
           </div>
         </section>
 
+        <section className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 pt-12">
+          <Link
+            to="/user-guide"
+            className="group flex items-center gap-4 rounded-2xl border border-neon/30 bg-neon/5 hover:bg-neon/10 p-5 card-shadow transition"
+          >
+            <div className="grid h-12 w-12 place-items-center rounded-xl bg-neon/15 border border-neon/30 text-neon shrink-0">
+              <BookOpen className="h-5 w-5" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="font-display text-lg font-bold">Yeni İstifadəçi Bələdçisi</div>
+              <p className="text-sm text-muted-foreground">
+                NextPlay.az-dan təhlükəsiz istifadə üçün 8 addımlıq tam bələdçi — balans yükləmə, satıcı olmaq, təhlükəsizlik qaydaları və daha çoxu.
+              </p>
+            </div>
+            <ArrowRight className="h-5 w-5 text-neon group-hover:translate-x-1 transition shrink-0" />
+          </Link>
+        </section>
+
         <section className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 py-16">
           <div className="grid sm:grid-cols-3 gap-4 mb-12">
             {[
