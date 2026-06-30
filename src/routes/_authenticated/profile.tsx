@@ -8,6 +8,7 @@ import { Wallet, ShieldCheck, Package, Star, Loader2, Camera, Store, Save } from
 import { toast } from "sonner";
 import { TwoFactorSetup } from "@/components/TwoFactorSetup";
 import { useCurrency } from "@/lib/currency";
+import { imgUrl } from "@/lib/image-url";
 
 export const Route = createFileRoute("/_authenticated/profile")({
   component: ProfilePage,
