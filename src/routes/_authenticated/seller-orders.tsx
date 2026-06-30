@@ -92,18 +92,78 @@ function SellerOrdersPage() {
           <h1 className="font-display text-3xl sm:text-4xl font-bold flex items-center gap-3">
             <ShoppingBag className="h-7 w-7 text-neon" /> Gələn Sifarişlər
           </h1>
-          <p className="text-muted-foreground mt-2 mb-8">Müştəri sifarişlərini buradan çatdırın.</p>
+          <p className="text-muted-foreground mt-2 mb-6">Müştəri sifarişlərini buradan çatdırın.</p>
 
-          {loading ? (
+          {/* Filters */}
+          <div className="mb-6 space-y-3">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <input
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+                placeholder="Məhsul adı, sifariş ID və ya çatdırılma məlumatı..."
+                className="w-full h-11 pl-10 pr-10 rounded-xl bg-surface border border-border text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+              />
+              {search && (
+                <button onClick={() => setSearch("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
+                  <X className="h-4 w-4" />
+                </button>
+              )}
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {[
+                { v: "all", label: "Hamısı" },
+                { v: "paid", label: "Çatdırılma gözləyir" },
+                { v: "delivered", label: "Çatdırıldı" },
+                { v: "completed", label: "Tamamlandı" },
+                { v: "dispute", label: "Mübahisəli" },
+                { v: "cancelled", label: "Ləğv edildi" },
+                { v: "refunded", label: "Qaytarıldı" },
+              ].map(t => {
+                const count = t.v === "all" ? orders.length : orders.filter(o => o.status === t.v).length;
+                const active = statusFilter === t.v;
+                return (
+                  <button
+                    key={t.v}
+                    onClick={() => setStatusFilter(t.v)}
+                    className={`inline-flex items-center gap-1.5 h-8 px-3 rounded-lg border text-xs font-semibold transition-colors ${
+                      active ? "bg-neon text-background border-neon" : "bg-surface border-border text-muted-foreground hover:text-foreground hover:border-primary/50"
+                    }`}
+                  >
+                    {t.label}
+                    <span className={`px-1.5 rounded ${active ? "bg-background/20" : "bg-background/40"}`}>{count}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {(() => {
+            const q = search.trim().toLowerCase();
+            const filtered = orders.filter(o => {
+              if (statusFilter !== "all" && o.status !== statusFilter) return false;
+              if (!q) return true;
+              return (
+                o.product?.title?.toLowerCase().includes(q) ||
+                o.id.toLowerCase().includes(q) ||
+                (o.delivery_payload ?? "").toLowerCase().includes(q)
+              );
+            });
+            return loading ? (
             <div className="flex justify-center py-20"><Loader2 className="h-6 w-6 animate-spin text-neon" /></div>
           ) : orders.length === 0 ? (
             <div className="rounded-2xl border border-dashed border-border p-12 text-center">
               <Package className="h-10 w-10 mx-auto text-muted-foreground mb-3" />
               <p className="text-muted-foreground">Hələ satış yoxdur.</p>
             </div>
+          ) : filtered.length === 0 ? (
+            <div className="rounded-2xl border border-dashed border-border p-12 text-center">
+              <Search className="h-10 w-10 mx-auto text-muted-foreground mb-3" />
+              <p className="text-muted-foreground">Filtrə uyğun sifariş tapılmadı.</p>
+            </div>
           ) : (
             <div className="space-y-3">
-              {orders.map(o => {
+              {filtered.map(o => {
                 const s = STATUS_LABEL[o.status] ?? STATUS_LABEL.pending;
                 const Icon = s.icon;
                 return (
