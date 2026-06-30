@@ -3,7 +3,7 @@ import { Header } from "@/components/Header";
 import { ReviewSection } from "@/components/ReviewSection";
 import { Footer } from "@/components/Footer";
 import { ProductCard } from "@/components/ProductCard";
-import { products as mockProducts } from "@/lib/marketplace-data";
+import { products as mockProducts, categoryLabel } from "@/lib/marketplace-data";
 import { fetchProductBySlug } from "@/lib/products";
 import { Star, ShieldCheck, Zap, Lock, Package, MessageCircle, Heart, Share2, Loader2, X, FileText } from "lucide-react";
 import { useState } from "react";
