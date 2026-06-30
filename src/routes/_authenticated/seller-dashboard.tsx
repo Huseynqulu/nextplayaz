@@ -558,7 +558,8 @@ function SellerDashboard() {
                       }} />
                   </label>
                 </div>
-                <p className="mt-2 text-[11px] text-muted-foreground">Birinci şəkil əsas şəkil olacaq. JPG / PNG / WEBP — hər biri maks 5MB. Bir neçə şəkil eyni anda seçə bilərsiniz.</p>
+                <UrlImageAdder onAdd={(url) => setForm(f => ({ ...f, image_urls: [...f.image_urls, url] }))} />
+                <p className="mt-2 text-[11px] text-muted-foreground">Birinci şəkil əsas şəkil olacaq. JPG / PNG / WEBP — hər biri maks 5MB. Bir neçə şəkil eyni anda seçə bilərsiniz, və ya internet linki (URL) yapışdıra bilərsiniz.</p>
               </div>
 
 
