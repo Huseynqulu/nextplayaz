@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { isOnline, formatLastSeen } from "@/lib/presence";
 import { uploadChatAttachment } from "@/lib/chat-attachments";
 import { ChatImage } from "@/components/ChatImage";
+import { DeliveryCard } from "@/components/DeliveryCard";
 
 export const Route = createFileRoute("/_authenticated/messages/$conversationId")({
   component: ThreadPage,
@@ -204,6 +205,9 @@ function ThreadPage() {
                 <p className="text-center text-sm text-muted-foreground py-10">Mesajlaşmağa başlayın.</p>
               ) : messages.map(m => {
                 if (m.kind === "system") {
+                  if (m.body.includes("🔑 Məhsul məlumatı:")) {
+                    return <DeliveryCard key={m.id} body={m.body} />;
+                  }
                   return (
                     <div key={m.id} className="flex justify-center my-2">
                       <div className="max-w-[85%] px-3 py-2 rounded-xl bg-warning/10 border border-warning/30 text-xs text-warning whitespace-pre-wrap text-center">
