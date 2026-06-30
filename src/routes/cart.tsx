@@ -8,6 +8,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Loader2, Minus, Plus, ShoppingCart, Trash2, Tag, ArrowRight } from "lucide-react";
+import { EmptyState } from "@/components/EmptyState";
 
 export const Route = createFileRoute("/cart")({
   component: CartPage,
@@ -59,13 +60,15 @@ function CartPage() {
         </div>
 
         {items.length === 0 ? (
-          <div className="rounded-2xl border border-border bg-card-gradient p-12 text-center">
-            <ShoppingCart className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
-            <p className="text-muted-foreground mb-5">Səbətiniz boşdur.</p>
-            <Link to="/marketplace" className="inline-flex items-center gap-2 h-11 px-5 rounded-xl bg-neon text-background font-semibold neon-ring">
-              Marketplace-ə keç <ArrowRight className="h-4 w-4" />
-            </Link>
-          </div>
+          <EmptyState
+            icon={ShoppingCart}
+            title="Səbətin boşdur"
+            description="Bəyəndiyin oyun, hesab və ya açarı səbətə əlavə et və bir kliklə ödə."
+            ctaLabel="Marketə keç"
+            ctaTo="/marketplace"
+            secondaryLabel="Hədiyyə kartları"
+            secondaryTo="/gift-cards"
+          />
         ) : (
           <div className="grid lg:grid-cols-[1fr,360px] gap-6">
             <div className="space-y-3">

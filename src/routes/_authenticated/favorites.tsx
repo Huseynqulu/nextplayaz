@@ -8,6 +8,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { dbToProduct, type DbProduct } from "@/lib/products";
 import { useFavorites } from "@/lib/favorites";
 import type { Product } from "@/lib/marketplace-data";
+import { EmptyState } from "@/components/EmptyState";
+import { ProductGridSkeleton } from "@/components/Skeletons";
 
 export const Route = createFileRoute("/_authenticated/favorites")({
   component: FavoritesPage,
@@ -53,15 +55,15 @@ function FavoritesPage() {
         </div>
 
         {loading ? (
-          <p className="text-muted-foreground">Yüklənir...</p>
+          <ProductGridSkeleton count={8} />
         ) : items.length === 0 ? (
-          <div className="text-center py-16 rounded-2xl border border-dashed border-border">
-            <Heart className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-            <p className="text-muted-foreground mb-4">İstək siyahınız boşdur.</p>
-            <Link to="/marketplace" className="inline-flex h-10 items-center px-5 rounded-lg text-sm font-semibold bg-neon text-background">
-              Məhsullara bax
-            </Link>
-          </div>
+          <EmptyState
+            icon={Heart}
+            title="İstək siyahın boşdur"
+            description="Bəyəndiyin məhsulların üzərindəki ürək ikonuna toxun və burada toplansın."
+            ctaLabel="Məhsullara bax"
+            ctaTo="/marketplace"
+          />
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
             {items.map((p) => <ProductCard key={p.id} p={p} />)}

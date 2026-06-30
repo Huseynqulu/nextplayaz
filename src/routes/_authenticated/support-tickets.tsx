@@ -7,6 +7,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
 import { Loader2, LifeBuoy, Plus, ArrowLeft, Send, ShoppingBag, Paperclip, X } from "lucide-react";
 import { TicketListSkeleton } from "@/components/Skeletons";
+import { EmptyState } from "@/components/EmptyState";
 import { uploadChatAttachment } from "@/lib/chat-attachments";
 import { ChatImage } from "@/components/ChatImage";
 
@@ -272,9 +273,13 @@ function SupportTicketsPage() {
               {loading ? (
                 <TicketListSkeleton count={4} />
               ) : tickets.length === 0 ? (
-                <div className="rounded-2xl border border-dashed border-border p-12 text-center text-muted-foreground">
-                  Hələ müraciətin yoxdur.
-                </div>
+                <EmptyState
+                  icon={LifeBuoy}
+                  title="Müraciətin yoxdur"
+                  description="Hər hansı problem var? Yeni müraciət aç, dəstək komandamız 24/7 cavab verir."
+                  ctaLabel="Yeni müraciət"
+                  ctaOnClick={() => setCreating(true)}
+                />
               ) : (
                 <div className="space-y-2">
                   {tickets.map(t => (

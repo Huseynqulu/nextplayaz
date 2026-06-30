@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { MessageSquare, Loader2, User as UserIcon, Search } from "lucide-react";
 import { ConversationListSkeleton } from "@/components/Skeletons";
+import { EmptyState } from "@/components/EmptyState";
 import { toast } from "sonner";
 import { isOnline } from "@/lib/presence";
 
@@ -166,11 +167,13 @@ function InboxPage() {
           {loading ? (
             <ConversationListSkeleton count={6} />
           ) : convs.length === 0 ? (
-            <div className="rounded-2xl border border-border bg-card-gradient p-10 text-center card-shadow">
-              <MessageSquare className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
-              <p className="text-muted-foreground">Hələ yazışma yoxdur. Məhsul səhifəsindən satıcıya mesaj göndərin.</p>
-              <Link to="/marketplace" className="inline-block mt-4 h-10 px-5 leading-10 rounded-lg bg-neon text-background font-semibold neon-ring">Marketə bax</Link>
-            </div>
+            <EmptyState
+              icon={MessageSquare}
+              title="Yazışma yoxdur"
+              description="Məhsul səhifəsindəki “Mesaj göndər” düyməsi ilə satıcı ilə birbaşa əlaqə qura bilərsən."
+              ctaLabel="Marketə bax"
+              ctaTo="/marketplace"
+            />
           ) : (
             <div className="space-y-2">
               {convs.map(c => {
