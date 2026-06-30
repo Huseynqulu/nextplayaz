@@ -1,11 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
-import { Loader2, Plus, Package, Trash2, Pencil, Rocket, ShoppingBag } from "lucide-react";
+import { Loader2, Plus, Package, Trash2, Pencil, Rocket, ShoppingBag, Sparkles, ArrowDown } from "lucide-react";
 import { SellerAnalytics } from "@/components/SellerAnalytics";
 import { BoostDialog } from "@/components/BoostDialog";
 
@@ -50,6 +50,15 @@ function SellerDashboard() {
   const [saving, setSaving] = useState(false);
   const [uploadingImg, setUploadingImg] = useState(false);
   const [boosting, setBoosting] = useState<Product | null>(null);
+  const formRef = useRef<HTMLDivElement | null>(null);
+
+  function openNewProductForm() {
+    resetForm();
+    setShowForm(true);
+    setTimeout(() => {
+      formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 80);
+  }
 
   const [form, setForm] = useState({
     title: "", description: "", price: "", old_price: "",
@@ -128,7 +137,7 @@ function SellerDashboard() {
       gift_denomination_id: giftDenomId,
     });
     setShowForm(true);
-    setTimeout(() => window.scrollTo({ top: 0, behavior: "smooth" }), 50);
+    setTimeout(() => formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 80);
   }
 
   async function submit(e: React.FormEvent) {
@@ -227,17 +236,51 @@ function SellerDashboard() {
                 <ShoppingBag className="h-4 w-4" /> Gələn sifarişlər
               </Link>
               <button
-                onClick={() => { resetForm(); setShowForm(s => !s); }}
+                onClick={() => showForm ? setShowForm(false) : openNewProductForm()}
                 className="inline-flex items-center gap-2 h-11 px-5 rounded-lg bg-neon text-background font-semibold neon-ring hover:opacity-95"
               >
-                <Plus className="h-4 w-4" /> {showForm ? "Bağla" : "Yeni məhsul"}
+                <Plus className="h-4 w-4" /> {showForm ? "Bağla" : "Yeni məhsul əlavə et"}
               </button>
             </div>
           </div>
+
+          {/* Onboarding helper — guides new sellers */}
+          {!showForm && (
+            <div className="mb-6 rounded-2xl border border-neon/30 bg-neon/5 p-5 sm:p-6 card-shadow">
+              <div className="flex items-start gap-4 flex-wrap">
+                <div className="grid h-11 w-11 place-items-center rounded-xl bg-neon/15 border border-neon/30 text-neon shrink-0">
+                  <Sparkles className="h-5 w-5" />
+                </div>
+                <div className="flex-1 min-w-[240px]">
+                  <h3 className="font-display text-lg font-bold">Necə məhsul yerləşdirim?</h3>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Aşağıdakı düyməyə bas — məhsul əlavə etmə forması açılacaq.
+                    Başlıq, qiymət, şəkil və kateqoriyanı doldur. <strong className="text-foreground">Anında çatdırılma</strong> seçsən,
+                    stok elementlərini alt-alta yaza bilərsən (key/hesab və s.).
+                  </p>
+                </div>
+                <button
+                  onClick={openNewProductForm}
+                  className="inline-flex items-center gap-2 h-11 px-5 rounded-lg bg-neon text-background font-semibold neon-ring hover:scale-[1.02] transition"
+                >
+                  <ArrowDown className="h-4 w-4" /> Yeni məhsul əlavə et
+                </button>
+              </div>
+            </div>
+          )}
+
           {user && <SellerAnalytics sellerId={user.id} />}
 
           {showForm && (
-            <form onSubmit={submit} className="rounded-2xl border border-border bg-card-gradient p-6 card-shadow mb-8 grid sm:grid-cols-2 gap-4">
+            <div ref={formRef} className="scroll-mt-24">
+            <form onSubmit={submit} className="rounded-2xl border border-neon/40 bg-card-gradient p-6 card-shadow mb-8 grid sm:grid-cols-2 gap-4">
+              <div className="sm:col-span-2 -mt-2 mb-1">
+                <h2 className="font-display text-xl font-bold flex items-center gap-2">
+                  <Plus className="h-5 w-5 text-neon" />
+                  {editing ? "Məhsulu redaktə et" : "Yeni məhsul əlavə et"}
+                </h2>
+                <p className="text-xs text-muted-foreground mt-1">Formanı doldurub aşağıdakı «Yadda saxla» düyməsinə bas.</p>
+              </div>
               {/* Gift Card mode */}
               <div className="sm:col-span-2 rounded-xl border border-border bg-surface/40 p-3 space-y-3">
                 <label className="flex items-center gap-2 cursor-pointer">
@@ -457,6 +500,7 @@ function SellerDashboard() {
                 </button>
               </div>
             </form>
+            </div>
           )}
 
           {loading ? (
@@ -464,7 +508,13 @@ function SellerDashboard() {
           ) : items.length === 0 ? (
             <div className="rounded-2xl border border-dashed border-border p-12 text-center">
               <Package className="h-10 w-10 mx-auto text-muted-foreground mb-3" />
-              <p className="text-muted-foreground">Hələ məhsul yoxdur. İlk məhsulunuzu əlavə edin.</p>
+              <p className="text-muted-foreground mb-4">Hələ məhsul yoxdur. İlk məhsulunuzu əlavə edin.</p>
+              <button
+                onClick={openNewProductForm}
+                className="inline-flex items-center gap-2 h-11 px-5 rounded-lg bg-neon text-background font-semibold neon-ring hover:scale-[1.02] transition"
+              >
+                <Plus className="h-4 w-4" /> Yeni məhsul əlavə et
+              </button>
             </div>
           ) : (
             <div className="space-y-3">
