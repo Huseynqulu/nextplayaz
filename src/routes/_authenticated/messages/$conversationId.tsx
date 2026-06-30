@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { ArrowLeft, Send, Loader2, User as UserIcon, CheckCheck, Paperclip, X, ShieldCheck } from "lucide-react";
+import { MessageThreadSkeleton } from "@/components/Skeletons";
 import { toast } from "sonner";
 import { isOnline, formatLastSeen } from "@/lib/presence";
 import { uploadChatAttachment } from "@/lib/chat-attachments";
