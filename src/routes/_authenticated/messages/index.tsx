@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { MessageSquare, Loader2, User as UserIcon, Search } from "lucide-react";
 import { ConversationListSkeleton } from "@/components/Skeletons";
+import { EmptyState } from "@/components/EmptyState";
 import { toast } from "sonner";
 import { isOnline } from "@/lib/presence";
 
