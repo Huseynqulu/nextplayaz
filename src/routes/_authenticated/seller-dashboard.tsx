@@ -58,6 +58,7 @@ function SellerDashboard() {
   const [step1Done, setStep1Done] = useState(false);
   const [platformQuery, setPlatformQuery] = useState("");
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [searchQuery, setSearchQuery] = useState("");
   const [bulkDeleting, setBulkDeleting] = useState(false);
   const formRef = useRef<HTMLDivElement | null>(null);
 
