@@ -127,6 +127,7 @@ function WalletPage() {
       });
       if (error) throw error;
       toast.success("Pul çıxarma müraciəti göndərildi. Admin təsdiqindən sonra hesabınıza köçürüləcək.");
+      burstConfetti();
       setWAmount(""); setWDest(""); setWHolder("");
       await refresh();
     } catch (e: any) { toast.error(e.message ?? "Xəta"); }
