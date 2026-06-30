@@ -9,6 +9,21 @@ import { useCurrency } from "@/lib/currency";
 import { useCart } from "@/lib/cart";
 import { toast } from "sonner";
 
+function formatSoldAgo(iso?: string | null): string | null {
+  if (!iso) return null;
+  const diffMs = Date.now() - new Date(iso).getTime();
+  if (diffMs < 0) return null;
+  const mins = Math.floor(diffMs / 60000);
+  if (mins < 1) return "indicə satıldı";
+  if (mins < 60) return `${mins} dəq əvvəl satıldı`;
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return `${hours} saat əvvəl satıldı`;
+  const days = Math.floor(hours / 24);
+  if (days <= 14) return `${days} gün əvvəl satıldı`;
+  return null;
+}
+
+
 export function ProductCard({ p, variant = "default" }: { p: Product; variant?: "default" | "compact" | "list" }) {
   const { format } = useCurrency();
   const discount = p.oldPrice ? Math.round((1 - p.price / p.oldPrice) * 100) : 0;
