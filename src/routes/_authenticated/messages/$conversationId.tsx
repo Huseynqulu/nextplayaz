@@ -89,10 +89,46 @@ function ThreadPage() {
         setOther(o => o && o.id === p.id ? { ...o, last_seen_at: p.last_seen_at } : o);
       }).subscribe();
 
+    const typingCh = supabase.channel(`typing:${conversationId}`, { config: { broadcast: { self: false } } })
+      .on("broadcast", { event: "typing" }, (payload) => {
+        const fromId = (payload?.payload as any)?.user_id;
+        if (!fromId || fromId === user.id) return;
+        setOtherTyping(true);
+        if (typingClearRef.current) clearTimeout(typingClearRef.current);
+        typingClearRef.current = setTimeout(() => setOtherTyping(false), 3000);
+      })
+      .on("broadcast", { event: "stop_typing" }, (payload) => {
+        const fromId = (payload?.payload as any)?.user_id;
+        if (!fromId || fromId === user.id) return;
+        setOtherTyping(false);
+      })
+      .subscribe();
+    typingChRef.current = typingCh;
+
     const onFocus = () => void markRead();
     window.addEventListener("focus", onFocus);
-    return () => { active = false; supabase.removeChannel(ch); supabase.removeChannel(presenceCh); window.removeEventListener("focus", onFocus); };
+    return () => {
+      active = false;
+      supabase.removeChannel(ch);
+      supabase.removeChannel(presenceCh);
+      supabase.removeChannel(typingCh);
+      if (typingClearRef.current) clearTimeout(typingClearRef.current);
+      window.removeEventListener("focus", onFocus);
+    };
   }, [conversationId, user?.id]);
+
+  function broadcastTyping() {
+    if (!user || !typingChRef.current) return;
+    const now = Date.now();
+    if (now - lastTypingSentRef.current < 1500) return;
+    lastTypingSentRef.current = now;
+    void typingChRef.current.send({ type: "broadcast", event: "typing", payload: { user_id: user.id } });
+  }
+  function broadcastStopTyping() {
+    if (!user || !typingChRef.current) return;
+    lastTypingSentRef.current = 0;
+    void typingChRef.current.send({ type: "broadcast", event: "stop_typing", payload: { user_id: user.id } });
+  }
 
   async function send() {
     if (!user || !conv) return;
