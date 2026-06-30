@@ -117,7 +117,11 @@ export function BulkUploadDialog({ open, onClose, sellerId, onDone }: Props) {
           : Math.max(1, Number(get("stock") || "1"));
         if (delivery === "Instant" && stockItems.length === 0) throw new Error("Anında çatdırılma üçün stock_items boşdur");
 
-        const image_url = get("image_url") || null;
+        const imageUrlRaw = get("image_url");
+        const imageUrls = imageUrlRaw
+          ? imageUrlRaw.split("|").map(s => s.trim()).filter(s => /^https?:\/\//i.test(s))
+          : [];
+        const image_url = imageUrls[0] || null;
         const auto_message = get("auto_message") || null;
 
         const payload: any = {
@@ -129,7 +133,7 @@ export function BulkUploadDialog({ open, onClose, sellerId, onDone }: Props) {
           category, platform,
           delivery,
           image_url,
-          image_urls: image_url ? [image_url] : [],
+          image_urls: imageUrls,
           auto_message_enabled: !!auto_message,
           auto_message,
         };
@@ -198,7 +202,7 @@ export function BulkUploadDialog({ open, onClose, sellerId, onDone }: Props) {
                 <li><b className="text-foreground">delivery</b> — <code>Instant</code> (anında) və ya <code>Manual</code> (əllə)</li>
                 <li><b className="text-foreground">stock</b> — Manual üçün stok sayı (Instant-da boş)</li>
                 <li><b className="text-foreground">stock_items</b> — Instant üçün stok elementləri. <b>«|» işarəsi</b> ilə ayır: <code>KOD1|KOD2|KOD3</code></li>
-                <li><b className="text-foreground">image_url</b> — Şəkil linki (boş ola bilər)</li>
+                <li><b className="text-foreground">image_url</b> — Şəkil linki (URL). Bir neçə şəkil üçün <code>«|»</code> ilə ayır: <code>https://.../1.jpg|https://.../2.jpg</code>. Birinci əsas şəkil olur. Boş ola bilər.</li>
                 <li><b className="text-foreground">auto_message</b> — Alışdan sonra avtomatik mesaj (boş = söndürülmüş)</li>
               </ul>
             </div>
