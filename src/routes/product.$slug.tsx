@@ -142,9 +142,9 @@ function ProductPage() {
             <span className="text-foreground truncate">{p.title}</span>
           </nav>
 
-          <div className="grid lg:grid-cols-[1.1fr_1fr] gap-10">
+          <div className="grid lg:grid-cols-[1.1fr_1fr] gap-10 min-w-0">
             {/* Gallery */}
-            <div>
+            <div className="min-w-0">
               <div className="relative aspect-[4/3] overflow-hidden rounded-2xl border border-border card-shadow">
                 <img src={activeImg} alt={p.title} className="absolute inset-0 h-full w-full object-cover" />
                 <div className="absolute inset-0 bg-gradient-to-t from-background/30 to-transparent" />
