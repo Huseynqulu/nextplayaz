@@ -68,6 +68,12 @@ export function ProductCard({ p, variant = "default" }: { p: Product; variant?: 
               <span>·</span>
               <span>{p.platform}</span>
             </div>
+            {soldAgo && (
+              <div className="mt-1 inline-flex items-center gap-1 text-[10px] text-orange-400">
+                <Flame className="h-3 w-3" />
+                <span>{soldAgo}</span>
+              </div>
+            )}
           </div>
           <div className="flex items-end justify-between">
             <div className="flex items-baseline gap-2">
