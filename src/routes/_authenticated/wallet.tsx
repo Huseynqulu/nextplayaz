@@ -86,7 +86,7 @@ function WalletPage() {
   async function submit() {
     if (!user) return;
     const num = Number(amount);
-    if (!Number.isFinite(num) || num < 1) { toast.error("Düzgün məbləğ daxil edin (≥ 1 ₼)"); return; }
+    if (!Number.isFinite(num) || num < 5) { toast.error("Minimum 5 ₼ əlavə edə bilərsiniz"); return; }
     if (!method) { toast.error("Ödəniş üsulunu seçin"); return; }
 
     setSubmitting(true);
