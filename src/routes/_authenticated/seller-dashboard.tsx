@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
-import { Loader2, Plus, Package, Trash2, Pencil, Rocket, ShoppingBag, Sparkles, ArrowDown, Upload } from "lucide-react";
+import { Loader2, Plus, Package, Trash2, Pencil, Rocket, ShoppingBag, Sparkles, ArrowDown, Upload, Search, X } from "lucide-react";
 import { SellerAnalytics } from "@/components/SellerAnalytics";
 import { EmptyState } from "@/components/EmptyState";
 import { BoostDialog } from "@/components/BoostDialog";
@@ -58,6 +58,7 @@ function SellerDashboard() {
   const [step1Done, setStep1Done] = useState(false);
   const [platformQuery, setPlatformQuery] = useState("");
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [searchQuery, setSearchQuery] = useState("");
   const [bulkDeleting, setBulkDeleting] = useState(false);
   const formRef = useRef<HTMLDivElement | null>(null);
 
@@ -637,17 +638,51 @@ function SellerDashboard() {
             />
           ) : (
             <div className="space-y-3">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={e => setSearchQuery(e.target.value)}
+                  placeholder="Məhsullarımda axtar — ad, platforma, kateqoriya..."
+                  className="w-full h-11 pl-10 pr-10 rounded-xl bg-surface border border-border text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                />
+                {searchQuery && (
+                  <button
+                    type="button"
+                    onClick={() => setSearchQuery("")}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 grid h-7 w-7 place-items-center rounded-md hover:bg-background"
+                    aria-label="Axtarışı təmizlə"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                )}
+              </div>
+              {(() => {
+                const q = searchQuery.trim().toLowerCase();
+                const filtered = q
+                  ? items.filter(p =>
+                      [p.title, p.platform, p.category, (p as any).subcategory, (p as any).platform_subcategory]
+                        .filter(Boolean)
+                        .some(v => String(v).toLowerCase().includes(q))
+                    )
+                  : items;
+                return (
+                  <>
               <div className="flex items-center justify-between gap-3 flex-wrap rounded-xl border border-border bg-surface/40 p-3">
                 <label className="flex items-center gap-2 cursor-pointer text-sm">
                   <input
                     type="checkbox"
-                    checked={selectedIds.size > 0 && selectedIds.size === items.length}
-                    ref={el => { if (el) el.indeterminate = selectedIds.size > 0 && selectedIds.size < items.length; }}
-                    onChange={toggleSelectAll}
+                    checked={selectedIds.size > 0 && selectedIds.size === filtered.length && filtered.length > 0}
+                    ref={el => { if (el) el.indeterminate = selectedIds.size > 0 && selectedIds.size < filtered.length; }}
+                    onChange={() => {
+                      if (selectedIds.size === filtered.length) setSelectedIds(new Set());
+                      else setSelectedIds(new Set(filtered.map(i => i.id)));
+                    }}
                     className="h-4 w-4 rounded border-border bg-background accent-primary"
                   />
                   <span className="font-medium">
-                    {selectedIds.size > 0 ? `${selectedIds.size} seçildi` : "Hamısını seç"}
+                    {selectedIds.size > 0 ? `${selectedIds.size} seçildi` : `${filtered.length} məhsul`}
                   </span>
                 </label>
                 {selectedIds.size > 0 && (
@@ -671,7 +706,11 @@ function SellerDashboard() {
                   </div>
                 )}
               </div>
-              {items.map(p => (
+              {filtered.length === 0 ? (
+                <div className="rounded-xl border border-border bg-surface/40 p-8 text-center text-sm text-muted-foreground">
+                  «{searchQuery}» üçün məhsul tapılmadı
+                </div>
+              ) : filtered.map(p => (
                 <div key={p.id} className={`rounded-xl border bg-card-gradient p-4 flex items-center gap-4 ${selectedIds.has(p.id) ? "border-neon/60 ring-1 ring-neon/30" : "border-border"}`}>
                   <input
                     type="checkbox"
@@ -714,6 +753,9 @@ function SellerDashboard() {
                   </div>
                 </div>
               ))}
+                  </>
+                );
+              })()}
             </div>
           )}
         </div>
