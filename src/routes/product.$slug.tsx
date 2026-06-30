@@ -142,9 +142,9 @@ function ProductPage() {
             <span className="text-foreground truncate">{p.title}</span>
           </nav>
 
-          <div className="grid lg:grid-cols-[1.1fr_1fr] gap-10">
+          <div className="grid lg:grid-cols-[1.1fr_1fr] gap-10 min-w-0">
             {/* Gallery */}
-            <div>
+            <div className="min-w-0">
               <div className="relative aspect-[4/3] overflow-hidden rounded-2xl border border-border card-shadow">
                 <img src={activeImg} alt={p.title} className="absolute inset-0 h-full w-full object-cover" />
                 <div className="absolute inset-0 bg-gradient-to-t from-background/30 to-transparent" />
@@ -166,8 +166,8 @@ function ProductPage() {
             </div>
 
             {/* Info */}
-            <div>
-              <div className="flex items-center gap-2 mb-3">
+            <div className="min-w-0">
+              <div className="flex items-center gap-2 mb-3 flex-wrap">
                 <span className="px-2.5 py-1 rounded-md text-xs font-semibold bg-surface border border-border">{p.platform}</span>
                 <span className="px-2.5 py-1 rounded-md text-xs font-semibold bg-surface border border-border">{categoryLabel(p.category)}</span>
                 <span className={`px-2.5 py-1 rounded-md text-xs font-semibold flex items-center gap-1 ${
