@@ -10,6 +10,7 @@ import { NotificationBell } from "@/components/NotificationBell";
 import { SearchBox } from "@/components/SearchBox";
 import { CommandPaletteTrigger } from "@/components/CommandPalette";
 import nextplayLogo from "@/assets/nextplay-logo.png";
+import { imgUrl } from "@/lib/image-url";
 
 export function Header() {
   const t = useT();
@@ -113,7 +114,7 @@ export function Header() {
               >
                 <div className="grid h-7 w-7 place-items-center rounded-full bg-neon text-background text-xs font-bold overflow-hidden">
                   {avatarUrl ? (
-                    <img src={avatarUrl} alt="" className="h-full w-full object-cover" />
+                    <img src={imgUrl(avatarUrl, { width: 56, height: 56, quality: 70 })} alt="" loading="lazy" decoding="async" className="h-full w-full object-cover" />
                   ) : (
                     (user.user_metadata?.display_name ?? user.email ?? "U")[0].toUpperCase()
                   )}

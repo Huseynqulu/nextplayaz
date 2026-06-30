@@ -8,6 +8,7 @@ import { Wallet, ShieldCheck, Package, Star, Loader2, Camera, Store, Save } from
 import { toast } from "sonner";
 import { TwoFactorSetup } from "@/components/TwoFactorSetup";
 import { useCurrency } from "@/lib/currency";
+import { imgUrl } from "@/lib/image-url";
 
 export const Route = createFileRoute("/_authenticated/profile")({
   component: ProfilePage,
@@ -110,7 +111,7 @@ function ProfilePage() {
             <div className="relative">
               <div className="h-24 w-24 rounded-2xl overflow-hidden bg-neon text-background grid place-items-center text-4xl font-bold neon-ring">
                 {profile.avatar_url
-                  ? <img src={profile.avatar_url} alt="" className="h-full w-full object-cover" />
+                  ? <img src={imgUrl(profile.avatar_url, { width: 192, height: 192, quality: 80 })} alt="" loading="lazy" decoding="async" className="h-full w-full object-cover" />
                   : (profile.display_name ?? profile.username ?? "U")[0].toUpperCase()}
               </div>
               <button onClick={() => fileRef.current?.click()} disabled={uploading}
