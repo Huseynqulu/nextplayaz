@@ -144,6 +144,7 @@ function ThreadPage() {
       } as any);
       if (error) throw error;
       setText(""); setPendingFile(null); setPreview(null);
+      broadcastStopTyping();
       inputRef.current?.focus();
     } catch (e: any) {
       toast.error(e.message ?? "Göndərmə alınmadı");
