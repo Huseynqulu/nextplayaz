@@ -8,14 +8,19 @@ import { toast } from "sonner";
 import { Loader2, CheckCircle2, XCircle, ShieldCheck, Package, Users, FileText, Ticket, Wallet, Trash2, Plus, Eye, X, FileImage, LifeBuoy, Send, ArrowLeft, Receipt, Image as ImageIcon } from "lucide-react";
 import { ChatImage } from "@/components/ChatImage";
 import { categoryLabel } from "@/lib/marketplace-data";
-import { AdminBanners } from "@/components/AdminBanners";
-import AdminReviews from "@/components/AdminReviews";
-import { AdminGiftCards } from "@/components/AdminGiftCards";
-import { AdminGiftMarket } from "@/components/AdminGiftMarket";
-import { AdminAnalytics } from "@/components/AdminAnalytics";
+// Lazy-load heavy tab panels so the admin entry chunk stays small.
+const AdminBanners      = lazy(() => import("@/components/AdminBanners").then(m => ({ default: m.AdminBanners })));
+const AdminReviews      = lazy(() => import("@/components/AdminReviews"));
+const AdminGiftCards    = lazy(() => import("@/components/AdminGiftCards").then(m => ({ default: m.AdminGiftCards })));
+const AdminGiftMarket   = lazy(() => import("@/components/AdminGiftMarket").then(m => ({ default: m.AdminGiftMarket })));
+const AdminAnalytics    = lazy(() => import("@/components/AdminAnalytics").then(m => ({ default: m.AdminAnalytics })));
 import { VerifiedBadge } from "@/components/VerifiedBadge";
-import { AdminBoostPricing } from "@/components/AdminBoostPricing";
-import { AdminAnnouncements } from "@/components/AdminAnnouncements";
+const AdminBoostPricing = lazy(() => import("@/components/AdminBoostPricing").then(m => ({ default: m.AdminBoostPricing })));
+const AdminAnnouncements = lazy(() => import("@/components/AdminAnnouncements").then(m => ({ default: m.AdminAnnouncements })));
+
+function TabFallback() {
+  return <div className="grid place-items-center py-12"><Loader2 className="h-6 w-6 animate-spin text-neon" /></div>;
+}
 
 export const Route = createFileRoute("/_authenticated/admin")({
   component: AdminPage,
