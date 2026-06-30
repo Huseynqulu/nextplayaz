@@ -500,6 +500,7 @@ function SellerDashboard() {
                 </button>
               </div>
             </form>
+            </div>
           )}
 
           {loading ? (
