@@ -117,7 +117,11 @@ export function BulkUploadDialog({ open, onClose, sellerId, onDone }: Props) {
           : Math.max(1, Number(get("stock") || "1"));
         if (delivery === "Instant" && stockItems.length === 0) throw new Error("Anında çatdırılma üçün stock_items boşdur");
 
-        const image_url = get("image_url") || null;
+        const imageUrlRaw = get("image_url");
+        const imageUrls = imageUrlRaw
+          ? imageUrlRaw.split("|").map(s => s.trim()).filter(s => /^https?:\/\//i.test(s))
+          : [];
+        const image_url = imageUrls[0] || null;
         const auto_message = get("auto_message") || null;
 
         const payload: any = {
@@ -129,7 +133,7 @@ export function BulkUploadDialog({ open, onClose, sellerId, onDone }: Props) {
           category, platform,
           delivery,
           image_url,
-          image_urls: image_url ? [image_url] : [],
+          image_urls: imageUrls,
           auto_message_enabled: !!auto_message,
           auto_message,
         };
