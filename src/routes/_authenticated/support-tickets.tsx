@@ -272,9 +272,13 @@ function SupportTicketsPage() {
               {loading ? (
                 <TicketListSkeleton count={4} />
               ) : tickets.length === 0 ? (
-                <div className="rounded-2xl border border-dashed border-border p-12 text-center text-muted-foreground">
-                  Hələ müraciətin yoxdur.
-                </div>
+                <EmptyState
+                  icon={LifeBuoy}
+                  title="Müraciətin yoxdur"
+                  description="Hər hansı problem var? Yeni müraciət aç, dəstək komandamız 24/7 cavab verir."
+                  ctaLabel="Yeni müraciət"
+                  ctaOnClick={() => setMode("new")}
+                />
               ) : (
                 <div className="space-y-2">
                   {tickets.map(t => (
