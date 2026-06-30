@@ -236,14 +236,6 @@ function SellerDashboard() {
                 <ShoppingBag className="h-4 w-4" /> Gələn sifarişlər
               </Link>
               <button
-                onClick={() => { resetForm(); setShowForm(s => !s); }}
-                className="inline-flex items-center gap-2 h-11 px-5 rounded-lg bg-neon text-background font-semibold neon-ring hover:opacity-95"
-              >
-                <Plus className="h-4 w-4" /> {showForm ? "Bağla" : "Yeni məhsul"}
-              </button>
-            </div>
-          </div>
-              <button
                 onClick={() => showForm ? setShowForm(false) : openNewProductForm()}
                 className="inline-flex items-center gap-2 h-11 px-5 rounded-lg bg-neon text-background font-semibold neon-ring hover:opacity-95"
               >
