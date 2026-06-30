@@ -50,6 +50,15 @@ function SellerDashboard() {
   const [saving, setSaving] = useState(false);
   const [uploadingImg, setUploadingImg] = useState(false);
   const [boosting, setBoosting] = useState<Product | null>(null);
+  const formRef = useRef<HTMLDivElement | null>(null);
+
+  function openNewProductForm() {
+    resetForm();
+    setShowForm(true);
+    setTimeout(() => {
+      formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 80);
+  }
 
   const [form, setForm] = useState({
     title: "", description: "", price: "", old_price: "",
