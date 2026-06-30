@@ -71,8 +71,9 @@ export function SellerOrderDetailDialog({ order, onClose, onChanged }: { order: 
   }
 
   return (
-    <div className="fixed inset-0 z-50 grid place-items-center bg-background/80 backdrop-blur-sm p-4 overflow-y-auto" onClick={onClose}>
-      <div className="bg-card border border-border rounded-2xl shadow-2xl w-full max-w-2xl my-8" onClick={e => e.stopPropagation()}>
+    <div className="fixed inset-0 z-50 flex items-start sm:items-center justify-center bg-background/80 backdrop-blur-sm p-3 sm:p-4 overflow-y-auto overflow-x-hidden" onClick={onClose}>
+      <div className="bg-card border border-border rounded-2xl shadow-2xl w-full max-w-2xl my-4 sm:my-8 min-w-0" onClick={e => e.stopPropagation()}>
+
         <div className="flex items-center justify-between p-4 sm:p-5 border-b border-border">
           <h2 className="font-display text-lg sm:text-xl font-bold">Sifariş detalları</h2>
           <button onClick={onClose} className="h-9 w-9 grid place-items-center rounded-lg hover:bg-muted">
