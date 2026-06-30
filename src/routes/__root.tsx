@@ -108,6 +108,7 @@ import { FavoritesProvider } from "@/lib/favorites";
 import { CartProvider } from "@/lib/cart";
 import { IpTracker } from "@/components/IpTracker";
 import { InstallAppBanner } from "@/components/InstallAppBanner";
+import { OnboardingTour } from "@/components/OnboardingTour";
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
@@ -120,7 +121,9 @@ function RootComponent() {
               <IpTracker />
               <Outlet />
               <InstallAppBanner />
+              <OnboardingTour />
               <Toaster theme="dark" position="top-right" richColors />
+
             </CartProvider>
           </FavoritesProvider>
         </CurrencyProvider>
