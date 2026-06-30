@@ -36,6 +36,7 @@ function ThreadPage() {
   const [pendingFile, setPendingFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [otherTyping, setOtherTyping] = useState(false);
+  const [avgRespMin, setAvgRespMin] = useState<number | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
