@@ -5,9 +5,10 @@ import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
-import { Loader2, Plus, Package, Trash2, Pencil, Rocket, ShoppingBag, Sparkles, ArrowDown } from "lucide-react";
+import { Loader2, Plus, Package, Trash2, Pencil, Rocket, ShoppingBag, Sparkles, ArrowDown, Upload } from "lucide-react";
 import { SellerAnalytics } from "@/components/SellerAnalytics";
 import { BoostDialog } from "@/components/BoostDialog";
+import { BulkUploadDialog } from "@/components/BulkUploadDialog";
 import { categoryLabel } from "@/lib/marketplace-data";
 
 export const Route = createFileRoute("/_authenticated/seller-dashboard")({
