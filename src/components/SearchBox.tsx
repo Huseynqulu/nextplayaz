@@ -78,7 +78,7 @@ export function SearchBox({ variant = "desktop" }: { variant?: "desktop" | "mobi
     navigate({ to: "/marketplace", search: term ? { q: term } : {} });
   }
 
-  const widthCls = variant === "desktop" ? "hidden md:flex flex-1 max-w-md ml-auto" : "flex";
+  const widthCls = variant === "desktop" ? "hidden md:flex flex-1 max-w-xl ml-auto" : "flex";
   const hasResults = hits.length > 0 || giftHits.length > 0;
 
   return (
