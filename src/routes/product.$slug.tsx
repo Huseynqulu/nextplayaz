@@ -166,8 +166,8 @@ function ProductPage() {
             </div>
 
             {/* Info */}
-            <div>
-              <div className="flex items-center gap-2 mb-3">
+            <div className="min-w-0">
+              <div className="flex items-center gap-2 mb-3 flex-wrap">
                 <span className="px-2.5 py-1 rounded-md text-xs font-semibold bg-surface border border-border">{p.platform}</span>
                 <span className="px-2.5 py-1 rounded-md text-xs font-semibold bg-surface border border-border">{categoryLabel(p.category)}</span>
                 <span className={`px-2.5 py-1 rounded-md text-xs font-semibold flex items-center gap-1 ${
