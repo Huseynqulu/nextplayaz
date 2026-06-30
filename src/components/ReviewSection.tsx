@@ -60,8 +60,8 @@ export function ReviewSection({ productId, sellerId }: { productId: string; sell
     }
     const list: Review[] = base.map(r => ({ ...r, reviewer: profMap.get(r.reviewer_id) ?? null }));
     setReviews(list);
-    if (user) {
-      const mine = list.find(r => r.reviewer_id === user.id) ?? null;
+    if (user && mode === "product") {
+      const mine = list.find(r => r.reviewer_id === user.id && r.product_id === productId as any) ?? list.find(r => r.reviewer_id === user.id) ?? null;
       setMyReview(mine);
       if (mine) { setRating(mine.rating); setComment(mine.comment ?? ""); }
       const { count } = await supabase
@@ -77,7 +77,8 @@ export function ReviewSection({ productId, sellerId }: { productId: string; sell
     }
     setLoading(false);
   }
-  useEffect(() => { load(); /* eslint-disable-next-line */ }, [productId, user?.id]);
+  useEffect(() => { load(); /* eslint-disable-next-line */ }, [productId, user?.id, mode]);
+
 
   async function submit() {
     if (rating < 1 || rating > 5) { toast.error("Reytinq 1-5 arası seçin"); return; }
