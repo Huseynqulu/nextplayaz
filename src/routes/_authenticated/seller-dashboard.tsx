@@ -636,8 +636,49 @@ function SellerDashboard() {
             />
           ) : (
             <div className="space-y-3">
+              <div className="flex items-center justify-between gap-3 flex-wrap rounded-xl border border-border bg-surface/40 p-3">
+                <label className="flex items-center gap-2 cursor-pointer text-sm">
+                  <input
+                    type="checkbox"
+                    checked={selectedIds.size > 0 && selectedIds.size === items.length}
+                    ref={el => { if (el) el.indeterminate = selectedIds.size > 0 && selectedIds.size < items.length; }}
+                    onChange={toggleSelectAll}
+                    className="h-4 w-4 rounded border-border bg-background accent-primary"
+                  />
+                  <span className="font-medium">
+                    {selectedIds.size > 0 ? `${selectedIds.size} seçildi` : "Hamısını seç"}
+                  </span>
+                </label>
+                {selectedIds.size > 0 && (
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setSelectedIds(new Set())}
+                      className="h-9 px-3 rounded-lg border border-border text-sm font-semibold hover:bg-surface"
+                    >
+                      Seçimi təmizlə
+                    </button>
+                    <button
+                      type="button"
+                      onClick={bulkRemove}
+                      disabled={bulkDeleting}
+                      className="inline-flex items-center gap-2 h-9 px-3 rounded-lg bg-destructive text-destructive-foreground text-sm font-semibold hover:opacity-90 disabled:opacity-50"
+                    >
+                      {bulkDeleting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
+                      Seçilənləri sil ({selectedIds.size})
+                    </button>
+                  </div>
+                )}
+              </div>
               {items.map(p => (
-                <div key={p.id} className="rounded-xl border border-border bg-card-gradient p-4 flex items-center gap-4">
+                <div key={p.id} className={`rounded-xl border bg-card-gradient p-4 flex items-center gap-4 ${selectedIds.has(p.id) ? "border-neon/60 ring-1 ring-neon/30" : "border-border"}`}>
+                  <input
+                    type="checkbox"
+                    checked={selectedIds.has(p.id)}
+                    onChange={() => toggleSelect(p.id)}
+                    className="h-4 w-4 rounded border-border bg-background accent-primary shrink-0"
+                    aria-label={`${p.title} seç`}
+                  />
                   {p.image_url ? (
                     <img src={p.image_url} alt={p.title} className="h-16 w-16 rounded-lg object-cover" />
                   ) : (
