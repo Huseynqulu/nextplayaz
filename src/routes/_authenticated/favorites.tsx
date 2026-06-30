@@ -55,8 +55,6 @@ function FavoritesPage() {
         </div>
 
         {loading ? (
-          <p className="text-muted-foreground">Yüklənir...</p>
-        {loading ? (
           <ProductGridSkeleton count={8} />
         ) : items.length === 0 ? (
           <EmptyState
