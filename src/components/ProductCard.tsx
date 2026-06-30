@@ -131,7 +131,7 @@ export function ProductCard({ p, variant = "default" }: { p: Product; variant?: 
         </h3>
 
         <div className="flex items-center gap-1 text-[10px] text-muted-foreground flex-wrap">
-          {p.seller.verified && <ShieldCheck className="h-3 w-3 text-neon" />}
+          {p.seller.verified && <BadgeCheck className="h-3 w-3 text-sky-400 fill-sky-500/25 shrink-0" strokeWidth={2.5} />}
           <span className="truncate max-w-[90px]">{p.seller.name}</span>
           <span>·</span>
           <Star className="h-2.5 w-2.5 fill-warning text-warning" />
