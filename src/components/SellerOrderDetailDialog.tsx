@@ -62,7 +62,7 @@ export function SellerOrderDetailDialog({ order, onClose, onChanged }: { order: 
     if (!review) return;
     const txt = replyDraft.trim();
     setSavingReply(true);
-    const { error } = await supabase.rpc("reply_to_review", { p_review_id: review.id, p_reply: txt || null });
+    const { error } = await supabase.rpc("reply_to_review", { p_review_id: review.id, p_reply: txt || "" });
     setSavingReply(false);
     if (error) { toast.error(error.message); return; }
     toast.success(txt ? "Cavab göndərildi" : "Cavab silindi");
