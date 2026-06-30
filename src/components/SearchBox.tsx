@@ -134,7 +134,9 @@ export function SearchBox({ variant = "desktop" }: { variant?: "desktop" | "mobi
               )}
               {hits.length > 0 && (
                 <div className="grid grid-cols-2 gap-2 p-2">
-                  {hits.map((h) => (
+                  {hits.map((h) => {
+                    const cover = h.image_url || (Array.isArray(h.image_urls) ? h.image_urls.find(Boolean) : null);
+                    return (
                     <Link
                       key={h.id}
                       to="/product/$slug"
@@ -142,11 +144,11 @@ export function SearchBox({ variant = "desktop" }: { variant?: "desktop" | "mobi
                       onClick={() => { setOpen(false); setQ(""); }}
                       className="flex flex-col rounded-lg border border-border bg-card-gradient p-2 hover:border-neon hover:bg-neon/5 transition"
                     >
-                      {h.image_url ? (
-                        <img src={h.image_url} alt="" className="h-20 w-full rounded-md object-cover mb-2" />
+                      {cover ? (
+                        <img src={cover} alt="" loading="lazy" className="h-20 w-full rounded-md object-cover mb-2" />
                       ) : (
-                        <div className="h-20 w-full rounded-md bg-surface grid place-items-center mb-2">
-                          <Package className="h-5 w-5 text-muted-foreground" />
+                        <div className="h-20 w-full rounded-md overflow-hidden mb-2">
+                          <ProductCoverPlaceholder title={h.title} />
                         </div>
                       )}
                       <p className="text-xs font-medium line-clamp-2 mb-1 min-h-[2rem]">{h.title}</p>
