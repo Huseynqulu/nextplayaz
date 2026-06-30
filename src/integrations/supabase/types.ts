@@ -1733,6 +1733,7 @@ export type Database = {
       tier_commission_rate: { Args: { _tier: string }; Returns: number }
       toggle_favorite: { Args: { p_product_id: string }; Returns: boolean }
       touch_last_seen: { Args: never; Returns: undefined }
+      user_avg_response_minutes: { Args: { p_user: string }; Returns: number }
     }
     Enums: {
       app_role: "user" | "seller" | "admin" | "support"

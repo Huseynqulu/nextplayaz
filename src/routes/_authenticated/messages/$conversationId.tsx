@@ -22,6 +22,14 @@ type Msg = { id: string; conversation_id: string; sender_id: string; body: strin
 type Conv = { id: string; user_a: string; user_b: string; product_id: string | null; order_id: string | null };
 type ProfileLite = { id: string; display_name: string | null; username: string | null; shop_name?: string | null; avatar_url: string | null; last_seen_at: string | null; verified_at?: string | null };
 
+function formatResp(min: number): string {
+  if (min < 1) return "1 dəq";
+  if (min < 60) return `${Math.round(min)} dəq`;
+  const h = min / 60;
+  if (h < 24) return `${Math.round(h)} saat`;
+  return `${Math.round(h / 24)} gün`;
+}
+
 function ThreadPage() {
   const { conversationId } = Route.useParams();
   const { user } = useAuth();
@@ -36,6 +44,7 @@ function ThreadPage() {
   const [pendingFile, setPendingFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [otherTyping, setOtherTyping] = useState(false);
+  const [avgRespMin, setAvgRespMin] = useState<number | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
@@ -66,6 +75,10 @@ function ThreadPage() {
       if (!active) return;
       setOther(((p as unknown) as ProfileLite) ?? null);
       setProduct((pr as any) ?? null);
+      supabase.rpc("user_avg_response_minutes" as any, { p_user: otherId }).then(({ data }) => {
+        const n = typeof data === "number" ? data : data != null ? Number(data) : null;
+        if (active && n != null && !Number.isNaN(n) && n > 0) setAvgRespMin(n);
+      });
       setMessages((msgs ?? []) as Msg[]);
       setLoading(false);
       void markRead();
@@ -188,6 +201,9 @@ function ThreadPage() {
                       <VerifiedBadge verified={(other as any).verified_at} variant="pill" size={12} />
                     </p>
                     <p className="text-[11px] text-muted-foreground">{online ? "● Onlayn" : formatLastSeen(other.last_seen_at)}</p>
+                    {avgRespMin != null && (
+                      <p className="text-[11px] text-neon/80">⚡ Adətən {formatResp(avgRespMin)} içində cavab verir</p>
+                    )}
                     {product && (
                       <span className="text-[11px] text-neon truncate block">↳ {product.title}</span>
                     )}
