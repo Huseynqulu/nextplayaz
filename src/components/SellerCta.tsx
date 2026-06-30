@@ -10,7 +10,7 @@ export function SellerCta() {
     { icon: ShieldCheck, title: t("home.seller.f3.title"), desc: t("home.seller.f3.desc") },
   ];
   return (
-    <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-20">
+    <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10 sm:py-10 sm:py-14 lg:py-16 lg:py-20">
       <div className="relative overflow-hidden rounded-3xl border border-border bg-card-gradient p-10 lg:p-16 card-shadow">
         <div className="absolute -top-32 -right-32 h-96 w-96 rounded-full bg-primary/20 blur-3xl" />
         <div className="absolute -bottom-32 -left-32 h-96 w-96 rounded-full bg-neon/15 blur-3xl" />
@@ -18,7 +18,7 @@ export function SellerCta() {
         <div className="relative grid lg:grid-cols-2 gap-10 items-center">
           <div>
             <span className="text-xs font-semibold tracking-[0.2em] text-neon uppercase">{t("home.seller.kicker")}</span>
-            <h2 className="font-display text-3xl sm:text-5xl font-bold mt-3 leading-tight">
+            <h2 className="font-display text-2xl sm:text-4xl lg:text-5xl font-bold mt-3 leading-tight">
               {t("home.seller.title1")} <br /><span className="text-gradient">{t("home.seller.title2")}</span>
             </h2>
             <p className="mt-5 text-muted-foreground text-lg max-w-md">

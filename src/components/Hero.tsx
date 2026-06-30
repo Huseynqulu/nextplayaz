@@ -39,14 +39,14 @@ export function Hero() {
       </div>
 
 
-      <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-24 lg:py-36">
+      <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-14 sm:py-20 lg:py-32">
         <div className="max-w-2xl" style={{ animation: "rise 0.8s cubic-bezier(0.16,1,0.3,1)" }}>
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-neon/40 bg-neon/10 text-xs font-medium text-neon mb-6 backdrop-blur">
             <span className="h-1.5 w-1.5 rounded-full bg-neon animate-pulse" />
             {t("hero.badge")}
           </div>
 
-          <h1 className="font-display text-5xl sm:text-6xl lg:text-7xl font-bold tracking-tight leading-[1.05]">
+          <h1 className="font-display text-3xl sm:text-5xl lg:text-7xl font-bold tracking-tight leading-[1.05]">
             {t("hero.title1")} <br />
             <span className="text-gradient">{t("hero.title2")}</span>
           </h1>

@@ -11,10 +11,10 @@ export function HowItWorks() {
   ];
 
   return (
-    <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-20">
+    <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10 sm:py-10 sm:py-14 lg:py-16 lg:py-20">
       <div className="text-center max-w-2xl mx-auto mb-14">
         <span className="text-xs font-semibold tracking-[0.2em] text-neon uppercase">{t("home.howKicker")}</span>
-        <h2 className="font-display text-3xl sm:text-4xl font-bold mt-3">{t("home.howTitle")}</h2>
+        <h2 className="font-display text-xl sm:text-3xl lg:text-4xl font-bold mt-3">{t("home.howTitle")}</h2>
       </div>
 
       <div className="relative grid gap-6 md:grid-cols-4">
