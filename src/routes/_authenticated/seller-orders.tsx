@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
 import { Loader2, Package, CheckCircle2, Truck, Clock, ShoppingBag, AlertTriangle, MessageSquare, ArrowLeft, ChevronRight, Search, X } from "lucide-react";
+import { OrderListSkeleton } from "@/components/Skeletons";
 import { useCurrency } from "@/lib/currency";
 import { SellerOrderDetailDialog } from "@/components/SellerOrderDetailDialog";
 
