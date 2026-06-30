@@ -234,7 +234,8 @@ function SellerOrdersPage() {
                 );
               })}
             </div>
-          )}
+          );
+          })()}
         </div>
       </main>
       <Footer />
