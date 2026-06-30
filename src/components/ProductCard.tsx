@@ -33,6 +33,7 @@ export function ProductCard({ p, variant = "default" }: { p: Product; variant?: 
   const canFav = !!user && isRealProductId(p.id);
   const canCart = isRealProductId(p.id) && p.stock > 0;
   const fav = canFav && isFav(p.id);
+  const soldAgo = formatSoldAgo(p.lastSoldAt);
 
   function addToCart(e: React.MouseEvent) {
     e.preventDefault(); e.stopPropagation();
