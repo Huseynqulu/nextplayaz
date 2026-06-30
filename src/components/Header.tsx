@@ -71,7 +71,6 @@ export function Header() {
       <div className="mx-auto flex h-16 max-w-7xl items-center gap-4 px-4 sm:px-6 lg:px-8">
         <Link to="/" className="flex items-center gap-2 group">
           <img src={nextplayLogo} alt="NextPlay" className="h-10 w-auto drop-shadow-[0_0_12px_hsl(var(--neon)/0.4)] group-hover:drop-shadow-[0_0_18px_hsl(var(--neon)/0.6)] transition" />
-          <span className="font-display text-base font-bold tracking-tight text-muted-foreground">.az</span>
         </Link>
 
         <nav className="hidden lg:flex items-center gap-1 ml-6">
