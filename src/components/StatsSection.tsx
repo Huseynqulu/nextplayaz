@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Users, Package, ShoppingBag, Store } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { useT } from "@/lib/i18n";
 
 type Stats = { users: number; sellers: number; products: number; orders: number };
 
@@ -38,6 +39,7 @@ function Stat({ icon: Icon, value, label }: { icon: any; value: number; label: s
 }
 
 export function StatsSection() {
+  const t = useT();
   const [stats, setStats] = useState<Stats>({ users: 0, sellers: 0, products: 0, orders: 0 });
 
   useEffect(() => {
@@ -50,14 +52,14 @@ export function StatsSection() {
   return (
     <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16">
       <div className="text-center mb-10">
-        <h2 className="font-display text-3xl sm:text-4xl font-bold">NextPlay-ə güvənən rəqəmlər</h2>
-        <p className="mt-2 text-muted-foreground">Hər gün böyüyən gaming icmasının bir hissəsi olun</p>
+        <h2 className="font-display text-3xl sm:text-4xl font-bold">{t("home.statsTitle")}</h2>
+        <p className="mt-2 text-muted-foreground">{t("home.statsSub")}</p>
       </div>
       <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
-        <Stat icon={Users} value={Math.max(stats.users, 1)} label="Aktiv istifadəçi" />
-        <Stat icon={Store} value={Math.max(stats.sellers, 1)} label="Doğrulanmış satıcı" />
-        <Stat icon={Package} value={Math.max(stats.products, 1)} label="Aktiv məhsul" />
-        <Stat icon={ShoppingBag} value={Math.max(stats.orders, 1)} label="Tamamlanmış sifariş" />
+        <Stat icon={Users} value={Math.max(stats.users, 1)} label={t("home.stat.users")} />
+        <Stat icon={Store} value={Math.max(stats.sellers, 1)} label={t("home.stat.sellers")} />
+        <Stat icon={Package} value={Math.max(stats.products, 1)} label={t("home.stat.products")} />
+        <Stat icon={ShoppingBag} value={Math.max(stats.orders, 1)} label={t("home.stat.orders")} />
       </div>
     </section>
   );

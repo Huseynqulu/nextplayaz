@@ -2,16 +2,19 @@ import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { Gamepad2, KeyRound, UserCircle2, Sparkles, ArrowUpRight } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-
-const cats = [
-  { id: "Games", label: "Oyunlar", desc: "PC, PlayStation, Xbox", icon: Gamepad2 },
-  { id: "Accounts", label: "Hesablar", desc: "Premium gaming hesabları", icon: UserCircle2 },
-  { id: "Keys", label: "Açarlar", desc: "Steam, EA, Battle.net", icon: KeyRound },
-  { id: "Services", label: "Xidmətlər", desc: "Boost, coaching, dəstək", icon: Sparkles },
-];
+import { useT, useI18n } from "@/lib/i18n";
 
 export function CategoriesSection() {
+  const t = useT();
+  const { lang } = useI18n();
+  const cats = [
+    { id: "Games", label: t("home.cat.games"), desc: t("home.cat.games.desc"), icon: Gamepad2 },
+    { id: "Accounts", label: t("home.cat.accounts"), desc: t("home.cat.accounts.desc"), icon: UserCircle2 },
+    { id: "Keys", label: t("home.cat.keys"), desc: t("home.cat.keys.desc"), icon: KeyRound },
+    { id: "Services", label: t("home.cat.services"), desc: t("home.cat.services.desc"), icon: Sparkles },
+  ];
   const [counts, setCounts] = useState<Record<string, number>>({});
+  const locale = lang === "ru" ? "ru-RU" : lang === "en" ? "en-US" : "az-AZ";
 
   useEffect(() => {
     (async () => {
@@ -30,8 +33,8 @@ export function CategoriesSection() {
     <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-20">
       <div className="flex items-end justify-between mb-10">
         <div>
-          <h2 className="font-display text-3xl sm:text-4xl font-bold">Populyar kateqoriyalar</h2>
-          <p className="mt-2 text-muted-foreground">Bütün gaming ehtiyaclarınız bir yerdə</p>
+          <h2 className="font-display text-3xl sm:text-4xl font-bold">{t("home.catsTitle")}</h2>
+          <p className="mt-2 text-muted-foreground">{t("home.catsSub")}</p>
         </div>
       </div>
 
@@ -55,7 +58,7 @@ export function CategoriesSection() {
                 <ArrowUpRight className="h-4 w-4 text-muted-foreground group-hover:text-neon group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition" />
               </div>
               <p className="text-sm text-muted-foreground">{c.desc}</p>
-              <p className="text-xs text-neon font-semibold mt-3">{count.toLocaleString("az-AZ")}+ məhsul</p>
+              <p className="text-xs text-neon font-semibold mt-3">{count.toLocaleString(locale)}+ {t("home.cat.productsSuffix")}</p>
             </Link>
           );
         })}

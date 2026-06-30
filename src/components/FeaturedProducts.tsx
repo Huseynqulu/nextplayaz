@@ -4,14 +4,15 @@ import { Sparkles, ArrowRight } from "lucide-react";
 import { ProductCard } from "./ProductCard";
 import { fetchProducts } from "@/lib/products";
 import type { Product } from "@/lib/marketplace-data";
+import { useT } from "@/lib/i18n";
 
 export function FeaturedProducts() {
+  const t = useT();
   const [items, setItems] = useState<Product[]>([]);
 
   useEffect(() => {
     (async () => {
       const all = await fetchProducts();
-      // Featured = highest rating × reviews score, then top 8
       const scored = [...all].sort(
         (a, b) => b.rating * Math.log(1 + b.reviews) - a.rating * Math.log(1 + a.reviews),
       );
@@ -26,16 +27,16 @@ export function FeaturedProducts() {
       <div className="flex items-end justify-between mb-8">
         <div>
           <div className="flex items-center gap-2 text-neon text-xs font-semibold tracking-wider uppercase mb-2">
-            <Sparkles className="h-4 w-4" /> Seçilmişlər
+            <Sparkles className="h-4 w-4" /> {t("home.editorsKicker")}
           </div>
-          <h2 className="font-display text-3xl sm:text-4xl font-bold">Redaksiyanın tövsiyəsi</h2>
-          <p className="mt-2 text-muted-foreground">Ən yüksək reytinqli və doğrulanmış məhsullar</p>
+          <h2 className="font-display text-3xl sm:text-4xl font-bold">{t("home.editorsTitle")}</h2>
+          <p className="mt-2 text-muted-foreground">{t("home.editorsSub")}</p>
         </div>
         <Link
           to="/marketplace"
           className="hidden sm:inline-flex items-center gap-1.5 text-sm font-semibold text-neon hover:gap-2.5 transition-all"
         >
-          Hamısına bax <ArrowRight className="h-4 w-4" />
+          {t("home.viewAll")} <ArrowRight className="h-4 w-4" />
         </Link>
       </div>
 

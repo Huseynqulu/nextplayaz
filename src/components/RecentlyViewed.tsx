@@ -3,8 +3,11 @@ import { ChevronLeft, ChevronRight, Clock, X } from "lucide-react";
 import { ProductCard } from "@/components/ProductCard";
 import { clearRecent, fetchProductsByIds, getRecentIds } from "@/lib/recently-viewed";
 import type { Product } from "@/lib/marketplace-data";
+import { useT } from "@/lib/i18n";
 
-export function RecentlyViewed({ excludeId, title = "Son baxdıqlarınız" }: { excludeId?: string; title?: string }) {
+export function RecentlyViewed({ excludeId, title }: { excludeId?: string; title?: string }) {
+  const t = useT();
+  const heading = title ?? t("home.recent.title");
   const [items, setItems] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const scrollerRef = useRef<HTMLDivElement>(null);
@@ -54,7 +57,7 @@ export function RecentlyViewed({ excludeId, title = "Son baxdıqlarınız" }: { 
           <div className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-neon/10 ring-1 ring-neon/30">
             <Clock className="h-4 w-4 text-neon" />
           </div>
-          <h2 className="truncate font-display text-xl font-bold sm:text-2xl">{title}</h2>
+          <h2 className="truncate font-display text-xl font-bold sm:text-2xl">{heading}</h2>
           <span className="shrink-0 rounded-full bg-white/5 px-2 py-0.5 text-xs text-muted-foreground">
             {items.length}
           </span>
@@ -65,12 +68,12 @@ export function RecentlyViewed({ excludeId, title = "Son baxdıqlarınız" }: { 
               clearRecent();
               setItems([]);
             }}
-            title="Təmizlə"
-            aria-label="Təmizlə"
+            title={t("home.recent.clear")}
+            aria-label={t("home.recent.clear")}
             className="hidden h-9 items-center gap-1 rounded-lg border border-white/10 px-3 text-xs text-muted-foreground transition hover:bg-white/5 hover:text-foreground sm:inline-flex"
           >
             <X className="h-3.5 w-3.5" />
-            Təmizlə
+            {t("home.recent.clear")}
           </button>
           <button
             onClick={() => scrollBy(-1)}
