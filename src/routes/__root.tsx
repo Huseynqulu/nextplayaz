@@ -65,9 +65,17 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "twitter:description", content: "Oyunlar, hesablar, açarlar və premium gaming xidmətləri. Escrow ilə qorunan ödənişlər və anında çatdırılma." },
       { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/77eb5b66-c504-44a4-9793-fc26f7e0cbdb/id-preview-8d439908--95efcf38-dc42-4a79-833a-d0f4ebe2f022.lovable.app-1782745934722.png" },
       { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/77eb5b66-c504-44a4-9793-fc26f7e0cbdb/id-preview-8d439908--95efcf38-dc42-4a79-833a-d0f4ebe2f022.lovable.app-1782745934722.png" },
+      { name: "theme-color", content: "#0a0f1c" },
+      { name: "apple-mobile-web-app-capable", content: "yes" },
+      { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" },
+      { name: "apple-mobile-web-app-title", content: "NextPlay" },
+      { name: "mobile-web-app-capable", content: "yes" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
+      { rel: "manifest", href: "/manifest.webmanifest" },
+      { rel: "apple-touch-icon", href: "/apple-touch-icon.png" },
+      { rel: "icon", type: "image/png", sizes: "192x192", href: "/icon-192.png" },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700;800&display=swap" },
@@ -99,6 +107,7 @@ import { CurrencyProvider } from "@/lib/currency";
 import { FavoritesProvider } from "@/lib/favorites";
 import { CartProvider } from "@/lib/cart";
 import { IpTracker } from "@/components/IpTracker";
+import { InstallAppBanner } from "@/components/InstallAppBanner";
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
@@ -110,6 +119,7 @@ function RootComponent() {
             <CartProvider>
               <IpTracker />
               <Outlet />
+              <InstallAppBanner />
               <Toaster theme="dark" position="top-right" richColors />
             </CartProvider>
           </FavoritesProvider>
