@@ -32,9 +32,13 @@ function ThreadPage() {
   const [sending, setSending] = useState(false);
   const [pendingFile, setPendingFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
+  const [otherTyping, setOtherTyping] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
+  const typingChRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
+  const typingClearRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const lastTypingSentRef = useRef<number>(0);
 
   async function markRead() {
     await supabase.rpc("mark_conversation_read" as any, { p_conversation_id: conversationId });
@@ -85,10 +89,46 @@ function ThreadPage() {
         setOther(o => o && o.id === p.id ? { ...o, last_seen_at: p.last_seen_at } : o);
       }).subscribe();
 
+    const typingCh = supabase.channel(`typing:${conversationId}`, { config: { broadcast: { self: false } } })
+      .on("broadcast", { event: "typing" }, (payload) => {
+        const fromId = (payload?.payload as any)?.user_id;
+        if (!fromId || fromId === user.id) return;
+        setOtherTyping(true);
+        if (typingClearRef.current) clearTimeout(typingClearRef.current);
+        typingClearRef.current = setTimeout(() => setOtherTyping(false), 3000);
+      })
+      .on("broadcast", { event: "stop_typing" }, (payload) => {
+        const fromId = (payload?.payload as any)?.user_id;
+        if (!fromId || fromId === user.id) return;
+        setOtherTyping(false);
+      })
+      .subscribe();
+    typingChRef.current = typingCh;
+
     const onFocus = () => void markRead();
     window.addEventListener("focus", onFocus);
-    return () => { active = false; supabase.removeChannel(ch); supabase.removeChannel(presenceCh); window.removeEventListener("focus", onFocus); };
+    return () => {
+      active = false;
+      supabase.removeChannel(ch);
+      supabase.removeChannel(presenceCh);
+      supabase.removeChannel(typingCh);
+      if (typingClearRef.current) clearTimeout(typingClearRef.current);
+      window.removeEventListener("focus", onFocus);
+    };
   }, [conversationId, user?.id]);
+
+  function broadcastTyping() {
+    if (!user || !typingChRef.current) return;
+    const now = Date.now();
+    if (now - lastTypingSentRef.current < 1500) return;
+    lastTypingSentRef.current = now;
+    void typingChRef.current.send({ type: "broadcast", event: "typing", payload: { user_id: user.id } });
+  }
+  function broadcastStopTyping() {
+    if (!user || !typingChRef.current) return;
+    lastTypingSentRef.current = 0;
+    void typingChRef.current.send({ type: "broadcast", event: "stop_typing", payload: { user_id: user.id } });
+  }
 
   async function send() {
     if (!user || !conv) return;
@@ -104,6 +144,7 @@ function ThreadPage() {
       } as any);
       if (error) throw error;
       setText(""); setPendingFile(null); setPreview(null);
+      broadcastStopTyping();
       inputRef.current?.focus();
     } catch (e: any) {
       toast.error(e.message ?? "Göndərmə alınmadı");
@@ -209,7 +250,19 @@ function ThreadPage() {
               })}
             </div>
 
+            {otherTyping && (
+              <div className="px-4 pb-1 flex items-center gap-2 text-xs text-muted-foreground">
+                <div className="flex items-end gap-0.5 h-3">
+                  <span className="inline-block h-1.5 w-1.5 rounded-full bg-neon animate-bounce [animation-delay:-0.3s]" />
+                  <span className="inline-block h-1.5 w-1.5 rounded-full bg-neon animate-bounce [animation-delay:-0.15s]" />
+                  <span className="inline-block h-1.5 w-1.5 rounded-full bg-neon animate-bounce" />
+                </div>
+                <span><span className="text-foreground">{((other as any)?.shop_name) || other?.display_name || other?.username || "İstifadəçi"}</span> yazır...</span>
+              </div>
+            )}
+
             <div className="border-t border-border p-3 space-y-2">
+
               {preview && (
                 <div className="relative inline-block">
                   <img src={preview} alt="" className="max-h-32 rounded-lg border border-border" />
@@ -224,7 +277,9 @@ function ThreadPage() {
                   className="h-11 w-11 grid place-items-center rounded-lg bg-surface border border-border hover:border-primary shrink-0" title="Şəkil əlavə et">
                   <Paperclip className="h-4 w-4" />
                 </button>
-                <textarea ref={inputRef} value={text} onChange={e => setText(e.target.value)}
+                <textarea ref={inputRef} value={text}
+                  onChange={e => { setText(e.target.value); if (e.target.value.trim()) broadcastTyping(); else broadcastStopTyping(); }}
+                  onBlur={() => broadcastStopTyping()}
                   onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); } }}
                   rows={1} maxLength={4000} placeholder="Mesaj yazın..."
                   className="flex-1 resize-none px-3 py-2.5 rounded-lg bg-background border border-border text-sm max-h-32" />
