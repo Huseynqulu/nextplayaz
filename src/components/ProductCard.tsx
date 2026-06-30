@@ -160,6 +160,14 @@ export function ProductCard({ p, variant = "default" }: { p: Product; variant?: 
           <span>{p.rating}</span>
         </div>
 
+        {soldAgo && (
+          <div className="inline-flex items-center gap-1 text-[10px] font-medium text-orange-400 bg-orange-500/10 border border-orange-500/25 rounded px-1.5 py-0.5 self-start animate-pulse">
+            <Flame className="h-3 w-3" />
+            <span>{soldAgo}</span>
+          </div>
+        )}
+
+
         <div className="flex items-end justify-between mt-auto pt-1">
           <div className="flex flex-col">
             {p.oldPrice && (
