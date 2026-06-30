@@ -243,6 +243,12 @@ function SellerDashboard() {
                 <ShoppingBag className="h-4 w-4" /> Gələn sifarişlər
               </Link>
               <button
+                onClick={() => setBulkOpen(true)}
+                className="inline-flex items-center gap-2 h-11 px-5 rounded-lg border border-border bg-surface font-semibold hover:border-neon"
+              >
+                <Upload className="h-4 w-4" /> Toplu yüklə (CSV)
+              </button>
+              <button
                 onClick={() => showForm ? setShowForm(false) : openNewProductForm()}
                 className="inline-flex items-center gap-2 h-11 px-5 rounded-lg bg-neon text-background font-semibold neon-ring hover:opacity-95"
               >
@@ -250,6 +256,14 @@ function SellerDashboard() {
               </button>
             </div>
           </div>
+{user && (
+            <BulkUploadDialog
+              open={bulkOpen}
+              onClose={() => setBulkOpen(false)}
+              sellerId={user.id}
+              onDone={refresh}
+            />
+          )}
 
           {/* Onboarding helper — guides new sellers */}
           {!showForm && (
