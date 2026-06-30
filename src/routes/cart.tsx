@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { useState } from "react";
 import { toast } from "sonner";
+import { burstConfetti } from "@/lib/celebrate";
 import { Loader2, Minus, Plus, ShoppingCart, Trash2, Tag, Check, X } from "lucide-react";
 import { EmptyState } from "@/components/EmptyState";
 
