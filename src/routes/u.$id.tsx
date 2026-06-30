@@ -4,6 +4,7 @@ import { Footer } from "@/components/Footer";
 import { ProductCard } from "@/components/ProductCard";
 import { supabase } from "@/integrations/supabase/client";
 import { dbToProduct, type DbProduct } from "@/lib/products";
+import { categoryLabel } from "@/lib/marketplace-data";
 import { isOnline, formatLastSeen } from "@/lib/presence";
 import { ShieldCheck, Star, MessageCircle, Loader2, Store } from "lucide-react";
 import { SellerTierBadge } from "@/components/SellerTierBadge";
