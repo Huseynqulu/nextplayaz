@@ -598,16 +598,15 @@ function SellerDashboard() {
           {loading ? (
             <div className="flex justify-center py-20"><Loader2 className="h-6 w-6 animate-spin text-neon" /></div>
           ) : items.length === 0 ? (
-            <div className="rounded-2xl border border-dashed border-border p-12 text-center">
-              <Package className="h-10 w-10 mx-auto text-muted-foreground mb-3" />
-              <p className="text-muted-foreground mb-4">Hələ məhsul yoxdur. İlk məhsulunuzu əlavə edin.</p>
-              <button
-                onClick={openNewProductForm}
-                className="inline-flex items-center gap-2 h-11 px-5 rounded-lg bg-neon text-background font-semibold neon-ring hover:scale-[1.02] transition"
-              >
-                <Plus className="h-4 w-4" /> Yeni məhsul əlavə et
-              </button>
-            </div>
+            <EmptyState
+              icon={Package}
+              title="Hələ məhsul yoxdur"
+              description="İlk məhsulunu əlavə et və ya CSV ilə toplu yüklə. Satışdan 5% komissiya tutulur."
+              ctaLabel="Yeni məhsul əlavə et"
+              ctaOnClick={openNewProductForm}
+              secondaryLabel="Bələdçi"
+              secondaryTo="/user-guide"
+            />
           ) : (
             <div className="space-y-3">
               {items.map(p => (
