@@ -508,7 +508,13 @@ function SellerDashboard() {
           ) : items.length === 0 ? (
             <div className="rounded-2xl border border-dashed border-border p-12 text-center">
               <Package className="h-10 w-10 mx-auto text-muted-foreground mb-3" />
-              <p className="text-muted-foreground">Hələ məhsul yoxdur. İlk məhsulunuzu əlavə edin.</p>
+              <p className="text-muted-foreground mb-4">Hələ məhsul yoxdur. İlk məhsulunuzu əlavə edin.</p>
+              <button
+                onClick={openNewProductForm}
+                className="inline-flex items-center gap-2 h-11 px-5 rounded-lg bg-neon text-background font-semibold neon-ring hover:scale-[1.02] transition"
+              >
+                <Plus className="h-4 w-4" /> Yeni məhsul əlavə et
+              </button>
             </div>
           ) : (
             <div className="space-y-3">
