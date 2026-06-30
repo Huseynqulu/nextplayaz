@@ -32,9 +32,13 @@ function ThreadPage() {
   const [sending, setSending] = useState(false);
   const [pendingFile, setPendingFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
+  const [otherTyping, setOtherTyping] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
+  const typingChRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
+  const typingClearRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const lastTypingSentRef = useRef<number>(0);
 
   async function markRead() {
     await supabase.rpc("mark_conversation_read" as any, { p_conversation_id: conversationId });
