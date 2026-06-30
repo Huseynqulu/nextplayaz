@@ -5,8 +5,9 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
-import { Loader2, Package, CheckCircle2, Truck, Clock, ShoppingBag, AlertTriangle, MessageSquare, ArrowLeft } from "lucide-react";
+import { Loader2, Package, CheckCircle2, Truck, Clock, ShoppingBag, AlertTriangle, MessageSquare, ArrowLeft, ChevronRight } from "lucide-react";
 import { useCurrency } from "@/lib/currency";
+import { SellerOrderDetailDialog } from "@/components/SellerOrderDetailDialog";
 
 export const Route = createFileRoute("/_authenticated/seller-orders")({
   component: SellerOrdersPage,
@@ -47,6 +48,7 @@ function SellerOrdersPage() {
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState<string | null>(null);
   const [payloadInput, setPayloadInput] = useState<Record<string, string>>({});
+  const [openOrder, setOpenOrder] = useState<Order | null>(null);
 
   useEffect(() => {
     if (roles && !roles.includes("seller")) {
@@ -103,7 +105,11 @@ function SellerOrdersPage() {
                 const s = STATUS_LABEL[o.status] ?? STATUS_LABEL.pending;
                 const Icon = s.icon;
                 return (
-                  <div key={o.id} className="rounded-2xl border border-border bg-card-gradient p-4 sm:p-5 card-shadow">
+                  <div
+                    key={o.id}
+                    onClick={() => setOpenOrder(o)}
+                    className="rounded-2xl border border-border bg-card-gradient p-4 sm:p-5 card-shadow cursor-pointer hover:border-primary/60 transition-colors"
+                  >
                     <div className="flex gap-3 sm:gap-4">
                       {o.product?.image_url ? (
                         <img src={o.product.image_url} alt="" className="h-16 w-16 sm:h-20 sm:w-20 rounded-xl object-cover shrink-0" />
@@ -124,10 +130,12 @@ function SellerOrdersPage() {
                               </span>
                             </div>
                           </div>
+                          <ChevronRight className="h-5 w-5 text-muted-foreground shrink-0 mt-1" />
                         </div>
 
 
-                        <div className="mt-3 flex flex-wrap gap-2">
+
+                        <div className="mt-3 flex flex-wrap gap-2" onClick={e => e.stopPropagation()}>
                           {o.conversation_id && (
                             <Link to="/messages/$conversationId" params={{ conversationId: o.conversation_id }}
                               className="inline-flex items-center gap-1.5 h-9 px-3 rounded-lg border border-border bg-surface text-sm font-semibold hover:border-primary">
@@ -142,7 +150,7 @@ function SellerOrdersPage() {
                         </div>
 
                         {o.status === "paid" && (
-                          <div className="mt-3 flex gap-2 flex-wrap">
+                          <div className="mt-3 flex gap-2 flex-wrap" onClick={e => e.stopPropagation()}>
                             <input
                               value={payloadInput[o.id] ?? ""}
                               onChange={e => setPayloadInput(p => ({ ...p, [o.id]: e.target.value }))}
@@ -168,6 +176,13 @@ function SellerOrdersPage() {
         </div>
       </main>
       <Footer />
+      {openOrder && (
+        <SellerOrderDetailDialog
+          order={openOrder as any}
+          onClose={() => setOpenOrder(null)}
+          onChanged={refresh}
+        />
+      )}
     </div>
   );
 }
