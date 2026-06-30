@@ -73,6 +73,7 @@ function CartPage() {
     setBusy(false);
     if (results.ok > 0) {
       toast.success(`${results.ok} sifariş yaradıldı`);
+      burstConfetti();
       if (results.fail.length === 0) clear();
       else items.filter(i => !results.fail.find(f => f.title === i.title)).forEach(i => remove(i.id));
     }
