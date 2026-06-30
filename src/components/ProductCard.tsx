@@ -7,8 +7,9 @@ import { useAuth } from "@/hooks/use-auth";
 import { SellerTierBadge } from "@/components/SellerTierBadge";
 import { useCurrency } from "@/lib/currency";
 import { useCart } from "@/lib/cart";
-import { toast } from "sonner";
 import { SmartImage } from "@/components/SmartImage";
+import { ProductCoverPlaceholder } from "@/components/ProductCoverPlaceholder";
+import { PRODUCT_PLACEHOLDER } from "@/lib/products";
 
 function formatSoldAgo(iso?: string | null): string | null {
   if (!iso) return null;
