@@ -105,7 +105,11 @@ function SellerOrdersPage() {
                 const s = STATUS_LABEL[o.status] ?? STATUS_LABEL.pending;
                 const Icon = s.icon;
                 return (
-                  <div key={o.id} className="rounded-2xl border border-border bg-card-gradient p-4 sm:p-5 card-shadow">
+                  <div
+                    key={o.id}
+                    onClick={() => setOpenOrder(o)}
+                    className="rounded-2xl border border-border bg-card-gradient p-4 sm:p-5 card-shadow cursor-pointer hover:border-primary/60 transition-colors"
+                  >
                     <div className="flex gap-3 sm:gap-4">
                       {o.product?.image_url ? (
                         <img src={o.product.image_url} alt="" className="h-16 w-16 sm:h-20 sm:w-20 rounded-xl object-cover shrink-0" />
@@ -126,7 +130,9 @@ function SellerOrdersPage() {
                               </span>
                             </div>
                           </div>
+                          <ChevronRight className="h-5 w-5 text-muted-foreground shrink-0 mt-1" />
                         </div>
+
 
 
                         <div className="mt-3 flex flex-wrap gap-2">
