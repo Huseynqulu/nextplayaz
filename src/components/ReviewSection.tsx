@@ -19,6 +19,7 @@ type Review = {
 export function ReviewSection({ productId, sellerId }: { productId: string; sellerId?: string | null }) {
   const { user } = useAuth();
   const isSeller = !!user && !!sellerId && user.id === sellerId;
+  const [mode, setMode] = useState<"product" | "seller">("product");
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
   const [canReview, setCanReview] = useState(false);
@@ -36,11 +37,19 @@ export function ReviewSection({ productId, sellerId }: { productId: string; sell
 
   async function load() {
     setLoading(true);
+    let productIds: string[] = [productId];
+    if (mode === "seller" && sellerId) {
+      const { data: prods } = await supabase
+        .from("products").select("id").eq("seller_id", sellerId);
+      productIds = (prods ?? []).map((p: any) => p.id);
+      if (productIds.length === 0) productIds = [productId];
+    }
     const { data: revs } = await supabase
       .from("reviews")
       .select("id, rating, comment, created_at, reviewer_id, seller_reply, seller_replied_at")
-      .eq("product_id", productId)
+      .in("product_id", productIds)
       .order("created_at", { ascending: false });
+
     const base = (revs as any[]) ?? [];
     const ids = Array.from(new Set(base.map(r => r.reviewer_id)));
     let profMap = new Map<string, any>();
@@ -51,7 +60,7 @@ export function ReviewSection({ productId, sellerId }: { productId: string; sell
     }
     const list: Review[] = base.map(r => ({ ...r, reviewer: profMap.get(r.reviewer_id) ?? null }));
     setReviews(list);
-    if (user) {
+    if (user && mode === "product") {
       const mine = list.find(r => r.reviewer_id === user.id) ?? null;
       setMyReview(mine);
       if (mine) { setRating(mine.rating); setComment(mine.comment ?? ""); }
@@ -68,7 +77,8 @@ export function ReviewSection({ productId, sellerId }: { productId: string; sell
     }
     setLoading(false);
   }
-  useEffect(() => { load(); /* eslint-disable-next-line */ }, [productId, user?.id]);
+  useEffect(() => { load(); /* eslint-disable-next-line */ }, [productId, user?.id, mode]);
+
 
   async function submit() {
     if (rating < 1 || rating > 5) { toast.error("Reytinq 1-5 arası seçin"); return; }
@@ -134,6 +144,24 @@ export function ReviewSection({ productId, sellerId }: { productId: string; sell
           <Link to="/login" className="text-sm text-primary hover:underline">Rəy yazmaq üçün daxil olun →</Link>
         )}
       </div>
+
+      {sellerId && (
+        <div className="mb-5 inline-flex rounded-xl border border-border bg-surface/40 p-1">
+          <button
+            onClick={() => setMode("product")}
+            className={`px-3.5 py-1.5 text-xs font-semibold rounded-lg transition ${mode === "product" ? "bg-neon text-background" : "text-muted-foreground hover:text-foreground"}`}
+          >
+            Bu elana aid dəyərləndirmələr
+          </button>
+          <button
+            onClick={() => setMode("seller")}
+            className={`px-3.5 py-1.5 text-xs font-semibold rounded-lg transition ${mode === "seller" ? "bg-neon text-background" : "text-muted-foreground hover:text-foreground"}`}
+          >
+            Satıcının bütün dəyərləndirmələri
+          </button>
+        </div>
+      )}
+
 
       {reviews.length > 0 && (
         <div className="mb-6 grid sm:grid-cols-[auto_1fr] gap-6 p-5 rounded-2xl border border-border bg-surface/40">
