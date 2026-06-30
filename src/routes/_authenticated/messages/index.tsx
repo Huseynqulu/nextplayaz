@@ -164,7 +164,7 @@ function InboxPage() {
 
 
           {loading ? (
-            <div className="flex justify-center py-20"><Loader2 className="h-6 w-6 animate-spin text-neon" /></div>
+            <ConversationListSkeleton count={6} />
           ) : convs.length === 0 ? (
             <div className="rounded-2xl border border-border bg-card-gradient p-10 text-center card-shadow">
               <MessageSquare className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
