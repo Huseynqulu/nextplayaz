@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
-import { Star, Zap, ShieldCheck, Heart, ShoppingCart } from "lucide-react";
+import { Star, Zap, Heart, ShoppingCart, BadgeCheck } from "lucide-react";
+import { VerifiedBadge } from "@/components/VerifiedBadge";
 import type { Product } from "@/lib/marketplace-data";
 import { useFavorites, isRealProductId } from "@/lib/favorites";
 import { useAuth } from "@/hooks/use-auth";
