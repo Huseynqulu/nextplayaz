@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
-import { Star, Zap, ShieldCheck, Heart, ShoppingCart } from "lucide-react";
+import { Star, Zap, Heart, ShoppingCart, BadgeCheck } from "lucide-react";
+import { VerifiedBadge } from "@/components/VerifiedBadge";
 import type { Product } from "@/lib/marketplace-data";
 import { useFavorites, isRealProductId } from "@/lib/favorites";
 import { useAuth } from "@/hooks/use-auth";
@@ -43,7 +44,7 @@ export function ProductCard({ p, variant = "default" }: { p: Product; variant?: 
           <div>
             <h3 className="font-semibold text-sm leading-snug line-clamp-2 group-hover:text-neon transition">{p.title}</h3>
             <div className="flex items-center gap-1.5 mt-1 text-[11px] text-muted-foreground">
-              {p.seller.verified && <ShieldCheck className="h-3 w-3 text-neon" />}
+              {p.seller.verified && <BadgeCheck className="h-3.5 w-3.5 text-sky-400 fill-sky-500/25 shrink-0" strokeWidth={2.5} />}
               <span className="truncate max-w-[140px]">{p.seller.name}</span>
               <span>·</span>
               <Star className="h-2.5 w-2.5 fill-warning text-warning" />
@@ -116,6 +117,12 @@ export function ProductCard({ p, variant = "default" }: { p: Product; variant?: 
             {p.delivery === "Instant" ? "Anında" : "Əllə"}
           </span>
         </div>
+
+        {p.seller.verified && (
+          <div className="absolute bottom-2 right-2">
+            <VerifiedBadge verified={p.seller.verified} variant="floating" size={11} label="Doğrulanmış" />
+          </div>
+        )}
       </div>
 
       <div className={`flex flex-1 flex-col ${isCompact ? "p-2.5 gap-1.5" : "p-3 gap-2"}`}>
@@ -124,7 +131,7 @@ export function ProductCard({ p, variant = "default" }: { p: Product; variant?: 
         </h3>
 
         <div className="flex items-center gap-1 text-[10px] text-muted-foreground flex-wrap">
-          {p.seller.verified && <ShieldCheck className="h-3 w-3 text-neon" />}
+          {p.seller.verified && <BadgeCheck className="h-3 w-3 text-sky-400 fill-sky-500/25 shrink-0" strokeWidth={2.5} />}
           <span className="truncate max-w-[90px]">{p.seller.name}</span>
           <span>·</span>
           <Star className="h-2.5 w-2.5 fill-warning text-warning" />

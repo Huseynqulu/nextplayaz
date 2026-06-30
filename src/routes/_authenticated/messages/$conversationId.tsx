@@ -11,6 +11,7 @@ import { isOnline, formatLastSeen } from "@/lib/presence";
 import { uploadChatAttachment } from "@/lib/chat-attachments";
 import { ChatImage } from "@/components/ChatImage";
 import { DeliveryCard } from "@/components/DeliveryCard";
+import { VerifiedBadge } from "@/components/VerifiedBadge";
 
 export const Route = createFileRoute("/_authenticated/messages/$conversationId")({
   component: ThreadPage,
@@ -19,7 +20,7 @@ export const Route = createFileRoute("/_authenticated/messages/$conversationId")
 
 type Msg = { id: string; conversation_id: string; sender_id: string; body: string; created_at: string; read_at: string | null; kind?: string; attachment_url?: string | null };
 type Conv = { id: string; user_a: string; user_b: string; product_id: string | null; order_id: string | null };
-type ProfileLite = { id: string; display_name: string | null; username: string | null; shop_name?: string | null; avatar_url: string | null; last_seen_at: string | null };
+type ProfileLite = { id: string; display_name: string | null; username: string | null; shop_name?: string | null; avatar_url: string | null; last_seen_at: string | null; verified_at?: string | null };
 
 function ThreadPage() {
   const { conversationId } = Route.useParams();
@@ -58,7 +59,7 @@ function ThreadPage() {
       setConv(conv);
       const otherId = conv.user_a === user.id ? conv.user_b : conv.user_a;
       const [{ data: p }, { data: pr }, { data: msgs }] = await Promise.all([
-        supabase.from("public_profiles" as any).select("id,display_name,username,shop_name,avatar_url,last_seen_at").eq("id", otherId).maybeSingle(),
+        supabase.from("public_profiles" as any).select("id,display_name,username,shop_name,avatar_url,last_seen_at,verified_at").eq("id", otherId).maybeSingle(),
         conv.product_id ? supabase.from("products").select("title,slug").eq("id", conv.product_id).maybeSingle() : Promise.resolve({ data: null } as any),
         supabase.from("dm_messages").select("*").eq("conversation_id", conversationId).order("created_at", { ascending: true }),
       ]);
@@ -182,8 +183,9 @@ function ThreadPage() {
                     <span className={`absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-background ${online ? "bg-success" : "bg-muted"}`} />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="font-semibold truncate group-hover:text-neon transition">
-                      {((other as any).shop_name as string | null) || other.display_name || other.username || "İstifadəçi"}
+                    <p className="font-semibold truncate group-hover:text-neon transition inline-flex items-center gap-1.5">
+                      <span className="truncate">{((other as any).shop_name as string | null) || other.display_name || other.username || "İstifadəçi"}</span>
+                      <VerifiedBadge verified={(other as any).verified_at} variant="pill" size={12} />
                     </p>
                     <p className="text-[11px] text-muted-foreground">{online ? "● Onlayn" : formatLastSeen(other.last_seen_at)}</p>
                     {product && (
