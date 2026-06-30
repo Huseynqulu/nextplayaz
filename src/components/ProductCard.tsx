@@ -52,14 +52,18 @@ export function ProductCard({ p, variant = "default" }: { p: Product; variant?: 
         className="group flex gap-3 p-2.5 rounded-xl bg-card-gradient border border-border card-shadow hover:border-primary/60 transition"
       >
         <div className="relative h-24 w-24 flex-shrink-0 overflow-hidden rounded-lg">
-          <SmartImage
-            src={p.image}
-            alt={p.title}
-            width={96}
-            widths={[96, 192]}
-            wrapperClassName="absolute inset-0"
-            className="absolute inset-0 h-full w-full object-cover"
-          />
+          {!p.image || p.image === PRODUCT_PLACEHOLDER ? (
+            <ProductCoverPlaceholder title={p.title} />
+          ) : (
+            <SmartImage
+              src={p.image}
+              alt={p.title}
+              width={96}
+              widths={[96, 192]}
+              wrapperClassName="absolute inset-0"
+              className="absolute inset-0 h-full w-full object-cover"
+            />
+          )}
           {p.delivery === "Instant" && (
             <span className="absolute bottom-1 left-1 px-1.5 py-0.5 rounded text-[9px] font-medium bg-neon/90 text-background flex items-center gap-0.5">
               <Zap className="h-2 w-2" />Anında
