@@ -134,7 +134,7 @@ function SupportTicketsPage() {
     if (!active) return;
     if (!confirm("Müraciət bağlansın?")) return;
     setBusy(true);
-    const { error } = await supabase.from("support_tickets").update({ status: "closed" }).eq("id", active.id);
+    const { error } = await supabase.rpc("close_support_ticket", { p_ticket_id: active.id });
     if (error) toast.error(error.message);
     else { toast.success("Bağlandı"); setActive(null); await refresh(); }
     setBusy(false);
