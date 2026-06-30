@@ -284,7 +284,56 @@ function SellerDashboard() {
                 </h2>
                 <p className="text-xs text-muted-foreground mt-1">Formanı doldurub aşağıdakı «Yadda saxla» düyməsinə bas.</p>
               </div>
+
+              {/* Step 1 — pick category & platform first */}
+              {!step1Done && (
+                <div className="sm:col-span-2 rounded-xl border border-neon/40 bg-neon/5 p-5 space-y-4">
+                  <div>
+                    <h3 className="font-display text-lg font-bold flex items-center gap-2">
+                      <span className="inline-grid h-7 w-7 place-items-center rounded-full bg-neon text-background text-sm font-bold">1</span>
+                      Kateqoriya və Platforma seçin
+                    </h3>
+                    <p className="text-xs text-muted-foreground mt-1">Əvvəlcə məhsulunuzun aid olduğu kateqoriya və oyun/platformanı seçin — sonra qalan sahələr açılacaq.</p>
+                  </div>
+                  <div className="grid sm:grid-cols-2 gap-3">
+                    <div>
+                      <label className="text-xs font-medium text-muted-foreground">Kateqoriya *</label>
+                      <select
+                        value={form.category}
+                        onChange={e => setForm(f => ({ ...f, category: e.target.value as any, subcategory: "" }))}
+                        className="mt-1 w-full h-11 px-3 rounded-lg bg-background border border-border text-sm">
+                        {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="text-xs font-medium text-muted-foreground">Platforma / Oyun *</label>
+                      <select
+                        value={form.platform}
+                        onChange={e => setForm(f => ({ ...f, platform: e.target.value, platform_subcategory: "" }))}
+                        className="mt-1 w-full h-11 px-3 rounded-lg bg-background border border-border text-sm">
+                        <option value="">— Seçin —</option>
+                        {platformList.map(p => <option key={p.slug} value={p.label_az}>{p.label_az}</option>)}
+                      </select>
+                    </div>
+                  </div>
+                  <div className="flex justify-end gap-2 pt-1">
+                    <button type="button" onClick={() => { setShowForm(false); resetForm(); }}
+                      className="h-10 px-4 rounded-lg border border-border text-sm font-semibold hover:bg-surface">
+                      Ləğv et
+                    </button>
+                    <button type="button"
+                      disabled={!form.category || !form.platform}
+                      onClick={() => setStep1Done(true)}
+                      className="h-10 px-5 rounded-lg bg-neon text-background text-sm font-bold neon-ring disabled:opacity-50">
+                      Davam et →
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {step1Done && (<>
               {/* Gift Card mode */}
+
               <div className="sm:col-span-2 rounded-xl border border-border bg-surface/40 p-3 space-y-3">
                 <label className="flex items-center gap-2 cursor-pointer">
                   <input type="checkbox" checked={form.is_gift_card} onChange={e => setForm(f => ({ ...f, is_gift_card: e.target.checked, gift_platform_id: "", gift_denomination_id: "" }))} className="h-4 w-4" />
