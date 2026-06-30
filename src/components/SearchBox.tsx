@@ -96,7 +96,7 @@ export function SearchBox({ variant = "desktop" }: { variant?: "desktop" | "mobi
       </form>
 
       {open && q.trim().length >= 2 && (
-        <div className="absolute left-0 right-0 top-12 z-50 rounded-xl border border-border bg-popover shadow-xl card-shadow overflow-hidden max-h-[70vh] overflow-y-auto">
+        <div className="absolute right-0 top-12 z-50 w-[min(560px,calc(100vw-2rem))] rounded-xl border border-border bg-popover shadow-xl card-shadow overflow-hidden max-h-[70vh] overflow-y-auto">
           {loading ? (
             <div className="flex items-center gap-2 px-4 py-3 text-sm text-muted-foreground">
               <Loader2 className="h-4 w-4 animate-spin" /> Axtarılır...
