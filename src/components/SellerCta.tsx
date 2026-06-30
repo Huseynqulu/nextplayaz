@@ -1,7 +1,14 @@
 import { Link } from "@tanstack/react-router";
 import { TrendingUp, Wallet, ShieldCheck } from "lucide-react";
+import { useT } from "@/lib/i18n";
 
 export function SellerCta() {
+  const t = useT();
+  const features = [
+    { icon: TrendingUp, title: t("home.seller.f1.title"), desc: t("home.seller.f1.desc") },
+    { icon: Wallet, title: t("home.seller.f2.title"), desc: t("home.seller.f2.desc") },
+    { icon: ShieldCheck, title: t("home.seller.f3.title"), desc: t("home.seller.f3.desc") },
+  ];
   return (
     <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-20">
       <div className="relative overflow-hidden rounded-3xl border border-border bg-card-gradient p-10 lg:p-16 card-shadow">
@@ -10,27 +17,23 @@ export function SellerCta() {
 
         <div className="relative grid lg:grid-cols-2 gap-10 items-center">
           <div>
-            <span className="text-xs font-semibold tracking-[0.2em] text-neon uppercase">Satıcılar üçün</span>
+            <span className="text-xs font-semibold tracking-[0.2em] text-neon uppercase">{t("home.seller.kicker")}</span>
             <h2 className="font-display text-3xl sm:text-5xl font-bold mt-3 leading-tight">
-              Gaming məhsullarını <br /><span className="text-gradient">sat və qazan</span>
+              {t("home.seller.title1")} <br /><span className="text-gradient">{t("home.seller.title2")}</span>
             </h2>
             <p className="mt-5 text-muted-foreground text-lg max-w-md">
-              Minlərlə alıcı səni gözləyir. Sadəcə doğrula, məhsulunu əlavə et və qazanmağa başla.
+              {t("home.seller.sub")}
             </p>
             <Link
               to="/seller"
               className="inline-flex mt-8 h-12 items-center px-6 rounded-xl bg-neon text-background font-semibold neon-ring hover:scale-[1.02] transition"
             >
-              Satıcı müraciəti
+              {t("home.seller.cta")}
             </Link>
           </div>
 
           <div className="grid gap-4">
-            {[
-              { icon: TrendingUp, title: "Yüksək qazanc", desc: "Aylıq orta satıcı qazancı 800-2500 AZN" },
-              { icon: Wallet, title: "Sürətli ödəniş", desc: "Sifariş tamamlandıqdan 24 saat sonra balansda" },
-              { icon: ShieldCheck, title: "Tam qorunma", desc: "Escrow sistemi həm alıcını, həm satıcını qoruyur" },
-            ].map((f, i) => (
+            {features.map((f, i) => (
               <div key={i} className="flex gap-4 p-5 rounded-2xl border border-border bg-background/40 backdrop-blur">
                 <div className="grid h-11 w-11 place-items-center rounded-xl bg-neon/15 border border-neon/30 shrink-0">
                   <f.icon className="h-5 w-5 text-neon" />

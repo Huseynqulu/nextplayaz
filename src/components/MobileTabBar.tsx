@@ -3,6 +3,7 @@ import { Home, Store, MessageCircle, ShoppingCart, User } from "lucide-react";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useCart } from "@/lib/cart";
+import { useT } from "@/lib/i18n";
 
 type Item = {
   to: string;
@@ -13,6 +14,7 @@ type Item = {
 };
 
 export function MobileTabBar() {
+  const t = useT();
   const loc = useLocation();
   const { count: cartCount } = useCart();
   const [userId, setUserId] = useState<string | null>(null);
@@ -49,11 +51,11 @@ export function MobileTabBar() {
   if (path.startsWith("/messages/") && path !== "/messages") return null;
 
   const items: Item[] = [
-    { to: "/", label: "Ev", Icon: Home, match: (p) => p === "/" },
-    { to: "/marketplace", label: "Market", Icon: Store, match: (p) => p.startsWith("/marketplace") || p.startsWith("/product") },
-    { to: "/messages", label: "Mesaj", Icon: MessageCircle, match: (p) => p.startsWith("/messages"), badge: unread },
-    { to: "/cart", label: "Səbət", Icon: ShoppingCart, match: (p) => p.startsWith("/cart"), badge: cartCount },
-    { to: userId ? "/profile" : "/auth", label: "Profil", Icon: User, match: (p) => p.startsWith("/profile") || p.startsWith("/auth") },
+    { to: "/", label: t("tab.home"), Icon: Home, match: (p) => p === "/" },
+    { to: "/marketplace", label: t("tab.market"), Icon: Store, match: (p) => p.startsWith("/marketplace") || p.startsWith("/product") },
+    { to: "/messages", label: t("tab.messages"), Icon: MessageCircle, match: (p) => p.startsWith("/messages"), badge: unread },
+    { to: "/cart", label: t("tab.cart"), Icon: ShoppingCart, match: (p) => p.startsWith("/cart"), badge: cartCount },
+    { to: userId ? "/profile" : "/auth", label: t("tab.profile"), Icon: User, match: (p) => p.startsWith("/profile") || p.startsWith("/auth") },
   ];
 
   return (

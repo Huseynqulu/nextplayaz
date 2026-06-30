@@ -1,18 +1,20 @@
 import { ShoppingCart, Lock, PackageCheck, Star } from "lucide-react";
-
-const steps = [
-  { icon: ShoppingCart, title: "Məhsul seç", desc: "Yoxlanılmış satıcılardan istədiyin məhsulu seç və sifariş ver." },
-  { icon: Lock, title: "Escrow ödəniş", desc: "Ödəniş platformada saxlanılır. Satıcı pulu yalnız çatdırılma sonra alır." },
-  { icon: PackageCheck, title: "Çatdırılma", desc: "Açar, hesab və ya xidmət sənə anında və ya manual olaraq çatdırılır." },
-  { icon: Star, title: "Təsdiqlə", desc: "Razı qaldıqda sifarişi təsdiqlə. Bütün proses qorunma altındadır." },
-];
+import { useT } from "@/lib/i18n";
 
 export function HowItWorks() {
+  const t = useT();
+  const steps = [
+    { icon: ShoppingCart, title: t("home.how1.title"), desc: t("home.how1.desc") },
+    { icon: Lock, title: t("home.how2.title"), desc: t("home.how2.desc") },
+    { icon: PackageCheck, title: t("home.how3.title"), desc: t("home.how3.desc") },
+    { icon: Star, title: t("home.how4.title"), desc: t("home.how4.desc") },
+  ];
+
   return (
     <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-20">
       <div className="text-center max-w-2xl mx-auto mb-14">
-        <span className="text-xs font-semibold tracking-[0.2em] text-neon uppercase">Necə işləyir</span>
-        <h2 className="font-display text-3xl sm:text-4xl font-bold mt-3">Təhlükəsiz alış-veriş 4 addımda</h2>
+        <span className="text-xs font-semibold tracking-[0.2em] text-neon uppercase">{t("home.howKicker")}</span>
+        <h2 className="font-display text-3xl sm:text-4xl font-bold mt-3">{t("home.howTitle")}</h2>
       </div>
 
       <div className="relative grid gap-6 md:grid-cols-4">

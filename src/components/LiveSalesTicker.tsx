@@ -3,6 +3,7 @@ import { Link } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 import { ShoppingBag, Sparkles } from "lucide-react";
 import { useCurrency } from "@/lib/currency";
+import { useT } from "@/lib/i18n";
 
 type Sale = {
   order_id: string;
@@ -13,12 +14,15 @@ type Sale = {
   created_at: string;
 };
 
-function timeAgo(iso: string) {
-  const diff = (Date.now() - new Date(iso).getTime()) / 1000;
-  if (diff < 60) return "indicə";
-  if (diff < 3600) return `${Math.floor(diff / 60)} dəq əvvəl`;
-  if (diff < 86400) return `${Math.floor(diff / 3600)} saat əvvəl`;
-  return `${Math.floor(diff / 86400)} gün əvvəl`;
+function useTimeAgo() {
+  const t = useT();
+  return (iso: string) => {
+    const diff = (Date.now() - new Date(iso).getTime()) / 1000;
+    if (diff < 60) return t("common.justNow");
+    if (diff < 3600) return `${Math.floor(diff / 60)} ${t("common.minAgo")}`;
+    if (diff < 86400) return `${Math.floor(diff / 3600)} ${t("common.hourAgo")}`;
+    return `${Math.floor(diff / 86400)} ${t("common.dayAgo")}`;
+  };
 }
 
 function maskName(n: string) {
@@ -28,6 +32,8 @@ function maskName(n: string) {
 }
 
 export function LiveSalesTicker() {
+  const t = useT();
+  const timeAgo = useTimeAgo();
   const { format } = useCurrency();
   const [sales, setSales] = useState<Sale[]>([]);
 
@@ -37,8 +43,8 @@ export function LiveSalesTicker() {
   }
   useEffect(() => {
     void load();
-    const t = setInterval(() => void load(), 25000);
-    return () => clearInterval(t);
+    const t2 = setInterval(() => void load(), 25000);
+    return () => clearInterval(t2);
   }, []);
 
   if (!sales.length) return null;
@@ -52,9 +58,9 @@ export function LiveSalesTicker() {
             <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-success opacity-75" />
             <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-success" />
           </span>
-          <span className="text-xs uppercase tracking-wider font-bold text-success">CANLI</span>
+          <span className="text-xs uppercase tracking-wider font-bold text-success">{t("home.liveLabel")}</span>
           <h3 className="font-display text-lg font-bold ml-2 flex items-center gap-1.5">
-            <Sparkles className="h-4 w-4 text-neon" /> Son satışlar
+            <Sparkles className="h-4 w-4 text-neon" /> {t("home.liveTitle")}
           </h3>
         </div>
 
@@ -72,7 +78,7 @@ export function LiveSalesTicker() {
                 </div>
                 <div className="text-xs">
                   <div className="font-semibold">
-                    <span className="text-neon">{maskName(s.buyer_name)}</span> aldı
+                    <span className="text-neon">{maskName(s.buyer_name)}</span> {t("home.liveBought")}
                   </div>
                   <div className="text-muted-foreground truncate max-w-[200px]">{s.product_title}</div>
                 </div>
