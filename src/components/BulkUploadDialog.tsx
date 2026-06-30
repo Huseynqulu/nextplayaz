@@ -202,7 +202,7 @@ export function BulkUploadDialog({ open, onClose, sellerId, onDone }: Props) {
                 <li><b className="text-foreground">delivery</b> — <code>Instant</code> (anında) və ya <code>Manual</code> (əllə)</li>
                 <li><b className="text-foreground">stock</b> — Manual üçün stok sayı (Instant-da boş)</li>
                 <li><b className="text-foreground">stock_items</b> — Instant üçün stok elementləri. <b>«|» işarəsi</b> ilə ayır: <code>KOD1|KOD2|KOD3</code></li>
-                <li><b className="text-foreground">image_url</b> — Şəkil linki (boş ola bilər)</li>
+                <li><b className="text-foreground">image_url</b> — Şəkil linki (URL). Bir neçə şəkil üçün <code>«|»</code> ilə ayır: <code>https://.../1.jpg|https://.../2.jpg</code>. Birinci əsas şəkil olur. Boş ola bilər.</li>
                 <li><b className="text-foreground">auto_message</b> — Alışdan sonra avtomatik mesaj (boş = söndürülmüş)</li>
               </ul>
             </div>
