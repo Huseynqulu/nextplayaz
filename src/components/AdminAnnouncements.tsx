@@ -43,7 +43,7 @@ export function AdminAnnouncements() {
     const { data, error } = await supabase.rpc("admin_broadcast_announcement", {
       p_title: title.trim(),
       p_body: body.trim(),
-      p_link: link.trim() || null,
+      p_link: link.trim() || undefined,
     });
     setSending(false);
     if (error) { toast.error(error.message); return; }
