@@ -9,6 +9,8 @@ import { useCurrency } from "@/lib/currency";
 import { useCart } from "@/lib/cart";
 import { toast } from "sonner";
 import { SmartImage } from "@/components/SmartImage";
+import { ProductCoverPlaceholder } from "@/components/ProductCoverPlaceholder";
+import { PRODUCT_PLACEHOLDER } from "@/lib/products";
 
 function formatSoldAgo(iso?: string | null): string | null {
   if (!iso) return null;
@@ -50,14 +52,18 @@ export function ProductCard({ p, variant = "default" }: { p: Product; variant?: 
         className="group flex gap-3 p-2.5 rounded-xl bg-card-gradient border border-border card-shadow hover:border-primary/60 transition"
       >
         <div className="relative h-24 w-24 flex-shrink-0 overflow-hidden rounded-lg">
-          <SmartImage
-            src={p.image}
-            alt={p.title}
-            width={96}
-            widths={[96, 192]}
-            wrapperClassName="absolute inset-0"
-            className="absolute inset-0 h-full w-full object-cover"
-          />
+          {!p.image || p.image === PRODUCT_PLACEHOLDER ? (
+            <ProductCoverPlaceholder title={p.title} />
+          ) : (
+            <SmartImage
+              src={p.image}
+              alt={p.title}
+              width={96}
+              widths={[96, 192]}
+              wrapperClassName="absolute inset-0"
+              className="absolute inset-0 h-full w-full object-cover"
+            />
+          )}
           {p.delivery === "Instant" && (
             <span className="absolute bottom-1 left-1 px-1.5 py-0.5 rounded text-[9px] font-medium bg-neon/90 text-background flex items-center gap-0.5">
               <Zap className="h-2 w-2" />Anında
@@ -103,15 +109,19 @@ export function ProductCard({ p, variant = "default" }: { p: Product; variant?: 
       className="group relative flex flex-col rounded-xl overflow-hidden bg-card-gradient border border-border card-shadow hover:border-primary/60 transition-all duration-300 hover:-translate-y-0.5"
     >
       <div className="relative aspect-[4/5] overflow-hidden">
-        <SmartImage
-          src={p.image}
-          alt={p.title}
-          width={isCompact ? 220 : 360}
-          widths={isCompact ? [220, 440] : [320, 480, 720]}
-          sizes={isCompact ? "(max-width: 768px) 45vw, 220px" : "(max-width: 768px) 50vw, 25vw"}
-          wrapperClassName="absolute inset-0"
-          className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-        />
+        {!p.image || p.image === PRODUCT_PLACEHOLDER ? (
+          <ProductCoverPlaceholder title={p.title} />
+        ) : (
+          <SmartImage
+            src={p.image}
+            alt={p.title}
+            width={isCompact ? 220 : 360}
+            widths={isCompact ? [220, 440] : [320, 480, 720]}
+            sizes={isCompact ? "(max-width: 768px) 45vw, 220px" : "(max-width: 768px) 50vw, 25vw"}
+            wrapperClassName="absolute inset-0"
+            className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+          />
+        )}
         <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent" />
 
         {p.tag && (
