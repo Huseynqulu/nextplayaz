@@ -11,6 +11,7 @@ import { isOnline, formatLastSeen } from "@/lib/presence";
 import { uploadChatAttachment } from "@/lib/chat-attachments";
 import { ChatImage } from "@/components/ChatImage";
 import { DeliveryCard } from "@/components/DeliveryCard";
+import { VerifiedBadge } from "@/components/VerifiedBadge";
 
 export const Route = createFileRoute("/_authenticated/messages/$conversationId")({
   component: ThreadPage,
