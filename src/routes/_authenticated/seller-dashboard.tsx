@@ -56,7 +56,33 @@ function SellerDashboard() {
   const [boosting, setBoosting] = useState<Product | null>(null);
   const [step1Done, setStep1Done] = useState(false);
   const [platformQuery, setPlatformQuery] = useState("");
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [bulkDeleting, setBulkDeleting] = useState(false);
   const formRef = useRef<HTMLDivElement | null>(null);
+
+  function toggleSelect(id: string) {
+    setSelectedIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  }
+  function toggleSelectAll() {
+    if (selectedIds.size === items.length) setSelectedIds(new Set());
+    else setSelectedIds(new Set(items.map(i => i.id)));
+  }
+  async function bulkRemove() {
+    if (selectedIds.size === 0) return;
+    if (!confirm(`${selectedIds.size} məhsul silinsin? Bu əməliyyat geri qaytarıla bilməz.`)) return;
+    setBulkDeleting(true);
+    const ids = Array.from(selectedIds);
+    const { error } = await supabase.from("products").delete().in("id", ids);
+    setBulkDeleting(false);
+    if (error) { toast.error(error.message); return; }
+    toast.success(`${ids.length} məhsul silindi`);
+    setSelectedIds(new Set());
+    await refresh();
+  }
 
   function openNewProductForm() {
     resetForm();
@@ -610,8 +636,49 @@ function SellerDashboard() {
             />
           ) : (
             <div className="space-y-3">
+              <div className="flex items-center justify-between gap-3 flex-wrap rounded-xl border border-border bg-surface/40 p-3">
+                <label className="flex items-center gap-2 cursor-pointer text-sm">
+                  <input
+                    type="checkbox"
+                    checked={selectedIds.size > 0 && selectedIds.size === items.length}
+                    ref={el => { if (el) el.indeterminate = selectedIds.size > 0 && selectedIds.size < items.length; }}
+                    onChange={toggleSelectAll}
+                    className="h-4 w-4 rounded border-border bg-background accent-primary"
+                  />
+                  <span className="font-medium">
+                    {selectedIds.size > 0 ? `${selectedIds.size} seçildi` : "Hamısını seç"}
+                  </span>
+                </label>
+                {selectedIds.size > 0 && (
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setSelectedIds(new Set())}
+                      className="h-9 px-3 rounded-lg border border-border text-sm font-semibold hover:bg-surface"
+                    >
+                      Seçimi təmizlə
+                    </button>
+                    <button
+                      type="button"
+                      onClick={bulkRemove}
+                      disabled={bulkDeleting}
+                      className="inline-flex items-center gap-2 h-9 px-3 rounded-lg bg-destructive text-destructive-foreground text-sm font-semibold hover:opacity-90 disabled:opacity-50"
+                    >
+                      {bulkDeleting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
+                      Seçilənləri sil ({selectedIds.size})
+                    </button>
+                  </div>
+                )}
+              </div>
               {items.map(p => (
-                <div key={p.id} className="rounded-xl border border-border bg-card-gradient p-4 flex items-center gap-4">
+                <div key={p.id} className={`rounded-xl border bg-card-gradient p-4 flex items-center gap-4 ${selectedIds.has(p.id) ? "border-neon/60 ring-1 ring-neon/30" : "border-border"}`}>
+                  <input
+                    type="checkbox"
+                    checked={selectedIds.has(p.id)}
+                    onChange={() => toggleSelect(p.id)}
+                    className="h-4 w-4 rounded border-border bg-background accent-primary shrink-0"
+                    aria-label={`${p.title} seç`}
+                  />
                   {p.image_url ? (
                     <img src={p.image_url} alt={p.title} className="h-16 w-16 rounded-lg object-cover" />
                   ) : (
