@@ -139,11 +139,27 @@ function ProductPage() {
       <Header />
       <main className="flex-1">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
-          <nav className="text-sm text-muted-foreground mb-6 flex items-center gap-2">
-            <Link to="/" className="hover:text-foreground">Ana</Link> /
-            <Link to="/marketplace" className="hover:text-foreground">Marketplace</Link> /
-            <span className="text-foreground truncate">{p.title}</span>
-          </nav>
+          <Breadcrumbs
+            items={[
+              { label: "Market", to: "/marketplace" },
+              ...(p.category ? [{
+                label: categoryLabel(p.category),
+                to: "/marketplace",
+                search: { cat: p.category },
+              }] : []),
+              ...(p.subcategory ? [{
+                label: p.subcategory,
+                to: "/marketplace",
+                search: { cat: p.category, sub: p.subcategory },
+              }] : []),
+              ...(p.platform ? [{
+                label: p.platform,
+                to: "/marketplace",
+                search: { cat: p.category, sub: p.subcategory ?? "all", platform: p.platform },
+              }] : []),
+              { label: p.title },
+            ]}
+          />
 
           <div className="grid lg:grid-cols-[1.1fr_1fr] gap-10 min-w-0">
             {/* Gallery */}
