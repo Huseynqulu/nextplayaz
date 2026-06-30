@@ -120,7 +120,7 @@ function SellerProfilePage() {
                   <h1 className="font-display text-2xl sm:text-3xl font-bold inline-flex items-center gap-2">
                     {shopName && <Store className="h-6 w-6 text-neon" />}{name}
                   </h1>
-                  <VerifiedBadge verified={profile.verified_at} size={20} showLabel />
+                  <VerifiedBadge verified={profile.verified_at} size={16} variant="pill" />
                   <SellerTierBadge sellerId={profile.id} size="md" showStats />
                   <span className={`px-2 py-0.5 rounded-full text-[11px] font-semibold ${online ? "bg-success/15 text-success" : "bg-surface text-muted-foreground"}`}>
                     {online ? "● Onlayn" : "Offline"}
