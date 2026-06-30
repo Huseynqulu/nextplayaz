@@ -125,6 +125,7 @@ function RootComponent() {
               <InstallAppBanner />
               <OnboardingTour />
               <MobileTabBar />
+              <CommandPalette />
               <Toaster theme="dark" position="top-right" richColors />
 
             </CartProvider>
