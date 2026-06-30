@@ -176,9 +176,15 @@
     color: var(--color-foreground);
     font-family: var(--font-sans);
     background-image:
+      radial-gradient(800px 500px at 10% -10%, oklch(0.62 0.18 250 / 0.10), transparent),
+      radial-gradient(700px 500px at 110% 10%, oklch(0.7 0.16 220 / 0.08), transparent);
+    background-attachment: fixed;
+    transition: background-color 240ms ease, color 240ms ease;
+  }
+  .dark body {
+    background-image:
       radial-gradient(800px 500px at 10% -10%, oklch(0.4 0.18 250 / 0.18), transparent),
       radial-gradient(700px 500px at 110% 10%, oklch(0.55 0.18 220 / 0.12), transparent);
-    background-attachment: fixed;
   }
   h1, h2, h3, h4 { font-family: var(--font-display); letter-spacing: -0.02em; }
   ::selection { background: var(--neon); color: var(--background); }
@@ -186,9 +192,14 @@
 
 @utility bg-grid {
   background-image:
+    linear-gradient(to right, oklch(0.5 0.02 260 / 0.06) 1px, transparent 1px),
+    linear-gradient(to bottom, oklch(0.5 0.02 260 / 0.06) 1px, transparent 1px);
+  background-size: 48px 48px;
+}
+.dark .bg-grid {
+  background-image:
     linear-gradient(to right, oklch(1 0 0 / 0.04) 1px, transparent 1px),
     linear-gradient(to bottom, oklch(1 0 0 / 0.04) 1px, transparent 1px);
-  background-size: 48px 48px;
 }
 
 @utility bg-hero {
