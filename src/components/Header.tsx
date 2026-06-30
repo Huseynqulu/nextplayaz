@@ -9,6 +9,7 @@ import { useOnlinePresence } from "@/lib/presence";
 import { NotificationBell } from "@/components/NotificationBell";
 import { SearchBox } from "@/components/SearchBox";
 import { CommandPaletteTrigger } from "@/components/CommandPalette";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import nextplayLogo from "@/assets/nextplay-logo.png";
 import { imgUrl } from "@/lib/image-url";
 
