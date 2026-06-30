@@ -307,14 +307,34 @@ function SellerDashboard() {
                     </div>
                     <div>
                       <label className="text-xs font-medium text-muted-foreground">Platforma / Oyun *</label>
-                      <select
-                        value={form.platform}
-                        onChange={e => setForm(f => ({ ...f, platform: e.target.value, platform_subcategory: "" }))}
-                        className="mt-1 w-full h-11 px-3 rounded-lg bg-background border border-border text-sm">
-                        <option value="">— Seçin —</option>
-                        {platformList.map(p => <option key={p.slug} value={p.label_az}>{p.label_az}</option>)}
-                      </select>
+                      <input
+                        type="text"
+                        value={platformQuery}
+                        onChange={e => setPlatformQuery(e.target.value)}
+                        placeholder="Axtar: Valorant, Steam, Netflix..."
+                        className="mt-1 w-full h-11 px-3 rounded-lg bg-background border border-border text-sm focus:outline-none focus:ring-2 focus:ring-ring" />
+                      <div className="mt-2 max-h-56 overflow-y-auto rounded-lg border border-border bg-background/60 divide-y divide-border/60">
+                        {platformList
+                          .filter(p => p.label_az.toLowerCase().includes(platformQuery.trim().toLowerCase()))
+                          .slice(0, 80)
+                          .map(p => (
+                            <button
+                              type="button"
+                              key={p.slug}
+                              onClick={() => { setForm(f => ({ ...f, platform: p.label_az, platform_subcategory: "" })); setPlatformQuery(p.label_az); }}
+                              className={`w-full text-left px-3 py-2 text-sm hover:bg-surface ${form.platform === p.label_az ? "bg-neon/15 text-neon font-semibold" : ""}`}>
+                              {p.label_az}
+                            </button>
+                          ))}
+                        {platformList.filter(p => p.label_az.toLowerCase().includes(platformQuery.trim().toLowerCase())).length === 0 && (
+                          <div className="px-3 py-3 text-xs text-muted-foreground">Nəticə tapılmadı</div>
+                        )}
+                      </div>
+                      {form.platform && (
+                        <p className="mt-1 text-[11px] text-muted-foreground">Seçildi: <span className="text-neon font-semibold">{form.platform}</span></p>
+                      )}
                     </div>
+
                   </div>
                   <div className="flex justify-end gap-2 pt-1">
                     <button type="button" onClick={() => { setShowForm(false); resetForm(); }}
