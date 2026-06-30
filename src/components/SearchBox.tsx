@@ -3,7 +3,7 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import { Search, Loader2, Package, Gift } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useCurrency } from "@/lib/currency";
-import { ProductCoverPlaceholder } from "@/components/ProductCoverPlaceholder";
+
 
 type Hit = {
   id: string;
