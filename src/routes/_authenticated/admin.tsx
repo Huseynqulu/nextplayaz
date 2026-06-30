@@ -1294,7 +1294,7 @@ function AdminPage() {
                 <div key={p.id} className="rounded-xl border border-border bg-card-gradient p-4 flex items-center justify-between gap-3">
                   <div className="min-w-0">
                     <p className="font-medium truncate">{p.title}</p>
-                    <p className="text-xs text-muted-foreground">{p.category} · {p.price} AZN · stok: {p.stock}</p>
+                    <p className="text-xs text-muted-foreground">{categoryLabel(p.category)} · {p.price} AZN · stok: {p.stock}</p>
                   </div>
                   <button disabled={busy === p.id} onClick={() => toggleProduct(p)}
                     className={`h-8 px-3 rounded-md text-xs font-semibold ${p.is_active ? "bg-success/20 text-success" : "bg-muted text-muted-foreground"}`}>
