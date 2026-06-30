@@ -187,6 +187,23 @@ function MarketplacePage() {
           </div>
         </section>
 
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-6">
+          <Breadcrumbs
+            items={[
+              { label: "Market", ...(s.cat !== "all" ? { to: "/marketplace" } : {}) },
+              ...(s.cat !== "all" ? [{
+                label: CATEGORY_LABEL_AZ[s.cat] ?? s.cat,
+                ...(s.sub !== "all" || s.platform !== "all" ? { to: "/marketplace", search: { cat: s.cat } } : {}),
+              }] : []),
+              ...(s.sub !== "all" ? [{
+                label: s.sub,
+                ...(s.platform !== "all" ? { to: "/marketplace", search: { cat: s.cat, sub: s.sub } } : {}),
+              }] : []),
+              ...(s.platform !== "all" ? [{ label: s.platform }] : []),
+            ]}
+          />
+        </div>
+
         <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 grid lg:grid-cols-[260px_1fr] gap-8">
           {/* Sidebar filters */}
           <aside className="space-y-6">
