@@ -1,9 +1,17 @@
 import { useEffect, useState } from "react";
-import { Link } from "@tanstack/react-router";
+import { useNavigate } from "@tanstack/react-router";
 import { Bell, Check } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
+
+function resolveLink(link: string | null): string | null {
+  if (!link) return null;
+  // Normalize legacy "/messages?c=<id>" to "/messages/<id>"
+  const m = link.match(/^\/messages\?c=([0-9a-fA-F-]+)/);
+  if (m) return `/messages/${m[1]}`;
+  return link;
+}
 
 type Notification = {
   id: string;
@@ -28,6 +36,7 @@ function timeAgo(iso: string) {
 
 export function NotificationBell() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const [items, setItems] = useState<Notification[]>([]);
 
@@ -105,8 +114,21 @@ export function NotificationBell() {
                 <p className="text-sm text-muted-foreground text-center py-8">Hələ bildiriş yoxdur</p>
               ) : (
                 items.map((n) => {
-                  const content = (
-                    <div className={`px-4 py-3 border-b border-border/50 hover:bg-surface transition cursor-pointer ${!n.read_at ? "bg-surface/50" : ""}`}>
+                  const target = resolveLink(n.link);
+                  const handleClick = () => {
+                    markOne(n.id);
+                    if (target) {
+                      setOpen(false);
+                      navigate({ to: target as any });
+                    }
+                  };
+                  return (
+                    <div
+                      key={n.id}
+                      role={target ? "link" : undefined}
+                      onClick={handleClick}
+                      className={`px-4 py-3 border-b border-border/50 hover:bg-surface transition cursor-pointer ${!n.read_at ? "bg-surface/50" : ""}`}
+                    >
                       <div className="flex items-start justify-between gap-2">
                         <p className="text-sm font-medium">{n.title}</p>
                         <span className="text-[10px] text-muted-foreground whitespace-nowrap">{timeAgo(n.created_at)}</span>
@@ -114,17 +136,6 @@ export function NotificationBell() {
                       {n.body && <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{n.body}</p>}
                       {!n.read_at && <span className="inline-block mt-1 h-1.5 w-1.5 rounded-full bg-neon" />}
                     </div>
-                  );
-                  return n.link ? (
-                    <Link
-                      key={n.id}
-                      to={n.link}
-                      onClick={() => { setOpen(false); markOne(n.id); }}
-                    >
-                      {content}
-                    </Link>
-                  ) : (
-                    <div key={n.id} onClick={() => markOne(n.id)}>{content}</div>
                   );
                 })
               )}
