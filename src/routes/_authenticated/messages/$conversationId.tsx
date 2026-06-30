@@ -22,6 +22,14 @@ type Msg = { id: string; conversation_id: string; sender_id: string; body: strin
 type Conv = { id: string; user_a: string; user_b: string; product_id: string | null; order_id: string | null };
 type ProfileLite = { id: string; display_name: string | null; username: string | null; shop_name?: string | null; avatar_url: string | null; last_seen_at: string | null; verified_at?: string | null };
 
+function formatResp(min: number): string {
+  if (min < 1) return "1 dəq";
+  if (min < 60) return `${Math.round(min)} dəq`;
+  const h = min / 60;
+  if (h < 24) return `${Math.round(h)} saat`;
+  return `${Math.round(h / 24)} gün`;
+}
+
 function ThreadPage() {
   const { conversationId } = Route.useParams();
   const { user } = useAuth();
