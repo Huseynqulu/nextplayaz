@@ -6,7 +6,8 @@ import { categories, products as mockProducts } from "@/lib/marketplace-data";
 import { fetchProducts } from "@/lib/products";
 import { supabase } from "@/integrations/supabase/client";
 import { useEffect, useMemo, useState } from "react";
-import { Search, SlidersHorizontal, Loader2, X, Zap, ShieldCheck, Star, LayoutGrid, Grid3x3, List } from "lucide-react";
+import { Search, SlidersHorizontal, X, Zap, ShieldCheck, Star, LayoutGrid, Grid3x3, List } from "lucide-react";
+import { ProductGridSkeleton } from "@/components/Skeletons";
 import { z } from "zod";
 import { zodValidator, fallback } from "@tanstack/zod-adapter";
 
