@@ -135,7 +135,7 @@ function SellerOrdersPage() {
 
 
 
-                        <div className="mt-3 flex flex-wrap gap-2">
+                        <div className="mt-3 flex flex-wrap gap-2" onClick={e => e.stopPropagation()}>
                           {o.conversation_id && (
                             <Link to="/messages/$conversationId" params={{ conversationId: o.conversation_id }}
                               className="inline-flex items-center gap-1.5 h-9 px-3 rounded-lg border border-border bg-surface text-sm font-semibold hover:border-primary">
@@ -150,7 +150,7 @@ function SellerOrdersPage() {
                         </div>
 
                         {o.status === "paid" && (
-                          <div className="mt-3 flex gap-2 flex-wrap">
+                          <div className="mt-3 flex gap-2 flex-wrap" onClick={e => e.stopPropagation()}>
                             <input
                               value={payloadInput[o.id] ?? ""}
                               onChange={e => setPayloadInput(p => ({ ...p, [o.id]: e.target.value }))}
