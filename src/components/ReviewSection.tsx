@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Star, Loader2, MessageSquare } from "lucide-react";
+import { Star, Loader2, MessageSquare, Store, Pencil, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
@@ -11,11 +11,14 @@ type Review = {
   comment: string | null;
   created_at: string;
   reviewer_id: string;
+  seller_reply: string | null;
+  seller_replied_at: string | null;
   reviewer?: { display_name: string | null; username: string | null; avatar_url: string | null } | null;
 };
 
-export function ReviewSection({ productId }: { productId: string }) {
+export function ReviewSection({ productId, sellerId }: { productId: string; sellerId?: string | null }) {
   const { user } = useAuth();
+  const isSeller = !!user && !!sellerId && user.id === sellerId;
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
   const [canReview, setCanReview] = useState(false);
@@ -26,11 +29,16 @@ export function ReviewSection({ productId }: { productId: string }) {
   const [submitting, setSubmitting] = useState(false);
   const [showForm, setShowForm] = useState(false);
 
+  // Seller reply editor state, per-review
+  const [replyOpen, setReplyOpen] = useState<string | null>(null);
+  const [replyText, setReplyText] = useState("");
+  const [replyBusy, setReplyBusy] = useState(false);
+
   async function load() {
     setLoading(true);
     const { data: revs } = await supabase
       .from("reviews")
-      .select("id, rating, comment, created_at, reviewer_id")
+      .select("id, rating, comment, created_at, reviewer_id, seller_reply, seller_replied_at")
       .eq("product_id", productId)
       .order("created_at", { ascending: false });
     const base = (revs as any[]) ?? [];
@@ -77,6 +85,20 @@ export function ReviewSection({ productId }: { productId: string }) {
     load();
   }
 
+  async function submitReply(reviewId: string) {
+    setReplyBusy(true);
+    const { error } = await supabase.rpc("reply_to_review" as any, {
+      p_review_id: reviewId,
+      p_reply: replyText.trim(),
+    });
+    setReplyBusy(false);
+    if (error) { toast.error(error.message); return; }
+    toast.success(replyText.trim() ? "Cavab göndərildi" : "Cavab silindi");
+    setReplyOpen(null);
+    setReplyText("");
+    load();
+  }
+
   const avg = reviews.length ? reviews.reduce((s, r) => s + r.rating, 0) / reviews.length : 0;
   const dist = [5, 4, 3, 2, 1].map(n => ({ n, c: reviews.filter(r => r.rating === n).length }));
 
@@ -105,9 +127,9 @@ export function ReviewSection({ productId }: { productId: string }) {
               className="h-10 px-4 rounded-lg bg-neon text-background font-semibold text-sm neon-ring hover:scale-[1.02] transition">
               {myReview ? "Rəyimi redaktə et" : "Rəy yaz"}
             </button>
-          ) : (
+          ) : !isSeller ? (
             <p className="text-xs text-muted-foreground max-w-xs text-right">Yalnız bu məhsulu alıb tamamlayan istifadəçilər rəy yaza bilər.</p>
-          )
+          ) : null
         ) : (
           <Link to="/login" className="text-sm text-primary hover:underline">Rəy yazmaq üçün daxil olun →</Link>
         )}
@@ -178,6 +200,7 @@ export function ReviewSection({ productId }: { productId: string }) {
           {reviews.map(r => {
             const name = r.reviewer?.display_name || r.reviewer?.username || "İstifadəçi";
             const initials = name.slice(0, 2).toUpperCase();
+            const editing = replyOpen === r.id;
             return (
               <div key={r.id} className="rounded-2xl border border-border bg-surface/40 p-5">
                 <div className="flex items-start gap-3">
@@ -201,6 +224,78 @@ export function ReviewSection({ productId }: { productId: string }) {
                       </div>
                     </div>
                     {r.comment && <p className="mt-2 text-sm leading-relaxed">{r.comment}</p>}
+
+                    {/* Seller reply (display) */}
+                    {r.seller_reply && !editing && (
+                      <div className="mt-3 ml-2 pl-4 border-l-2 border-neon/40 bg-neon/5 rounded-r-lg p-3">
+                        <div className="flex items-center justify-between gap-2 mb-1">
+                          <div className="flex items-center gap-1.5 text-xs font-semibold text-neon">
+                            <Store className="h-3.5 w-3.5" /> Satıcı cavabı
+                          </div>
+                          <span className="text-[11px] text-muted-foreground">
+                            {r.seller_replied_at && new Date(r.seller_replied_at).toLocaleDateString("az-AZ")}
+                          </span>
+                        </div>
+                        <p className="text-sm leading-relaxed whitespace-pre-wrap">{r.seller_reply}</p>
+                        {isSeller && (
+                          <div className="mt-2 flex gap-2">
+                            <button
+                              onClick={() => { setReplyOpen(r.id); setReplyText(r.seller_reply ?? ""); }}
+                              className="text-[11px] inline-flex items-center gap-1 text-muted-foreground hover:text-foreground"
+                            >
+                              <Pencil className="h-3 w-3" /> Redaktə et
+                            </button>
+                            <button
+                              onClick={() => { setReplyOpen(r.id); setReplyText(""); submitReply(r.id); }}
+                              className="text-[11px] inline-flex items-center gap-1 text-muted-foreground hover:text-destructive"
+                            >
+                              <X className="h-3 w-3" /> Sil
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Seller reply (editor) */}
+                    {isSeller && editing && (
+                      <div className="mt-3 ml-2 pl-4 border-l-2 border-neon/60 p-3 rounded-r-lg bg-neon/5">
+                        <div className="text-xs font-semibold text-neon mb-2 flex items-center gap-1.5">
+                          <Store className="h-3.5 w-3.5" /> Cavabını yaz
+                        </div>
+                        <textarea
+                          value={replyText}
+                          onChange={e => setReplyText(e.target.value)}
+                          rows={3}
+                          maxLength={1000}
+                          placeholder="Müştəriyə cavab yaz..."
+                          className="w-full px-3 py-2 rounded-lg bg-background border border-border text-sm focus:outline-none focus:ring-2 focus:ring-ring resize-none"
+                        />
+                        <div className="mt-2 flex gap-2 justify-end">
+                          <button onClick={() => { setReplyOpen(null); setReplyText(""); }}
+                            className="h-8 px-3 rounded-lg border border-border text-xs hover:bg-surface">
+                            Ləğv et
+                          </button>
+                          <button
+                            onClick={() => submitReply(r.id)}
+                            disabled={replyBusy || replyText.trim().length === 0}
+                            className="inline-flex items-center gap-1.5 h-8 px-3 rounded-lg bg-neon text-background text-xs font-semibold disabled:opacity-50"
+                          >
+                            {replyBusy && <Loader2 className="h-3 w-3 animate-spin" />}
+                            Göndər
+                          </button>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Show reply button when no reply yet */}
+                    {isSeller && !r.seller_reply && !editing && (
+                      <button
+                        onClick={() => { setReplyOpen(r.id); setReplyText(""); }}
+                        className="mt-3 text-xs inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-neon/40 text-neon hover:bg-neon/10"
+                      >
+                        <MessageSquare className="h-3.5 w-3.5" /> Cavab yaz
+                      </button>
+                    )}
                   </div>
                 </div>
               </div>

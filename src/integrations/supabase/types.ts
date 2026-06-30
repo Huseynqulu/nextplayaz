@@ -1015,6 +1015,8 @@ export type Database = {
           product_id: string
           rating: number
           reviewer_id: string
+          seller_replied_at: string | null
+          seller_reply: string | null
         }
         Insert: {
           comment?: string | null
@@ -1023,6 +1025,8 @@ export type Database = {
           product_id: string
           rating: number
           reviewer_id: string
+          seller_replied_at?: string | null
+          seller_reply?: string | null
         }
         Update: {
           comment?: string | null
@@ -1031,6 +1035,8 @@ export type Database = {
           product_id?: string
           rating?: number
           reviewer_id?: string
+          seller_replied_at?: string | null
+          seller_reply?: string | null
         }
         Relationships: [
           {
@@ -1661,6 +1667,10 @@ export type Database = {
       redeem_loyalty_points: { Args: { p_points: number }; Returns: Json }
       redeem_referral_signup: { Args: { p_code: string }; Returns: undefined }
       release_seller_funds: { Args: never; Returns: number }
+      reply_to_review: {
+        Args: { p_reply: string; p_review_id: string }
+        Returns: undefined
+      }
       request_withdrawal: {
         Args: {
           p_account_holder?: string

@@ -14,7 +14,11 @@ import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { useNavigate } from "@tanstack/react-router";
 
-type ReviewRow = { id: string; rating: number; comment: string | null; created_at: string; reviewer_id: string };
+type ReviewRow = {
+  id: string; rating: number; comment: string | null; created_at: string; reviewer_id: string;
+  seller_reply: string | null; seller_replied_at: string | null;
+  reviewer?: { display_name: string | null; username: string | null; avatar_url: string | null } | null;
+};
 
 export const Route = createFileRoute("/u/$id")({
   loader: async ({ params }) => {
@@ -30,10 +34,19 @@ export const Route = createFileRoute("/u/$id")({
     const productIds = (prods ?? []).map(p => p.id);
     const [{ data: revs }, { count: salesCount }] = await Promise.all([
       productIds.length
-        ? supabase.from("reviews").select("id, rating, comment, created_at, reviewer_id").in("product_id", productIds).order("created_at", { ascending: false }).limit(50)
-        : Promise.resolve({ data: [] as ReviewRow[] }),
+        ? supabase.from("reviews").select("id, rating, comment, created_at, reviewer_id, seller_reply, seller_replied_at").in("product_id", productIds).order("created_at", { ascending: false }).limit(50)
+        : Promise.resolve({ data: [] as any[] }),
       supabase.from("orders").select("id", { count: "exact", head: true }).eq("seller_id", params.id).eq("status", "completed"),
     ]);
+
+    const reviewerIds = Array.from(new Set((revs ?? []).map((r: any) => r.reviewer_id)));
+    let revProfs: any[] = [];
+    if (reviewerIds.length) {
+      const { data } = await supabase.from("public_profiles" as any)
+        .select("id, display_name, username, avatar_url").in("id", reviewerIds);
+      revProfs = (data as any[]) ?? [];
+    }
+    const profMap = new Map(revProfs.map(p => [p.id, p]));
 
     const sellerLite = {
       name: profile.display_name || profile.username || "Satıcı",
@@ -41,7 +54,7 @@ export const Route = createFileRoute("/u/$id")({
       avatarUrl: profile.avatar_url ?? null,
     };
     const products = (prods ?? []).map(d => dbToProduct(d as unknown as DbProduct, sellerLite));
-    const reviews = (revs as ReviewRow[] | null) ?? [];
+    const reviews: ReviewRow[] = ((revs as any[]) ?? []).map(r => ({ ...r, reviewer: profMap.get(r.reviewer_id) ?? null }));
     const avgRating = reviews.length ? reviews.reduce((s, r) => s + r.rating, 0) / reviews.length : 0;
     return { profile, products, reviews, salesCount: salesCount ?? 0, avgRating };
   },
@@ -204,19 +217,50 @@ function SellerTabs({ products, visibleProducts, reviews, cats, catFilter, setCa
           <p className="text-muted-foreground py-10 text-center">Hələ rəy yoxdur.</p>
         ) : (
           <div className="space-y-3">
-            {reviews.map((r) => (
-              <div key={r.id} className="rounded-2xl border border-border bg-surface/40 p-5">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-1">
-                    {[...Array(5)].map((_, i) => (
-                      <Star key={i} className={`h-4 w-4 ${i < r.rating ? "fill-warning text-warning" : "text-muted"}`} />
-                    ))}
+            {reviews.map((r) => {
+              const rname = r.reviewer?.display_name || r.reviewer?.username || "İstifadəçi";
+              const initials = rname.slice(0, 2).toUpperCase();
+              return (
+                <div key={r.id} className="rounded-2xl border border-border bg-surface/40 p-5">
+                  <div className="flex items-start gap-3">
+                    <Link to="/u/$id" params={{ id: r.reviewer_id }} className="shrink-0">
+                      {r.reviewer?.avatar_url ? (
+                        <img src={r.reviewer.avatar_url} alt={rname} className="h-10 w-10 rounded-xl object-cover" />
+                      ) : (
+                        <div className="grid h-10 w-10 place-items-center rounded-xl bg-neon/15 border border-neon/30 text-neon font-bold text-sm">{initials}</div>
+                      )}
+                    </Link>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between gap-3 flex-wrap">
+                        <Link to="/u/$id" params={{ id: r.reviewer_id }} className="font-semibold hover:text-primary text-sm">{rname}</Link>
+                        <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-0.5">
+                            {[...Array(5)].map((_, i) => (
+                              <Star key={i} className={`h-3.5 w-3.5 ${i < r.rating ? "fill-warning text-warning" : "text-muted"}`} />
+                            ))}
+                          </div>
+                          <span className="text-xs text-muted-foreground">{new Date(r.created_at).toLocaleDateString("az-AZ")}</span>
+                        </div>
+                      </div>
+                      {r.comment && <p className="mt-2 text-sm leading-relaxed">{r.comment}</p>}
+                      {r.seller_reply && (
+                        <div className="mt-3 ml-2 pl-4 border-l-2 border-neon/40 bg-neon/5 rounded-r-lg p-3">
+                          <div className="flex items-center justify-between gap-2 mb-1">
+                            <div className="flex items-center gap-1.5 text-xs font-semibold text-neon">
+                              <Store className="h-3.5 w-3.5" /> Satıcı cavabı
+                            </div>
+                            <span className="text-[11px] text-muted-foreground">
+                              {r.seller_replied_at && new Date(r.seller_replied_at).toLocaleDateString("az-AZ")}
+                            </span>
+                          </div>
+                          <p className="text-sm leading-relaxed whitespace-pre-wrap">{r.seller_reply}</p>
+                        </div>
+                      )}
+                    </div>
                   </div>
-                  <span className="text-xs text-muted-foreground">{new Date(r.created_at).toLocaleDateString("az-AZ")}</span>
                 </div>
-                {r.comment && <p className="mt-2 text-sm">{r.comment}</p>}
-              </div>
-            ))}
+              );
+            })}
           </div>
         )
       )}

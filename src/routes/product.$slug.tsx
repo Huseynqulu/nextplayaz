@@ -305,7 +305,7 @@ function ProductPage() {
           </div>
 
           {/* Reviews */}
-          {isDbProduct && <ReviewSection productId={p.id} />}
+          {isDbProduct && <ReviewSection productId={p.id} sellerId={p.sellerId ?? null} />}
 
           {/* Similar */}
           <div className="mt-16">
