@@ -139,6 +139,7 @@ function SellerDashboard() {
       gift_denomination_id: giftDenomId,
     });
     setShowForm(true);
+    setStep1Done(true);
     setTimeout(() => formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 80);
   }
 
