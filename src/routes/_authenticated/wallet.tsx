@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
+import { burstConfetti } from "@/lib/celebrate";
 import { Wallet, Loader2, Upload, Receipt, Copy, CheckCircle2, XCircle, Clock, ArrowDownToLine, ArrowUpFromLine } from "lucide-react";
 import { useCurrency } from "@/lib/currency";
 import { GiftCardRedeem } from "@/components/GiftCardRedeem";
@@ -104,6 +105,7 @@ function WalletPage() {
       });
       if (error) throw error;
       toast.success("Müraciət göndərildi. Admin təsdiqindən sonra balans artırılacaq.");
+      burstConfetti();
       setAmount(""); setNote(""); setReceipt(null);
       await refresh();
     } catch (e: any) { toast.error(e.message ?? "Xəta"); }
@@ -125,6 +127,7 @@ function WalletPage() {
       });
       if (error) throw error;
       toast.success("Pul çıxarma müraciəti göndərildi. Admin təsdiqindən sonra hesabınıza köçürüləcək.");
+      burstConfetti();
       setWAmount(""); setWDest(""); setWHolder("");
       await refresh();
     } catch (e: any) { toast.error(e.message ?? "Xəta"); }

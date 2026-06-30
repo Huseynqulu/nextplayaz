@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
+import { burstConfetti } from "@/lib/celebrate";
 import { Loader2, Package, CheckCircle2, Truck, Clock, ShoppingBag, AlertTriangle, MessageSquare, Upload, Video, X, Star } from "lucide-react";
 import { OrderListSkeleton } from "@/components/Skeletons";
 import { EmptyState } from "@/components/EmptyState";
@@ -112,7 +113,7 @@ function OrdersPage() {
     setBusy(o.id);
     const { error } = await supabase.rpc("confirm_order", { p_order_id: o.id });
     setBusy(null);
-    if (error) toast.error(error.message); else { toast.success("Təsdiq edildi, satıcıya ödəniş köçürüldü"); refresh(); }
+    if (error) toast.error(error.message); else { toast.success("Təsdiq edildi, satıcıya ödəniş köçürüldü"); burstConfetti(); refresh(); }
   }
 
   function openDispute(o: Order) {

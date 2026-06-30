@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { useState } from "react";
 import { toast } from "sonner";
+import { burstConfetti } from "@/lib/celebrate";
 import { Loader2, Minus, Plus, ShoppingCart, Trash2, Tag, Check, X } from "lucide-react";
 import { EmptyState } from "@/components/EmptyState";
 
@@ -72,6 +73,7 @@ function CartPage() {
     setBusy(false);
     if (results.ok > 0) {
       toast.success(`${results.ok} sifariş yaradıldı`);
+      burstConfetti();
       if (results.fail.length === 0) clear();
       else items.filter(i => !results.fail.find(f => f.title === i.title)).forEach(i => remove(i.id));
     }
