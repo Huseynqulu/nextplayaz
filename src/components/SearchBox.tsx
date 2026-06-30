@@ -10,6 +10,7 @@ type Hit = {
   slug: string;
   price: number;
   image_url: string | null;
+  image_urls: string[] | null;
 };
 
 type GiftHit = {
