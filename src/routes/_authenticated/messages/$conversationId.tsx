@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { ArrowLeft, Send, Loader2, User as UserIcon, CheckCheck, Paperclip, X, ShieldCheck } from "lucide-react";
+import { MessageThreadSkeleton } from "@/components/Skeletons";
 import { toast } from "sonner";
 import { isOnline, formatLastSeen } from "@/lib/presence";
 import { uploadChatAttachment } from "@/lib/chat-attachments";
@@ -200,7 +201,7 @@ function ThreadPage() {
 
             <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-2">
               {loading ? (
-                <div className="flex justify-center py-10"><Loader2 className="h-6 w-6 animate-spin text-neon" /></div>
+                <MessageThreadSkeleton />
               ) : messages.length === 0 ? (
                 <p className="text-center text-sm text-muted-foreground py-10">Mesajlaşmağa başlayın.</p>
               ) : messages.map(m => {

@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
 import { Loader2, LifeBuoy, Plus, ArrowLeft, Send, ShoppingBag, Paperclip, X } from "lucide-react";
+import { TicketListSkeleton } from "@/components/Skeletons";
 import { uploadChatAttachment } from "@/lib/chat-attachments";
 import { ChatImage } from "@/components/ChatImage";
 
@@ -269,7 +270,7 @@ function SupportTicketsPage() {
                 </button>
               </div>
               {loading ? (
-                <div className="flex justify-center py-20"><Loader2 className="h-6 w-6 animate-spin text-neon" /></div>
+                <TicketListSkeleton count={4} />
               ) : tickets.length === 0 ? (
                 <div className="rounded-2xl border border-dashed border-border p-12 text-center text-muted-foreground">
                   Hələ müraciətin yoxdur.

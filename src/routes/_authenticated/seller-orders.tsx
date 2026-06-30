@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
 import { Loader2, Package, CheckCircle2, Truck, Clock, ShoppingBag, AlertTriangle, MessageSquare, ArrowLeft, ChevronRight, Search, X } from "lucide-react";
+import { OrderListSkeleton } from "@/components/Skeletons";
 import { useCurrency } from "@/lib/currency";
 import { SellerOrderDetailDialog } from "@/components/SellerOrderDetailDialog";
 
@@ -150,7 +151,7 @@ function SellerOrdersPage() {
               );
             });
             return loading ? (
-            <div className="flex justify-center py-20"><Loader2 className="h-6 w-6 animate-spin text-neon" /></div>
+            <OrderListSkeleton count={4} />
           ) : orders.length === 0 ? (
             <div className="rounded-2xl border border-dashed border-border p-12 text-center">
               <Package className="h-10 w-10 mx-auto text-muted-foreground mb-3" />
