@@ -145,6 +145,24 @@ export function ReviewSection({ productId, sellerId }: { productId: string; sell
         )}
       </div>
 
+      {sellerId && (
+        <div className="mb-5 inline-flex rounded-xl border border-border bg-surface/40 p-1">
+          <button
+            onClick={() => setMode("product")}
+            className={`px-3.5 py-1.5 text-xs font-semibold rounded-lg transition ${mode === "product" ? "bg-neon text-background" : "text-muted-foreground hover:text-foreground"}`}
+          >
+            Bu elana aid dəyərləndirmələr
+          </button>
+          <button
+            onClick={() => setMode("seller")}
+            className={`px-3.5 py-1.5 text-xs font-semibold rounded-lg transition ${mode === "seller" ? "bg-neon text-background" : "text-muted-foreground hover:text-foreground"}`}
+          >
+            Satıcının bütün dəyərləndirmələri
+          </button>
+        </div>
+      )}
+
+
       {reviews.length > 0 && (
         <div className="mb-6 grid sm:grid-cols-[auto_1fr] gap-6 p-5 rounded-2xl border border-border bg-surface/40">
           <div className="text-center sm:border-r sm:border-border sm:pr-6">
