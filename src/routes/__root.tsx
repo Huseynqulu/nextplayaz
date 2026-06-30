@@ -87,10 +87,13 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   errorComponent: ErrorComponent,
 });
 
+const THEME_INIT_SCRIPT = `(function(){try{var t=localStorage.getItem('np-theme');if(!t){t='dark';}if(t==='dark'){document.documentElement.classList.add('dark');}document.documentElement.style.colorScheme=t;}catch(e){document.documentElement.classList.add('dark');}})();`;
+
 function RootShell({ children }: { children: React.ReactNode }) {
   return (
     <html lang="az">
       <head>
+        <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
         <HeadContent />
       </head>
       <body>
@@ -111,70 +114,63 @@ import { InstallAppBanner } from "@/components/InstallAppBanner";
 import { OnboardingTour } from "@/components/OnboardingTour";
 import { MobileTabBar } from "@/components/MobileTabBar";
 import { CommandPalette } from "@/components/CommandPalette";
+import { ThemeProvider, useTheme } from "@/lib/theme";
+
+function AppToaster() {
+  const { theme } = useTheme();
+  return (
+    <Toaster
+      theme={theme}
+      position="top-right"
+      richColors
+      closeButton
+      duration={3200}
+      visibleToasts={4}
+      toastOptions={{
+        className: "np-toast",
+        classNames: {
+          toast: "np-toast",
+          success: "np-toast-success",
+          error: "np-toast-error",
+          title: "np-toast-title",
+          description: "np-toast-desc",
+        },
+      }}
+      icons={{
+        success: (
+          <span className="np-tick" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="18" height="18">
+              <circle className="np-tick-circle" cx="12" cy="12" r="10" fill="none" stroke="currentColor" strokeWidth="2" />
+              <path className="np-tick-check" d="M7 12.5l3.2 3.2L17 9" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </span>
+        ),
+      }}
+    />
+  );
+}
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   return (
     <QueryClientProvider client={queryClient}>
-      <I18nProvider>
-        <CurrencyProvider>
-          <FavoritesProvider>
-            <CartProvider>
-              <IpTracker />
-              <Outlet />
-              <InstallAppBanner />
-              <OnboardingTour />
-              <MobileTabBar />
-              <CommandPalette />
-              <Toaster
-                theme="dark"
-                position="top-right"
-                richColors
-                closeButton
-                duration={3200}
-                visibleToasts={4}
-                toastOptions={{
-                  className: "np-toast",
-                  classNames: {
-                    toast: "np-toast",
-                    success: "np-toast-success",
-                    error: "np-toast-error",
-                    title: "np-toast-title",
-                    description: "np-toast-desc",
-                  },
-                }}
-                icons={{
-                  success: (
-                    <span className="np-tick" aria-hidden="true">
-                      <svg viewBox="0 0 24 24" width="18" height="18">
-                        <circle
-                          className="np-tick-circle"
-                          cx="12"
-                          cy="12"
-                          r="10"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                        />
-                        <path
-                          className="np-tick-check"
-                          d="M7 12.5l3.2 3.2L17 9"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2.4"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        />
-                      </svg>
-                    </span>
-                  ),
-                }}
-              />
-
-            </CartProvider>
-          </FavoritesProvider>
-        </CurrencyProvider>
-      </I18nProvider>
+      <ThemeProvider>
+        <I18nProvider>
+          <CurrencyProvider>
+            <FavoritesProvider>
+              <CartProvider>
+                <IpTracker />
+                <Outlet />
+                <InstallAppBanner />
+                <OnboardingTour />
+                <MobileTabBar />
+                <CommandPalette />
+                <AppToaster />
+              </CartProvider>
+            </FavoritesProvider>
+          </CurrencyProvider>
+        </I18nProvider>
+      </ThemeProvider>
     </QueryClientProvider>
   );
 }
