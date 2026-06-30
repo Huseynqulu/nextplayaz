@@ -78,7 +78,7 @@ export function SearchBox({ variant = "desktop" }: { variant?: "desktop" | "mobi
     navigate({ to: "/marketplace", search: term ? { q: term } : {} });
   }
 
-  const widthCls = variant === "desktop" ? "hidden md:flex flex-1 max-w-md ml-auto" : "flex";
+  const widthCls = variant === "desktop" ? "hidden md:flex flex-1 max-w-xl ml-auto" : "flex";
   const hasResults = hits.length > 0 || giftHits.length > 0;
 
   return (
@@ -96,7 +96,7 @@ export function SearchBox({ variant = "desktop" }: { variant?: "desktop" | "mobi
       </form>
 
       {open && q.trim().length >= 2 && (
-        <div className="absolute left-0 right-0 top-12 z-50 rounded-xl border border-border bg-popover shadow-xl card-shadow overflow-hidden max-h-[70vh] overflow-y-auto">
+        <div className="absolute right-0 top-12 z-50 w-[min(560px,calc(100vw-2rem))] rounded-xl border border-border bg-popover shadow-xl card-shadow overflow-hidden max-h-[70vh] overflow-y-auto">
           {loading ? (
             <div className="flex items-center gap-2 px-4 py-3 text-sm text-muted-foreground">
               <Loader2 className="h-4 w-4 animate-spin" /> Axtarılır...
@@ -143,8 +143,8 @@ export function SearchBox({ variant = "desktop" }: { variant?: "desktop" | "mobi
                       onClick={() => { setOpen(false); setQ(""); }}
                       className="flex items-center justify-between gap-3 rounded-lg border border-border bg-card-gradient px-3 py-2 hover:border-neon hover:bg-neon/5 transition"
                     >
-                      <p className="text-xs font-medium line-clamp-1 flex-1 min-w-0">{h.title}</p>
-                      <span className="text-sm font-bold text-gradient shrink-0">{format(h.price)}</span>
+                      <p className="text-xs font-medium line-clamp-2 flex-1 min-w-0 break-words">{h.title}</p>
+                      <span className="text-sm font-bold text-gradient shrink-0 whitespace-nowrap">{format(h.price)}</span>
                     </Link>
                   ))}
                 </div>
