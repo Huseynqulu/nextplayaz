@@ -67,6 +67,10 @@ function ThreadPage() {
       if (!active) return;
       setOther(((p as unknown) as ProfileLite) ?? null);
       setProduct((pr as any) ?? null);
+      supabase.rpc("user_avg_response_minutes" as any, { p_user: otherId }).then(({ data }) => {
+        const n = typeof data === "number" ? data : data != null ? Number(data) : null;
+        if (active && n != null && !Number.isNaN(n) && n > 0) setAvgRespMin(n);
+      });
       setMessages((msgs ?? []) as Msg[]);
       setLoading(false);
       void markRead();
