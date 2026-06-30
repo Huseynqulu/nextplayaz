@@ -8,6 +8,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { dbToProduct, type DbProduct } from "@/lib/products";
 import { useFavorites } from "@/lib/favorites";
 import type { Product } from "@/lib/marketplace-data";
+import { EmptyState } from "@/components/EmptyState";
+import { ProductGridSkeleton } from "@/components/Skeletons";
 
 export const Route = createFileRoute("/_authenticated/favorites")({
   component: FavoritesPage,
