@@ -14,7 +14,11 @@ import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { useNavigate } from "@tanstack/react-router";
 
-type ReviewRow = { id: string; rating: number; comment: string | null; created_at: string; reviewer_id: string };
+type ReviewRow = {
+  id: string; rating: number; comment: string | null; created_at: string; reviewer_id: string;
+  seller_reply: string | null; seller_replied_at: string | null;
+  reviewer?: { display_name: string | null; username: string | null; avatar_url: string | null } | null;
+};
 
 export const Route = createFileRoute("/u/$id")({
   loader: async ({ params }) => {
@@ -30,10 +34,19 @@ export const Route = createFileRoute("/u/$id")({
     const productIds = (prods ?? []).map(p => p.id);
     const [{ data: revs }, { count: salesCount }] = await Promise.all([
       productIds.length
-        ? supabase.from("reviews").select("id, rating, comment, created_at, reviewer_id").in("product_id", productIds).order("created_at", { ascending: false }).limit(50)
-        : Promise.resolve({ data: [] as ReviewRow[] }),
+        ? supabase.from("reviews").select("id, rating, comment, created_at, reviewer_id, seller_reply, seller_replied_at").in("product_id", productIds).order("created_at", { ascending: false }).limit(50)
+        : Promise.resolve({ data: [] as any[] }),
       supabase.from("orders").select("id", { count: "exact", head: true }).eq("seller_id", params.id).eq("status", "completed"),
     ]);
+
+    const reviewerIds = Array.from(new Set((revs ?? []).map((r: any) => r.reviewer_id)));
+    let revProfs: any[] = [];
+    if (reviewerIds.length) {
+      const { data } = await supabase.from("public_profiles" as any)
+        .select("id, display_name, username, avatar_url").in("id", reviewerIds);
+      revProfs = (data as any[]) ?? [];
+    }
+    const profMap = new Map(revProfs.map(p => [p.id, p]));
 
     const sellerLite = {
       name: profile.display_name || profile.username || "Satıcı",
@@ -41,7 +54,7 @@ export const Route = createFileRoute("/u/$id")({
       avatarUrl: profile.avatar_url ?? null,
     };
     const products = (prods ?? []).map(d => dbToProduct(d as unknown as DbProduct, sellerLite));
-    const reviews = (revs as ReviewRow[] | null) ?? [];
+    const reviews: ReviewRow[] = ((revs as any[]) ?? []).map(r => ({ ...r, reviewer: profMap.get(r.reviewer_id) ?? null }));
     const avgRating = reviews.length ? reviews.reduce((s, r) => s + r.rating, 0) / reviews.length : 0;
     return { profile, products, reviews, salesCount: salesCount ?? 0, avgRating };
   },
