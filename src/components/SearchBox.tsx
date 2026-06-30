@@ -47,7 +47,7 @@ export function SearchBox({ variant = "desktop" }: { variant?: "desktop" | "mobi
       const [prodRes, giftRes] = await Promise.all([
         supabase
           .from("products")
-          .select("id,title,slug,price,image_url")
+          .select("id,title,slug,price,image_url,image_urls")
           .ilike("title", `%${term}%`)
           .is("gift_denomination_id", null)
           .eq("is_active", true)
