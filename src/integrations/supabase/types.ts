@@ -804,6 +804,7 @@ export type Database = {
           image_url: string | null
           image_urls: string[]
           is_active: boolean
+          last_sold_at: string | null
           old_price: number | null
           platform: string
           platform_subcategory: string | null
@@ -831,6 +832,7 @@ export type Database = {
           image_url?: string | null
           image_urls?: string[]
           is_active?: boolean
+          last_sold_at?: string | null
           old_price?: number | null
           platform: string
           platform_subcategory?: string | null
@@ -858,6 +860,7 @@ export type Database = {
           image_url?: string | null
           image_urls?: string[]
           is_active?: boolean
+          last_sold_at?: string | null
           old_price?: number | null
           platform?: string
           platform_subcategory?: string | null
