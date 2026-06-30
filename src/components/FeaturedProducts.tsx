@@ -29,7 +29,7 @@ export function FeaturedProducts() {
           <div className="flex items-center gap-2 text-neon text-xs font-semibold tracking-wider uppercase mb-2">
             <Sparkles className="h-4 w-4" /> {t("home.editorsKicker")}
           </div>
-          <h2 className="font-display text-3xl sm:text-4xl font-bold">{t("home.editorsTitle")}</h2>
+          <h2 className="font-display text-xl sm:text-3xl lg:text-4xl font-bold">{t("home.editorsTitle")}</h2>
           <p className="mt-2 text-muted-foreground">{t("home.editorsSub")}</p>
         </div>
         <Link

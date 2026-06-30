@@ -30,10 +30,10 @@ export function CategoriesSection() {
   }, []);
 
   return (
-    <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-20">
+    <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10 sm:py-10 sm:py-14 lg:py-16 lg:py-20">
       <div className="flex items-end justify-between mb-10">
         <div>
-          <h2 className="font-display text-3xl sm:text-4xl font-bold">{t("home.catsTitle")}</h2>
+          <h2 className="font-display text-xl sm:text-3xl lg:text-4xl font-bold">{t("home.catsTitle")}</h2>
           <p className="mt-2 text-muted-foreground">{t("home.catsSub")}</p>
         </div>
       </div>

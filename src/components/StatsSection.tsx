@@ -30,7 +30,7 @@ function Stat({ icon: Icon, value, label }: { icon: any; value: number; label: s
       <div className="mx-auto grid h-12 w-12 place-items-center rounded-xl bg-neon/15 border border-neon/30 mb-4">
         <Icon className="h-6 w-6 text-neon" />
       </div>
-      <div className="font-display text-3xl sm:text-4xl font-bold text-gradient">
+      <div className="font-display text-xl sm:text-3xl lg:text-4xl font-bold text-gradient">
         {v.toLocaleString("az-AZ")}+
       </div>
       <div className="mt-1 text-sm text-muted-foreground">{label}</div>
@@ -50,9 +50,9 @@ export function StatsSection() {
   }, []);
 
   return (
-    <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16">
+    <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10 sm:py-14 lg:py-16">
       <div className="text-center mb-10">
-        <h2 className="font-display text-3xl sm:text-4xl font-bold">{t("home.statsTitle")}</h2>
+        <h2 className="font-display text-xl sm:text-3xl lg:text-4xl font-bold">{t("home.statsTitle")}</h2>
         <p className="mt-2 text-muted-foreground">{t("home.statsSub")}</p>
       </div>
       <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
