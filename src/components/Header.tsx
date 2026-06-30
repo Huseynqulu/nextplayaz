@@ -8,6 +8,7 @@ import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { useOnlinePresence } from "@/lib/presence";
 import { NotificationBell } from "@/components/NotificationBell";
 import { SearchBox } from "@/components/SearchBox";
+import { CommandPaletteTrigger } from "@/components/CommandPalette";
 import nextplayLogo from "@/assets/nextplay-logo.png";
 
 export function Header() {
