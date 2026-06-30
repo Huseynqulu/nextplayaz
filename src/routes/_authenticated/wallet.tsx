@@ -86,7 +86,7 @@ function WalletPage() {
   async function submit() {
     if (!user) return;
     const num = Number(amount);
-    if (!Number.isFinite(num) || num < 1) { toast.error("Düzgün məbləğ daxil edin (≥ 1 ₼)"); return; }
+    if (!Number.isFinite(num) || num < 5) { toast.error("Minimum 5 ₼ əlavə edə bilərsiniz"); return; }
     if (!method) { toast.error("Ödəniş üsulunu seçin"); return; }
 
     setSubmitting(true);
@@ -230,8 +230,8 @@ function WalletPage() {
 
                   <div>
                     <label className="text-xs font-semibold text-muted-foreground uppercase">Məbləğ (AZN)</label>
-                    <input type="number" min="1" step="0.01" value={amount} onChange={e => setAmount(e.target.value)}
-                      placeholder="Məs. 50" className="mt-1.5 w-full h-11 px-3 rounded-lg bg-background border border-border" />
+                    <input type="number" min="5" step="0.01" value={amount} onChange={e => setAmount(e.target.value)}
+                      placeholder="Min. 5" className="mt-1.5 w-full h-11 px-3 rounded-lg bg-background border border-border" />
                   </div>
 
                   <div>
@@ -283,8 +283,8 @@ function WalletPage() {
 
                   <div>
                     <label className="text-xs font-semibold text-muted-foreground uppercase">Məbləğ (AZN)</label>
-                    <input type="number" min="5" step="0.01" value={wAmount} onChange={e => setWAmount(e.target.value)}
-                      placeholder="Min. 5"
+                    <input type="number" min="20" step="0.01" value={wAmount} onChange={e => setWAmount(e.target.value)}
+                      placeholder="Min. 20"
                       className="mt-1.5 w-full h-11 px-3 rounded-lg bg-background border border-border" />
                   </div>
 
