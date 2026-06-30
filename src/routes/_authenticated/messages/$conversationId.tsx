@@ -58,7 +58,7 @@ function ThreadPage() {
       setConv(conv);
       const otherId = conv.user_a === user.id ? conv.user_b : conv.user_a;
       const [{ data: p }, { data: pr }, { data: msgs }] = await Promise.all([
-        supabase.from("public_profiles" as any).select("id,display_name,username,shop_name,avatar_url,last_seen_at").eq("id", otherId).maybeSingle(),
+        supabase.from("public_profiles" as any).select("id,display_name,username,shop_name,avatar_url,last_seen_at,verified_at").eq("id", otherId).maybeSingle(),
         conv.product_id ? supabase.from("products").select("title,slug").eq("id", conv.product_id).maybeSingle() : Promise.resolve({ data: null } as any),
         supabase.from("dm_messages").select("*").eq("conversation_id", conversationId).order("created_at", { ascending: true }),
       ]);
