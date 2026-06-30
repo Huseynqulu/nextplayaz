@@ -92,7 +92,7 @@ export function Header() {
           <LanguageSwitcher />
           <CartButton />
           {user && (
-            <Link to="/messages" className="hidden sm:grid h-10 w-10 place-items-center rounded-lg hover:bg-surface transition relative" aria-label="Mesajlar">
+            <Link to="/messages" className="grid h-10 w-10 place-items-center rounded-lg hover:bg-surface transition relative" aria-label="Mesajlar">
               <MessageSquare className="h-5 w-5" />
               {unreadDm > 0 && (
                 <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 grid place-items-center rounded-full bg-neon text-background text-[10px] font-bold leading-none">
