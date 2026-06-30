@@ -10,6 +10,7 @@ import { NotificationBell } from "@/components/NotificationBell";
 import { SearchBox } from "@/components/SearchBox";
 import { CommandPaletteTrigger } from "@/components/CommandPalette";
 import nextplayLogo from "@/assets/nextplay-logo.png";
+import { imgUrl } from "@/lib/image-url";
 
 export function Header() {
   const t = useT();
