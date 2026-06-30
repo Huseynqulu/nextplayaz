@@ -6,7 +6,9 @@ import { ProductCard } from "@/components/ProductCard";
 import { products as mockProducts, categoryLabel } from "@/lib/marketplace-data";
 import { fetchProductBySlug } from "@/lib/products";
 import { Star, ShieldCheck, Zap, Lock, Package, MessageCircle, Heart, Share2, Loader2, X, FileText } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { trackView } from "@/lib/recently-viewed";
+import { RecentlyViewed } from "@/components/RecentlyViewed";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
@@ -48,6 +50,7 @@ function ProductPage() {
   const discount = p.oldPrice ? Math.round((1 - p.price / p.oldPrice) * 100) : 0;
   const { isFav, toggle: toggleFav } = useFavorites();
   const fav = isFav(p.id);
+  useEffect(() => { trackView(p.id); }, [p.id]);
   async function handleFav() {
     if (!user) { toast.error("Daxil olun"); navigate({ to: "/auth" }); return; }
     if (!isRealProductId(p.id)) { toast.error("Bu məhsul saxlanıla bilməz"); return; }
@@ -314,6 +317,9 @@ function ProductPage() {
               {similar.map(s => <ProductCard key={s.id} p={s} />)}
             </div>
           </div>
+
+          {/* Recently viewed */}
+          <RecentlyViewed excludeId={p.id} />
         </div>
       </main>
       <Footer />

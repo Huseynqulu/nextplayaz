@@ -11,6 +11,7 @@ import { HowItWorks } from "@/components/HowItWorks";
 import { SellerCta } from "@/components/SellerCta";
 import { LiveSalesTicker } from "@/components/LiveSalesTicker";
 import { GiftCardPromo } from "@/components/GiftCardPromo";
+import { RecentlyViewed } from "@/components/RecentlyViewed";
 
 export const Route = createFileRoute("/")({
   component: HomePage,
@@ -25,6 +26,9 @@ function HomePage() {
         <BannerCarousel />
         <FeaturedGames />
         <LiveSalesTicker />
+        <div className="container mx-auto px-4">
+          <RecentlyViewed />
+        </div>
         <GiftCardPromo />
         <CategoriesSection />
         <FeaturedProducts />
