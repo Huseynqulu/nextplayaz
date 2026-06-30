@@ -515,7 +515,7 @@ function AdminPage() {
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2 flex-wrap">
                         <h3 className="font-semibold">{a.first_name} {a.last_name}</h3>
-                        <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-surface">{a.category}</span>
+                        <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-surface">{categoryLabel(a.category)}</span>
                         <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${
                           a.status === "approved" ? "bg-success/20 text-success" :
                           a.status === "rejected" ? "bg-destructive/20 text-destructive" : "bg-warning/20 text-warning"
