@@ -14,6 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
+      announcements: {
+        Row: {
+          body: string
+          created_at: string
+          id: string
+          link: string | null
+          recipients_count: number
+          sent_by: string | null
+          title: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          id?: string
+          link?: string | null
+          recipients_count?: number
+          sent_by?: string | null
+          title: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          id?: string
+          link?: string | null
+          recipients_count?: number
+          sent_by?: string | null
+          title?: string
+        }
+        Relationships: []
+      }
       banners: {
         Row: {
           bg_color: string | null
@@ -1404,6 +1434,10 @@ export type Database = {
       admin_approve_withdrawal: {
         Args: { p_id: string; p_notes?: string }
         Returns: undefined
+      }
+      admin_broadcast_announcement: {
+        Args: { p_body: string; p_link?: string; p_title: string }
+        Returns: Json
       }
       admin_create_gift_cards: {
         Args: { p_amount: number; p_note?: string; p_quantity?: number }

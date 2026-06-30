@@ -15,6 +15,7 @@ import { AdminGiftMarket } from "@/components/AdminGiftMarket";
 import { AdminAnalytics } from "@/components/AdminAnalytics";
 import { VerifiedBadge } from "@/components/VerifiedBadge";
 import { AdminBoostPricing } from "@/components/AdminBoostPricing";
+import { AdminAnnouncements } from "@/components/AdminAnnouncements";
 
 export const Route = createFileRoute("/_authenticated/admin")({
   component: AdminPage,
@@ -38,7 +39,7 @@ type PaymentSetting = { method: string; label: string; instructions: string; is_
 type Category = { slug: string; label_az: string; label_en: string; label_ru: string; sort_order: number; is_active: boolean };
 type Subcategory = { id?: string; category_slug: string; slug: string; label_az: string; label_en: string; label_ru: string; sort_order: number; is_active: boolean };
 
-type Tab = "analytics" | "applications" | "users" | "codes" | "products" | "tickets" | "topups" | "withdrawals" | "platform" | "payments" | "categories" | "platforms" | "disputes" | "banners" | "reviews" | "giftcards" | "giftmarket" | "boost";
+type Tab = "analytics" | "applications" | "users" | "codes" | "products" | "tickets" | "topups" | "withdrawals" | "platform" | "payments" | "categories" | "platforms" | "disputes" | "banners" | "reviews" | "giftcards" | "giftmarket" | "boost" | "announcements";
 
 type PlatformRow = { slug: string; label_az: string; label_en: string; label_ru: string; sort_order: number; is_active: boolean };
 type PlatformSub = { platform_slug: string; slug: string; label_az: string; label_en: string; label_ru: string; sort_order: number; is_active: boolean };
@@ -464,6 +465,7 @@ function AdminPage() {
           <div className="flex gap-1 mb-6 border-b border-border overflow-x-auto">
             {([
               ["analytics", "📊 Analitika"],
+              ["announcements", "📢 Elanlar"],
               ["applications", `Müraciətlər (${apps.filter(a => a.status === "pending").length})`],
               ["tickets", `Dəstək (${tickets.filter(t => t.status === "open" || t.status === "pending").length})`],
               ["disputes", `Etirazlar (${disputes.length})`],
@@ -1287,6 +1289,8 @@ function AdminPage() {
             <AdminGiftMarket />
           ) : tab === "boost" ? (
             <AdminBoostPricing />
+          ) : tab === "announcements" ? (
+            <AdminAnnouncements />
           ) : (
             <div className="space-y-2">
               {products.length === 0 && <p className="text-muted-foreground text-center py-12">Məhsul yoxdur.</p>}
