@@ -753,6 +753,9 @@ function SellerDashboard() {
                   </div>
                 </div>
               ))}
+                  </>
+                );
+              })()}
             </div>
           )}
         </div>
