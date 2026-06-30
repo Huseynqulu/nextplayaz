@@ -1555,6 +1555,10 @@ export type Database = {
         Args: { _hours: number; _product_id: string }
         Returns: Json
       }
+      close_support_ticket: {
+        Args: { p_ticket_id: string }
+        Returns: undefined
+      }
       compute_seller_tier: {
         Args: { _avg_rating: number; _sales_count: number }
         Returns: string
