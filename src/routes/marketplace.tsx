@@ -328,10 +328,13 @@ function MarketplacePage() {
             {loading ? (
               <ProductGridSkeleton count={8} />
             ) : filtered.length === 0 ? (
-              <div className="py-20 text-center">
-                <p className="text-lg text-muted-foreground">Heç bir nəticə tapılmadı.</p>
-                <button onClick={reset} className="mt-4 h-10 px-5 rounded-lg bg-neon text-background font-semibold text-sm">Filtrləri sıfırla</button>
-              </div>
+              <EmptyState
+                icon={Search}
+                title="Heç bir nəticə tapılmadı"
+                description="Axtarış sözünü və ya filtrləri dəyişib yenidən cəhd et."
+                ctaLabel="Filtrləri sıfırla"
+                ctaOnClick={reset}
+              />
             ) : view === "list" ? (
               <div className="flex flex-col gap-2">
                 {filtered.map(p => <ProductCard key={p.id} p={p} variant="list" />)}
