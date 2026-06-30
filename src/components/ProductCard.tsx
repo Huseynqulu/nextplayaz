@@ -44,7 +44,7 @@ export function ProductCard({ p, variant = "default" }: { p: Product; variant?: 
           <div>
             <h3 className="font-semibold text-sm leading-snug line-clamp-2 group-hover:text-neon transition">{p.title}</h3>
             <div className="flex items-center gap-1.5 mt-1 text-[11px] text-muted-foreground">
-              {p.seller.verified && <ShieldCheck className="h-3 w-3 text-neon" />}
+              {p.seller.verified && <BadgeCheck className="h-3.5 w-3.5 text-sky-400 fill-sky-500/25 shrink-0" strokeWidth={2.5} />}
               <span className="truncate max-w-[140px]">{p.seller.name}</span>
               <span>·</span>
               <Star className="h-2.5 w-2.5 fill-warning text-warning" />
