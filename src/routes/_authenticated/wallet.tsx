@@ -230,8 +230,8 @@ function WalletPage() {
 
                   <div>
                     <label className="text-xs font-semibold text-muted-foreground uppercase">Məbləğ (AZN)</label>
-                    <input type="number" min="1" step="0.01" value={amount} onChange={e => setAmount(e.target.value)}
-                      placeholder="Məs. 50" className="mt-1.5 w-full h-11 px-3 rounded-lg bg-background border border-border" />
+                    <input type="number" min="5" step="0.01" value={amount} onChange={e => setAmount(e.target.value)}
+                      placeholder="Min. 5" className="mt-1.5 w-full h-11 px-3 rounded-lg bg-background border border-border" />
                   </div>
 
                   <div>
