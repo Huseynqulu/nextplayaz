@@ -87,10 +87,13 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   errorComponent: ErrorComponent,
 });
 
+const THEME_INIT_SCRIPT = `(function(){try{var t=localStorage.getItem('np-theme');if(!t){t='dark';}if(t==='dark'){document.documentElement.classList.add('dark');}document.documentElement.style.colorScheme=t;}catch(e){document.documentElement.classList.add('dark');}})();`;
+
 function RootShell({ children }: { children: React.ReactNode }) {
   return (
     <html lang="az">
       <head>
+        <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
         <HeadContent />
       </head>
       <body>
