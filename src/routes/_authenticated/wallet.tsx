@@ -105,6 +105,7 @@ function WalletPage() {
       });
       if (error) throw error;
       toast.success("Müraciət göndərildi. Admin təsdiqindən sonra balans artırılacaq.");
+      burstConfetti();
       setAmount(""); setNote(""); setReceipt(null);
       await refresh();
     } catch (e: any) { toast.error(e.message ?? "Xəta"); }
