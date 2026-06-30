@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useEffect, useMemo, useState } from "react";
 import { Search, SlidersHorizontal, X, Zap, ShieldCheck, Star, LayoutGrid, Grid3x3, List } from "lucide-react";
 import { ProductGridSkeleton } from "@/components/Skeletons";
+import { EmptyState } from "@/components/EmptyState";
 import { z } from "zod";
 import { zodValidator, fallback } from "@tanstack/zod-adapter";
 
