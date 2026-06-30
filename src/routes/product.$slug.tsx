@@ -169,7 +169,7 @@ function ProductPage() {
             <div>
               <div className="flex items-center gap-2 mb-3">
                 <span className="px-2.5 py-1 rounded-md text-xs font-semibold bg-surface border border-border">{p.platform}</span>
-                <span className="px-2.5 py-1 rounded-md text-xs font-semibold bg-surface border border-border">{p.category}</span>
+                <span className="px-2.5 py-1 rounded-md text-xs font-semibold bg-surface border border-border">{categoryLabel(p.category)}</span>
                 <span className={`px-2.5 py-1 rounded-md text-xs font-semibold flex items-center gap-1 ${
                   p.delivery === "Instant" ? "bg-neon/15 text-neon border border-neon/30" : "bg-surface border border-border"
                 }`}>
