@@ -250,7 +250,19 @@ function ThreadPage() {
               })}
             </div>
 
+            {otherTyping && (
+              <div className="px-4 pb-1 flex items-center gap-2 text-xs text-muted-foreground">
+                <div className="flex items-end gap-0.5 h-3">
+                  <span className="inline-block h-1.5 w-1.5 rounded-full bg-neon animate-bounce [animation-delay:-0.3s]" />
+                  <span className="inline-block h-1.5 w-1.5 rounded-full bg-neon animate-bounce [animation-delay:-0.15s]" />
+                  <span className="inline-block h-1.5 w-1.5 rounded-full bg-neon animate-bounce" />
+                </div>
+                <span><span className="text-foreground">{((other as any)?.shop_name) || other?.display_name || other?.username || "İstifadəçi"}</span> yazır...</span>
+              </div>
+            )}
+
             <div className="border-t border-border p-3 space-y-2">
+
               {preview && (
                 <div className="relative inline-block">
                   <img src={preview} alt="" className="max-h-32 rounded-lg border border-border" />
