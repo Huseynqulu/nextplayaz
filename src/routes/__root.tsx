@@ -114,6 +114,41 @@ import { InstallAppBanner } from "@/components/InstallAppBanner";
 import { OnboardingTour } from "@/components/OnboardingTour";
 import { MobileTabBar } from "@/components/MobileTabBar";
 import { CommandPalette } from "@/components/CommandPalette";
+import { ThemeProvider, useTheme } from "@/lib/theme";
+
+function AppToaster() {
+  const { theme } = useTheme();
+  return (
+    <Toaster
+      theme={theme}
+      position="top-right"
+      richColors
+      closeButton
+      duration={3200}
+      visibleToasts={4}
+      toastOptions={{
+        className: "np-toast",
+        classNames: {
+          toast: "np-toast",
+          success: "np-toast-success",
+          error: "np-toast-error",
+          title: "np-toast-title",
+          description: "np-toast-desc",
+        },
+      }}
+      icons={{
+        success: (
+          <span className="np-tick" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="18" height="18">
+              <circle className="np-tick-circle" cx="12" cy="12" r="10" fill="none" stroke="currentColor" strokeWidth="2" />
+              <path className="np-tick-check" d="M7 12.5l3.2 3.2L17 9" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </span>
+        ),
+      }}
+    />
+  );
+}
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
