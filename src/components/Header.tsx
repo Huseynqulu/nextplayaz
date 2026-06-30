@@ -89,6 +89,7 @@ export function Header() {
         <SearchBox variant="desktop" />
 
         <div className="flex items-center gap-2 md:ml-2 ml-auto">
+          <CommandPaletteTrigger />
           <LanguageSwitcher />
           <CartButton />
           {user && (
