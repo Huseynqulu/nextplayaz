@@ -201,7 +201,7 @@ function ThreadPage() {
 
             <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-2">
               {loading ? (
-                <div className="flex justify-center py-10"><Loader2 className="h-6 w-6 animate-spin text-neon" /></div>
+                <MessageThreadSkeleton />
               ) : messages.length === 0 ? (
                 <p className="text-center text-sm text-muted-foreground py-10">Mesajlaşmağa başlayın.</p>
               ) : messages.map(m => {
