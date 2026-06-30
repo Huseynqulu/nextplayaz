@@ -103,28 +103,29 @@ function SellerOrdersPage() {
                 const s = STATUS_LABEL[o.status] ?? STATUS_LABEL.pending;
                 const Icon = s.icon;
                 return (
-                  <div key={o.id} className="rounded-2xl border border-border bg-card-gradient p-5 card-shadow">
-                    <div className="flex gap-4">
+                  <div key={o.id} className="rounded-2xl border border-border bg-card-gradient p-4 sm:p-5 card-shadow">
+                    <div className="flex gap-3 sm:gap-4">
                       {o.product?.image_url ? (
-                        <img src={o.product.image_url} alt="" className="h-20 w-20 rounded-xl object-cover" />
+                        <img src={o.product.image_url} alt="" className="h-16 w-16 sm:h-20 sm:w-20 rounded-xl object-cover shrink-0" />
                       ) : (
-                        <div className="h-20 w-20 rounded-xl bg-surface grid place-items-center"><Package className="h-6 w-6 text-muted-foreground" /></div>
+                        <div className="h-16 w-16 sm:h-20 sm:w-20 rounded-xl bg-surface grid place-items-center shrink-0"><Package className="h-6 w-6 text-muted-foreground" /></div>
                       )}
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-start justify-between gap-3 flex-wrap">
-                          <div className="min-w-0">
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="min-w-0 flex-1">
                             <h3 className="font-semibold truncate">{o.product?.title ?? "Məhsul"}</h3>
                             <p className="text-xs text-muted-foreground mt-1">
                               {o.quantity} ədəd · {format(o.unit_price)} · {new Date(o.created_at).toLocaleString("az-AZ")}
                             </p>
-                          </div>
-                          <div className="text-right">
-                            <div className="font-display text-lg font-bold text-gradient">{format(o.total)}</div>
-                            <span className={`inline-flex items-center gap-1 mt-1 px-2 py-0.5 rounded text-[10px] font-bold uppercase ${s.cls}`}>
-                              <Icon className="h-3 w-3" /> {s.label}
-                            </span>
+                            <div className="mt-2 flex items-center gap-2 flex-wrap">
+                              <span className="font-display text-base sm:text-lg font-bold text-gradient">{format(o.total)}</span>
+                              <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold uppercase ${s.cls}`}>
+                                <Icon className="h-3 w-3" /> {s.label}
+                              </span>
+                            </div>
                           </div>
                         </div>
+
 
                         <div className="mt-3 flex flex-wrap gap-2">
                           {o.conversation_id && (
