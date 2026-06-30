@@ -113,7 +113,7 @@ function OrdersPage() {
     setBusy(o.id);
     const { error } = await supabase.rpc("confirm_order", { p_order_id: o.id });
     setBusy(null);
-    if (error) toast.error(error.message); else { toast.success("Təsdiq edildi, satıcıya ödəniş köçürüldü"); refresh(); }
+    if (error) toast.error(error.message); else { toast.success("Təsdiq edildi, satıcıya ödəniş köçürüldü"); burstConfetti(); refresh(); }
   }
 
   function openDispute(o: Order) {
