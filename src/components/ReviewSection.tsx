@@ -61,7 +61,7 @@ export function ReviewSection({ productId, sellerId }: { productId: string; sell
     const list: Review[] = base.map(r => ({ ...r, reviewer: profMap.get(r.reviewer_id) ?? null }));
     setReviews(list);
     if (user && mode === "product") {
-      const mine = list.find(r => r.reviewer_id === user.id && r.product_id === productId as any) ?? list.find(r => r.reviewer_id === user.id) ?? null;
+      const mine = list.find(r => r.reviewer_id === user.id) ?? null;
       setMyReview(mine);
       if (mine) { setRating(mine.rating); setComment(mine.comment ?? ""); }
       const { count } = await supabase
