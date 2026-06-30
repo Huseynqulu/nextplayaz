@@ -39,7 +39,7 @@ type PaymentSetting = { method: string; label: string; instructions: string; is_
 type Category = { slug: string; label_az: string; label_en: string; label_ru: string; sort_order: number; is_active: boolean };
 type Subcategory = { id?: string; category_slug: string; slug: string; label_az: string; label_en: string; label_ru: string; sort_order: number; is_active: boolean };
 
-type Tab = "analytics" | "applications" | "users" | "codes" | "products" | "tickets" | "topups" | "withdrawals" | "platform" | "payments" | "categories" | "platforms" | "disputes" | "banners" | "reviews" | "giftcards" | "giftmarket" | "boost";
+type Tab = "analytics" | "applications" | "users" | "codes" | "products" | "tickets" | "topups" | "withdrawals" | "platform" | "payments" | "categories" | "platforms" | "disputes" | "banners" | "reviews" | "giftcards" | "giftmarket" | "boost" | "announcements";
 
 type PlatformRow = { slug: string; label_az: string; label_en: string; label_ru: string; sort_order: number; is_active: boolean };
 type PlatformSub = { platform_slug: string; slug: string; label_az: string; label_en: string; label_ru: string; sort_order: number; is_active: boolean };
