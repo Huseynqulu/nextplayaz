@@ -163,7 +163,7 @@ export async function fetchProducts(): Promise<Product[]> {
     const [{ data: profs }, { data: sellerProds }, { data: sellerSales }] = await Promise.all([
       supabase
         .from("public_profiles" as any)
-        .select("id, display_name, username, shop_name, avatar_url, verified_at")
+        .select("id, display_name, username, shop_name, avatar_url, verified_at, suspended_until")
         .in("id", sellerIds),
       supabase
         .from("products")
