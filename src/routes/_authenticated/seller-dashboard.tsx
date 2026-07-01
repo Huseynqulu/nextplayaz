@@ -704,7 +704,7 @@ function SellerDashboard() {
                   </span>
                 </label>
                 {selectedIds.size > 0 && (
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 flex-wrap">
                     <button
                       type="button"
                       onClick={() => setSelectedIds(new Set())}
@@ -714,12 +714,26 @@ function SellerDashboard() {
                     </button>
                     <button
                       type="button"
+                      onClick={() => bulkSetActive(true)}
+                      className="inline-flex items-center gap-2 h-9 px-3 rounded-lg border border-emerald-500/40 bg-emerald-500/10 text-emerald-400 text-sm font-semibold hover:bg-emerald-500/20"
+                    >
+                      <Eye className="h-4 w-4" /> Yayımla ({selectedIds.size})
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => bulkSetActive(false)}
+                      className="inline-flex items-center gap-2 h-9 px-3 rounded-lg border border-amber-500/40 bg-amber-500/10 text-amber-400 text-sm font-semibold hover:bg-amber-500/20"
+                    >
+                      <EyeOff className="h-4 w-4" /> Dayandır ({selectedIds.size})
+                    </button>
+                    <button
+                      type="button"
                       onClick={bulkRemove}
                       disabled={bulkDeleting}
                       className="inline-flex items-center gap-2 h-9 px-3 rounded-lg bg-destructive text-destructive-foreground text-sm font-semibold hover:opacity-90 disabled:opacity-50"
                     >
                       {bulkDeleting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
-                      Seçilənləri sil ({selectedIds.size})
+                      Sil ({selectedIds.size})
                     </button>
                   </div>
                 )}
