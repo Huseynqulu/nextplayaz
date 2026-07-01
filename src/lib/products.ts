@@ -21,6 +21,8 @@ export type DbProduct = {
   delivery: "Instant" | "Manual";
   is_active: boolean;
   last_sold_at?: string | null;
+  boost_tier?: string | null;
+  boost_expires_at?: string | null;
 };
 
 export const PRODUCT_PLACEHOLDER = "__np_placeholder__";
