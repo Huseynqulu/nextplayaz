@@ -26,7 +26,7 @@ export type DbProduct = {
 export const PRODUCT_PLACEHOLDER = "__np_placeholder__";
 const FALLBACK_IMG = PRODUCT_PLACEHOLDER;
 
-export type SellerLite = { name: string; avatarUrl?: string | null; shopName?: string | null; verified?: boolean };
+export type SellerLite = { name: string; avatarUrl?: string | null; shopName?: string | null; verified?: boolean; rating?: number; sales?: number; reviewsCount?: number };
 
 export function dbToProduct(p: DbProduct, seller?: SellerLite | string): Product {
   const s: SellerLite = typeof seller === "string" || seller === undefined
@@ -49,7 +49,16 @@ export function dbToProduct(p: DbProduct, seller?: SellerLite | string): Product
     stock: p.stock,
     rating: Number(p.rating) || 5,
     reviews: p.reviews_count,
-    seller: { name: displayName, rating: 5, sales: 0, verified: s.verified ?? false, avatarUrl: s.avatarUrl ?? null, shopName: s.shopName ?? null },
+    seller: {
+      name: displayName,
+      rating: s.rating ?? 5,
+      sales: s.sales ?? 0,
+      verified: s.verified ?? false,
+      avatarUrl: s.avatarUrl ?? null,
+      shopName: s.shopName ?? null,
+      // @ts-expect-error extra optional field
+      reviewsCount: s.reviewsCount ?? 0,
+    },
     delivery: p.delivery,
     sellerId: p.seller_id,
     lastSoldAt: p.last_sold_at ?? null,
