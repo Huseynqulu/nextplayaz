@@ -4,7 +4,7 @@ import { ReviewSection } from "@/components/ReviewSection";
 import { Footer } from "@/components/Footer";
 import { ProductCard } from "@/components/ProductCard";
 import { products as mockProducts, categoryLabel } from "@/lib/marketplace-data";
-import { fetchProductBySlug, fetchProducts, PRODUCT_PLACEHOLDER, type Product } from "@/lib/products";
+import { fetchProductBySlug, fetchProducts, PRODUCT_PLACEHOLDER } from "@/lib/products";
 import { Star, ShieldCheck, Zap, Lock, Package, MessageCircle, Heart, Share2, Loader2, X, FileText } from "lucide-react";
 import { useEffect, useState } from "react";
 import { trackView } from "@/lib/recently-viewed";
