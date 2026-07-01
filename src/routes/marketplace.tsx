@@ -95,10 +95,15 @@ function MarketplacePage() {
         (p.seller?.name ?? "").toLowerCase().includes(q)
       );
     }
-    if (s.sort === "low") r.sort((a, b) => a.price - b.price);
-    else if (s.sort === "high") r.sort((a, b) => b.price - a.price);
-    else if (s.sort === "rating") r.sort((a, b) => b.rating - a.rating);
-    else if (s.sort === "newest") r.sort((a, b) => (b.id > a.id ? 1 : -1));
+    const cmp = (a: any, b: any, fn: (x: any, y: any) => number) => {
+      const bs = boostScore(b) - boostScore(a);
+      return bs !== 0 ? bs : fn(a, b);
+    };
+    if (s.sort === "low") r.sort((a, b) => cmp(a, b, (x, y) => x.price - y.price));
+    else if (s.sort === "high") r.sort((a, b) => cmp(a, b, (x, y) => y.price - x.price));
+    else if (s.sort === "rating") r.sort((a, b) => cmp(a, b, (x, y) => y.rating - x.rating));
+    else if (s.sort === "newest") r.sort((a, b) => cmp(a, b, (x, y) => (y.id > x.id ? 1 : -1)));
+    else r.sort((a, b) => boostScore(b) - boostScore(a)); // popular: boost first, preserve fetch order
     return r;
   }, [products, s]);
 
