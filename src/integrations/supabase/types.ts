@@ -1405,6 +1405,7 @@ export type Database = {
           sales_count: number | null
           seller_tier: string | null
           shop_name: string | null
+          suspended_until: string | null
           username: string | null
           verified_at: string | null
         }
@@ -1417,6 +1418,7 @@ export type Database = {
           sales_count?: number | null
           seller_tier?: string | null
           shop_name?: string | null
+          suspended_until?: string | null
           username?: string | null
           verified_at?: string | null
         }
@@ -1429,6 +1431,7 @@ export type Database = {
           sales_count?: number | null
           seller_tier?: string | null
           shop_name?: string | null
+          suspended_until?: string | null
           username?: string | null
           verified_at?: string | null
         }
