@@ -28,6 +28,29 @@ const FALLBACK_IMG = PRODUCT_PLACEHOLDER;
 
 export type SellerLite = { name: string; avatarUrl?: string | null; shopName?: string | null; verified?: boolean; rating?: number; sales?: number; reviewsCount?: number };
 
+function getSellerReviewStats(rows: Array<{ seller_id: string; rating: number | null; reviews_count: number | null }>) {
+  const stats = new Map<string, { rating: number; reviewsCount: number }>();
+  const grouped = new Map<string, { weighted: number; count: number }>();
+
+  rows.forEach((row) => {
+    const count = Number(row.reviews_count) || 0;
+    if (count <= 0) return;
+    const current = grouped.get(row.seller_id) ?? { weighted: 0, count: 0 };
+    current.weighted += (Number(row.rating) || 0) * count;
+    current.count += count;
+    grouped.set(row.seller_id, current);
+  });
+
+  grouped.forEach((value, sellerId) => {
+    stats.set(sellerId, {
+      rating: value.count > 0 ? Math.round((value.weighted / value.count) * 10) / 10 : 5,
+      reviewsCount: value.count,
+    });
+  });
+
+  return stats;
+}
+
 export function dbToProduct(p: DbProduct, seller?: SellerLite | string): Product {
   const s: SellerLite = typeof seller === "string" || seller === undefined
     ? { name: (typeof seller === "string" ? seller : "Satıcı") }
@@ -56,7 +79,6 @@ export function dbToProduct(p: DbProduct, seller?: SellerLite | string): Product
       verified: s.verified ?? false,
       avatarUrl: s.avatarUrl ?? null,
       shopName: s.shopName ?? null,
-      // @ts-expect-error extra optional field
       reviewsCount: s.reviewsCount ?? 0,
     },
     delivery: p.delivery,
@@ -88,15 +110,33 @@ export async function fetchProducts(): Promise<Product[]> {
   const sellerIds = Array.from(new Set(data.map(d => d.seller_id)));
   let sellerMap = new Map<string, SellerLite>();
   if (sellerIds.length) {
-    const { data: profs } = await supabase
-      .from("public_profiles" as any)
-      .select("id, display_name, username, shop_name, avatar_url, verified_at")
-      .in("id", sellerIds);
+    const [{ data: profs }, { data: sellerProds }, { data: sellerSales }] = await Promise.all([
+      supabase
+        .from("public_profiles" as any)
+        .select("id, display_name, username, shop_name, avatar_url, verified_at")
+        .in("id", sellerIds),
+      supabase
+        .from("products")
+        .select("seller_id, rating, reviews_count")
+        .in("seller_id", sellerIds)
+        .eq("is_active", true),
+      supabase
+        .from("orders")
+        .select("seller_id")
+        .in("seller_id", sellerIds)
+        .eq("status", "completed"),
+    ]);
+    const reviewStats = getSellerReviewStats((sellerProds as any[]) ?? []);
+    const salesCounts = new Map<string, number>();
+    ((sellerSales as any[]) ?? []).forEach((row) => salesCounts.set(row.seller_id, (salesCounts.get(row.seller_id) ?? 0) + 1));
     sellerMap = new Map(((profs as any[]) ?? []).map((p: any) => [p.id, {
       name: p.display_name || p.username || "Satıcı",
       shopName: p.shop_name ?? null,
       avatarUrl: p.avatar_url ?? null,
       verified: !!p.verified_at,
+      rating: reviewStats.get(p.id)?.rating ?? 5,
+      reviewsCount: reviewStats.get(p.id)?.reviewsCount ?? 0,
+      sales: salesCounts.get(p.id) ?? 0,
     } as SellerLite]));
   }
 

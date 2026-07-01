@@ -32,6 +32,9 @@ export function ProductCard({ p, variant = "default" }: { p: Product; variant?: 
   const canCart = isRealProductId(p.id) && p.stock > 0;
   const fav = canFav && isFav(p.id);
   const soldAgo = formatSoldAgo(p.lastSoldAt);
+  const sellerRating = Number(p.seller.rating || p.rating || 5);
+  const sellerReviews = p.seller.reviewsCount ?? p.reviews ?? 0;
+  const sellerRatingText = Number.isInteger(sellerRating) ? String(sellerRating) : sellerRating.toFixed(1);
 
   function addToCart(e: React.MouseEvent) {
     e.preventDefault(); e.stopPropagation();
@@ -60,7 +63,7 @@ export function ProductCard({ p, variant = "default" }: { p: Product; variant?: 
             <span className="truncate max-w-[140px]">{p.seller.name}</span>
             <span>·</span>
             <Star className="h-2.5 w-2.5 fill-warning text-warning" />
-            <span>{p.rating} ({p.reviews})</span>
+            <span>{sellerRatingText} ({sellerReviews})</span>
             <span>·</span>
             <span>{p.platform}</span>
             {soldAgo && (
@@ -136,7 +139,7 @@ export function ProductCard({ p, variant = "default" }: { p: Product; variant?: 
           <span className="truncate max-w-[110px]">{p.seller.name}</span>
           <span>·</span>
           <Star className="h-2.5 w-2.5 fill-warning text-warning" />
-          <span>{p.rating}</span>
+          <span>{sellerRatingText} ({sellerReviews})</span>
           <span>·</span>
           <span className="truncate">{p.platform}</span>
         </div>

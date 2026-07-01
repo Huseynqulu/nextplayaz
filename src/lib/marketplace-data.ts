@@ -21,7 +21,7 @@ export type Product = {
   stock: number;
   rating: number;
   reviews: number;
-  seller: { name: string; rating: number; sales: number; verified: boolean; avatarUrl?: string | null; shopName?: string | null };
+  seller: { name: string; rating: number; sales: number; verified: boolean; avatarUrl?: string | null; shopName?: string | null; reviewsCount?: number };
   delivery: "Instant" | "Manual";
   tag?: "HOT" | "NEW" | "-50%" | "TOP";
   sellerId?: string;
