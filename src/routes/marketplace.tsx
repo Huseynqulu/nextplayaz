@@ -2,7 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { ProductCard } from "@/components/ProductCard";
-import { categories, products as mockProducts, CATEGORY_LABEL_AZ } from "@/lib/marketplace-data";
+import { categories, products as mockProducts, CATEGORY_LABEL_AZ, boostScore } from "@/lib/marketplace-data";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { fetchProducts } from "@/lib/products";
 import { supabase } from "@/integrations/supabase/client";
