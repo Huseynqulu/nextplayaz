@@ -889,6 +889,7 @@ export type Database = {
           avatar_url: string | null
           ban_reason: string | null
           banned_at: string | null
+          commission_rate_override: number | null
           created_at: string
           display_name: string | null
           id: string
@@ -903,6 +904,8 @@ export type Database = {
           seller_tier: string
           shop_name: string | null
           signup_ip: string | null
+          suspend_reason: string | null
+          suspended_until: string | null
           updated_at: string
           username: string | null
           verified_at: string | null
@@ -912,6 +915,7 @@ export type Database = {
           avatar_url?: string | null
           ban_reason?: string | null
           banned_at?: string | null
+          commission_rate_override?: number | null
           created_at?: string
           display_name?: string | null
           id: string
@@ -926,6 +930,8 @@ export type Database = {
           seller_tier?: string
           shop_name?: string | null
           signup_ip?: string | null
+          suspend_reason?: string | null
+          suspended_until?: string | null
           updated_at?: string
           username?: string | null
           verified_at?: string | null
@@ -935,6 +941,7 @@ export type Database = {
           avatar_url?: string | null
           ban_reason?: string | null
           banned_at?: string | null
+          commission_rate_override?: number | null
           created_at?: string
           display_name?: string | null
           id?: string
@@ -949,6 +956,8 @@ export type Database = {
           seller_tier?: string
           shop_name?: string | null
           signup_ip?: string | null
+          suspend_reason?: string | null
+          suspended_until?: string | null
           updated_at?: string
           username?: string | null
           verified_at?: string | null
@@ -1396,6 +1405,7 @@ export type Database = {
           sales_count: number | null
           seller_tier: string | null
           shop_name: string | null
+          suspended_until: string | null
           username: string | null
           verified_at: string | null
         }
@@ -1408,6 +1418,7 @@ export type Database = {
           sales_count?: number | null
           seller_tier?: string | null
           shop_name?: string | null
+          suspended_until?: string | null
           username?: string | null
           verified_at?: string | null
         }
@@ -1420,6 +1431,7 @@ export type Database = {
           sales_count?: number | null
           seller_tier?: string | null
           shop_name?: string | null
+          suspended_until?: string | null
           username?: string | null
           verified_at?: string | null
         }
@@ -1482,6 +1494,29 @@ export type Database = {
         }
         Returns: undefined
       }
+      admin_list_sellers: {
+        Args: never
+        Returns: {
+          active_products: number
+          avatar_url: string
+          commission_rate_override: number
+          created_at: string
+          display_name: string
+          effective_rate: number
+          email: string
+          id: string
+          last_seen_at: string
+          sales_count: number
+          sales_total: number
+          seller_tier: string
+          shop_name: string
+          suspend_reason: string
+          suspended_until: string
+          username: string
+          verified_at: string
+          wallet_balance: number
+        }[]
+      }
       admin_list_users: {
         Args: never
         Returns: {
@@ -1501,6 +1536,15 @@ export type Database = {
           verified_at: string
           wallet_balance: number
         }[]
+      }
+      admin_notify_sellers: {
+        Args: {
+          p_body: string
+          p_link?: string
+          p_seller_id: string
+          p_title: string
+        }
+        Returns: number
       }
       admin_partial_refund: {
         Args: { p_notes?: string; p_order_id: string; p_refund_amount: number }
@@ -1529,12 +1573,24 @@ export type Database = {
         }
         Returns: undefined
       }
+      admin_set_commission_rate: {
+        Args: { p_rate: number; p_seller_id: string }
+        Returns: undefined
+      }
       admin_set_verified: {
         Args: { p_user_id: string; p_verified: boolean }
         Returns: undefined
       }
       admin_set_wallet_balance: {
         Args: { p_balance: number; p_user_id: string }
+        Returns: undefined
+      }
+      admin_suspend_seller: {
+        Args: { p_hours: number; p_reason: string; p_seller_id: string }
+        Returns: string
+      }
+      admin_unsuspend_seller: {
+        Args: { p_seller_id: string }
         Returns: undefined
       }
       admin_update_review: {
@@ -1716,6 +1772,10 @@ export type Database = {
           p_method: string
         }
         Returns: string
+      }
+      seller_effective_commission_rate: {
+        Args: { _seller_id: string }
+        Returns: number
       }
       staff_cancel_order: {
         Args: { p_order_id: string; p_reason?: string }

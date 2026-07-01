@@ -163,7 +163,7 @@ export async function fetchProducts(): Promise<Product[]> {
     const [{ data: profs }, { data: sellerProds }, { data: sellerSales }] = await Promise.all([
       supabase
         .from("public_profiles" as any)
-        .select("id, display_name, username, shop_name, avatar_url, verified_at")
+        .select("id, display_name, username, shop_name, avatar_url, verified_at, suspended_until")
         .in("id", sellerIds),
       supabase
         .from("products")
@@ -203,8 +203,13 @@ export async function fetchProducts(): Promise<Product[]> {
     } as SellerLite]));
   }
 
+  // Hide products from currently suspended sellers
+  const suspendedIds = new Set<string>();
+  const profList = sellerIds.length ? (await supabase.from("public_profiles" as any).select("id, suspended_until").in("id", sellerIds)).data as any[] | null : null;
+  (profList ?? []).forEach((p: any) => { if (p.suspended_until && new Date(p.suspended_until) > new Date()) suspendedIds.add(p.id); });
+  const visible = data.filter((d: any) => !suspendedIds.has(d.seller_id));
 
-  const dbItems = data.map(d => dbToProduct(d as unknown as DbProduct, sellerMap.get(d.seller_id)));
+  const dbItems = visible.map(d => dbToProduct(d as unknown as DbProduct, sellerMap.get(d.seller_id)));
   return dbItems;
 }
 

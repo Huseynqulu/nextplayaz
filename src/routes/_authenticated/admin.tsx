@@ -17,6 +17,7 @@ const AdminAnalytics    = lazy(() => import("@/components/AdminAnalytics").then(
 import { VerifiedBadge } from "@/components/VerifiedBadge";
 const AdminBoostPricing = lazy(() => import("@/components/AdminBoostPricing").then(m => ({ default: m.AdminBoostPricing })));
 const AdminAnnouncements = lazy(() => import("@/components/AdminAnnouncements").then(m => ({ default: m.AdminAnnouncements })));
+const AdminSellers = lazy(() => import("@/components/AdminSellers").then(m => ({ default: m.AdminSellers })));
 
 function TabFallback() {
   return <div className="grid place-items-center py-12"><Loader2 className="h-6 w-6 animate-spin text-neon" /></div>;
@@ -44,7 +45,7 @@ type PaymentSetting = { method: string; label: string; instructions: string; is_
 type Category = { slug: string; label_az: string; label_en: string; label_ru: string; sort_order: number; is_active: boolean };
 type Subcategory = { id?: string; category_slug: string; slug: string; label_az: string; label_en: string; label_ru: string; sort_order: number; is_active: boolean };
 
-type Tab = "analytics" | "applications" | "users" | "codes" | "products" | "tickets" | "topups" | "withdrawals" | "platform" | "payments" | "categories" | "platforms" | "disputes" | "banners" | "reviews" | "giftcards" | "giftmarket" | "boost" | "announcements";
+type Tab = "analytics" | "applications" | "users" | "sellers" | "codes" | "products" | "tickets" | "topups" | "withdrawals" | "platform" | "payments" | "categories" | "platforms" | "disputes" | "banners" | "reviews" | "giftcards" | "giftmarket" | "boost" | "announcements";
 
 type PlatformRow = { slug: string; label_az: string; label_en: string; label_ru: string; sort_order: number; is_active: boolean };
 type PlatformSub = { platform_slug: string; slug: string; label_az: string; label_en: string; label_ru: string; sort_order: number; is_active: boolean };
@@ -475,6 +476,7 @@ function AdminPage() {
               ["tickets", `Dəstək (${tickets.filter(t => t.status === "open" || t.status === "pending").length})`],
               ["disputes", `Etirazlar (${disputes.length})`],
               ["users", "İstifadəçilər"],
+              ["sellers", "🏪 Satıcılar"],
               ["topups", `Balans (${topups.filter(t => t.status === "pending").length})`],
               ["withdrawals", `Pul çıxarış (${withdrawals.filter(w => w.status === "pending").length})`],
               ["platform", `Platforma (${platformBalance.toFixed(2)} ₼)`],
@@ -1296,6 +1298,8 @@ function AdminPage() {
             <Suspense fallback={<TabFallback />}><AdminBoostPricing /></Suspense>
           ) : tab === "announcements" ? (
             <Suspense fallback={<TabFallback />}><AdminAnnouncements /></Suspense>
+          ) : tab === "sellers" ? (
+            <Suspense fallback={<TabFallback />}><AdminSellers /></Suspense>
           ) : (
             <div className="space-y-2">
               {products.length === 0 && <p className="text-muted-foreground text-center py-12">Məhsul yoxdur.</p>}
