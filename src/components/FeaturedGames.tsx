@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { Flame } from "lucide-react";
 import { useT } from "@/lib/i18n";
 import forzaHorizon6Cover from "@/assets/forza-horizon-6.jpg";
+import fc26Cover from "@/assets/fc-26.jpg";
 
 type Game = {
   title: string;
@@ -17,7 +18,7 @@ const GAMES: Game[] = [
   { title: "Forza Horizon 6", tag: "Steam açar", appid: 0, query: "Forza", cover: forzaHorizon6Cover },
   { title: "Cyberpunk 2077", tag: "Phantom Liberty", appid: 1091500, query: "Cyberpunk" },
   { title: "Red Dead Redemption 2", tag: "Ultimate", appid: 1174180, query: "Red Dead" },
-  { title: "EA SPORTS FC 26", tag: "Ultimate Team", appid: 2669320, query: "FC 26" },
+  { title: "EA SPORTS FC 26", tag: "Ultimate Team", appid: 0, query: "FC 26", cover: fc26Cover },
   { title: "Elden Ring", tag: "Shadow of the Erdtree", appid: 1245620, query: "Elden Ring" },
   { title: "Counter-Strike 2", tag: "Prime hesab", appid: 730, query: "CS2" },
   { title: "Baldur's Gate 3", tag: "Deluxe Edition", appid: 1086940, query: "Baldur" },
