@@ -13,7 +13,7 @@ type Game = {
 // Official Steam CDN cover art (library_600x900). Public, stable URLs.
 const GAMES: Game[] = [
   { title: "GTA V", tag: "Online hesab", appid: 271590, query: "GTA" },
-  { title: "Forza Horizon 6", tag: "Steam açar", appid: 1551360, query: "Forza" },
+  { title: "Forza Horizon 6", tag: "Steam açar", appid: 0, query: "Forza", cover: forzaHorizon6Cover },
   { title: "Cyberpunk 2077", tag: "Phantom Liberty", appid: 1091500, query: "Cyberpunk" },
   { title: "Red Dead Redemption 2", tag: "Ultimate", appid: 1174180, query: "Red Dead" },
   { title: "EA SPORTS FC 26", tag: "Ultimate Team", appid: 2669320, query: "FC 26" },
