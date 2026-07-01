@@ -6,7 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { dbToProduct, type DbProduct } from "@/lib/products";
 import { categoryLabel } from "@/lib/marketplace-data";
 import { isOnline, formatLastSeen } from "@/lib/presence";
-import { ShieldCheck, Star, MessageCircle, Loader2, Store } from "lucide-react";
+import { ShieldCheck, Star, MessageCircle, Loader2, Store, Search, X } from "lucide-react";
 import { SellerTierBadge } from "@/components/SellerTierBadge";
 import { VerifiedBadge } from "@/components/VerifiedBadge";
 import { useAuth } from "@/hooks/use-auth";
