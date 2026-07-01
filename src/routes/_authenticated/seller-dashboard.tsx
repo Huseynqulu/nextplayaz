@@ -86,6 +86,24 @@ function SellerDashboard() {
     await refresh();
   }
 
+  async function toggleActive(p: Product) {
+    const next = !p.is_active;
+    const { error } = await supabase.from("products").update({ is_active: next }).eq("id", p.id);
+    if (error) { toast.error(error.message); return; }
+    toast.success(next ? "Məhsul yayımlandı" : "Məhsul dayandırıldı");
+    await refresh();
+  }
+
+  async function bulkSetActive(active: boolean) {
+    if (selectedIds.size === 0) return;
+    const ids = Array.from(selectedIds);
+    const { error } = await supabase.from("products").update({ is_active: active }).in("id", ids);
+    if (error) { toast.error(error.message); return; }
+    toast.success(`${ids.length} məhsul ${active ? "yayımlandı" : "dayandırıldı"}`);
+    setSelectedIds(new Set());
+    await refresh();
+  }
+
   function openNewProductForm() {
     resetForm();
     setStep1Done(false);
