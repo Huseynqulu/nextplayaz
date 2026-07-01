@@ -17,6 +17,7 @@ const AdminAnalytics    = lazy(() => import("@/components/AdminAnalytics").then(
 import { VerifiedBadge } from "@/components/VerifiedBadge";
 const AdminBoostPricing = lazy(() => import("@/components/AdminBoostPricing").then(m => ({ default: m.AdminBoostPricing })));
 const AdminAnnouncements = lazy(() => import("@/components/AdminAnnouncements").then(m => ({ default: m.AdminAnnouncements })));
+const AdminSellers = lazy(() => import("@/components/AdminSellers").then(m => ({ default: m.AdminSellers })));
 
 function TabFallback() {
   return <div className="grid place-items-center py-12"><Loader2 className="h-6 w-6 animate-spin text-neon" /></div>;
