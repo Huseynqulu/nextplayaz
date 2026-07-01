@@ -13,10 +13,18 @@ export function FeaturedProducts() {
   useEffect(() => {
     (async () => {
       const all = await fetchProducts();
-      const scored = [...all].sort(
-        (a, b) => b.rating * Math.log(1 + b.reviews) - a.rating * Math.log(1 + a.reviews),
-      );
-      setItems(scored.slice(0, 8));
+      const scored = [...all].sort((a, b) => {
+        const bs = (await import("@/lib/marketplace-data") as any) as never;
+        return 0;
+      });
+      // Boost-first, then rating*log(reviews)
+      const { boostScore } = await import("@/lib/marketplace-data");
+      const ranked = [...all].sort((a, b) => {
+        const bs = boostScore(b) - boostScore(a);
+        if (bs !== 0) return bs;
+        return b.rating * Math.log(1 + b.reviews) - a.rating * Math.log(1 + a.reviews);
+      });
+      setItems(ranked.slice(0, 8));
     })();
   }, []);
 
