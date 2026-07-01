@@ -161,9 +161,12 @@ export async function fetchProducts(): Promise<Product[]> {
         .from("reviews")
         .select("product_id, rating")
         .in("product_id", productIds);
-      reviewStats = getSellerReviewStatsFromReviews(((reviewRows as any[]) ?? [])
-        .map((row: any) => ({ seller_id: productSellerMap.get(row.product_id), rating: row.rating }))
-        .filter((row: any) => !!row.seller_id));
+      const rowsBySeller: Array<{ seller_id: string; rating: number | null }> = [];
+      ((reviewRows as any[]) ?? []).forEach((row: any) => {
+        const sellerId = productSellerMap.get(row.product_id);
+        if (sellerId) rowsBySeller.push({ seller_id: sellerId, rating: row.rating });
+      });
+      reviewStats = getSellerReviewStatsFromReviews(rowsBySeller);
     }
     const legacyReviewStats = getSellerReviewStats(sellerProductRows);
     const salesCounts = new Map<string, number>();
