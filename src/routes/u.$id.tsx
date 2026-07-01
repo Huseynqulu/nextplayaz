@@ -170,6 +170,15 @@ function SellerTabs({ products, visibleProducts, reviews, cats, catFilter, setCa
   cats: string[]; catFilter: string; setCatFilter: (v: string) => void;
 }) {
   const [tab, setTab] = useState<"products" | "reviews">("products");
+  const [query, setQuery] = useState("");
+  const q = query.trim().toLowerCase();
+  const searched = useMemo(() => {
+    if (!q) return visibleProducts;
+    return visibleProducts.filter((p: any) =>
+      (p.title ?? "").toLowerCase().includes(q) ||
+      (p.description ?? "").toLowerCase().includes(q)
+    );
+  }, [visibleProducts, q]);
   return (
     <div className="mt-10">
       <div className="flex items-center gap-2 border-b border-border mb-6">
@@ -185,6 +194,20 @@ function SellerTabs({ products, visibleProducts, reviews, cats, catFilter, setCa
 
       {tab === "products" && (
         <>
+          <div className="relative mb-4">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+            <input
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Bu satıcının məhsulları arasında axtar..."
+              className="w-full h-11 pl-10 pr-10 rounded-xl bg-surface border border-border focus:border-neon focus:outline-none text-sm"
+            />
+            {query && (
+              <button onClick={() => setQuery("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground" aria-label="Təmizlə">
+                <X className="h-4 w-4" />
+              </button>
+            )}
+          </div>
           {cats.length > 1 && (
             <div className="flex flex-wrap gap-2 mb-5">
               <button onClick={() => setCatFilter("all")}
@@ -202,11 +225,13 @@ function SellerTabs({ products, visibleProducts, reviews, cats, catFilter, setCa
               })}
             </div>
           )}
-          {visibleProducts.length === 0 ? (
-            <p className="text-muted-foreground py-10 text-center">Bu kateqoriyada məhsul yoxdur.</p>
+          {searched.length === 0 ? (
+            <p className="text-muted-foreground py-10 text-center">
+              {q ? `"${query}" üzrə nəticə tapılmadı.` : "Bu kateqoriyada məhsul yoxdur."}
+            </p>
           ) : (
             <div className="grid gap-5 grid-cols-2 lg:grid-cols-4">
-              {visibleProducts.map((p: any) => <ProductCard key={p.id} p={p} />)}
+              {searched.map((p: any) => <ProductCard key={p.id} p={p} />)}
             </div>
           )}
         </>
