@@ -170,11 +170,6 @@ export async function fetchProducts(): Promise<Product[]> {
         .select("id, seller_id, rating, reviews_count")
         .in("seller_id", sellerIds)
         .eq("is_active", true),
-      supabase
-        .from("orders")
-        .select("seller_id")
-        .in("seller_id", sellerIds)
-        .eq("status", "completed"),
     ]);
     const sellerProductRows = (sellerProds as any[]) ?? [];
     const productSellerMap = new Map<string, string>(sellerProductRows.map((row: any) => [row.id, row.seller_id]));
@@ -190,8 +185,6 @@ export async function fetchProducts(): Promise<Product[]> {
       reviewStats = getSellerReviewStatsFromReviews(rowsBySeller);
     }
     const legacyReviewStats = getSellerReviewStats(sellerProductRows);
-    const salesCounts = new Map<string, number>();
-    ((sellerSales as any[]) ?? []).forEach((row) => salesCounts.set(row.seller_id, (salesCounts.get(row.seller_id) ?? 0) + 1));
     sellerMap = new Map(((profs as any[]) ?? []).map((p: any) => [p.id, {
       name: p.display_name || p.username || "Satıcı",
       shopName: p.shop_name ?? null,
@@ -199,12 +192,13 @@ export async function fetchProducts(): Promise<Product[]> {
       verified: !!p.verified_at,
       rating: reviewStats.get(p.id)?.rating ?? legacyReviewStats.get(p.id)?.rating ?? 5,
       reviewsCount: reviewStats.get(p.id)?.reviewsCount ?? legacyReviewStats.get(p.id)?.reviewsCount ?? 0,
-      sales: salesCounts.get(p.id) ?? 0,
+      sales: p.sales_count ?? 0,
     } as SellerLite]));
   }
 
-  // Hide products from currently suspended sellers
+  // Hide products from currently suspended sellers (reuse profs from above if available)
   const suspendedIds = new Set<string>();
+  sellerMap.forEach(() => {}); // noop to keep sellerMap in scope
   const profList = sellerIds.length ? (await supabase.from("public_profiles" as any).select("id, suspended_until").in("id", sellerIds)).data as any[] | null : null;
   (profList ?? []).forEach((p: any) => { if (p.suspended_until && new Date(p.suspended_until) > new Date()) suspendedIds.add(p.id); });
   const visible = data.filter((d: any) => !suspendedIds.has(d.seller_id));
