@@ -26,6 +26,7 @@ const GAMES: Game[] = [
 ];
 
 function coverUrl(g: Game) {
+  if (g.cover) return g.cover;
   if (g.appid > 0) {
     return `https://cdn.akamai.steamstatic.com/steam/apps/${g.appid}/library_600x900.jpg`;
   }
