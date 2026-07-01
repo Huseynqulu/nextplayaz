@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
-import { Loader2, Plus, Package, Trash2, Pencil, Rocket, ShoppingBag, Sparkles, ArrowDown, Upload, Search, X } from "lucide-react";
+import { Loader2, Plus, Package, Trash2, Pencil, Rocket, ShoppingBag, Sparkles, ArrowDown, Upload, Search, X, Eye, EyeOff } from "lucide-react";
 import { SellerAnalytics } from "@/components/SellerAnalytics";
 import { EmptyState } from "@/components/EmptyState";
 import { BoostDialog } from "@/components/BoostDialog";
@@ -82,6 +82,24 @@ function SellerDashboard() {
     setBulkDeleting(false);
     if (error) { toast.error(error.message); return; }
     toast.success(`${ids.length} məhsul silindi`);
+    setSelectedIds(new Set());
+    await refresh();
+  }
+
+  async function toggleActive(p: Product) {
+    const next = !p.is_active;
+    const { error } = await supabase.from("products").update({ is_active: next }).eq("id", p.id);
+    if (error) { toast.error(error.message); return; }
+    toast.success(next ? "Məhsul yayımlandı" : "Məhsul dayandırıldı");
+    await refresh();
+  }
+
+  async function bulkSetActive(active: boolean) {
+    if (selectedIds.size === 0) return;
+    const ids = Array.from(selectedIds);
+    const { error } = await supabase.from("products").update({ is_active: active }).in("id", ids);
+    if (error) { toast.error(error.message); return; }
+    toast.success(`${ids.length} məhsul ${active ? "yayımlandı" : "dayandırıldı"}`);
     setSelectedIds(new Set());
     await refresh();
   }
@@ -686,7 +704,7 @@ function SellerDashboard() {
                   </span>
                 </label>
                 {selectedIds.size > 0 && (
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 flex-wrap">
                     <button
                       type="button"
                       onClick={() => setSelectedIds(new Set())}
@@ -696,12 +714,26 @@ function SellerDashboard() {
                     </button>
                     <button
                       type="button"
+                      onClick={() => bulkSetActive(true)}
+                      className="inline-flex items-center gap-2 h-9 px-3 rounded-lg border border-emerald-500/40 bg-emerald-500/10 text-emerald-400 text-sm font-semibold hover:bg-emerald-500/20"
+                    >
+                      <Eye className="h-4 w-4" /> Yayımla ({selectedIds.size})
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => bulkSetActive(false)}
+                      className="inline-flex items-center gap-2 h-9 px-3 rounded-lg border border-amber-500/40 bg-amber-500/10 text-amber-400 text-sm font-semibold hover:bg-amber-500/20"
+                    >
+                      <EyeOff className="h-4 w-4" /> Dayandır ({selectedIds.size})
+                    </button>
+                    <button
+                      type="button"
                       onClick={bulkRemove}
                       disabled={bulkDeleting}
                       className="inline-flex items-center gap-2 h-9 px-3 rounded-lg bg-destructive text-destructive-foreground text-sm font-semibold hover:opacity-90 disabled:opacity-50"
                     >
                       {bulkDeleting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
-                      Seçilənləri sil ({selectedIds.size})
+                      Sil ({selectedIds.size})
                     </button>
                   </div>
                 )}
@@ -740,14 +772,22 @@ function SellerDashboard() {
                       {!p.is_active && <span className="ml-2 text-destructive">(deaktiv)</span>}
                     </p>
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 flex-wrap justify-end">
+                    <button
+                      onClick={() => toggleActive(p)}
+                      className={`h-9 w-9 grid place-items-center rounded-lg border ${p.is_active ? "border-amber-500/40 text-amber-400 hover:bg-amber-500/15" : "border-emerald-500/40 text-emerald-400 hover:bg-emerald-500/15"}`}
+                      aria-label={p.is_active ? "Dayandır" : "Yayımla"}
+                      title={p.is_active ? "Elanı dayandır" : "Elanı yayımla"}
+                    >
+                      {p.is_active ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </button>
                     <button onClick={() => setBoosting(p)} className="h-9 w-9 grid place-items-center rounded-lg border border-border hover:bg-neon/15 hover:text-neon hover:border-neon/40" aria-label="Boost" title="Boost et">
                       <Rocket className="h-4 w-4" />
                     </button>
-                    <button onClick={() => startEdit(p)} className="h-9 w-9 grid place-items-center rounded-lg border border-border hover:bg-surface" aria-label="Edit">
+                    <button onClick={() => startEdit(p)} className="h-9 w-9 grid place-items-center rounded-lg border border-border hover:bg-surface" aria-label="Redaktə et" title="Redaktə et">
                       <Pencil className="h-4 w-4" />
                     </button>
-                    <button onClick={() => remove(p)} className="h-9 w-9 grid place-items-center rounded-lg border border-border hover:bg-destructive hover:text-destructive-foreground" aria-label="Delete">
+                    <button onClick={() => remove(p)} className="h-9 w-9 grid place-items-center rounded-lg border border-border hover:bg-destructive hover:text-destructive-foreground" aria-label="Sil" title="Sil">
                       <Trash2 className="h-4 w-4" />
                     </button>
                   </div>
