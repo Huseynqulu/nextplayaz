@@ -5,6 +5,13 @@ import g4 from "@/assets/game-4.jpg";
 import g5 from "@/assets/game-5.jpg";
 import g6 from "@/assets/game-6.jpg";
 
+const BOOST_RANK: Record<string, number> = { premium: 3, standard: 2, basic: 1 };
+export function boostScore(p: { boostTier?: string | null; boostExpiresAt?: string | null }): number {
+  if (!p.boostExpiresAt || !p.boostTier) return 0;
+  if (new Date(p.boostExpiresAt).getTime() <= Date.now()) return 0;
+  return BOOST_RANK[p.boostTier] ?? 1;
+}
+
 export type Product = {
   id: string;
   slug: string;
@@ -26,6 +33,8 @@ export type Product = {
   tag?: "HOT" | "NEW" | "-50%" | "TOP";
   sellerId?: string;
   lastSoldAt?: string | null;
+  boostTier?: string | null;
+  boostExpiresAt?: string | null;
 };
 
 export const products: Product[] = [

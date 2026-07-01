@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { Flame, ArrowRight } from "lucide-react";
-import { products as mock } from "@/lib/marketplace-data";
+import { products as mock, boostScore } from "@/lib/marketplace-data";
 import type { Product } from "@/lib/marketplace-data";
 import { ProductCard } from "./ProductCard";
 import { fetchProducts } from "@/lib/products";
@@ -11,7 +11,10 @@ export function TrendingSection() {
   useEffect(() => {
     (async () => {
       const all = await fetchProducts();
-      const sorted = [...all].sort((a, b) => b.reviews - a.reviews);
+      const sorted = [...all].sort((a, b) => {
+        const bs = boostScore(b) - boostScore(a);
+        return bs !== 0 ? bs : b.reviews - a.reviews;
+      });
       setItems(sorted.slice(0, 4));
     })();
   }, []);

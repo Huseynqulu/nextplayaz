@@ -3,7 +3,7 @@ import { Link } from "@tanstack/react-router";
 import { Sparkles, ArrowRight } from "lucide-react";
 import { ProductCard } from "./ProductCard";
 import { fetchProducts } from "@/lib/products";
-import type { Product } from "@/lib/marketplace-data";
+import { boostScore, type Product } from "@/lib/marketplace-data";
 import { useT } from "@/lib/i18n";
 
 export function FeaturedProducts() {
@@ -13,10 +13,12 @@ export function FeaturedProducts() {
   useEffect(() => {
     (async () => {
       const all = await fetchProducts();
-      const scored = [...all].sort(
-        (a, b) => b.rating * Math.log(1 + b.reviews) - a.rating * Math.log(1 + a.reviews),
-      );
-      setItems(scored.slice(0, 8));
+      const ranked = [...all].sort((a, b) => {
+        const bs = boostScore(b) - boostScore(a);
+        if (bs !== 0) return bs;
+        return b.rating * Math.log(1 + b.reviews) - a.rating * Math.log(1 + a.reviews);
+      });
+      setItems(ranked.slice(0, 8));
     })();
   }, []);
 
