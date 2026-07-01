@@ -3,7 +3,7 @@ import { Link } from "@tanstack/react-router";
 import { Sparkles, ArrowRight } from "lucide-react";
 import { ProductCard } from "./ProductCard";
 import { fetchProducts } from "@/lib/products";
-import type { Product } from "@/lib/marketplace-data";
+import { boostScore, type Product } from "@/lib/marketplace-data";
 import { useT } from "@/lib/i18n";
 
 export function FeaturedProducts() {
