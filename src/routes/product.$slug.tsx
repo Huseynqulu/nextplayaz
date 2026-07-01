@@ -4,7 +4,7 @@ import { ReviewSection } from "@/components/ReviewSection";
 import { Footer } from "@/components/Footer";
 import { ProductCard } from "@/components/ProductCard";
 import { products as mockProducts, categoryLabel } from "@/lib/marketplace-data";
-import { fetchProductBySlug, PRODUCT_PLACEHOLDER } from "@/lib/products";
+import { fetchProductBySlug, fetchProducts, PRODUCT_PLACEHOLDER } from "@/lib/products";
 import { Star, ShieldCheck, Zap, Lock, Package, MessageCircle, Heart, Share2, Loader2, X, FileText } from "lucide-react";
 import { useEffect, useState } from "react";
 import { trackView } from "@/lib/recently-viewed";
@@ -77,7 +77,18 @@ function ProductPage() {
       if (e?.name !== "AbortError") await copy();
     }
   }
-  const similar: typeof p[] = [];
+  const [similar, setSimilar] = useState<typeof p[]>([]);
+  useEffect(() => {
+    let cancel = false;
+    (async () => {
+      const all = await fetchProducts();
+      if (cancel) return;
+      const sameCat = all.filter(x => x.id !== p.id && x.category === p.category);
+      const pool = sameCat.length >= 4 ? sameCat : [...sameCat, ...all.filter(x => x.id !== p.id && x.category !== p.category)];
+      setSimilar(pool.slice(0, 8));
+    })();
+    return () => { cancel = true; };
+  }, [p.id, p.category]);
   const isDbProduct = /^[0-9a-f]{8}-/i.test(p.id);
   const gallery = Array.from(new Set([p.image, ...((p.images ?? []) as string[])].filter(Boolean)));
   const [activeImg, setActiveImg] = useState(gallery[0] ?? p.image);
@@ -334,12 +345,14 @@ function ProductPage() {
           {isDbProduct && <ReviewSection productId={p.id} sellerId={p.sellerId ?? null} />}
 
           {/* Similar */}
-          <div className="mt-16">
-            <h2 className="font-display text-2xl font-bold mb-6">Oxşar məhsullar</h2>
-            <div className="grid gap-5 grid-cols-2 lg:grid-cols-4">
-              {similar.map(s => <ProductCard key={s.id} p={s} />)}
+          {similar.length > 0 && (
+            <div className="mt-16">
+              <h2 className="font-display text-2xl font-bold mb-6">Oxşar məhsullar</h2>
+              <div className="grid gap-5 grid-cols-2 lg:grid-cols-4">
+                {similar.slice(0, 8).map(s => <ProductCard key={s.id} p={s} />)}
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Recently viewed */}
           <RecentlyViewed excludeId={p.id} />
