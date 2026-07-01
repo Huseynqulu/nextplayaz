@@ -476,6 +476,7 @@ function AdminPage() {
               ["tickets", `Dəstək (${tickets.filter(t => t.status === "open" || t.status === "pending").length})`],
               ["disputes", `Etirazlar (${disputes.length})`],
               ["users", "İstifadəçilər"],
+              ["sellers", "🏪 Satıcılar"],
               ["topups", `Balans (${topups.filter(t => t.status === "pending").length})`],
               ["withdrawals", `Pul çıxarış (${withdrawals.filter(w => w.status === "pending").length})`],
               ["platform", `Platforma (${platformBalance.toFixed(2)} ₼)`],
