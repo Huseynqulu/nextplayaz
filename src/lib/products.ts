@@ -75,6 +75,30 @@ function getSellerReviewStats(rows: Array<{ seller_id: string; rating: number | 
   return stats;
 }
 
+const REVIEW_PRODUCT_ID_CHUNK_SIZE = 80;
+
+async function fetchReviewRowsByProductIds(productIds: string[]): Promise<Array<{ product_id: string; rating: number | null }>> {
+  const uniqueIds = Array.from(new Set(productIds.filter(Boolean)));
+  if (!uniqueIds.length) return [];
+
+  const chunks: string[][] = [];
+  for (let i = 0; i < uniqueIds.length; i += REVIEW_PRODUCT_ID_CHUNK_SIZE) {
+    chunks.push(uniqueIds.slice(i, i + REVIEW_PRODUCT_ID_CHUNK_SIZE));
+  }
+
+  const results = await Promise.all(chunks.map(async (ids) => {
+    const { data, error } = await supabase
+      .from("reviews")
+      .select("product_id, rating")
+      .in("product_id", ids);
+
+    if (error) return [];
+    return (data as Array<{ product_id: string; rating: number | null }> | null) ?? [];
+  }));
+
+  return results.flat();
+}
+
 export function dbToProduct(p: DbProduct, seller?: SellerLite | string): Product {
   const s: SellerLite = typeof seller === "string" || seller === undefined
     ? { name: (typeof seller === "string" ? seller : "Satıcı") }
@@ -157,12 +181,9 @@ export async function fetchProducts(): Promise<Product[]> {
     const productIds = Array.from(productSellerMap.keys());
     let reviewStats = new Map<string, { rating: number; reviewsCount: number }>();
     if (productIds.length) {
-      const { data: reviewRows } = await supabase
-        .from("reviews")
-        .select("product_id, rating")
-        .in("product_id", productIds);
+      const reviewRows = await fetchReviewRowsByProductIds(productIds);
       const rowsBySeller: Array<{ seller_id: string; rating: number | null }> = [];
-      ((reviewRows as any[]) ?? []).forEach((row: any) => {
+      reviewRows.forEach((row) => {
         const sellerId = productSellerMap.get(row.product_id);
         if (sellerId) rowsBySeller.push({ seller_id: sellerId, rating: row.rating });
       });
@@ -204,14 +225,7 @@ export async function fetchProductBySlug(slug: string): Promise<Product | null> 
 
   const sellerProductRows = (sellerProds as any[]) ?? [];
   const productIds = sellerProductRows.map((row: any) => row.id).filter(Boolean);
-  let reviewRows: any[] = [];
-  if (productIds.length) {
-    const { data: rows } = await supabase
-      .from("reviews")
-      .select("product_id, rating")
-      .in("product_id", productIds);
-    reviewRows = (rows as any[]) ?? [];
-  }
+  const reviewRows = await fetchReviewRowsByProductIds(productIds);
 
   const sellerSummary = summarizeRating(reviewRows);
   const legacySellerSummary = getSellerReviewStats(sellerProductRows).get(data.seller_id) ?? { rating: 5, reviewsCount: 0 };
