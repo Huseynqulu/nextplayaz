@@ -10,8 +10,8 @@ export function ChatImage({ path, className }: { path: string; className?: strin
   }, [path]);
   if (!url) return <div className="h-32 w-48 rounded-lg bg-surface/60 animate-pulse" />;
   return (
-    <a href={url} target="_blank" rel="noopener noreferrer" className="block">
-      <img src={url} alt="attachment" className={className ?? "max-h-64 max-w-xs rounded-lg border border-border object-cover"} />
+    <a href={url} target="_blank" rel="noopener noreferrer" className="inline-block w-fit">
+      <img src={url} alt="attachment" className={className ?? "max-h-64 max-w-[240px] rounded-lg border border-border object-cover"} />
     </a>
   );
 }
