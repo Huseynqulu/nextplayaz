@@ -79,7 +79,6 @@ export function dbToProduct(p: DbProduct, seller?: SellerLite | string): Product
       verified: s.verified ?? false,
       avatarUrl: s.avatarUrl ?? null,
       shopName: s.shopName ?? null,
-      // @ts-expect-error extra optional field
       reviewsCount: s.reviewsCount ?? 0,
     },
     delivery: p.delivery,
