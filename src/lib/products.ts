@@ -30,6 +30,28 @@ const FALLBACK_IMG = PRODUCT_PLACEHOLDER;
 
 export type SellerLite = { name: string; avatarUrl?: string | null; shopName?: string | null; verified?: boolean; rating?: number; sales?: number; reviewsCount?: number };
 
+function summarizeRating(rows: Array<{ rating: number | null }>) {
+  const valid = rows.filter((row) => Number(row.rating) > 0);
+  const reviewsCount = valid.length;
+  const rating = reviewsCount
+    ? Math.round((valid.reduce((sum, row) => sum + Number(row.rating), 0) / reviewsCount) * 10) / 10
+    : 5;
+
+  return { rating, reviewsCount };
+}
+
+function getSellerReviewStatsFromReviews(rows: Array<{ seller_id: string; rating: number | null }>) {
+  const grouped = new Map<string, Array<{ rating: number | null }>>();
+
+  rows.forEach((row) => {
+    const current = grouped.get(row.seller_id) ?? [];
+    current.push({ rating: row.rating });
+    grouped.set(row.seller_id, current);
+  });
+
+  return new Map(Array.from(grouped.entries()).map(([sellerId, sellerReviews]) => [sellerId, summarizeRating(sellerReviews)]));
+}
+
 function getSellerReviewStats(rows: Array<{ seller_id: string; rating: number | null; reviews_count: number | null }>) {
   const stats = new Map<string, { rating: number; reviewsCount: number }>();
   const grouped = new Map<string, { weighted: number; count: number }>();
@@ -121,7 +143,7 @@ export async function fetchProducts(): Promise<Product[]> {
         .in("id", sellerIds),
       supabase
         .from("products")
-        .select("seller_id, rating, reviews_count")
+        .select("id, seller_id, rating, reviews_count")
         .in("seller_id", sellerIds)
         .eq("is_active", true),
       supabase
@@ -130,7 +152,20 @@ export async function fetchProducts(): Promise<Product[]> {
         .in("seller_id", sellerIds)
         .eq("status", "completed"),
     ]);
-    const reviewStats = getSellerReviewStats((sellerProds as any[]) ?? []);
+    const sellerProductRows = (sellerProds as any[]) ?? [];
+    const productSellerMap = new Map<string, string>(sellerProductRows.map((row: any) => [row.id, row.seller_id]));
+    const productIds = Array.from(productSellerMap.keys());
+    let reviewStats = new Map<string, { rating: number; reviewsCount: number }>();
+    if (productIds.length) {
+      const { data: reviewRows } = await supabase
+        .from("reviews")
+        .select("product_id, rating")
+        .in("product_id", productIds);
+      reviewStats = getSellerReviewStatsFromReviews(((reviewRows as any[]) ?? [])
+        .map((row: any) => ({ seller_id: productSellerMap.get(row.product_id), rating: row.rating }))
+        .filter((row: any) => !!row.seller_id));
+    }
+    const legacyReviewStats = getSellerReviewStats(sellerProductRows);
     const salesCounts = new Map<string, number>();
     ((sellerSales as any[]) ?? []).forEach((row) => salesCounts.set(row.seller_id, (salesCounts.get(row.seller_id) ?? 0) + 1));
     sellerMap = new Map(((profs as any[]) ?? []).map((p: any) => [p.id, {
@@ -138,8 +173,8 @@ export async function fetchProducts(): Promise<Product[]> {
       shopName: p.shop_name ?? null,
       avatarUrl: p.avatar_url ?? null,
       verified: !!p.verified_at,
-      rating: reviewStats.get(p.id)?.rating ?? 5,
-      reviewsCount: reviewStats.get(p.id)?.reviewsCount ?? 0,
+      rating: reviewStats.get(p.id)?.rating ?? legacyReviewStats.get(p.id)?.rating ?? 5,
+      reviewsCount: reviewStats.get(p.id)?.reviewsCount ?? legacyReviewStats.get(p.id)?.reviewsCount ?? 0,
       sales: salesCounts.get(p.id) ?? 0,
     } as SellerLite]));
   }
@@ -158,36 +193,39 @@ export async function fetchProductBySlug(slug: string): Promise<Product | null> 
       .select("display_name, username, shop_name, avatar_url, verified_at")
       .eq("id", data.seller_id)
       .maybeSingle(),
-    supabase.from("products").select("rating, reviews_count")
+    supabase.from("products").select("id, seller_id, rating, reviews_count")
       .eq("seller_id", data.seller_id).eq("is_active", true),
     supabase.from("orders").select("id", { count: "exact", head: true })
       .eq("seller_id", data.seller_id).eq("status", "completed"),
   ]);
 
-  let ratingAvg = 5;
-  let reviewsTotal = 0;
-  for (const row of (sellerProds as any[]) ?? []) {
-    const c = Number(row.reviews_count) || 0;
-    reviewsTotal += c;
-    if (c > 0) ratingAvg += 0; // computed below
-  }
-  if (reviewsTotal > 0) {
-    let weighted = 0;
-    for (const row of (sellerProds as any[]) ?? []) {
-      const c = Number(row.reviews_count) || 0;
-      weighted += (Number(row.rating) || 0) * c;
-    }
-    ratingAvg = Math.round((weighted / reviewsTotal) * 10) / 10;
+  const sellerProductRows = (sellerProds as any[]) ?? [];
+  const productIds = sellerProductRows.map((row: any) => row.id).filter(Boolean);
+  let reviewRows: any[] = [];
+  if (productIds.length) {
+    const { data: rows } = await supabase
+      .from("reviews")
+      .select("product_id, rating")
+      .in("product_id", productIds);
+    reviewRows = (rows as any[]) ?? [];
   }
 
+  const sellerSummary = summarizeRating(reviewRows);
+  const legacySellerSummary = getSellerReviewStats(sellerProductRows).get(data.seller_id) ?? { rating: 5, reviewsCount: 0 };
+  const finalSellerSummary = sellerSummary.reviewsCount > 0 ? sellerSummary : legacySellerSummary;
+  const productSummary = summarizeRating(reviewRows.filter((row: any) => row.product_id === data.id));
+  const enrichedProduct = productSummary.reviewsCount > 0
+    ? { ...data, rating: productSummary.rating, reviews_count: productSummary.reviewsCount }
+    : data;
+
   const prof = profRaw as any;
-  return dbToProduct(data as unknown as DbProduct, {
+  return dbToProduct(enrichedProduct as unknown as DbProduct, {
     name: prof?.display_name || prof?.username || "Satıcı",
     shopName: prof?.shop_name ?? null,
     avatarUrl: prof?.avatar_url ?? null,
     verified: !!prof?.verified_at,
-    rating: ratingAvg,
-    reviewsCount: reviewsTotal,
+    rating: finalSellerSummary.rating,
+    reviewsCount: finalSellerSummary.reviewsCount,
     sales: salesCount ?? 0,
   });
 }
