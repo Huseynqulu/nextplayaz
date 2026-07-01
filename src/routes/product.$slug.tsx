@@ -77,7 +77,18 @@ function ProductPage() {
       if (e?.name !== "AbortError") await copy();
     }
   }
-  const similar: typeof p[] = [];
+  const [similar, setSimilar] = useState<typeof p[]>([]);
+  useEffect(() => {
+    let cancel = false;
+    (async () => {
+      const all = await fetchProducts();
+      if (cancel) return;
+      const sameCat = all.filter(x => x.id !== p.id && x.category === p.category);
+      const pool = sameCat.length >= 4 ? sameCat : [...sameCat, ...all.filter(x => x.id !== p.id && x.category !== p.category)];
+      setSimilar(pool.slice(0, 8));
+    })();
+    return () => { cancel = true; };
+  }, [p.id, p.category]);
   const isDbProduct = /^[0-9a-f]{8}-/i.test(p.id);
   const gallery = Array.from(new Set([p.image, ...((p.images ?? []) as string[])].filter(Boolean)));
   const [activeImg, setActiveImg] = useState(gallery[0] ?? p.image);
