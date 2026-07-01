@@ -35,7 +35,7 @@ export function LanguageSwitcher() {
       {open && (
         <>
           <div className="fixed inset-0 z-10" onClick={() => setOpen(false)} />
-          <div className="absolute right-0 top-12 z-20 w-60 rounded-xl border border-border bg-popover shadow-xl overflow-hidden">
+          <div className="fixed left-3 right-3 top-[4.25rem] z-20 max-h-[calc(100vh-5rem)] overflow-hidden rounded-xl border border-border bg-popover shadow-xl sm:absolute sm:left-auto sm:right-0 sm:top-12 sm:w-60">
             <div className="px-3 pt-3 pb-1.5 flex items-center gap-1.5 text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">
               <Coins className="h-3 w-3" /> Valyuta
             </div>
