@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { Flame } from "lucide-react";
 import { useT } from "@/lib/i18n";
 import forzaHorizon6Cover from "@/assets/forza-horizon-6.jpg";
+import fc26Cover from "@/assets/fc-26.jpg";
 
 type Game = {
   title: string;
