@@ -282,8 +282,9 @@ function ProductPage() {
                       <h4 className="font-semibold truncate">{p.seller.name}</h4>
                       <VerifiedBadge verified={p.seller.verified} size={16} />
                     </div>
-                    <div className="text-xs text-muted-foreground flex items-center gap-3 mt-0.5">
-                      <span className="flex items-center gap-1"><Star className="h-3 w-3 fill-warning text-warning" /> {p.seller.rating}</span>
+                    <div className="text-xs text-muted-foreground flex items-center gap-3 mt-0.5 flex-wrap">
+                      <span className="flex items-center gap-1"><Star className="h-3 w-3 fill-warning text-warning" /> <b className="text-foreground">{p.seller.rating.toFixed(1)}</b> ({(p.seller as any).reviewsCount ?? 0} rəy)</span>
+                      <span>{p.seller.sales} satış</span>
                       <span>Profilə bax →</span>
                     </div>
                   </div>
