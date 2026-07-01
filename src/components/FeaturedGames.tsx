@@ -15,7 +15,7 @@ const GAMES: Game[] = [
   { title: "Forza Horizon 6", tag: "Steam açar", appid: 1551360, query: "Forza" },
   { title: "Cyberpunk 2077", tag: "Phantom Liberty", appid: 1091500, query: "Cyberpunk" },
   { title: "Red Dead Redemption 2", tag: "Ultimate", appid: 1174180, query: "Red Dead" },
-  { title: "EA SPORTS FC 25", tag: "Ultimate Team", appid: 2669320, query: "FC 25" },
+  { title: "EA SPORTS FC 26", tag: "Ultimate Team", appid: 2669320, query: "FC 26" },
   { title: "Elden Ring", tag: "Shadow of the Erdtree", appid: 1245620, query: "Elden Ring" },
   { title: "Counter-Strike 2", tag: "Prime hesab", appid: 730, query: "CS2" },
   { title: "Baldur's Gate 3", tag: "Deluxe Edition", appid: 1086940, query: "Baldur" },
