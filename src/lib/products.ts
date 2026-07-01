@@ -211,15 +211,13 @@ export async function fetchProductBySlug(slug: string): Promise<Product | null> 
   const { data } = await supabase.from("products").select("*").eq("slug", slug).eq("is_active", true).maybeSingle();
   if (!data) return null;
 
-  const [{ data: profRaw }, { data: sellerProds }, { count: salesCount }] = await Promise.all([
+  const [{ data: profRaw }, { data: sellerProds }] = await Promise.all([
     supabase.from("public_profiles" as any)
-      .select("display_name, username, shop_name, avatar_url, verified_at")
+      .select("display_name, username, shop_name, avatar_url, verified_at, sales_count")
       .eq("id", data.seller_id)
       .maybeSingle(),
     supabase.from("products").select("id, seller_id, rating, reviews_count")
       .eq("seller_id", data.seller_id).eq("is_active", true),
-    supabase.from("orders").select("id", { count: "exact", head: true })
-      .eq("seller_id", data.seller_id).eq("status", "completed"),
   ]);
 
   const sellerProductRows = (sellerProds as any[]) ?? [];
@@ -242,6 +240,6 @@ export async function fetchProductBySlug(slug: string): Promise<Product | null> 
     verified: !!prof?.verified_at,
     rating: finalSellerSummary.rating,
     reviewsCount: finalSellerSummary.reviewsCount,
-    sales: salesCount ?? 0,
+    sales: prof?.sales_count ?? 0,
   });
 }
