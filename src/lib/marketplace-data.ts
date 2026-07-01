@@ -26,6 +26,8 @@ export type Product = {
   tag?: "HOT" | "NEW" | "-50%" | "TOP";
   sellerId?: string;
   lastSoldAt?: string | null;
+  boostTier?: string | null;
+  boostExpiresAt?: string | null;
 };
 
 export const products: Product[] = [
