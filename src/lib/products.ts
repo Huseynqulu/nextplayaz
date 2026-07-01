@@ -26,7 +26,7 @@ export type DbProduct = {
 export const PRODUCT_PLACEHOLDER = "__np_placeholder__";
 const FALLBACK_IMG = PRODUCT_PLACEHOLDER;
 
-export type SellerLite = { name: string; avatarUrl?: string | null; shopName?: string | null; verified?: boolean };
+export type SellerLite = { name: string; avatarUrl?: string | null; shopName?: string | null; verified?: boolean; rating?: number; sales?: number; reviewsCount?: number };
 
 export function dbToProduct(p: DbProduct, seller?: SellerLite | string): Product {
   const s: SellerLite = typeof seller === "string" || seller === undefined
@@ -49,7 +49,16 @@ export function dbToProduct(p: DbProduct, seller?: SellerLite | string): Product
     stock: p.stock,
     rating: Number(p.rating) || 5,
     reviews: p.reviews_count,
-    seller: { name: displayName, rating: 5, sales: 0, verified: s.verified ?? false, avatarUrl: s.avatarUrl ?? null, shopName: s.shopName ?? null },
+    seller: {
+      name: displayName,
+      rating: s.rating ?? 5,
+      sales: s.sales ?? 0,
+      verified: s.verified ?? false,
+      avatarUrl: s.avatarUrl ?? null,
+      shopName: s.shopName ?? null,
+      // @ts-expect-error extra optional field
+      reviewsCount: s.reviewsCount ?? 0,
+    },
     delivery: p.delivery,
     sellerId: p.seller_id,
     lastSoldAt: p.last_sold_at ?? null,
@@ -98,20 +107,43 @@ export async function fetchProducts(): Promise<Product[]> {
 
 export async function fetchProductBySlug(slug: string): Promise<Product | null> {
   const { data } = await supabase.from("products").select("*").eq("slug", slug).eq("is_active", true).maybeSingle();
-  if (data) {
-    const { data: profRaw } = await supabase
-      .from("public_profiles" as any)
+  if (!data) return null;
+
+  const [{ data: profRaw }, { data: sellerProds }, { count: salesCount }] = await Promise.all([
+    supabase.from("public_profiles" as any)
       .select("display_name, username, shop_name, avatar_url, verified_at")
       .eq("id", data.seller_id)
-      .maybeSingle();
-    const prof = profRaw as any;
-    return dbToProduct(data as unknown as DbProduct, prof ? {
-      name: prof.display_name || prof.username || "Satıcı",
-      shopName: prof.shop_name ?? null,
-      avatarUrl: prof.avatar_url ?? null,
-      verified: !!prof.verified_at,
-    } : undefined);
+      .maybeSingle(),
+    supabase.from("products").select("rating, reviews_count")
+      .eq("seller_id", data.seller_id).eq("is_active", true),
+    supabase.from("orders").select("id", { count: "exact", head: true })
+      .eq("seller_id", data.seller_id).eq("status", "completed"),
+  ]);
+
+  let ratingAvg = 5;
+  let reviewsTotal = 0;
+  for (const row of (sellerProds as any[]) ?? []) {
+    const c = Number(row.reviews_count) || 0;
+    reviewsTotal += c;
+    if (c > 0) ratingAvg += 0; // computed below
+  }
+  if (reviewsTotal > 0) {
+    let weighted = 0;
+    for (const row of (sellerProds as any[]) ?? []) {
+      const c = Number(row.reviews_count) || 0;
+      weighted += (Number(row.rating) || 0) * c;
+    }
+    ratingAvg = Math.round((weighted / reviewsTotal) * 10) / 10;
   }
 
-  return null;
+  const prof = profRaw as any;
+  return dbToProduct(data as unknown as DbProduct, {
+    name: prof?.display_name || prof?.username || "Satıcı",
+    shopName: prof?.shop_name ?? null,
+    avatarUrl: prof?.avatar_url ?? null,
+    verified: !!prof?.verified_at,
+    rating: ratingAvg,
+    reviewsCount: reviewsTotal,
+    sales: salesCount ?? 0,
+  });
 }
