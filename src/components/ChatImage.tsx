@@ -29,12 +29,12 @@ export function ChatImage({ path, className }: { path: string; className?: strin
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="inline-block w-fit cursor-zoom-in transition hover:opacity-90"
+        className="block max-w-full cursor-zoom-in transition hover:opacity-90"
       >
         <img
           src={url}
           alt="attachment"
-          className={className ?? "max-h-64 max-w-[240px] rounded-lg border border-border object-cover"}
+          className={className ?? "max-h-64 w-auto max-w-full h-auto rounded-lg border border-border object-cover"}
         />
       </button>
       {open && typeof document !== "undefined" && createPortal(
