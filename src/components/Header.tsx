@@ -186,7 +186,7 @@ export function Header() {
             </div>
           ) : (
             <>
-              <Link to="/login" className="hidden sm:inline-flex h-10 items-center px-4 rounded-lg text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-surface transition">
+              <Link to="/login" className="inline-flex h-10 items-center px-3 sm:px-4 rounded-lg text-sm font-medium text-foreground border border-border hover:bg-surface transition">
                 {t("auth.login")}
               </Link>
               <Link to="/register" className="inline-flex h-10 items-center px-4 rounded-lg text-sm font-semibold bg-neon text-background neon-ring hover:opacity-95 transition">
