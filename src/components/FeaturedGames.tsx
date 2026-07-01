@@ -8,6 +8,7 @@ type Game = {
   tag: string;
   appid: number;
   query: string;
+  cover?: string;
 };
 
 // Official Steam CDN cover art (library_600x900). Public, stable URLs.
