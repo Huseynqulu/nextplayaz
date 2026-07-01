@@ -22,8 +22,6 @@ const GAMES: Game[] = [
   { title: "Elden Ring", tag: "Shadow of the Erdtree", appid: 1245620, query: "Elden Ring" },
   { title: "Counter-Strike 2", tag: "Prime hesab", appid: 730, query: "CS2" },
   { title: "Baldur's Gate 3", tag: "Deluxe Edition", appid: 1086940, query: "Baldur" },
-  { title: "Valorant", tag: "Hesab + skinlər", appid: 0, query: "Valorant" },
-  { title: "PUBG: BATTLEGROUNDS", tag: "UC & hesablar", appid: 578080, query: "PUBG" },
 ];
 
 function coverUrl(g: Game) {
