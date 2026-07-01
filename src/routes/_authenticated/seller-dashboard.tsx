@@ -772,14 +772,22 @@ function SellerDashboard() {
                       {!p.is_active && <span className="ml-2 text-destructive">(deaktiv)</span>}
                     </p>
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 flex-wrap justify-end">
+                    <button
+                      onClick={() => toggleActive(p)}
+                      className={`h-9 w-9 grid place-items-center rounded-lg border ${p.is_active ? "border-amber-500/40 text-amber-400 hover:bg-amber-500/15" : "border-emerald-500/40 text-emerald-400 hover:bg-emerald-500/15"}`}
+                      aria-label={p.is_active ? "Dayandır" : "Yayımla"}
+                      title={p.is_active ? "Elanı dayandır" : "Elanı yayımla"}
+                    >
+                      {p.is_active ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </button>
                     <button onClick={() => setBoosting(p)} className="h-9 w-9 grid place-items-center rounded-lg border border-border hover:bg-neon/15 hover:text-neon hover:border-neon/40" aria-label="Boost" title="Boost et">
                       <Rocket className="h-4 w-4" />
                     </button>
-                    <button onClick={() => startEdit(p)} className="h-9 w-9 grid place-items-center rounded-lg border border-border hover:bg-surface" aria-label="Edit">
+                    <button onClick={() => startEdit(p)} className="h-9 w-9 grid place-items-center rounded-lg border border-border hover:bg-surface" aria-label="Redaktə et" title="Redaktə et">
                       <Pencil className="h-4 w-4" />
                     </button>
-                    <button onClick={() => remove(p)} className="h-9 w-9 grid place-items-center rounded-lg border border-border hover:bg-destructive hover:text-destructive-foreground" aria-label="Delete">
+                    <button onClick={() => remove(p)} className="h-9 w-9 grid place-items-center rounded-lg border border-border hover:bg-destructive hover:text-destructive-foreground" aria-label="Sil" title="Sil">
                       <Trash2 className="h-4 w-4" />
                     </button>
                   </div>
