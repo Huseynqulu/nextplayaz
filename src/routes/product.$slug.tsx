@@ -345,12 +345,14 @@ function ProductPage() {
           {isDbProduct && <ReviewSection productId={p.id} sellerId={p.sellerId ?? null} />}
 
           {/* Similar */}
-          <div className="mt-16">
-            <h2 className="font-display text-2xl font-bold mb-6">Oxşar məhsullar</h2>
-            <div className="grid gap-5 grid-cols-2 lg:grid-cols-4">
-              {similar.map(s => <ProductCard key={s.id} p={s} />)}
+          {similar.length > 0 && (
+            <div className="mt-16">
+              <h2 className="font-display text-2xl font-bold mb-6">Oxşar məhsullar</h2>
+              <div className="grid gap-5 grid-cols-2 lg:grid-cols-4">
+                {similar.slice(0, 8).map(s => <ProductCard key={s.id} p={s} />)}
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Recently viewed */}
           <RecentlyViewed excludeId={p.id} />
