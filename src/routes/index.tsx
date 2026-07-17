@@ -11,7 +11,7 @@ import { StatsSection } from "@/components/StatsSection";
 import { HowItWorks } from "@/components/HowItWorks";
 import { SellerCta } from "@/components/SellerCta";
 import { LiveSalesTicker } from "@/components/LiveSalesTicker";
-import { GiftCardPromo } from "@/components/GiftCardPromo";
+
 import { RecentlyViewed } from "@/components/RecentlyViewed";
 
 export const Route = createFileRoute("/")({
@@ -32,7 +32,7 @@ function HomePage() {
         <div className="container mx-auto px-4">
           <RecentlyViewed />
         </div>
-        <GiftCardPromo />
+        
 
 
         <FeaturedProducts />
