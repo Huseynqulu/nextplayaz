@@ -440,11 +440,26 @@ function AdminPage() {
   async function savePaymentSetting(s: PaymentSetting) {
     setBusy(s.method);
     const { error } = await supabase.from("payment_settings").update({
-      label: s.label, instructions: s.instructions, is_active: s.is_active,
-    }).eq("method", s.method as any);
+      label: s.label, instructions: s.instructions, is_active: s.is_active, link_url: (s.link_url ?? null) as any,
+    } as any).eq("method", s.method as any);
     if (error) toast.error(error.message);
     else toast.success(`${s.label} yeniləndi`);
     setBusy(null);
+  }
+
+  async function approveOrderPayment(id: string) {
+    setBusy(`op:${id}`);
+    const { error } = await supabase.rpc("approve_order_payment" as any, { p_payment_id: id, p_admin_notes: null });
+    setBusy(null);
+    if (error) toast.error(error.message); else { toast.success("Təsdiqləndi, sifariş açıldı"); await refresh(); }
+  }
+  async function rejectOrderPayment(id: string) {
+    const reason = prompt("Rədd səbəbi (istifadəçiyə göndəriləcək):");
+    if (reason === null) return;
+    setBusy(`op:${id}`);
+    const { error } = await supabase.rpc("reject_order_payment" as any, { p_payment_id: id, p_reason: reason || null });
+    setBusy(null);
+    if (error) toast.error(error.message); else { toast.success("Rədd edildi"); await refresh(); }
   }
 
 
