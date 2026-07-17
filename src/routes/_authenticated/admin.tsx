@@ -48,7 +48,7 @@ type OrderPayment = { id: string; buyer_id: string; product_id: string; quantity
 type Category = { slug: string; label_az: string; label_en: string; label_ru: string; sort_order: number; is_active: boolean };
 type Subcategory = { id?: string; category_slug: string; slug: string; label_az: string; label_en: string; label_ru: string; sort_order: number; is_active: boolean };
 
-type Tab = "analytics" | "applications" | "users" | "sellers" | "codes" | "products" | "tickets" | "topups" | "orderpayments" | "withdrawals" | "platform" | "payments" | "categories" | "platforms" | "disputes" | "banners" | "reviews" | "giftcards" | "giftmarket" | "boost" | "announcements" | "homecats";
+type Tab = "analytics" | "applications" | "users" | "sellers" | "codes" | "products" | "tickets" | "topups" | "topuplinks" | "orderpayments" | "withdrawals" | "platform" | "payments" | "categories" | "platforms" | "disputes" | "banners" | "reviews" | "giftcards" | "giftmarket" | "boost" | "announcements" | "homecats";
 
 type PlatformRow = { slug: string; label_az: string; label_en: string; label_ru: string; sort_order: number; is_active: boolean };
 type PlatformSub = { platform_slug: string; slug: string; label_az: string; label_en: string; label_ru: string; sort_order: number; is_active: boolean };
