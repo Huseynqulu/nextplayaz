@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { Gamepad2, Shield, Zap, Headphones } from "lucide-react";
+import { Shield, Zap, Headphones } from "lucide-react";
 import { useT } from "@/lib/i18n";
 
 export function Footer() {
@@ -10,9 +10,6 @@ export function Footer() {
         <div className="grid gap-12 lg:grid-cols-4">
           <div>
             <div className="flex items-center gap-2 mb-4">
-              <div className="grid h-9 w-9 place-items-center rounded-lg bg-neon">
-                <Gamepad2 className="h-5 w-5 text-background" />
-              </div>
               <span className="font-display text-xl font-bold">
                 NEXT<span className="text-gradient">PLAY</span>.az
               </span>
