@@ -5,7 +5,7 @@ import { useEffect, useState, lazy, Suspense } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
-import { Loader2, CheckCircle2, XCircle, ShieldCheck, Package, Users, FileText, Ticket, Wallet, Trash2, Plus, Eye, X, FileImage, LifeBuoy, Send, ArrowLeft, Receipt, Image as ImageIcon } from "lucide-react";
+import { Loader2, CheckCircle2, XCircle, ShieldCheck, Package, Users, FileText, Ticket, Wallet, Trash2, Plus, Eye, X, FileImage, LifeBuoy, Send, ArrowLeft, Receipt, Image as ImageIcon, CreditCard } from "lucide-react";
 import { ChatImage } from "@/components/ChatImage";
 import { categoryLabel } from "@/lib/marketplace-data";
 // Lazy-load heavy tab panels so the admin entry chunk stays small.
@@ -42,11 +42,12 @@ type DiscountCode = { id: string; code: string; percent: number; max_uses: numbe
 type AdminTicket = { id: string; user_id: string; order_id: string | null; subject: string; message: string; category: string; status: string; priority: string; created_at: string; updated_at: string };
 type TicketMsg = { id: string; sender_id: string; is_admin: boolean; body: string; created_at: string; attachment_url?: string | null };
 type TopUp = { id: string; user_id: string; amount: number; method: string; sender_note: string | null; receipt_url: string | null; status: "pending"|"approved"|"rejected"; admin_notes: string | null; created_at: string };
-type PaymentSetting = { method: string; label: string; instructions: string; is_active: boolean };
+type PaymentSetting = { method: string; label: string; instructions: string; is_active: boolean; link_url?: string | null };
+type OrderPayment = { id: string; buyer_id: string; product_id: string; quantity: number; discount_code: string | null; amount: number; method: string; reference: string; receipt_url: string | null; status: "pending"|"approved"|"rejected"; admin_notes: string | null; order_id: string | null; created_at: string; buyer?: { display_name: string | null; username: string | null } | null; product?: { title: string } | null };
 type Category = { slug: string; label_az: string; label_en: string; label_ru: string; sort_order: number; is_active: boolean };
 type Subcategory = { id?: string; category_slug: string; slug: string; label_az: string; label_en: string; label_ru: string; sort_order: number; is_active: boolean };
 
-type Tab = "analytics" | "applications" | "users" | "sellers" | "codes" | "products" | "tickets" | "topups" | "withdrawals" | "platform" | "payments" | "categories" | "platforms" | "disputes" | "banners" | "reviews" | "giftcards" | "giftmarket" | "boost" | "announcements" | "homecats";
+type Tab = "analytics" | "applications" | "users" | "sellers" | "codes" | "products" | "tickets" | "topups" | "orderpayments" | "withdrawals" | "platform" | "payments" | "categories" | "platforms" | "disputes" | "banners" | "reviews" | "giftcards" | "giftmarket" | "boost" | "announcements" | "homecats";
 
 type PlatformRow = { slug: string; label_az: string; label_en: string; label_ru: string; sort_order: number; is_active: boolean };
 type PlatformSub = { platform_slug: string; slug: string; label_az: string; label_en: string; label_ru: string; sort_order: number; is_active: boolean };
@@ -109,6 +110,9 @@ function AdminPage() {
   const [ledger, setLedger] = useState<LedgerEntry[]>([]);
   const [platformBalance, setPlatformBalance] = useState(0);
   const [userSearch, setUserSearch] = useState("");
+  const [orderPayments, setOrderPayments] = useState<OrderPayment[]>([]);
+  const [opFilter, setOpFilter] = useState<"all" | "pending" | "approved" | "rejected">("pending");
+  const [opReceipt, setOpReceipt] = useState<{ id: string; url: string } | null>(null);
 
 
   // new code form
@@ -149,6 +153,10 @@ function AdminPage() {
     const ledgerRows = (lg as any) ?? [];
     setLedger(ledgerRows);
     setPlatformBalance(ledgerRows.reduce((sum: number, r: LedgerEntry) => sum + Number(r.amount), 0));
+    const { data: ops } = await supabase.from("order_payments" as any)
+      .select("*, product:products(title)")
+      .order("created_at", { ascending: false });
+    setOrderPayments((ops as any) ?? []);
     setApps((a as any) ?? []);
     setProducts((p as any) ?? []);
     setUsers((u as any) ?? []);
@@ -432,11 +440,26 @@ function AdminPage() {
   async function savePaymentSetting(s: PaymentSetting) {
     setBusy(s.method);
     const { error } = await supabase.from("payment_settings").update({
-      label: s.label, instructions: s.instructions, is_active: s.is_active,
-    }).eq("method", s.method as any);
+      label: s.label, instructions: s.instructions, is_active: s.is_active, link_url: (s.link_url ?? null) as any,
+    } as any).eq("method", s.method as any);
     if (error) toast.error(error.message);
     else toast.success(`${s.label} yeniləndi`);
     setBusy(null);
+  }
+
+  async function approveOrderPayment(id: string) {
+    setBusy(`op:${id}`);
+    const { error } = await supabase.rpc("approve_order_payment" as any, { p_payment_id: id, p_admin_notes: null });
+    setBusy(null);
+    if (error) toast.error(error.message); else { toast.success("Təsdiqləndi, sifariş açıldı"); await refresh(); }
+  }
+  async function rejectOrderPayment(id: string) {
+    const reason = prompt("Rədd səbəbi (istifadəçiyə göndəriləcək):");
+    if (reason === null) return;
+    setBusy(`op:${id}`);
+    const { error } = await supabase.rpc("reject_order_payment" as any, { p_payment_id: id, p_reason: reason || null });
+    setBusy(null);
+    if (error) toast.error(error.message); else { toast.success("Rədd edildi"); await refresh(); }
   }
 
 
@@ -479,6 +502,7 @@ function AdminPage() {
               ["users", "İstifadəçilər"],
               ["sellers", "🏪 Satıcılar"],
               ["topups", `Balans (${topups.filter(t => t.status === "pending").length})`],
+              ["orderpayments", `💳 Sifariş ödənişləri (${orderPayments.filter(o => o.status === "pending").length})`],
               ["withdrawals", `Pul çıxarış (${withdrawals.filter(w => w.status === "pending").length})`],
               ["platform", `Platforma (${platformBalance.toFixed(2)} ₼)`],
               ["payments", "Rekvizitlər"],
@@ -822,6 +846,70 @@ function AdminPage() {
                 );
               })}
             </div>
+          ) : tab === "orderpayments" ? (
+            <div className="space-y-3">
+              <p className="text-sm text-muted-foreground">Alıcıların "BirBank ilə birbaşa al" düyməsi ilə göndərdikləri ödəniş qəbzləri. Təsdiqlədikdə sifariş avtomatik açılır.</p>
+              <div className="flex gap-2 flex-wrap mb-2">
+                {(["all","pending","approved","rejected"] as const).map(f => {
+                  const n = f === "all" ? orderPayments.length : orderPayments.filter(o => o.status === f).length;
+                  return (
+                    <button key={f} onClick={() => setOpFilter(f)}
+                      className={`h-8 px-3 rounded-full text-xs font-semibold transition ${opFilter === f ? "bg-neon text-background" : "bg-surface border border-border text-muted-foreground hover:text-foreground"}`}>
+                      {f === "all" ? "Hamısı" : f === "pending" ? "Gözləyən" : f === "approved" ? "Təsdiqli" : "Rədd"} ({n})
+                    </button>
+                  );
+                })}
+              </div>
+              {orderPayments.filter(o => opFilter === "all" || o.status === opFilter).length === 0 && (
+                <p className="text-muted-foreground text-center py-12">Ödəniş yoxdur.</p>
+              )}
+              {orderPayments.filter(o => opFilter === "all" || o.status === opFilter).map(o => {
+                const u = users.find(x => x.id === o.buyer_id);
+                return (
+                  <div key={o.id} className="rounded-xl border border-border bg-card-gradient p-4">
+                    <div className="flex flex-wrap items-start justify-between gap-3">
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <CreditCard className="h-4 w-4 text-neon" />
+                          <span className="font-bold text-lg">{Number(o.amount).toFixed(2)} ₼</span>
+                          <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-surface font-mono">{o.reference}</span>
+                          <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-surface">{o.method}</span>
+                          <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${
+                            o.status === "approved" ? "bg-success/20 text-success" :
+                            o.status === "rejected" ? "bg-destructive/20 text-destructive" : "bg-warning/20 text-warning"
+                          }`}>{o.status}</span>
+                        </div>
+                        <p className="text-sm mt-1.5"><b>{o.product?.title ?? "—"}</b> × {o.quantity}</p>
+                        <p className="text-xs text-muted-foreground mt-1">Alıcı: {u?.display_name ?? u?.username ?? "—"} · {u?.email ?? o.buyer_id.slice(0,8)}</p>
+                        {o.discount_code && <p className="text-[11px] text-muted-foreground">Endirim kodu: {o.discount_code}</p>}
+                        {o.admin_notes && <p className="text-xs mt-1.5 bg-neon/5 border border-neon/20 px-2 py-1 rounded">Admin: {o.admin_notes}</p>}
+                        <p className="text-[11px] text-muted-foreground mt-2">{new Date(o.created_at).toLocaleString("az-AZ")}</p>
+                      </div>
+                      <div className="flex gap-2 flex-wrap">
+                        {o.receipt_url && (
+                          <button onClick={() => setOpReceipt({ id: o.id, url: o.receipt_url! })}
+                            className="inline-flex items-center gap-1.5 h-9 px-3 rounded-lg bg-surface border border-border text-sm font-semibold hover:border-primary">
+                            <Eye className="h-4 w-4" /> Qəbz
+                          </button>
+                        )}
+                        {o.status === "pending" && (
+                          <>
+                            <button disabled={busy === `op:${o.id}`} onClick={() => approveOrderPayment(o.id)}
+                              className="inline-flex items-center gap-1.5 h-9 px-3 rounded-lg bg-success text-background text-sm font-semibold hover:opacity-90 disabled:opacity-50">
+                              <CheckCircle2 className="h-4 w-4" /> Təsdiq
+                            </button>
+                            <button disabled={busy === `op:${o.id}`} onClick={() => rejectOrderPayment(o.id)}
+                              className="inline-flex items-center gap-1.5 h-9 px-3 rounded-lg bg-destructive text-destructive-foreground text-sm font-semibold hover:opacity-90 disabled:opacity-50">
+                              <XCircle className="h-4 w-4" /> Rədd
+                            </button>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           ) : tab === "payments" ? (
             <div className="space-y-3">
               <p className="text-sm text-muted-foreground mb-2">Bu rekvizitlər istifadəçilərin <span className="text-neon font-semibold">Cüzdan</span> səhifəsində ödəniş üsulu seçildikdə avtomatik göstərilir.</p>
@@ -845,6 +933,10 @@ function AdminPage() {
                     const next = [...paySettings]; next[i] = { ...s, instructions: e.target.value }; setPaySettings(next);
                   }} rows={3} placeholder="Məs: m10 nömrəsi: +994 50 123 45 67, Ad: Eli Novruzov"
                     className="w-full px-3 py-2 rounded-md bg-background border border-border text-sm font-mono resize-none" />
+                  <input value={s.link_url ?? ""} onChange={e => {
+                    const next = [...paySettings]; next[i] = { ...s, link_url: e.target.value }; setPaySettings(next);
+                  }} placeholder="Ödəniş linki (BirBank statik link, opsional)"
+                    className="w-full h-10 px-3 rounded-md bg-background border border-border text-sm" />
                   <div className="flex justify-end">
                     <button disabled={busy === s.method} onClick={() => savePaymentSetting(s)}
                       className="h-9 px-4 rounded-md bg-neon text-background text-sm font-semibold neon-ring disabled:opacity-50 inline-flex items-center gap-1.5">
@@ -1402,6 +1494,20 @@ function AdminPage() {
             </div>
             <a href={topupReceipt.url} target="_blank" rel="noreferrer" className="block">
               <img src={topupReceipt.url} alt="Receipt" className="w-full rounded-lg border border-border" />
+            </a>
+          </div>
+        </div>
+      )}
+
+      {opReceipt && (
+        <div className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm flex items-center justify-center p-4" onClick={() => setOpReceipt(null)}>
+          <div className="w-full max-w-2xl rounded-2xl border border-border bg-card-gradient p-4 card-shadow" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="font-semibold">Ödəniş qəbzi</h3>
+              <button onClick={() => setOpReceipt(null)} className="grid h-9 w-9 place-items-center rounded-lg hover:bg-surface"><X className="h-4 w-4" /></button>
+            </div>
+            <a href={opReceipt.url} target="_blank" rel="noreferrer" className="block">
+              <img src={opReceipt.url} alt="Receipt" className="w-full rounded-lg border border-border" />
             </a>
           </div>
         </div>
