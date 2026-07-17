@@ -23,6 +23,7 @@ function HomePage() {
     <div className="min-h-screen flex flex-col">
       <Header />
       <main className="flex-1">
+        <CategoriesSection />
         <Hero />
         <BannerCarousel />
         
@@ -32,7 +33,7 @@ function HomePage() {
         </div>
         <GiftCardPromo />
         <HomeCategoriesGrid />
-        <CategoriesSection />
+
         <FeaturedProducts />
         <StatsSection />
         <HowItWorks />
