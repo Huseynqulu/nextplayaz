@@ -113,6 +113,7 @@ import { IpTracker } from "@/components/IpTracker";
 import { InstallAppBanner } from "@/components/InstallAppBanner";
 import { OnboardingTour } from "@/components/OnboardingTour";
 import { MobileTabBar } from "@/components/MobileTabBar";
+import { WhatsAppButton } from "@/components/WhatsAppButton";
 import { CommandPalette } from "@/components/CommandPalette";
 import { ThemeProvider, useTheme } from "@/lib/theme";
 
