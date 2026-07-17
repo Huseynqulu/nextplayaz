@@ -25,6 +25,7 @@ function HomePage() {
       <main className="flex-1">
         <CategoriesSection />
         <Hero />
+        <HomeCategoriesGrid />
         <BannerCarousel />
         
         <LiveSalesTicker />
@@ -32,7 +33,7 @@ function HomePage() {
           <RecentlyViewed />
         </div>
         <GiftCardPromo />
-        <HomeCategoriesGrid />
+
 
         <FeaturedProducts />
         <StatsSection />
