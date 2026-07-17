@@ -1302,6 +1302,8 @@ function AdminPage() {
             <Suspense fallback={<TabFallback />}><AdminAnnouncements /></Suspense>
           ) : tab === "sellers" ? (
             <Suspense fallback={<TabFallback />}><AdminSellers /></Suspense>
+          ) : tab === "homecats" ? (
+            <Suspense fallback={<TabFallback />}><AdminHomeCategories /></Suspense>
           ) : (
             <div className="space-y-2">
               {products.length === 0 && <p className="text-muted-foreground text-center py-12">Məhsul yoxdur.</p>}
