@@ -912,6 +912,8 @@ function AdminPage() {
                 );
               })}
             </div>
+          ) : tab === "topuplinks" ? (
+            <Suspense fallback={<TabFallback />}><AdminTopupLinks /></Suspense>
           ) : tab === "payments" ? (
             <div className="space-y-3">
               <p className="text-sm text-muted-foreground mb-2">Bu rekvizitlər istifadəçilərin <span className="text-neon font-semibold">Cüzdan</span> səhifəsində ödəniş üsulu seçildikdə avtomatik göstərilir.</p>
