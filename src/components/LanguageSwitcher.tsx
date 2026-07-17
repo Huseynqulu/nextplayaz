@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { Settings, Check, Globe, Coins } from "lucide-react";
+import { Settings, Check, Globe, Coins, Moon, Sun } from "lucide-react";
 import { useI18n, type Lang } from "@/lib/i18n";
 import { useCurrency, CURRENCY_META, type Currency } from "@/lib/currency";
+import { useTheme } from "@/lib/theme";
 
 const LANGS: { code: Lang; label: string; flag: string }[] = [
   { code: "az", label: "Azərbaycan", flag: "🇦🇿" },
