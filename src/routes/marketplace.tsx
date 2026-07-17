@@ -226,10 +226,10 @@ function MarketplacePage() {
 
               <div className="space-y-4 text-sm">
                 <div>
-                  <label className="block text-xs text-muted-foreground mb-1.5">Platforma</label>
+                  <label className="block text-xs text-muted-foreground mb-1.5">Kateqoriyalar</label>
                   <select value={s.platform} onChange={e => update({ platform: e.target.value, psub: "all" })}
                     className="w-full h-10 px-3 rounded-lg bg-background border border-border focus:outline-none focus:ring-2 focus:ring-ring">
-                    <option value="all">Bütün platformalar</option>
+                    <option value="all">Bütün kateqoriyalar</option>
                     {platforms.map(p => <option key={p.slug} value={p.label_az}>{p.label_az}</option>)}
                   </select>
                 </div>

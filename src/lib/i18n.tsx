@@ -151,7 +151,7 @@ const az: Dict = {
   "market.filters": "Filtrlər",
   "market.clear": "Təmizlə",
   "market.category": "Kateqoriya",
-  "market.platform": "Platforma",
+  "market.platform": "Kateqoriyalar",
   "market.priceRange": "Qiymət aralığı",
   "market.delivery": "Çatdırılma",
   "market.delivery.instant": "Anında",
