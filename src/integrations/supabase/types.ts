@@ -540,6 +540,81 @@ export type Database = {
         }
         Relationships: []
       }
+      order_payments: {
+        Row: {
+          admin_notes: string | null
+          amount: number
+          buyer_id: string
+          created_at: string
+          discount_code: string | null
+          id: string
+          method: string
+          order_id: string | null
+          product_id: string
+          quantity: number
+          receipt_path: string | null
+          receipt_url: string | null
+          reference: string
+          status: string
+          updated_at: string
+          verified_at: string | null
+          verified_by: string | null
+        }
+        Insert: {
+          admin_notes?: string | null
+          amount: number
+          buyer_id: string
+          created_at?: string
+          discount_code?: string | null
+          id?: string
+          method?: string
+          order_id?: string | null
+          product_id: string
+          quantity?: number
+          receipt_path?: string | null
+          receipt_url?: string | null
+          reference: string
+          status?: string
+          updated_at?: string
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Update: {
+          admin_notes?: string | null
+          amount?: number
+          buyer_id?: string
+          created_at?: string
+          discount_code?: string | null
+          id?: string
+          method?: string
+          order_id?: string | null
+          product_id?: string
+          quantity?: number
+          receipt_path?: string | null
+          receipt_url?: string | null
+          reference?: string
+          status?: string
+          updated_at?: string
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_payments_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "order_payments_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       orders: {
         Row: {
           auto_confirm_at: string | null
@@ -640,6 +715,7 @@ export type Database = {
           instructions: string
           is_active: boolean
           label: string
+          link_url: string | null
           method: Database["public"]["Enums"]["topup_method"]
           updated_at: string
         }
@@ -647,6 +723,7 @@ export type Database = {
           instructions: string
           is_active?: boolean
           label: string
+          link_url?: string | null
           method: Database["public"]["Enums"]["topup_method"]
           updated_at?: string
         }
@@ -654,6 +731,7 @@ export type Database = {
           instructions?: string
           is_active?: boolean
           label?: string
+          link_url?: string | null
           method?: Database["public"]["Enums"]["topup_method"]
           updated_at?: string
         }
@@ -1688,6 +1766,10 @@ export type Database = {
         }
         Returns: undefined
       }
+      approve_order_payment: {
+        Args: { p_admin_notes?: string; p_payment_id: string }
+        Returns: string
+      }
       auto_confirm_orders: { Args: never; Returns: number }
       boost_product: {
         Args: { _hours: number; _product_id: string }
@@ -1702,6 +1784,19 @@ export type Database = {
         Returns: string
       }
       confirm_order: { Args: { p_order_id: string }; Returns: undefined }
+      create_direct_purchase: {
+        Args: {
+          p_discount_code: string
+          p_product_id: string
+          p_quantity: number
+          p_receipt_path: string
+          p_receipt_url: string
+        }
+        Returns: {
+          id: string
+          reference: string
+        }[]
+      }
       create_order: {
         Args: {
           p_discount_code?: string
@@ -1798,6 +1893,10 @@ export type Database = {
       redeem_gift_card: { Args: { p_code: string }; Returns: number }
       redeem_loyalty_points: { Args: { p_points: number }; Returns: Json }
       redeem_referral_signup: { Args: { p_code: string }; Returns: undefined }
+      reject_order_payment: {
+        Args: { p_payment_id: string; p_reason?: string }
+        Returns: undefined
+      }
       release_seller_funds: { Args: never; Returns: number }
       reply_to_review: {
         Args: { p_reply: string; p_review_id: string }
