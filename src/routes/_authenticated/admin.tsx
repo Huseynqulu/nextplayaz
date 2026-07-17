@@ -18,6 +18,7 @@ import { VerifiedBadge } from "@/components/VerifiedBadge";
 const AdminBoostPricing = lazy(() => import("@/components/AdminBoostPricing").then(m => ({ default: m.AdminBoostPricing })));
 const AdminAnnouncements = lazy(() => import("@/components/AdminAnnouncements").then(m => ({ default: m.AdminAnnouncements })));
 const AdminSellers = lazy(() => import("@/components/AdminSellers").then(m => ({ default: m.AdminSellers })));
+const AdminHomeCategories = lazy(() => import("@/components/AdminHomeCategories").then(m => ({ default: m.AdminHomeCategories })));
 
 function TabFallback() {
   return <div className="grid place-items-center py-12"><Loader2 className="h-6 w-6 animate-spin text-neon" /></div>;
@@ -45,7 +46,7 @@ type PaymentSetting = { method: string; label: string; instructions: string; is_
 type Category = { slug: string; label_az: string; label_en: string; label_ru: string; sort_order: number; is_active: boolean };
 type Subcategory = { id?: string; category_slug: string; slug: string; label_az: string; label_en: string; label_ru: string; sort_order: number; is_active: boolean };
 
-type Tab = "analytics" | "applications" | "users" | "sellers" | "codes" | "products" | "tickets" | "topups" | "withdrawals" | "platform" | "payments" | "categories" | "platforms" | "disputes" | "banners" | "reviews" | "giftcards" | "giftmarket" | "boost" | "announcements";
+type Tab = "analytics" | "applications" | "users" | "sellers" | "codes" | "products" | "tickets" | "topups" | "withdrawals" | "platform" | "payments" | "categories" | "platforms" | "disputes" | "banners" | "reviews" | "giftcards" | "giftmarket" | "boost" | "announcements" | "homecats";
 
 type PlatformRow = { slug: string; label_az: string; label_en: string; label_ru: string; sort_order: number; is_active: boolean };
 type PlatformSub = { platform_slug: string; slug: string; label_az: string; label_en: string; label_ru: string; sort_order: number; is_active: boolean };
@@ -483,6 +484,7 @@ function AdminPage() {
               ["payments", "Rekvizitlər"],
               ["categories", "Kateqoriyalar"],
               ["platforms", "Platformalar"],
+              ["homecats", "🏠 Ana səhifə kateqoriyaları"],
               ["banners", "Bannerlər"],
               ["reviews", "Rəylər"],
               ["giftcards", "Hədiyyə kartları"],
