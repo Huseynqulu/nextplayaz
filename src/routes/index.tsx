@@ -3,7 +3,7 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Hero } from "@/components/Hero";
 import { BannerCarousel } from "@/components/BannerCarousel";
-import { FeaturedGames } from "@/components/FeaturedGames";
+
 import { CategoriesSection } from "@/components/CategoriesSection";
 import { HomeCategoriesGrid } from "@/components/HomeCategoriesGrid";
 import { FeaturedProducts } from "@/components/FeaturedProducts";
@@ -25,7 +25,7 @@ function HomePage() {
       <main className="flex-1">
         <Hero />
         <BannerCarousel />
-        <FeaturedGames />
+        
         <LiveSalesTicker />
         <div className="container mx-auto px-4">
           <RecentlyViewed />
