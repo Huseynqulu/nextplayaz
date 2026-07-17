@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { Gamepad2, Shield, Zap, Headphones } from "lucide-react";
+import { Shield, Zap, Headphones } from "lucide-react";
 import { useT } from "@/lib/i18n";
 
 export function Footer() {
