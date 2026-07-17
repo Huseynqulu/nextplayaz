@@ -820,6 +820,7 @@ function AdminPage() {
                           }`}>{t.status}</span>
                         </div>
                         <p className="text-xs text-muted-foreground mt-1">{u?.display_name ?? u?.username ?? "—"} · {u?.email ?? t.user_id.slice(0,8)}</p>
+                        {t.reference_code && <p className="text-xs mt-1.5 bg-neon/10 border border-neon/30 px-2 py-1 rounded font-mono font-bold text-neon">Ref: {t.reference_code}</p>}
                         {t.sender_note && <p className="text-xs mt-1.5 bg-surface/50 px-2 py-1 rounded">Qeyd: {t.sender_note}</p>}
                         {t.admin_notes && <p className="text-xs mt-1.5 bg-neon/5 border border-neon/20 px-2 py-1 rounded">Admin: {t.admin_notes}</p>}
                         <p className="text-[11px] text-muted-foreground mt-2">{new Date(t.created_at).toLocaleString("az-AZ")}</p>
