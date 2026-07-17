@@ -153,6 +153,10 @@ function AdminPage() {
     const ledgerRows = (lg as any) ?? [];
     setLedger(ledgerRows);
     setPlatformBalance(ledgerRows.reduce((sum: number, r: LedgerEntry) => sum + Number(r.amount), 0));
+    const { data: ops } = await supabase.from("order_payments" as any)
+      .select("*, buyer:profiles!order_payments_buyer_id_fkey(display_name, username), product:products(title)")
+      .order("created_at", { ascending: false });
+    setOrderPayments((ops as any) ?? []);
     setApps((a as any) ?? []);
     setProducts((p as any) ?? []);
     setUsers((u as any) ?? []);
