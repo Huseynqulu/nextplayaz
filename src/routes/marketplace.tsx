@@ -213,22 +213,22 @@ function MarketplacePage() {
         <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 grid lg:grid-cols-[260px_1fr] gap-8">
           {/* Sidebar filters */}
           <aside className="space-y-6">
-            <div className="rounded-xl border border-border bg-card-gradient p-4">
-              <div className="flex items-center justify-between mb-3">
-                <h3 className="font-semibold text-sm flex items-center gap-2">
-                  <SlidersHorizontal className="h-4 w-4 text-neon" /> Filtrlər
-                  {activeCount > 0 && <span className="text-[10px] bg-neon text-background rounded-full px-2 py-0.5">{activeCount}</span>}
+            <div className="rounded-xl border border-border bg-card-gradient p-3 sm:p-4 text-xs sm:text-sm">
+              <div className="flex items-center justify-between mb-2 sm:mb-3">
+                <h3 className="font-semibold text-xs sm:text-sm flex items-center gap-1.5 sm:gap-2">
+                  <SlidersHorizontal className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-neon" /> Filtrlər
+                  {activeCount > 0 && <span className="text-[10px] bg-neon text-background rounded-full px-1.5 py-0.5">{activeCount}</span>}
                 </h3>
                 {activeCount > 0 && (
-                  <button onClick={reset} className="text-xs text-muted-foreground hover:text-foreground">Sıfırla</button>
+                  <button onClick={reset} className="text-[11px] sm:text-xs text-muted-foreground hover:text-foreground">Sıfırla</button>
                 )}
               </div>
 
-              <div className="space-y-4 text-sm">
+              <div className="space-y-3 sm:space-y-4">
                 <div>
-                  <label className="block text-xs text-muted-foreground mb-1.5">Kateqoriyalar</label>
+                  <label className="block text-[11px] sm:text-xs text-muted-foreground mb-1 sm:mb-1.5">Kateqoriyalar</label>
                   <select value={s.platform} onChange={e => update({ platform: e.target.value, psub: "all" })}
-                    className="w-full h-10 px-3 rounded-lg bg-background border border-border focus:outline-none focus:ring-2 focus:ring-ring">
+                    className="w-full h-9 sm:h-10 px-2.5 sm:px-3 rounded-lg bg-background border border-border focus:outline-none focus:ring-2 focus:ring-ring text-xs sm:text-sm">
                     <option value="all">Bütün kateqoriyalar</option>
                     {platforms.map(p => <option key={p.slug} value={p.label_az}>{p.label_az}</option>)}
                   </select>
@@ -236,9 +236,9 @@ function MarketplacePage() {
 
                 {currentPsubs.length > 0 && (
                   <div>
-                    <label className="block text-xs text-muted-foreground mb-1.5">Alt kateqoriya ({s.platform})</label>
+                    <label className="block text-[11px] sm:text-xs text-muted-foreground mb-1 sm:mb-1.5">Alt kateqoriya ({s.platform})</label>
                     <select value={s.psub} onChange={e => update({ psub: e.target.value })}
-                      className="w-full h-10 px-3 rounded-lg bg-background border border-border focus:outline-none focus:ring-2 focus:ring-ring">
+                      className="w-full h-9 sm:h-10 px-2.5 sm:px-3 rounded-lg bg-background border border-border focus:outline-none focus:ring-2 focus:ring-ring text-xs sm:text-sm">
                       <option value="all">Hamısı</option>
                       {currentPsubs.map(p => <option key={p.slug} value={p.slug}>{p.label_az}</option>)}
                     </select>
@@ -246,11 +246,11 @@ function MarketplacePage() {
                 )}
 
                 <div>
-                  <label className="block text-xs text-muted-foreground mb-1.5">Çatdırılma</label>
+                  <label className="block text-[11px] sm:text-xs text-muted-foreground mb-1 sm:mb-1.5">Çatdırılma</label>
                   <div className="grid grid-cols-3 gap-1">
                     {(["all", "Instant", "Manual"] as const).map(d => (
                       <button key={d} onClick={() => update({ delivery: d })}
-                        className={`h-9 rounded-lg text-xs font-semibold border transition ${
+                        className={`h-8 sm:h-9 rounded-lg text-[11px] sm:text-xs font-semibold border transition ${
                           s.delivery === d ? "bg-neon text-background border-transparent" : "bg-background border-border text-muted-foreground hover:text-foreground"
                         }`}>
                         {d === "all" ? "Hamısı" : d === "Instant" ? "⚡ Anında" : "Əl ilə"}
@@ -260,22 +260,22 @@ function MarketplacePage() {
                 </div>
 
                 <div>
-                  <label className="block text-xs text-muted-foreground mb-1.5">Qiymət (₼)</label>
-                  <div className="flex items-center gap-2">
+                  <label className="block text-[11px] sm:text-xs text-muted-foreground mb-1 sm:mb-1.5">Qiymət (₼)</label>
+                  <div className="flex items-center gap-1.5 sm:gap-2">
                     <input type="number" min={0} value={s.min || ""} onChange={e => update({ min: Number(e.target.value) || 0 })}
-                      placeholder="Min" className="w-full h-10 px-3 rounded-lg bg-background border border-border focus:outline-none focus:ring-2 focus:ring-ring" />
+                      placeholder="Min" className="w-full h-9 sm:h-10 px-2.5 sm:px-3 rounded-lg bg-background border border-border focus:outline-none focus:ring-2 focus:ring-ring text-xs sm:text-sm" />
                     <span className="text-muted-foreground">–</span>
                     <input type="number" min={0} value={s.max || ""} onChange={e => update({ max: Number(e.target.value) || 0 })}
-                      placeholder="Max" className="w-full h-10 px-3 rounded-lg bg-background border border-border focus:outline-none focus:ring-2 focus:ring-ring" />
+                      placeholder="Max" className="w-full h-9 sm:h-10 px-2.5 sm:px-3 rounded-lg bg-background border border-border focus:outline-none focus:ring-2 focus:ring-ring text-xs sm:text-sm" />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-xs text-muted-foreground mb-1.5">Minimum reytinq</label>
+                  <label className="block text-[11px] sm:text-xs text-muted-foreground mb-1 sm:mb-1.5">Minimum reytinq</label>
                   <div className="flex gap-1">
                     {[0, 3, 4, 4.5].map(r => (
                       <button key={r} onClick={() => update({ rating: r })}
-                        className={`flex-1 h-9 rounded-lg text-xs font-semibold border transition inline-flex items-center justify-center gap-1 ${
+                        className={`flex-1 h-8 sm:h-9 rounded-lg text-[11px] sm:text-xs font-semibold border transition inline-flex items-center justify-center gap-1 ${
                           s.rating === r ? "bg-neon text-background border-transparent" : "bg-background border-border text-muted-foreground hover:text-foreground"
                         }`}>
                         {r === 0 ? "Hamısı" : <><Star className="h-3 w-3 fill-current" />{r}+</>}
@@ -284,16 +284,16 @@ function MarketplacePage() {
                   </div>
                 </div>
 
-                <label className="flex items-center gap-2 cursor-pointer">
+                <label className="flex items-center gap-2 cursor-pointer text-[11px] sm:text-sm">
                   <input type="checkbox" checked={s.verified} onChange={e => update({ verified: e.target.checked })}
-                    className="h-4 w-4 accent-neon" />
-                  <span className="inline-flex items-center gap-1"><ShieldCheck className="h-3.5 w-3.5 text-sky-400" /> Yalnız doğrulanmış satıcılar</span>
+                    className="h-3.5 w-3.5 sm:h-4 sm:w-4 accent-neon" />
+                  <span className="inline-flex items-center gap-1"><ShieldCheck className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-sky-400" /> Yalnız doğrulanmış satıcılar</span>
                 </label>
 
-                <label className="flex items-center gap-2 cursor-pointer">
+                <label className="flex items-center gap-2 cursor-pointer text-[11px] sm:text-sm">
                   <input type="checkbox" checked={s.inStock} onChange={e => update({ inStock: e.target.checked })}
-                    className="h-4 w-4 accent-neon" />
-                  <span className="inline-flex items-center gap-1"><Zap className="h-3.5 w-3.5 text-success" /> Yalnız stokda olanlar</span>
+                    className="h-3.5 w-3.5 sm:h-4 sm:w-4 accent-neon" />
+                  <span className="inline-flex items-center gap-1"><Zap className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-success" /> Yalnız stokda olanlar</span>
                 </label>
               </div>
             </div>
