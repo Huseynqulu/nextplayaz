@@ -42,6 +42,7 @@ function WalletPage() {
   const [pending, setPending] = useState<{ total: number; items: { id: string; seller_net: number; funds_release_at: string | null }[] }>({ total: 0, items: [] });
   const [showPending, setShowPending] = useState(false);
   const [methods, setMethods] = useState<Method[]>([]);
+  const [links, setLinks] = useState<TopupLink[]>([]);
   const [history, setHistory] = useState<TopUp[]>([]);
   const [withdrawals, setWithdrawals] = useState<Withdraw[]>([]);
   const [loading, setLoading] = useState(true);
@@ -49,10 +50,8 @@ function WalletPage() {
 
   // Top-up form
   const [amount, setAmount] = useState("");
-  const [method, setMethod] = useState<string>("");
-  const [note, setNote] = useState("");
-  const [receipt, setReceipt] = useState<File | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [lastRef, setLastRef] = useState<string | null>(null);
 
   // Withdraw form
   const [wAmount, setWAmount] = useState("");
@@ -64,9 +63,10 @@ function WalletPage() {
   async function refresh() {
     if (!user) return;
     setLoading(true);
-    const [{ data: p }, { data: m }, { data: h }, { data: w }, { data: pend }] = await Promise.all([
+    const [{ data: p }, { data: m }, { data: lk }, { data: h }, { data: w }, { data: pend }] = await Promise.all([
       supabase.rpc("get_my_wallet_balance"),
       supabase.from("payment_settings").select("*").eq("is_active", true).order("label"),
+      supabase.from("topup_payment_links" as any).select("*").eq("is_active", true).order("amount"),
       supabase.from("wallet_topups").select("*").eq("user_id", user.id).order("created_at", { ascending: false }),
       supabase.from("wallet_withdrawals" as any).select("*").eq("user_id", user.id).order("created_at", { ascending: false }),
       supabase.from("orders").select("id, seller_net, funds_release_at")
@@ -75,7 +75,7 @@ function WalletPage() {
     ]);
     setBalance(Number(p ?? 0));
     setMethods((m as any) ?? []);
-    if (!method && m && m.length > 0) setMethod((m as any)[0].method);
+    setLinks((lk as any) ?? []);
     setHistory((h as any) ?? []);
     setWithdrawals((w as any) ?? []);
     const items = ((pend as any) ?? []) as { id: string; seller_net: number; funds_release_at: string | null }[];
@@ -85,33 +85,35 @@ function WalletPage() {
 
   useEffect(() => { refresh(); /* eslint-disable-next-line */ }, [user?.id]);
 
-  async function submit() {
-    if (!user) return;
-    const num = Number(amount);
-    if (!Number.isFinite(num) || num < 5) { toast.error("Minimum 5 ₼ əlavə edə bilərsiniz"); return; }
-    if (!method) { toast.error("Ödəniş üsulunu seçin"); return; }
+  const matchedLink = links.find(l => Math.abs(Number(l.amount) - Number(amount || 0)) < 0.005) || null;
 
+  function genRef() {
+    return "NP-" + Math.random().toString(36).slice(2, 8).toUpperCase();
+  }
+
+  async function payWithBirbank() {
+    if (!user || !matchedLink) return;
     setSubmitting(true);
     try {
-      let receipt_url: string | null = null;
-      if (receipt) {
-        const ext = receipt.name.split(".").pop() ?? "jpg";
-        const path = `${user.id}/${Date.now()}.${ext}`;
-        const { error: ue } = await supabase.storage.from("topup-receipts").upload(path, receipt, { upsert: false });
-        if (ue) throw ue;
-        receipt_url = path;
-      }
+      const ref = genRef();
       const { error } = await supabase.from("wallet_topups").insert({
-        user_id: user.id, amount: num, method: method as any, sender_note: note || null, receipt_url, status: "pending",
-      });
+        user_id: user.id,
+        amount: Number(matchedLink.amount),
+        method: "birbank" as any,
+        sender_note: `BirBank link ödənişi · Ref: ${ref}`,
+        reference_code: ref,
+        status: "pending",
+      } as any);
       if (error) throw error;
-      toast.success("Müraciət göndərildi. Admin təsdiqindən sonra balans artırılacaq.");
+      setLastRef(ref);
+      toast.success("Ödəniş linki açılır. BirBank izahat sahəsinə referans nömrəsini yazın!");
       burstConfetti();
-      setAmount(""); setNote(""); setReceipt(null);
+      window.open(matchedLink.url, "_blank", "noopener,noreferrer");
       await refresh();
     } catch (e: any) { toast.error(e.message ?? "Xəta"); }
     finally { setSubmitting(false); }
   }
+
 
   async function submitWithdraw() {
     if (!user) return;
