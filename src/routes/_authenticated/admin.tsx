@@ -503,6 +503,7 @@ function AdminPage() {
               ["users", "İstifadəçilər"],
               ["sellers", "🏪 Satıcılar"],
               ["topups", `Balans (${topups.filter(t => t.status === "pending").length})`],
+              ["topuplinks", "🔗 Ödəniş linkləri"],
               ["orderpayments", `💳 Sifariş ödənişləri (${orderPayments.filter(o => o.status === "pending").length})`],
               ["withdrawals", `Pul çıxarış (${withdrawals.filter(w => w.status === "pending").length})`],
               ["platform", `Platforma (${platformBalance.toFixed(2)} ₼)`],
