@@ -72,8 +72,8 @@ export function Header() {
   return (
     <header className="sticky top-0 z-50 border-b border-border/60 bg-background/70 backdrop-blur-xl">
       <div className="mx-auto flex h-16 max-w-7xl items-center gap-4 px-4 sm:px-6 lg:px-8">
-        <Link to="/" className="flex items-center gap-2 group">
-          <img src={nextplayLogo} alt="NextPlay" className="h-10 w-auto drop-shadow-[0_0_12px_hsl(var(--neon)/0.4)] group-hover:drop-shadow-[0_0_18px_hsl(var(--neon)/0.6)] transition" />
+        <Link to="/" aria-label="NextPlay ana səhifə" className="flex items-center gap-2 group shrink-0">
+          <img src={nextplayLogo} alt="NextPlay" className="h-11 sm:h-12 w-auto drop-shadow-[0_0_12px_hsl(var(--neon)/0.4)] group-hover:drop-shadow-[0_0_18px_hsl(var(--neon)/0.6)] transition" />
         </Link>
 
         <nav className="hidden lg:flex items-center gap-1 ml-6">
