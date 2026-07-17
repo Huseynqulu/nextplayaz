@@ -137,7 +137,9 @@ function WalletPage() {
     finally { setWSubmitting(false); }
   }
 
-  const selected = methods.find(m => m.method === method);
+  const _unusedMethods = methods; // kept for potential future methods; suppresses unused warning
+  void _unusedMethods;
+
   const wMethodMeta = WITHDRAW_METHODS.find(m => m.value === wMethod)!;
   const wNum = Number(wAmount) || 0;
   const wFee = Math.round(wNum * 0.05 * 100) / 100;
