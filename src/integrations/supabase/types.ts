@@ -1816,6 +1816,8 @@ export type Database = {
         Args: { _seller_id: string }
         Returns: number
       }
+      show_limit: { Args: never; Returns: number }
+      show_trgm: { Args: { "": string }; Returns: string[] }
       staff_cancel_order: {
         Args: { p_order_id: string; p_reason?: string }
         Returns: undefined
