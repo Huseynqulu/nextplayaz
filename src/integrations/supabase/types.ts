@@ -1393,6 +1393,36 @@ export type Database = {
           },
         ]
       }
+      topup_payment_links: {
+        Row: {
+          amount: number
+          created_at: string
+          id: string
+          is_active: boolean
+          sort_order: number
+          updated_at: string
+          url: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          sort_order?: number
+          updated_at?: string
+          url: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          sort_order?: number
+          updated_at?: string
+          url?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -1422,6 +1452,7 @@ export type Database = {
           id: string
           method: Database["public"]["Enums"]["topup_method"]
           receipt_url: string | null
+          reference_code: string | null
           reviewed_at: string | null
           reviewed_by: string | null
           sender_note: string | null
@@ -1436,6 +1467,7 @@ export type Database = {
           id?: string
           method: Database["public"]["Enums"]["topup_method"]
           receipt_url?: string | null
+          reference_code?: string | null
           reviewed_at?: string | null
           reviewed_by?: string | null
           sender_note?: string | null
@@ -1450,6 +1482,7 @@ export type Database = {
           id?: string
           method?: Database["public"]["Enums"]["topup_method"]
           receipt_url?: string | null
+          reference_code?: string | null
           reviewed_at?: string | null
           reviewed_by?: string | null
           sender_note?: string | null
