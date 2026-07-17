@@ -5,6 +5,7 @@ import { Hero } from "@/components/Hero";
 import { BannerCarousel } from "@/components/BannerCarousel";
 import { FeaturedGames } from "@/components/FeaturedGames";
 import { CategoriesSection } from "@/components/CategoriesSection";
+import { HomeCategoriesGrid } from "@/components/HomeCategoriesGrid";
 import { FeaturedProducts } from "@/components/FeaturedProducts";
 import { StatsSection } from "@/components/StatsSection";
 import { HowItWorks } from "@/components/HowItWorks";
@@ -30,6 +31,7 @@ function HomePage() {
           <RecentlyViewed />
         </div>
         <GiftCardPromo />
+        <HomeCategoriesGrid />
         <CategoriesSection />
         <FeaturedProducts />
         <StatsSection />

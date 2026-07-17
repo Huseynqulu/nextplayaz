@@ -430,6 +430,45 @@ export type Database = {
         }
         Relationships: []
       }
+      home_categories: {
+        Row: {
+          active: boolean
+          created_at: string
+          id: string
+          image_url: string | null
+          link_url: string
+          product_count_query: string | null
+          sort_order: number
+          subtitle: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          link_url?: string
+          product_count_query?: string | null
+          sort_order?: number
+          subtitle?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          link_url?: string
+          product_count_query?: string | null
+          sort_order?: number
+          subtitle?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       loyalty_ledger: {
         Row: {
           created_at: string
