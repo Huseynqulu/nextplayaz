@@ -70,6 +70,18 @@ export function LanguageSwitcher() {
                 {lang === o.code && <Check className="h-4 w-4 text-neon" />}
               </button>
             ))}
+            <div className="border-t border-border my-1" />
+            <div className="px-3 pt-2 pb-1.5 flex items-center gap-1.5 text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">
+              {theme === "dark" ? <Moon className="h-3 w-3" /> : <Sun className="h-3 w-3" />} Rejim
+            </div>
+            <button
+              onClick={() => { toggleTheme(); }}
+              className="w-full flex items-center gap-2 px-4 py-2 text-sm hover:bg-surface transition"
+            >
+              {theme === "dark" ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
+              <span className="flex-1 text-left">{theme === "dark" ? "Qaranlıq rejim" : "İşıqlı rejim"}</span>
+              <span className="text-xs text-muted-foreground">{theme === "dark" ? "→ İşıqlı" : "→ Qaranlıq"}</span>
+            </button>
           </div>
         </>
       )}
