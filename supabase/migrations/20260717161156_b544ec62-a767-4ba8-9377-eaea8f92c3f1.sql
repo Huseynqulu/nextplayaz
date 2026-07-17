@@ -1,0 +1,1 @@
+UPDATE public.home_categories SET link_url='/marketplace?platforms=Abunəlik' WHERE id='72122006-a573-4369-988c-968d5c05dec7';
