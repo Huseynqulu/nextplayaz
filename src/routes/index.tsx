@@ -25,7 +25,7 @@ function HomePage() {
       <main className="flex-1">
         <Hero />
         <BannerCarousel />
-        <FeaturedGames />
+        
         <LiveSalesTicker />
         <div className="container mx-auto px-4">
           <RecentlyViewed />
