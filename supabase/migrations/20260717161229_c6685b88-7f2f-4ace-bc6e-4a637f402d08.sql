@@ -1,0 +1,1 @@
+UPDATE public.home_categories SET link_url='/marketplace?q=game%20pass' WHERE id='c3d8c1f4-aa0b-41ab-871d-d59b738eaf26';
