@@ -110,6 +110,9 @@ function AdminPage() {
   const [ledger, setLedger] = useState<LedgerEntry[]>([]);
   const [platformBalance, setPlatformBalance] = useState(0);
   const [userSearch, setUserSearch] = useState("");
+  const [orderPayments, setOrderPayments] = useState<OrderPayment[]>([]);
+  const [opFilter, setOpFilter] = useState<"all" | "pending" | "approved" | "rejected">("pending");
+  const [opReceipt, setOpReceipt] = useState<{ id: string; url: string } | null>(null);
 
 
   // new code form
