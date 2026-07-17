@@ -124,7 +124,7 @@ function MarketplacePage() {
     (s.rating > 0 ? 1 : 0);
 
   const reset = () => navigate({
-    search: { q: "", cat: "all", sub: "all", platform: "all", psub: "all", delivery: "all", min: 0, max: 0, rating: 0, verified: false, inStock: true, sort: "popular" } as any,
+    search: { q: "", cat: "all", sub: "all", platform: "all", platforms: "", psub: "all", delivery: "all", min: 0, max: 0, rating: 0, verified: false, inStock: true, sort: "popular" } as any,
     replace: true,
   });
 
