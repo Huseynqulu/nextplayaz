@@ -868,6 +868,10 @@ function AdminPage() {
                     const next = [...paySettings]; next[i] = { ...s, instructions: e.target.value }; setPaySettings(next);
                   }} rows={3} placeholder="Məs: m10 nömrəsi: +994 50 123 45 67, Ad: Eli Novruzov"
                     className="w-full px-3 py-2 rounded-md bg-background border border-border text-sm font-mono resize-none" />
+                  <input value={s.link_url ?? ""} onChange={e => {
+                    const next = [...paySettings]; next[i] = { ...s, link_url: e.target.value }; setPaySettings(next);
+                  }} placeholder="Ödəniş linki (BirBank statik link, opsional)"
+                    className="w-full h-10 px-3 rounded-md bg-background border border-border text-sm" />
                   <div className="flex justify-end">
                     <button disabled={busy === s.method} onClick={() => savePaymentSetting(s)}
                       className="h-9 px-4 rounded-md bg-neon text-background text-sm font-semibold neon-ring disabled:opacity-50 inline-flex items-center gap-1.5">
