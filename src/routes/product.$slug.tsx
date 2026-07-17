@@ -283,7 +283,6 @@ function ProductPage() {
                     <CreditCard className="h-4 w-4" /> BirBank ilə birbaşa al
                   </button>
                 </div>
-                </div>
 
 
                 <div className="mt-4 grid grid-cols-3 gap-2 text-xs">
