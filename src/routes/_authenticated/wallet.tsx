@@ -234,53 +234,63 @@ function WalletPage() {
             <div className="grid lg:grid-cols-2 gap-6">
               {tab === "topup" ? (
                 <div className="rounded-2xl border border-border bg-card-gradient p-6 card-shadow space-y-4">
-                  <h2 className="font-semibold text-lg inline-flex items-center gap-2"><Upload className="h-4 w-4 text-neon" /> Balans artır</h2>
+                  <h2 className="font-semibold text-lg inline-flex items-center gap-2"><Zap className="h-4 w-4 text-neon" /> BirBank ilə balans artır</h2>
 
                   <div>
                     <label className="text-xs font-semibold text-muted-foreground uppercase">Məbləğ (AZN)</label>
-                    <input type="number" min="5" step="0.01" value={amount} onChange={e => setAmount(e.target.value)}
-                      placeholder="Min. 5" className="mt-1.5 w-full h-11 px-3 rounded-lg bg-background border border-border" />
+                    <input type="number" min="1" step="1" value={amount} onChange={e => setAmount(e.target.value)}
+                      placeholder="Məs: 15" className="mt-1.5 w-full h-11 px-3 rounded-lg bg-background border border-border" />
                   </div>
 
-                  <div>
-                    <label className="text-xs font-semibold text-muted-foreground uppercase">Ödəniş üsulu</label>
-                    <select value={method} onChange={e => setMethod(e.target.value)} className="mt-1.5 w-full h-11 px-3 rounded-lg bg-background border border-border">
-                      {methods.map(m => <option key={m.method} value={m.method}>{m.label}</option>)}
-                    </select>
-                  </div>
-
-                  {selected && (
-                    <div className="rounded-lg border border-neon/30 bg-neon/5 p-3 text-sm">
-                      <div className="flex items-start justify-between gap-2">
-                        <p className="whitespace-pre-wrap text-foreground/90">{selected.instructions}</p>
-                        <button onClick={() => { navigator.clipboard.writeText(selected.instructions); toast.success("Kopyalandı"); }}
-                          className="shrink-0 grid h-8 w-8 place-items-center rounded-md hover:bg-surface"><Copy className="h-3.5 w-3.5" /></button>
+                  {links.length > 0 && (
+                    <div>
+                      <p className="text-xs text-muted-foreground mb-2">Mövcud məbləğlər — birinə toxunun:</p>
+                      <div className="flex flex-wrap gap-2">
+                        {links.map(l => (
+                          <button key={l.id} type="button" onClick={() => setAmount(String(Number(l.amount)))}
+                            className={`h-9 px-3 rounded-lg text-sm font-semibold border transition ${
+                              matchedLink?.id === l.id ? "bg-neon text-background border-neon" : "bg-surface border-border hover:border-neon/40"
+                            }`}>
+                            {format(Number(l.amount))}
+                          </button>
+                        ))}
                       </div>
                     </div>
                   )}
 
-                  <div>
-                    <label className="text-xs font-semibold text-muted-foreground uppercase">Qəbz şəkli (tövsiyə olunur)</label>
-                    <input type="file" accept="image/*" onChange={e => setReceipt(e.target.files?.[0] ?? null)}
-                      className="mt-1.5 w-full text-sm file:mr-3 file:h-9 file:px-3 file:rounded-md file:border-0 file:bg-surface file:text-foreground file:font-semibold" />
-                    {receipt && <p className="text-xs text-muted-foreground mt-1">✓ {receipt.name}</p>}
-                  </div>
+                  {amount && !matchedLink && (
+                    <div className="rounded-lg border border-warning/40 bg-warning/10 p-3 text-xs text-warning">
+                      Bu məbləğ üçün hazır ödəniş linki yoxdur. Yuxarıdakı mövcud məbləğlərdən birini seçin.
+                    </div>
+                  )}
 
-                  <div>
-                    <label className="text-xs font-semibold text-muted-foreground uppercase">Qeyd (ixtiyari)</label>
-                    <textarea value={note} onChange={e => setNote(e.target.value)} rows={2}
-                      placeholder="Ödəniş haqqında əlavə məlumat"
-                      className="mt-1.5 w-full px-3 py-2 rounded-lg bg-background border border-border text-sm resize-none" />
-                  </div>
+                  {matchedLink && (
+                    <div className="rounded-lg border border-neon/30 bg-neon/5 p-3 text-xs space-y-1">
+                      <p className="font-semibold text-foreground">{format(Number(matchedLink.amount))} ödənişi hazırdır</p>
+                      <p className="text-muted-foreground">Düyməyə basdıqda BirBank səhifəsi yeni tabda açılacaq və müraciət avtomatik yaradılacaq.</p>
+                    </div>
+                  )}
 
-                  <button disabled={submitting} onClick={submit}
+                  <button disabled={submitting || !matchedLink} onClick={payWithBirbank}
                     className="w-full h-11 rounded-lg bg-neon text-background font-semibold neon-ring disabled:opacity-50 inline-flex items-center justify-center gap-2">
-                    {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
-                    Müraciət göndər
+                    {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <ExternalLink className="h-4 w-4" />}
+                    BirBank ilə ödə
                   </button>
 
+                  {lastRef && (
+                    <div className="rounded-lg border border-success/40 bg-success/10 p-3 text-xs space-y-2">
+                      <p className="font-semibold text-success">Referans nömrəniz</p>
+                      <div className="flex items-center gap-2">
+                        <code className="flex-1 font-mono font-bold text-sm bg-background/60 px-2 py-1.5 rounded">{lastRef}</code>
+                        <button onClick={() => { navigator.clipboard.writeText(lastRef); toast.success("Kopyalandı"); }}
+                          className="grid h-8 w-8 place-items-center rounded-md hover:bg-background/60"><Copy className="h-3.5 w-3.5" /></button>
+                      </div>
+                      <p className="text-muted-foreground">BirBank ödənişinin “izahat/qeyd” sahəsinə bu nömrəni yazın — admin ödənişinizi bu nömrə ilə tanıyır.</p>
+                    </div>
+                  )}
+
                   <p className="text-[11px] text-muted-foreground">
-                    Müraciətiniz admin tərəfindən yoxlanıldıqdan sonra balansa avtomatik əlavə olunacaq. Adətən 24 saat ərzində.
+                    Ödəniş etdikdən sonra admin BirBank hesabında yoxlayıb balansınıza avtomatik yükləyəcək. Adətən 15 dəqiqə – 24 saat.
                   </p>
                 </div>
               ) : (
