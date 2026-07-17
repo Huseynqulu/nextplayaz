@@ -19,6 +19,7 @@ const CURRENCIES: Currency[] = ["AZN", "USD"];
 export function LanguageSwitcher() {
   const { lang, setLang } = useI18n();
   const { currency, setCurrency } = useCurrency();
+  const { theme, toggle: toggleTheme } = useTheme();
   const [open, setOpen] = useState(false);
 
   return (
