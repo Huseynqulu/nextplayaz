@@ -18,6 +18,7 @@ const searchSchema = z.object({
   cat: fallback(z.string(), "all").default("all"),
   sub: fallback(z.string(), "all").default("all"),
   platform: fallback(z.string(), "all").default("all"),
+  platforms: fallback(z.string(), "").default(""),
   psub: fallback(z.string(), "all").default("all"),
   delivery: fallback(z.enum(["all", "Instant", "Manual"]), "all").default("all"),
   min: fallback(z.number().min(0), 0).default(0),
