@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Loader2, Plus, Trash2, Eye, EyeOff, ArrowUp, ArrowDown, Save } from "lucide-react";
+import { Loader2, Plus, Trash2, Eye, EyeOff, ArrowUp, ArrowDown, Save, Upload } from "lucide-react";
 
 type Row = {
   id: string;
@@ -22,11 +22,27 @@ const empty: Omit<Row, "id"> = {
   active: true,
 };
 
+async function uploadImage(file: File): Promise<string> {
+  const ext = file.name.split(".").pop() || "jpg";
+  const path = `${crypto.randomUUID()}.${ext}`;
+  const { error } = await supabase.storage
+    .from("home-categories")
+    .upload(path, file, { contentType: file.type, upsert: false });
+  if (error) throw error;
+  const { data: signed, error: sErr } = await supabase.storage
+    .from("home-categories")
+    .createSignedUrl(path, 60 * 60 * 24 * 365 * 10);
+  if (sErr || !signed) throw sErr ?? new Error("URL alınmadı");
+  return signed.signedUrl;
+}
+
 export function AdminHomeCategories() {
   const [rows, setRows] = useState<Row[]>([]);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState<string | null>(null);
+  const [uploading, setUploading] = useState<string | null>(null);
   const [draft, setDraft] = useState<typeof empty>({ ...empty });
+  const draftFileRef = useRef<HTMLInputElement>(null);
 
   async function load() {
     setLoading(true);
@@ -42,6 +58,37 @@ export function AdminHomeCategories() {
     load();
   }, []);
 
+  async function handleDraftUpload(file: File) {
+    setUploading("new");
+    try {
+      const url = await uploadImage(file);
+      setDraft((d) => ({ ...d, image_url: url }));
+      toast.success("Şəkil yükləndi");
+    } catch (e: any) {
+      toast.error(e.message || "Yükləmə uğursuz");
+    } finally {
+      setUploading(null);
+    }
+  }
+
+  async function handleRowUpload(row: Row, file: File) {
+    setUploading(row.id);
+    try {
+      const url = await uploadImage(file);
+      const { error } = await supabase
+        .from("home_categories" as any)
+        .update({ image_url: url })
+        .eq("id", row.id);
+      if (error) throw error;
+      patch(row.id, "image_url", url);
+      toast.success("Şəkil yeniləndi");
+    } catch (e: any) {
+      toast.error(e.message || "Yükləmə uğursuz");
+    } finally {
+      setUploading(null);
+    }
+  }
+
   async function create() {
     if (!draft.title.trim()) {
       toast.error("Başlıq lazımdır");
@@ -53,7 +100,7 @@ export function AdminHomeCategories() {
       title: draft.title.trim(),
       subtitle: draft.subtitle?.trim() || null,
       image_url: draft.image_url?.trim() || null,
-      link_url: draft.link_url.trim() || "/marketplace",
+      link_url: "/marketplace",
       sort_order: nextOrder,
       active: draft.active,
     });
@@ -64,6 +111,7 @@ export function AdminHomeCategories() {
     }
     toast.success("Əlavə edildi");
     setDraft({ ...empty });
+    if (draftFileRef.current) draftFileRef.current.value = "";
     load();
   }
 
@@ -75,7 +123,6 @@ export function AdminHomeCategories() {
         title: row.title,
         subtitle: row.subtitle,
         image_url: row.image_url,
-        link_url: row.link_url,
         sort_order: row.sort_order,
         active: row.active,
       })
@@ -156,18 +203,33 @@ export function AdminHomeCategories() {
             placeholder="Alt başlıq (optional, məs. PS4 / PS5)"
             className="h-10 px-3 rounded-md bg-secondary border border-border text-sm"
           />
+        </div>
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="h-16 w-16 rounded-lg overflow-hidden bg-secondary border border-border grid place-items-center">
+            {draft.image_url ? (
+              <img src={draft.image_url} alt="" className="h-full w-full object-cover" />
+            ) : (
+              <span className="text-[10px] text-muted-foreground">şəkil yox</span>
+            )}
+          </div>
           <input
-            value={draft.image_url ?? ""}
-            onChange={(e) => setDraft({ ...draft, image_url: e.target.value })}
-            placeholder="Şəkil URL (məs. https://...)"
-            className="h-10 px-3 rounded-md bg-secondary border border-border text-sm"
+            ref={draftFileRef}
+            type="file"
+            accept="image/*"
+            onChange={(e) => {
+              const f = e.target.files?.[0];
+              if (f) handleDraftUpload(f);
+            }}
+            className="hidden"
+            id="draft-file"
           />
-          <input
-            value={draft.link_url}
-            onChange={(e) => setDraft({ ...draft, link_url: e.target.value })}
-            placeholder="Link (məs. /marketplace?platform=playstation)"
-            className="h-10 px-3 rounded-md bg-secondary border border-border text-sm"
-          />
+          <label
+            htmlFor="draft-file"
+            className="h-10 px-4 rounded-md bg-secondary border border-border text-sm inline-flex items-center gap-2 cursor-pointer hover:bg-muted"
+          >
+            {uploading === "new" ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
+            Şəkil seç
+          </label>
         </div>
         <button
           disabled={busy === "new"}
@@ -187,12 +249,34 @@ export function AdminHomeCategories() {
             }`}
           >
             <div className="grid gap-3 md:grid-cols-[80px_1fr_auto] items-center">
-              <div className="h-20 w-20 rounded-lg overflow-hidden bg-secondary border border-border grid place-items-center">
+              <div className="relative h-20 w-20 rounded-lg overflow-hidden bg-secondary border border-border grid place-items-center group">
                 {r.image_url ? (
                   <img src={r.image_url} alt="" className="h-full w-full object-cover" />
                 ) : (
                   <span className="text-[10px] text-muted-foreground">şəkil yox</span>
                 )}
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => {
+                    const f = e.target.files?.[0];
+                    if (f) handleRowUpload(r, f);
+                    e.target.value = "";
+                  }}
+                  className="hidden"
+                  id={`file-${r.id}`}
+                />
+                <label
+                  htmlFor={`file-${r.id}`}
+                  className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition grid place-items-center cursor-pointer"
+                  title="Şəkil dəyiş"
+                >
+                  {uploading === r.id ? (
+                    <Loader2 className="h-5 w-5 animate-spin text-white" />
+                  ) : (
+                    <Upload className="h-5 w-5 text-white" />
+                  )}
+                </label>
               </div>
               <div className="grid sm:grid-cols-2 gap-2">
                 <input
@@ -204,18 +288,6 @@ export function AdminHomeCategories() {
                   value={r.subtitle ?? ""}
                   onChange={(e) => patch(r.id, "subtitle", e.target.value)}
                   placeholder="Alt başlıq"
-                  className="h-9 px-3 rounded-md bg-secondary border border-border text-sm"
-                />
-                <input
-                  value={r.image_url ?? ""}
-                  onChange={(e) => patch(r.id, "image_url", e.target.value)}
-                  placeholder="Şəkil URL"
-                  className="h-9 px-3 rounded-md bg-secondary border border-border text-sm sm:col-span-1"
-                />
-                <input
-                  value={r.link_url}
-                  onChange={(e) => patch(r.id, "link_url", e.target.value)}
-                  placeholder="Link"
                   className="h-9 px-3 rounded-md bg-secondary border border-border text-sm"
                 />
               </div>
