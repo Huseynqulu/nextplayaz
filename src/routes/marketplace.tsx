@@ -80,8 +80,8 @@ function MarketplacePage() {
     if (s.cat !== "all") r = r.filter(p => p.category === s.cat);
     if (s.sub !== "all") r = r.filter(p => p.subcategory === s.sub);
     if (s.platform !== "all") r = r.filter(p => p.platform === s.platform);
-    if (s.platforms.trim()) {
-      const list = s.platforms.split(",").map(x => x.trim().toLowerCase()).filter(Boolean);
+    if ((s.platforms as string).trim()) {
+      const list = (s.platforms as string).split(",").map((x: string) => x.trim().toLowerCase()).filter(Boolean);
       if (list.length) r = r.filter(p => list.includes((p.platform ?? "").toLowerCase()));
     }
     if (s.psub !== "all") r = r.filter(p => (p as any).platformSubcategory === s.psub);
