@@ -19,6 +19,7 @@ const AdminBoostPricing = lazy(() => import("@/components/AdminBoostPricing").th
 const AdminAnnouncements = lazy(() => import("@/components/AdminAnnouncements").then(m => ({ default: m.AdminAnnouncements })));
 const AdminSellers = lazy(() => import("@/components/AdminSellers").then(m => ({ default: m.AdminSellers })));
 const AdminHomeCategories = lazy(() => import("@/components/AdminHomeCategories").then(m => ({ default: m.AdminHomeCategories })));
+const AdminTopupLinks = lazy(() => import("@/components/AdminTopupLinks").then(m => ({ default: m.AdminTopupLinks })));
 
 function TabFallback() {
   return <div className="grid place-items-center py-12"><Loader2 className="h-6 w-6 animate-spin text-neon" /></div>;
@@ -41,13 +42,13 @@ type AdminUser = { id: string; email: string | null; display_name: string | null
 type DiscountCode = { id: string; code: string; percent: number; max_uses: number | null; used_count: number; is_active: boolean; expires_at: string | null; created_at: string };
 type AdminTicket = { id: string; user_id: string; order_id: string | null; subject: string; message: string; category: string; status: string; priority: string; created_at: string; updated_at: string };
 type TicketMsg = { id: string; sender_id: string; is_admin: boolean; body: string; created_at: string; attachment_url?: string | null };
-type TopUp = { id: string; user_id: string; amount: number; method: string; sender_note: string | null; receipt_url: string | null; status: "pending"|"approved"|"rejected"; admin_notes: string | null; created_at: string };
+type TopUp = { id: string; user_id: string; amount: number; method: string; sender_note: string | null; receipt_url: string | null; reference_code: string | null; status: "pending"|"approved"|"rejected"; admin_notes: string | null; created_at: string };
 type PaymentSetting = { method: string; label: string; instructions: string; is_active: boolean; link_url?: string | null };
 type OrderPayment = { id: string; buyer_id: string; product_id: string; quantity: number; discount_code: string | null; amount: number; method: string; reference: string; receipt_url: string | null; status: "pending"|"approved"|"rejected"; admin_notes: string | null; order_id: string | null; created_at: string; buyer?: { display_name: string | null; username: string | null } | null; product?: { title: string } | null };
 type Category = { slug: string; label_az: string; label_en: string; label_ru: string; sort_order: number; is_active: boolean };
 type Subcategory = { id?: string; category_slug: string; slug: string; label_az: string; label_en: string; label_ru: string; sort_order: number; is_active: boolean };
 
-type Tab = "analytics" | "applications" | "users" | "sellers" | "codes" | "products" | "tickets" | "topups" | "orderpayments" | "withdrawals" | "platform" | "payments" | "categories" | "platforms" | "disputes" | "banners" | "reviews" | "giftcards" | "giftmarket" | "boost" | "announcements" | "homecats";
+type Tab = "analytics" | "applications" | "users" | "sellers" | "codes" | "products" | "tickets" | "topups" | "topuplinks" | "orderpayments" | "withdrawals" | "platform" | "payments" | "categories" | "platforms" | "disputes" | "banners" | "reviews" | "giftcards" | "giftmarket" | "boost" | "announcements" | "homecats";
 
 type PlatformRow = { slug: string; label_az: string; label_en: string; label_ru: string; sort_order: number; is_active: boolean };
 type PlatformSub = { platform_slug: string; slug: string; label_az: string; label_en: string; label_ru: string; sort_order: number; is_active: boolean };
@@ -502,6 +503,7 @@ function AdminPage() {
               ["users", "İstifadəçilər"],
               ["sellers", "🏪 Satıcılar"],
               ["topups", `Balans (${topups.filter(t => t.status === "pending").length})`],
+              ["topuplinks", "🔗 Ödəniş linkləri"],
               ["orderpayments", `💳 Sifariş ödənişləri (${orderPayments.filter(o => o.status === "pending").length})`],
               ["withdrawals", `Pul çıxarış (${withdrawals.filter(w => w.status === "pending").length})`],
               ["platform", `Platforma (${platformBalance.toFixed(2)} ₼)`],
@@ -818,6 +820,7 @@ function AdminPage() {
                           }`}>{t.status}</span>
                         </div>
                         <p className="text-xs text-muted-foreground mt-1">{u?.display_name ?? u?.username ?? "—"} · {u?.email ?? t.user_id.slice(0,8)}</p>
+                        {t.reference_code && <p className="text-xs mt-1.5 bg-neon/10 border border-neon/30 px-2 py-1 rounded font-mono font-bold text-neon">Ref: {t.reference_code}</p>}
                         {t.sender_note && <p className="text-xs mt-1.5 bg-surface/50 px-2 py-1 rounded">Qeyd: {t.sender_note}</p>}
                         {t.admin_notes && <p className="text-xs mt-1.5 bg-neon/5 border border-neon/20 px-2 py-1 rounded">Admin: {t.admin_notes}</p>}
                         <p className="text-[11px] text-muted-foreground mt-2">{new Date(t.created_at).toLocaleString("az-AZ")}</p>
@@ -910,6 +913,8 @@ function AdminPage() {
                 );
               })}
             </div>
+          ) : tab === "topuplinks" ? (
+            <Suspense fallback={<TabFallback />}><AdminTopupLinks /></Suspense>
           ) : tab === "payments" ? (
             <div className="space-y-3">
               <p className="text-sm text-muted-foreground mb-2">Bu rekvizitlər istifadəçilərin <span className="text-neon font-semibold">Cüzdan</span> səhifəsində ödəniş üsulu seçildikdə avtomatik göstərilir.</p>

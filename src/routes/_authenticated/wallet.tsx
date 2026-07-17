@@ -6,7 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
 import { burstConfetti } from "@/lib/celebrate";
-import { Wallet, Loader2, Upload, Receipt, Copy, CheckCircle2, XCircle, Clock, ArrowDownToLine, ArrowUpFromLine } from "lucide-react";
+import { Wallet, Loader2, Receipt, Copy, CheckCircle2, XCircle, Clock, ArrowDownToLine, ArrowUpFromLine, ExternalLink, Zap } from "lucide-react";
 import { useCurrency } from "@/lib/currency";
 import { GiftCardRedeem } from "@/components/GiftCardRedeem";
 import { LoyaltyCard } from "@/components/LoyaltyCard";
@@ -17,9 +17,10 @@ export const Route = createFileRoute("/_authenticated/wallet")({
 });
 
 type Method = { method: string; label: string; instructions: string; is_active: boolean };
+type TopupLink = { id: string; amount: number; url: string; is_active: boolean };
 type TopUp = {
   id: string; amount: number; method: string; sender_note: string | null;
-  receipt_url: string | null; status: "pending" | "approved" | "rejected";
+  receipt_url: string | null; reference_code: string | null; status: "pending" | "approved" | "rejected";
   admin_notes: string | null; created_at: string;
 };
 type Withdraw = {
@@ -41,6 +42,7 @@ function WalletPage() {
   const [pending, setPending] = useState<{ total: number; items: { id: string; seller_net: number; funds_release_at: string | null }[] }>({ total: 0, items: [] });
   const [showPending, setShowPending] = useState(false);
   const [methods, setMethods] = useState<Method[]>([]);
+  const [links, setLinks] = useState<TopupLink[]>([]);
   const [history, setHistory] = useState<TopUp[]>([]);
   const [withdrawals, setWithdrawals] = useState<Withdraw[]>([]);
   const [loading, setLoading] = useState(true);
@@ -48,10 +50,8 @@ function WalletPage() {
 
   // Top-up form
   const [amount, setAmount] = useState("");
-  const [method, setMethod] = useState<string>("");
-  const [note, setNote] = useState("");
-  const [receipt, setReceipt] = useState<File | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [lastRef, setLastRef] = useState<string | null>(null);
 
   // Withdraw form
   const [wAmount, setWAmount] = useState("");
@@ -63,9 +63,10 @@ function WalletPage() {
   async function refresh() {
     if (!user) return;
     setLoading(true);
-    const [{ data: p }, { data: m }, { data: h }, { data: w }, { data: pend }] = await Promise.all([
+    const [{ data: p }, { data: m }, { data: lk }, { data: h }, { data: w }, { data: pend }] = await Promise.all([
       supabase.rpc("get_my_wallet_balance"),
       supabase.from("payment_settings").select("*").eq("is_active", true).order("label"),
+      supabase.from("topup_payment_links" as any).select("*").eq("is_active", true).order("amount"),
       supabase.from("wallet_topups").select("*").eq("user_id", user.id).order("created_at", { ascending: false }),
       supabase.from("wallet_withdrawals" as any).select("*").eq("user_id", user.id).order("created_at", { ascending: false }),
       supabase.from("orders").select("id, seller_net, funds_release_at")
@@ -74,7 +75,7 @@ function WalletPage() {
     ]);
     setBalance(Number(p ?? 0));
     setMethods((m as any) ?? []);
-    if (!method && m && m.length > 0) setMethod((m as any)[0].method);
+    setLinks((lk as any) ?? []);
     setHistory((h as any) ?? []);
     setWithdrawals((w as any) ?? []);
     const items = ((pend as any) ?? []) as { id: string; seller_net: number; funds_release_at: string | null }[];
@@ -84,33 +85,35 @@ function WalletPage() {
 
   useEffect(() => { refresh(); /* eslint-disable-next-line */ }, [user?.id]);
 
-  async function submit() {
-    if (!user) return;
-    const num = Number(amount);
-    if (!Number.isFinite(num) || num < 5) { toast.error("Minimum 5 ₼ əlavə edə bilərsiniz"); return; }
-    if (!method) { toast.error("Ödəniş üsulunu seçin"); return; }
+  const matchedLink = links.find(l => Math.abs(Number(l.amount) - Number(amount || 0)) < 0.005) || null;
 
+  function genRef() {
+    return "NP-" + Math.random().toString(36).slice(2, 8).toUpperCase();
+  }
+
+  async function payWithBirbank() {
+    if (!user || !matchedLink) return;
     setSubmitting(true);
     try {
-      let receipt_url: string | null = null;
-      if (receipt) {
-        const ext = receipt.name.split(".").pop() ?? "jpg";
-        const path = `${user.id}/${Date.now()}.${ext}`;
-        const { error: ue } = await supabase.storage.from("topup-receipts").upload(path, receipt, { upsert: false });
-        if (ue) throw ue;
-        receipt_url = path;
-      }
+      const ref = genRef();
       const { error } = await supabase.from("wallet_topups").insert({
-        user_id: user.id, amount: num, method: method as any, sender_note: note || null, receipt_url, status: "pending",
-      });
+        user_id: user.id,
+        amount: Number(matchedLink.amount),
+        method: "birbank" as any,
+        sender_note: `BirBank link ödənişi · Ref: ${ref}`,
+        reference_code: ref,
+        status: "pending",
+      } as any);
       if (error) throw error;
-      toast.success("Müraciət göndərildi. Admin təsdiqindən sonra balans artırılacaq.");
+      setLastRef(ref);
+      toast.success("Ödəniş linki açılır. BirBank izahat sahəsinə referans nömrəsini yazın!");
       burstConfetti();
-      setAmount(""); setNote(""); setReceipt(null);
+      window.open(matchedLink.url, "_blank", "noopener,noreferrer");
       await refresh();
     } catch (e: any) { toast.error(e.message ?? "Xəta"); }
     finally { setSubmitting(false); }
   }
+
 
   async function submitWithdraw() {
     if (!user) return;
@@ -134,7 +137,9 @@ function WalletPage() {
     finally { setWSubmitting(false); }
   }
 
-  const selected = methods.find(m => m.method === method);
+  const _unusedMethods = methods; // kept for potential future methods; suppresses unused warning
+  void _unusedMethods;
+
   const wMethodMeta = WITHDRAW_METHODS.find(m => m.value === wMethod)!;
   const wNum = Number(wAmount) || 0;
   const wFee = Math.round(wNum * 0.05 * 100) / 100;
@@ -229,53 +234,63 @@ function WalletPage() {
             <div className="grid lg:grid-cols-2 gap-6">
               {tab === "topup" ? (
                 <div className="rounded-2xl border border-border bg-card-gradient p-6 card-shadow space-y-4">
-                  <h2 className="font-semibold text-lg inline-flex items-center gap-2"><Upload className="h-4 w-4 text-neon" /> Balans artır</h2>
+                  <h2 className="font-semibold text-lg inline-flex items-center gap-2"><Zap className="h-4 w-4 text-neon" /> BirBank ilə balans artır</h2>
 
                   <div>
                     <label className="text-xs font-semibold text-muted-foreground uppercase">Məbləğ (AZN)</label>
-                    <input type="number" min="5" step="0.01" value={amount} onChange={e => setAmount(e.target.value)}
-                      placeholder="Min. 5" className="mt-1.5 w-full h-11 px-3 rounded-lg bg-background border border-border" />
+                    <input type="number" min="1" step="1" value={amount} onChange={e => setAmount(e.target.value)}
+                      placeholder="Məs: 15" className="mt-1.5 w-full h-11 px-3 rounded-lg bg-background border border-border" />
                   </div>
 
-                  <div>
-                    <label className="text-xs font-semibold text-muted-foreground uppercase">Ödəniş üsulu</label>
-                    <select value={method} onChange={e => setMethod(e.target.value)} className="mt-1.5 w-full h-11 px-3 rounded-lg bg-background border border-border">
-                      {methods.map(m => <option key={m.method} value={m.method}>{m.label}</option>)}
-                    </select>
-                  </div>
-
-                  {selected && (
-                    <div className="rounded-lg border border-neon/30 bg-neon/5 p-3 text-sm">
-                      <div className="flex items-start justify-between gap-2">
-                        <p className="whitespace-pre-wrap text-foreground/90">{selected.instructions}</p>
-                        <button onClick={() => { navigator.clipboard.writeText(selected.instructions); toast.success("Kopyalandı"); }}
-                          className="shrink-0 grid h-8 w-8 place-items-center rounded-md hover:bg-surface"><Copy className="h-3.5 w-3.5" /></button>
+                  {links.length > 0 && (
+                    <div>
+                      <p className="text-xs text-muted-foreground mb-2">Mövcud məbləğlər — birinə toxunun:</p>
+                      <div className="flex flex-wrap gap-2">
+                        {links.map(l => (
+                          <button key={l.id} type="button" onClick={() => setAmount(String(Number(l.amount)))}
+                            className={`h-9 px-3 rounded-lg text-sm font-semibold border transition ${
+                              matchedLink?.id === l.id ? "bg-neon text-background border-neon" : "bg-surface border-border hover:border-neon/40"
+                            }`}>
+                            {format(Number(l.amount))}
+                          </button>
+                        ))}
                       </div>
                     </div>
                   )}
 
-                  <div>
-                    <label className="text-xs font-semibold text-muted-foreground uppercase">Qəbz şəkli (tövsiyə olunur)</label>
-                    <input type="file" accept="image/*" onChange={e => setReceipt(e.target.files?.[0] ?? null)}
-                      className="mt-1.5 w-full text-sm file:mr-3 file:h-9 file:px-3 file:rounded-md file:border-0 file:bg-surface file:text-foreground file:font-semibold" />
-                    {receipt && <p className="text-xs text-muted-foreground mt-1">✓ {receipt.name}</p>}
-                  </div>
+                  {amount && !matchedLink && (
+                    <div className="rounded-lg border border-warning/40 bg-warning/10 p-3 text-xs text-warning">
+                      Bu məbləğ üçün hazır ödəniş linki yoxdur. Yuxarıdakı mövcud məbləğlərdən birini seçin.
+                    </div>
+                  )}
 
-                  <div>
-                    <label className="text-xs font-semibold text-muted-foreground uppercase">Qeyd (ixtiyari)</label>
-                    <textarea value={note} onChange={e => setNote(e.target.value)} rows={2}
-                      placeholder="Ödəniş haqqında əlavə məlumat"
-                      className="mt-1.5 w-full px-3 py-2 rounded-lg bg-background border border-border text-sm resize-none" />
-                  </div>
+                  {matchedLink && (
+                    <div className="rounded-lg border border-neon/30 bg-neon/5 p-3 text-xs space-y-1">
+                      <p className="font-semibold text-foreground">{format(Number(matchedLink.amount))} ödənişi hazırdır</p>
+                      <p className="text-muted-foreground">Düyməyə basdıqda BirBank səhifəsi yeni tabda açılacaq və müraciət avtomatik yaradılacaq.</p>
+                    </div>
+                  )}
 
-                  <button disabled={submitting} onClick={submit}
+                  <button disabled={submitting || !matchedLink} onClick={payWithBirbank}
                     className="w-full h-11 rounded-lg bg-neon text-background font-semibold neon-ring disabled:opacity-50 inline-flex items-center justify-center gap-2">
-                    {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
-                    Müraciət göndər
+                    {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <ExternalLink className="h-4 w-4" />}
+                    BirBank ilə ödə
                   </button>
 
+                  {lastRef && (
+                    <div className="rounded-lg border border-success/40 bg-success/10 p-3 text-xs space-y-2">
+                      <p className="font-semibold text-success">Referans nömrəniz</p>
+                      <div className="flex items-center gap-2">
+                        <code className="flex-1 font-mono font-bold text-sm bg-background/60 px-2 py-1.5 rounded">{lastRef}</code>
+                        <button onClick={() => { navigator.clipboard.writeText(lastRef); toast.success("Kopyalandı"); }}
+                          className="grid h-8 w-8 place-items-center rounded-md hover:bg-background/60"><Copy className="h-3.5 w-3.5" /></button>
+                      </div>
+                      <p className="text-muted-foreground">BirBank ödənişinin “izahat/qeyd” sahəsinə bu nömrəni yazın — admin ödənişinizi bu nömrə ilə tanıyır.</p>
+                    </div>
+                  )}
+
                   <p className="text-[11px] text-muted-foreground">
-                    Müraciətiniz admin tərəfindən yoxlanıldıqdan sonra balansa avtomatik əlavə olunacaq. Adətən 24 saat ərzində.
+                    Ödəniş etdikdən sonra admin BirBank hesabında yoxlayıb balansınıza avtomatik yükləyəcək. Adətən 15 dəqiqə – 24 saat.
                   </p>
                 </div>
               ) : (
