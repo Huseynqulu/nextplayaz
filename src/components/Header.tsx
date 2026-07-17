@@ -9,7 +9,7 @@ import { useOnlinePresence } from "@/lib/presence";
 import { NotificationBell } from "@/components/NotificationBell";
 import { SearchBox } from "@/components/SearchBox";
 import { CommandPaletteTrigger } from "@/components/CommandPalette";
-import { ThemeToggle } from "@/components/ThemeToggle";
+
 import nextplayLogo from "@/assets/nextplay-logo.png";
 import { imgUrl } from "@/lib/image-url";
 
@@ -93,9 +93,8 @@ export function Header() {
 
         <div className="flex items-center gap-2 md:ml-2 ml-auto">
           <CommandPaletteTrigger />
-          <ThemeToggle />
           <LanguageSwitcher />
-          <CartButton />
+          <div className="hidden md:block"><CartButton /></div>
           {user && (
             <Link to="/messages" className="hidden md:grid h-10 w-10 place-items-center rounded-lg hover:bg-surface transition relative" aria-label="Mesajlar">
               <MessageSquare className="h-5 w-5" />

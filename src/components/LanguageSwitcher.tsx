@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { Settings, Check, Globe, Coins } from "lucide-react";
+import { Settings, Check, Globe, Coins, Moon, Sun } from "lucide-react";
 import { useI18n, type Lang } from "@/lib/i18n";
 import { useCurrency, CURRENCY_META, type Currency } from "@/lib/currency";
+import { useTheme } from "@/lib/theme";
 
 const LANGS: { code: Lang; label: string; flag: string }[] = [
   { code: "az", label: "Azərbaycan", flag: "🇦🇿" },
@@ -18,6 +19,7 @@ const CURRENCIES: Currency[] = ["AZN", "USD"];
 export function LanguageSwitcher() {
   const { lang, setLang } = useI18n();
   const { currency, setCurrency } = useCurrency();
+  const { theme, toggle: toggleTheme } = useTheme();
   const [open, setOpen] = useState(false);
 
   return (
@@ -68,6 +70,18 @@ export function LanguageSwitcher() {
                 {lang === o.code && <Check className="h-4 w-4 text-neon" />}
               </button>
             ))}
+            <div className="border-t border-border my-1" />
+            <div className="px-3 pt-2 pb-1.5 flex items-center gap-1.5 text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">
+              {theme === "dark" ? <Moon className="h-3 w-3" /> : <Sun className="h-3 w-3" />} Rejim
+            </div>
+            <button
+              onClick={() => { toggleTheme(); }}
+              className="w-full flex items-center gap-2 px-4 py-2 text-sm hover:bg-surface transition"
+            >
+              {theme === "dark" ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
+              <span className="flex-1 text-left">{theme === "dark" ? "Qaranlıq rejim" : "İşıqlı rejim"}</span>
+              <span className="text-xs text-muted-foreground">{theme === "dark" ? "→ İşıqlı" : "→ Qaranlıq"}</span>
+            </button>
           </div>
         </>
       )}
