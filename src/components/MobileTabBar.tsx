@@ -55,7 +55,7 @@ export function MobileTabBar() {
     { to: "/marketplace", label: t("tab.market"), Icon: Store, match: (p) => p.startsWith("/marketplace") || p.startsWith("/product") },
     { to: "/messages", label: t("tab.messages"), Icon: MessageCircle, match: (p) => p.startsWith("/messages"), badge: unread },
     { to: "/cart", label: t("tab.cart"), Icon: ShoppingCart, match: (p) => p.startsWith("/cart"), badge: cartCount },
-    { to: userId ? "/profile" : "/auth", label: t("tab.profile"), Icon: User, match: (p) => p.startsWith("/profile") || p.startsWith("/auth") },
+    { to: userId ? "/profile" : "/login", label: t("tab.profile"), Icon: User, match: (p) => p.startsWith("/profile") || p.startsWith("/login") || p.startsWith("/register") },
   ];
 
   return (
