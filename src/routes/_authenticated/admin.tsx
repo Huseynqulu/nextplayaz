@@ -846,6 +846,70 @@ function AdminPage() {
                 );
               })}
             </div>
+          ) : tab === "orderpayments" ? (
+            <div className="space-y-3">
+              <p className="text-sm text-muted-foreground">Alıcıların "BirBank ilə birbaşa al" düyməsi ilə göndərdikləri ödəniş qəbzləri. Təsdiqlədikdə sifariş avtomatik açılır.</p>
+              <div className="flex gap-2 flex-wrap mb-2">
+                {(["all","pending","approved","rejected"] as const).map(f => {
+                  const n = f === "all" ? orderPayments.length : orderPayments.filter(o => o.status === f).length;
+                  return (
+                    <button key={f} onClick={() => setOpFilter(f)}
+                      className={`h-8 px-3 rounded-full text-xs font-semibold transition ${opFilter === f ? "bg-neon text-background" : "bg-surface border border-border text-muted-foreground hover:text-foreground"}`}>
+                      {f === "all" ? "Hamısı" : f === "pending" ? "Gözləyən" : f === "approved" ? "Təsdiqli" : "Rədd"} ({n})
+                    </button>
+                  );
+                })}
+              </div>
+              {orderPayments.filter(o => opFilter === "all" || o.status === opFilter).length === 0 && (
+                <p className="text-muted-foreground text-center py-12">Ödəniş yoxdur.</p>
+              )}
+              {orderPayments.filter(o => opFilter === "all" || o.status === opFilter).map(o => {
+                const u = users.find(x => x.id === o.buyer_id);
+                return (
+                  <div key={o.id} className="rounded-xl border border-border bg-card-gradient p-4">
+                    <div className="flex flex-wrap items-start justify-between gap-3">
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <CreditCard className="h-4 w-4 text-neon" />
+                          <span className="font-bold text-lg">{Number(o.amount).toFixed(2)} ₼</span>
+                          <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-surface font-mono">{o.reference}</span>
+                          <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-surface">{o.method}</span>
+                          <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${
+                            o.status === "approved" ? "bg-success/20 text-success" :
+                            o.status === "rejected" ? "bg-destructive/20 text-destructive" : "bg-warning/20 text-warning"
+                          }`}>{o.status}</span>
+                        </div>
+                        <p className="text-sm mt-1.5"><b>{o.product?.title ?? "—"}</b> × {o.quantity}</p>
+                        <p className="text-xs text-muted-foreground mt-1">Alıcı: {u?.display_name ?? u?.username ?? "—"} · {u?.email ?? o.buyer_id.slice(0,8)}</p>
+                        {o.discount_code && <p className="text-[11px] text-muted-foreground">Endirim kodu: {o.discount_code}</p>}
+                        {o.admin_notes && <p className="text-xs mt-1.5 bg-neon/5 border border-neon/20 px-2 py-1 rounded">Admin: {o.admin_notes}</p>}
+                        <p className="text-[11px] text-muted-foreground mt-2">{new Date(o.created_at).toLocaleString("az-AZ")}</p>
+                      </div>
+                      <div className="flex gap-2 flex-wrap">
+                        {o.receipt_url && (
+                          <button onClick={() => setOpReceipt({ id: o.id, url: o.receipt_url! })}
+                            className="inline-flex items-center gap-1.5 h-9 px-3 rounded-lg bg-surface border border-border text-sm font-semibold hover:border-primary">
+                            <Eye className="h-4 w-4" /> Qəbz
+                          </button>
+                        )}
+                        {o.status === "pending" && (
+                          <>
+                            <button disabled={busy === `op:${o.id}`} onClick={() => approveOrderPayment(o.id)}
+                              className="inline-flex items-center gap-1.5 h-9 px-3 rounded-lg bg-success text-background text-sm font-semibold hover:opacity-90 disabled:opacity-50">
+                              <CheckCircle2 className="h-4 w-4" /> Təsdiq
+                            </button>
+                            <button disabled={busy === `op:${o.id}`} onClick={() => rejectOrderPayment(o.id)}
+                              className="inline-flex items-center gap-1.5 h-9 px-3 rounded-lg bg-destructive text-destructive-foreground text-sm font-semibold hover:opacity-90 disabled:opacity-50">
+                              <XCircle className="h-4 w-4" /> Rədd
+                            </button>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           ) : tab === "payments" ? (
             <div className="space-y-3">
               <p className="text-sm text-muted-foreground mb-2">Bu rekvizitlər istifadəçilərin <span className="text-neon font-semibold">Cüzdan</span> səhifəsində ödəniş üsulu seçildikdə avtomatik göstərilir.</p>
