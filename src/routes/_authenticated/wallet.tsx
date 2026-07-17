@@ -17,9 +17,10 @@ export const Route = createFileRoute("/_authenticated/wallet")({
 });
 
 type Method = { method: string; label: string; instructions: string; is_active: boolean };
+type TopupLink = { id: string; amount: number; url: string; is_active: boolean };
 type TopUp = {
   id: string; amount: number; method: string; sender_note: string | null;
-  receipt_url: string | null; status: "pending" | "approved" | "rejected";
+  receipt_url: string | null; reference_code: string | null; status: "pending" | "approved" | "rejected";
   admin_notes: string | null; created_at: string;
 };
 type Withdraw = {
