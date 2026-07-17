@@ -202,24 +202,15 @@ export async function fetchProductBySlug(slug: string): Promise<Product | null> 
       .select("display_name, username, shop_name, avatar_url, verified_at, sales_count")
       .eq("id", data.seller_id)
       .maybeSingle(),
-    supabase.from("products").select("id, seller_id, rating, reviews_count")
+    supabase.from("products").select("seller_id, rating, reviews_count")
       .eq("seller_id", data.seller_id).eq("is_active", true),
   ]);
 
   const sellerProductRows = (sellerProds as any[]) ?? [];
-  const productIds = sellerProductRows.map((row: any) => row.id).filter(Boolean);
-  const reviewRows = await fetchReviewRowsByProductIds(productIds);
-
-  const sellerSummary = summarizeRating(reviewRows);
-  const legacySellerSummary = getSellerReviewStats(sellerProductRows).get(data.seller_id) ?? { rating: 5, reviewsCount: 0 };
-  const finalSellerSummary = sellerSummary.reviewsCount > 0 ? sellerSummary : legacySellerSummary;
-  const productSummary = summarizeRating(reviewRows.filter((row: any) => row.product_id === data.id));
-  const enrichedProduct = productSummary.reviewsCount > 0
-    ? { ...data, rating: productSummary.rating, reviews_count: productSummary.reviewsCount }
-    : data;
+  const finalSellerSummary = getSellerReviewStats(sellerProductRows).get(data.seller_id) ?? { rating: 5, reviewsCount: 0 };
 
   const prof = profRaw as any;
-  return dbToProduct(enrichedProduct as unknown as DbProduct, {
+  return dbToProduct(data as unknown as DbProduct, {
     name: prof?.display_name || prof?.username || "Satıcı",
     shopName: prof?.shop_name ?? null,
     avatarUrl: prof?.avatar_url ?? null,
