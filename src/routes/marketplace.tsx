@@ -18,6 +18,7 @@ const searchSchema = z.object({
   cat: fallback(z.string(), "all").default("all"),
   sub: fallback(z.string(), "all").default("all"),
   platform: fallback(z.string(), "all").default("all"),
+  platforms: fallback(z.string(), "").default(""),
   psub: fallback(z.string(), "all").default("all"),
   delivery: fallback(z.enum(["all", "Instant", "Manual"]), "all").default("all"),
   min: fallback(z.number().min(0), 0).default(0),
@@ -79,6 +80,10 @@ function MarketplacePage() {
     if (s.cat !== "all") r = r.filter(p => p.category === s.cat);
     if (s.sub !== "all") r = r.filter(p => p.subcategory === s.sub);
     if (s.platform !== "all") r = r.filter(p => p.platform === s.platform);
+    if ((s.platforms as string).trim()) {
+      const list = (s.platforms as string).split(",").map((x: string) => x.trim().toLowerCase()).filter(Boolean);
+      if (list.length) r = r.filter(p => list.includes((p.platform ?? "").toLowerCase()));
+    }
     if (s.psub !== "all") r = r.filter(p => (p as any).platformSubcategory === s.psub);
     if (s.delivery !== "all") r = r.filter(p => p.delivery === s.delivery);
     if (s.verified) r = r.filter(p => p.seller?.verified);
@@ -119,7 +124,7 @@ function MarketplacePage() {
     (s.rating > 0 ? 1 : 0);
 
   const reset = () => navigate({
-    search: { q: "", cat: "all", sub: "all", platform: "all", psub: "all", delivery: "all", min: 0, max: 0, rating: 0, verified: false, inStock: true, sort: "popular" } as any,
+    search: { q: "", cat: "all", sub: "all", platform: "all", platforms: "", psub: "all", delivery: "all", min: 0, max: 0, rating: 0, verified: false, inStock: true, sort: "popular" } as any,
     replace: true,
   });
 
