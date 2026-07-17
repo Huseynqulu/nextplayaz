@@ -159,6 +159,7 @@ export async function fetchProducts(): Promise<Product[]> {
 
   const sellerIds = Array.from(new Set(data.map(d => d.seller_id)));
   let sellerMap = new Map<string, SellerLite>();
+  const suspendedIds = new Set<string>();
   if (sellerIds.length) {
     const [{ data: profs }, { data: sellerProds }] = await Promise.all([
       supabase
@@ -167,42 +168,27 @@ export async function fetchProducts(): Promise<Product[]> {
         .in("id", sellerIds),
       supabase
         .from("products")
-        .select("id, seller_id, rating, reviews_count")
+        .select("seller_id, rating, reviews_count")
         .in("seller_id", sellerIds)
         .eq("is_active", true),
     ]);
-    const sellerProductRows = (sellerProds as any[]) ?? [];
-    const productSellerMap = new Map<string, string>(sellerProductRows.map((row: any) => [row.id, row.seller_id]));
-    const productIds = Array.from(productSellerMap.keys());
-    let reviewStats = new Map<string, { rating: number; reviewsCount: number }>();
-    if (productIds.length) {
-      const reviewRows = await fetchReviewRowsByProductIds(productIds);
-      const rowsBySeller: Array<{ seller_id: string; rating: number | null }> = [];
-      reviewRows.forEach((row) => {
-        const sellerId = productSellerMap.get(row.product_id);
-        if (sellerId) rowsBySeller.push({ seller_id: sellerId, rating: row.rating });
-      });
-      reviewStats = getSellerReviewStatsFromReviews(rowsBySeller);
-    }
-    const legacyReviewStats = getSellerReviewStats(sellerProductRows);
-    sellerMap = new Map(((profs as any[]) ?? []).map((p: any) => [p.id, {
-      name: p.display_name || p.username || "Satıcı",
-      shopName: p.shop_name ?? null,
-      avatarUrl: p.avatar_url ?? null,
-      verified: !!p.verified_at,
-      rating: reviewStats.get(p.id)?.rating ?? legacyReviewStats.get(p.id)?.rating ?? 5,
-      reviewsCount: reviewStats.get(p.id)?.reviewsCount ?? legacyReviewStats.get(p.id)?.reviewsCount ?? 0,
-      sales: p.sales_count ?? 0,
-    } as SellerLite]));
+    const legacyReviewStats = getSellerReviewStats(((sellerProds as any[]) ?? []) as any);
+    sellerMap = new Map(((profs as any[]) ?? []).map((p: any) => {
+      if (p.suspended_until && new Date(p.suspended_until) > new Date()) suspendedIds.add(p.id);
+      const stats = legacyReviewStats.get(p.id) ?? { rating: 5, reviewsCount: 0 };
+      return [p.id, {
+        name: p.display_name || p.username || "Satıcı",
+        shopName: p.shop_name ?? null,
+        avatarUrl: p.avatar_url ?? null,
+        verified: !!p.verified_at,
+        rating: stats.rating,
+        reviewsCount: stats.reviewsCount,
+        sales: p.sales_count ?? 0,
+      } as SellerLite];
+    }));
   }
 
-  // Hide products from currently suspended sellers (reuse profs from above if available)
-  const suspendedIds = new Set<string>();
-  sellerMap.forEach(() => {}); // noop to keep sellerMap in scope
-  const profList = sellerIds.length ? (await supabase.from("public_profiles" as any).select("id, suspended_until").in("id", sellerIds)).data as any[] | null : null;
-  (profList ?? []).forEach((p: any) => { if (p.suspended_until && new Date(p.suspended_until) > new Date()) suspendedIds.add(p.id); });
   const visible = data.filter((d: any) => !suspendedIds.has(d.seller_id));
-
   const dbItems = visible.map(d => dbToProduct(d as unknown as DbProduct, sellerMap.get(d.seller_id)));
   return dbItems;
 }
