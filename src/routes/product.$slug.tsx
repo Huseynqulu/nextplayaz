@@ -262,7 +262,7 @@ function ProductPage() {
                       onClick={openBuy}
                       className="flex-1 min-w-0 h-12 px-4 rounded-xl bg-neon text-background font-bold neon-ring hover:scale-[1.01] transition disabled:opacity-50 inline-flex items-center justify-center gap-2 whitespace-nowrap"
                     >
-                      İndi al
+                      Balansla al
                     </button>
                     <button onClick={messageSeller} disabled={contacting} className="grid h-12 w-12 shrink-0 place-items-center rounded-xl border border-border hover:border-primary disabled:opacity-50" aria-label="Satıcıya mesaj">
                       {contacting ? <Loader2 className="h-4 w-4 animate-spin" /> : <MessageCircle className="h-4 w-4" />}
@@ -270,6 +270,19 @@ function ProductPage() {
                     <button onClick={handleFav} className={`grid h-12 w-12 shrink-0 place-items-center rounded-xl border ${fav ? "border-neon text-neon" : "border-border hover:border-primary"}`} aria-label="Favorilərə əlavə et"><Heart className={`h-4 w-4 ${fav ? "fill-current" : ""}`} /></button>
                     <button onClick={handleShare} className="grid h-12 w-12 shrink-0 place-items-center rounded-xl border border-border hover:border-primary" aria-label="Paylaş"><Share2 className="h-4 w-4" /></button>
                   </div>
+
+                  <button
+                    disabled={p.stock < 1 || !isDbProduct}
+                    onClick={() => {
+                      if (!user) { toast.info("Daxil olun"); navigate({ to: "/login" }); return; }
+                      if (!isDbProduct) { toast.info("Demo məhsul"); return; }
+                      setShowBirBank(true);
+                    }}
+                    className="w-full h-12 rounded-xl bg-gradient-to-r from-orange-500 to-red-500 text-white font-bold hover:opacity-95 disabled:opacity-50 inline-flex items-center justify-center gap-2"
+                  >
+                    <CreditCard className="h-4 w-4" /> BirBank ilə birbaşa al
+                  </button>
+                </div>
                 </div>
 
 
