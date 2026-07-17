@@ -5,7 +5,7 @@ import { useEffect, useState, lazy, Suspense } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
-import { Loader2, CheckCircle2, XCircle, ShieldCheck, Package, Users, FileText, Ticket, Wallet, Trash2, Plus, Eye, X, FileImage, LifeBuoy, Send, ArrowLeft, Receipt, Image as ImageIcon } from "lucide-react";
+import { Loader2, CheckCircle2, XCircle, ShieldCheck, Package, Users, FileText, Ticket, Wallet, Trash2, Plus, Eye, X, FileImage, LifeBuoy, Send, ArrowLeft, Receipt, Image as ImageIcon, CreditCard } from "lucide-react";
 import { ChatImage } from "@/components/ChatImage";
 import { categoryLabel } from "@/lib/marketplace-data";
 // Lazy-load heavy tab panels so the admin entry chunk stays small.
