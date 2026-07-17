@@ -165,6 +165,7 @@ function RootComponent() {
                 <InstallAppBanner />
                 <OnboardingTour />
                 <MobileTabBar />
+                <WhatsAppButton />
                 <CommandPalette />
                 <AppToaster />
               </CartProvider>
