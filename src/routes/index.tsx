@@ -4,7 +4,7 @@ import { Footer } from "@/components/Footer";
 import { Hero } from "@/components/Hero";
 import { BannerCarousel } from "@/components/BannerCarousel";
 
-import { CategoriesSection } from "@/components/CategoriesSection";
+
 import { HomeCategoriesGrid } from "@/components/HomeCategoriesGrid";
 import { FeaturedProducts } from "@/components/FeaturedProducts";
 import { StatsSection } from "@/components/StatsSection";
