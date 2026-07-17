@@ -4,7 +4,7 @@ import { Footer } from "@/components/Footer";
 import { Hero } from "@/components/Hero";
 import { BannerCarousel } from "@/components/BannerCarousel";
 
-import { CategoriesSection } from "@/components/CategoriesSection";
+
 import { HomeCategoriesGrid } from "@/components/HomeCategoriesGrid";
 import { FeaturedProducts } from "@/components/FeaturedProducts";
 import { StatsSection } from "@/components/StatsSection";
@@ -23,7 +23,7 @@ function HomePage() {
     <div className="min-h-screen flex flex-col">
       <Header />
       <main className="flex-1">
-        <CategoriesSection />
+        
         <Hero />
         <HomeCategoriesGrid />
         <BannerCarousel />
