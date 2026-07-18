@@ -37,20 +37,19 @@ export function ReviewSection({ productId, sellerId }: { productId: string; sell
 
   async function load() {
     setLoading(true);
-    let productIds: string[] = [productId];
+    let base: any[] = [];
     if (mode === "seller" && sellerId) {
-      const { data: prods } = await supabase
-        .from("products").select("id").eq("seller_id", sellerId);
-      productIds = (prods ?? []).map((p: any) => p.id);
-      if (productIds.length === 0) productIds = [productId];
+      const { data: revs } = await supabase.rpc("get_seller_reviews" as any, { p_seller_id: sellerId });
+      base = (revs as any[]) ?? [];
+    } else {
+      const { data: revs } = await supabase
+        .from("reviews")
+        .select("id, rating, comment, created_at, reviewer_id, seller_reply, seller_replied_at")
+        .eq("product_id", productId)
+        .order("created_at", { ascending: false });
+      base = (revs as any[]) ?? [];
     }
-    const { data: revs } = await supabase
-      .from("reviews")
-      .select("id, rating, comment, created_at, reviewer_id, seller_reply, seller_replied_at")
-      .in("product_id", productIds)
-      .order("created_at", { ascending: false });
 
-    const base = (revs as any[]) ?? [];
     const ids = Array.from(new Set(base.map(r => r.reviewer_id)));
     let profMap = new Map<string, any>();
     if (ids.length) {
