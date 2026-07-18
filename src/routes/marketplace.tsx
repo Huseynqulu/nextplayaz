@@ -53,8 +53,10 @@ function MarketplacePage() {
   const [subcats, setSubcats] = useState<{ slug: string; label_az: string; category_slug: string }[]>([]);
   const [platforms, setPlatforms] = useState<{ slug: string; label_az: string }[]>([]);
   const [psubs, setPsubs] = useState<{ slug: string; label_az: string; platform_slug: string }[]>([]);
+  const shuffleSeed = useMemo(() => Math.random(), []);
 
   useEffect(() => { fetchProducts().then(p => { setProducts(p); setLoading(false); }); }, []);
+
   useEffect(() => {
     supabase.from("subcategories" as any).select("slug,label_az,category_slug").eq("is_active", true).order("sort_order")
       .then(({ data }) => setSubcats(((data as any) ?? []) as any));
@@ -108,9 +110,23 @@ function MarketplacePage() {
     else if (s.sort === "high") r.sort((a, b) => cmp(a, b, (x, y) => y.price - x.price));
     else if (s.sort === "rating") r.sort((a, b) => cmp(a, b, (x, y) => y.rating - x.rating));
     else if (s.sort === "newest") r.sort((a, b) => cmp(a, b, (x, y) => (y.id > x.id ? 1 : -1)));
-    else r.sort((a, b) => boostScore(b) - boostScore(a)); // popular: boost first, preserve fetch order
+    else {
+      // popular: boosted first, remaining shuffled (stable per visit)
+      const hash = (id: string) => {
+        let h = 0;
+        const key = id + ":" + shuffleSeed;
+        for (let i = 0; i < key.length; i++) h = ((h << 5) - h + key.charCodeAt(i)) | 0;
+        return h;
+      };
+      r.sort((a, b) => {
+        const bs = boostScore(b) - boostScore(a);
+        if (bs !== 0) return bs;
+        return hash(a.id) - hash(b.id);
+      });
+    }
     return r;
-  }, [products, s]);
+  }, [products, s, shuffleSeed]);
+
 
   const activeCount =
     (s.cat !== "all" ? 1 : 0) +
