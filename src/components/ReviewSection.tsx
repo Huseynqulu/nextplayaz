@@ -19,7 +19,7 @@ type Review = {
 export function ReviewSection({ productId, sellerId }: { productId: string; sellerId?: string | null }) {
   const { user } = useAuth();
   const isSeller = !!user && !!sellerId && user.id === sellerId;
-  const [mode, setMode] = useState<"product" | "seller">("product");
+  const [mode, setMode] = useState<"product" | "seller">(sellerId ? "seller" : "product");
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
   const [canReview, setCanReview] = useState(false);
