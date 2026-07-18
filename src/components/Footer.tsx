@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { Shield, Zap, Headphones } from "lucide-react";
+import nextplayLogo from "@/assets/nextplay-logo.png";
 import { useT } from "@/lib/i18n";
 
 export function Footer() {
@@ -9,11 +10,9 @@ export function Footer() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16">
         <div className="grid gap-12 lg:grid-cols-4">
           <div>
-            <div className="flex items-center gap-2 mb-4">
-              <span className="font-display text-xl font-bold">
-                NEXT<span className="text-gradient">PLAY</span>.az
-              </span>
-            </div>
+            <Link to="/" className="inline-flex items-center gap-2 mb-4">
+              <img src={nextplayLogo} alt="NextPlay.az" className="h-10 w-auto" />
+            </Link>
             <p className="text-sm text-muted-foreground leading-relaxed">
               {t("footer.tagline")}
             </p>
