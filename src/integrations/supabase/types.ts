@@ -906,6 +906,41 @@ export type Database = {
           },
         ]
       }
+      product_views: {
+        Row: {
+          created_at: string
+          id: string
+          last_viewed_at: string
+          product_id: string
+          user_id: string
+          view_count: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          last_viewed_at?: string
+          product_id: string
+          user_id: string
+          view_count?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          last_viewed_at?: string
+          product_id?: string
+          user_id?: string
+          view_count?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_views_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       products: {
         Row: {
           auto_message: string | null
@@ -1885,6 +1920,43 @@ export type Database = {
           product_title: string
         }[]
       }
+      get_recommended_products: {
+        Args: { _limit?: number }
+        Returns: {
+          auto_message: string | null
+          auto_message_enabled: boolean
+          boost_expires_at: string | null
+          boost_tier: string | null
+          category: string
+          created_at: string
+          delivery: Database["public"]["Enums"]["delivery_type"]
+          description: string | null
+          gift_denomination_id: string | null
+          id: string
+          image_url: string | null
+          image_urls: string[]
+          is_active: boolean
+          last_sold_at: string | null
+          old_price: number | null
+          platform: string
+          platform_subcategory: string | null
+          price: number
+          rating: number
+          reviews_count: number
+          seller_id: string
+          slug: string
+          stock: number
+          subcategory: string | null
+          title: string
+          updated_at: string
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "products"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
       get_referral_stats: {
         Args: never
         Returns: {
@@ -1935,6 +2007,7 @@ export type Database = {
         Returns: undefined
       }
       recalc_seller_tier: { Args: { _seller_id: string }; Returns: undefined }
+      record_product_view: { Args: { _product_id: string }; Returns: undefined }
       record_user_ip: { Args: { p_ip: string }; Returns: undefined }
       redeem_gift_card: { Args: { p_code: string }; Returns: number }
       redeem_loyalty_points: { Args: { p_points: number }; Returns: Json }
