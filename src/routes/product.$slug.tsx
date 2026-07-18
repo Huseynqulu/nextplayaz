@@ -16,7 +16,6 @@ import { useCurrency } from "@/lib/currency";
 import { VerifiedBadge } from "@/components/VerifiedBadge";
 import { useFavorites, isRealProductId } from "@/lib/favorites";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
-import { Breadcrumbs } from "@/components/Breadcrumbs";
 
 export const Route = createFileRoute("/product/$slug")({
   loader: async ({ params }) => {
