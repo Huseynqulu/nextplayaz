@@ -59,6 +59,8 @@ function SellerDashboard() {
   const [platformQuery, setPlatformQuery] = useState("");
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [searchQuery, setSearchQuery] = useState("");
+  const [filterCategory, setFilterCategory] = useState<string>("all");
+  const [filterPlatform, setFilterPlatform] = useState<string>("all");
   const [bulkDeleting, setBulkDeleting] = useState(false);
   const formRef = useRef<HTMLDivElement | null>(null);
 
@@ -656,35 +658,59 @@ function SellerDashboard() {
             />
           ) : (
             <div className="space-y-3">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={e => setSearchQuery(e.target.value)}
-                  placeholder="Məhsullarımda axtar — ad, platforma, kateqoriya..."
-                  className="w-full h-11 pl-10 pr-10 rounded-xl bg-surface border border-border text-sm focus:outline-none focus:ring-2 focus:ring-ring"
-                />
-                {searchQuery && (
-                  <button
-                    type="button"
-                    onClick={() => setSearchQuery("")}
-                    className="absolute right-2 top-1/2 -translate-y-1/2 grid h-7 w-7 place-items-center rounded-md hover:bg-background"
-                    aria-label="Axtarışı təmizlə"
-                  >
-                    <X className="h-4 w-4" />
-                  </button>
-                )}
+              <div className="flex flex-col sm:flex-row gap-2">
+                <div className="relative flex-1">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={e => setSearchQuery(e.target.value)}
+                    placeholder="Məhsullarımda axtar — ad, platforma, kateqoriya..."
+                    className="w-full h-11 pl-10 pr-10 rounded-xl bg-surface border border-border text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                  />
+                  {searchQuery && (
+                    <button
+                      type="button"
+                      onClick={() => setSearchQuery("")}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 grid h-7 w-7 place-items-center rounded-md hover:bg-background"
+                      aria-label="Axtarışı təmizlə"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  )}
+                </div>
+                <select
+                  value={filterCategory}
+                  onChange={e => { setFilterCategory(e.target.value); setSelectedIds(new Set()); }}
+                  className="h-11 px-3 rounded-xl bg-surface border border-border text-sm focus:outline-none focus:ring-2 focus:ring-ring sm:min-w-[160px]"
+                >
+                  <option value="all">Bütün kateqoriyalar</option>
+                  <option value="Games">Oyunlar</option>
+                  <option value="Accounts">Hesablar</option>
+                  <option value="Keys">Açarlar</option>
+                  <option value="Services">Xidmətlər</option>
+                </select>
+                <select
+                  value={filterPlatform}
+                  onChange={e => { setFilterPlatform(e.target.value); setSelectedIds(new Set()); }}
+                  className="h-11 px-3 rounded-xl bg-surface border border-border text-sm focus:outline-none focus:ring-2 focus:ring-ring sm:min-w-[180px]"
+                >
+                  <option value="all">Bütün platformalar</option>
+                  {Array.from(new Set(items.map(i => i.platform).filter(Boolean))).sort().map(p => (
+                    <option key={p} value={p}>{p}</option>
+                  ))}
+                </select>
               </div>
               {(() => {
                 const q = searchQuery.trim().toLowerCase();
-                const filtered = q
-                  ? items.filter(p =>
-                      [p.title, p.platform, p.category, (p as any).subcategory, (p as any).platform_subcategory]
-                        .filter(Boolean)
-                        .some(v => String(v).toLowerCase().includes(q))
-                    )
-                  : items;
+                const filtered = items.filter(p => {
+                  if (filterCategory !== "all" && p.category !== filterCategory) return false;
+                  if (filterPlatform !== "all" && p.platform !== filterPlatform) return false;
+                  if (q && ![p.title, p.platform, p.category, (p as any).subcategory, (p as any).platform_subcategory]
+                    .filter(Boolean)
+                    .some(v => String(v).toLowerCase().includes(q))) return false;
+                  return true;
+                });
                 return (
                   <>
               <div className="flex items-center justify-between gap-3 flex-wrap rounded-xl border border-border bg-surface/40 p-3">
