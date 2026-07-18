@@ -1894,6 +1894,19 @@ export type Database = {
           total_invited: number
         }[]
       }
+      get_seller_reviews: {
+        Args: { p_seller_id: string }
+        Returns: {
+          comment: string
+          created_at: string
+          id: string
+          product_id: string
+          rating: number
+          reviewer_id: string
+          seller_replied_at: string
+          seller_reply: string
+        }[]
+      }
       get_seller_stats: {
         Args: { p_seller_id: string }
         Returns: {
