@@ -151,6 +151,13 @@ export function ProductCard({ p, variant = "default" }: { p: Product; variant?: 
           </div>
         )}
 
+        <div className="flex items-center gap-1 text-[11px] bg-warning/10 border border-warning/25 rounded px-1.5 py-1 self-start">
+          <Star className="h-3 w-3 fill-warning text-warning" />
+          <span className="font-bold text-warning">{sellerRatingText}</span>
+          <span className="text-muted-foreground">/ 5 · {sellerReviews} rəy</span>
+        </div>
+
+
         <div className="flex items-end justify-between mt-auto pt-1">
           <div className="flex flex-col">
             {p.oldPrice && (
