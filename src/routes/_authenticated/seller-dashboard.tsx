@@ -769,29 +769,31 @@ function SellerDashboard() {
                   «{searchQuery}» üçün məhsul tapılmadı
                 </div>
               ) : filtered.map(p => (
-                <div key={p.id} className={`rounded-xl border bg-card-gradient p-3 sm:p-4 flex items-start sm:items-center gap-3 sm:gap-4 flex-wrap ${selectedIds.has(p.id) ? "border-neon/60 ring-1 ring-neon/30" : "border-border"}`}>
-                  <input
-                    type="checkbox"
-                    checked={selectedIds.has(p.id)}
-                    onChange={() => toggleSelect(p.id)}
-                    className="h-4 w-4 rounded border-border bg-background accent-primary shrink-0 mt-1 sm:mt-0"
-                    aria-label={`${p.title} seç`}
-                  />
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <Link to="/product/$slug" params={{ slug: p.slug }} className="font-semibold hover:text-neon break-words">{p.title}</Link>
-                      {p.boost_expires_at && new Date(p.boost_expires_at) > new Date() && (
-                        <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-neon/15 text-neon border border-neon/30">
-                          <Rocket className="h-3 w-3" /> BOOST
-                        </span>
-                      )}
+                <div key={p.id} className={`rounded-xl border bg-card-gradient p-3 sm:p-4 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 ${selectedIds.has(p.id) ? "border-neon/60 ring-1 ring-neon/30" : "border-border"}`}>
+                  <div className="flex items-start gap-3 w-full min-w-0">
+                    <input
+                      type="checkbox"
+                      checked={selectedIds.has(p.id)}
+                      onChange={() => toggleSelect(p.id)}
+                      className="h-4 w-4 rounded border-border bg-background accent-primary shrink-0 mt-1"
+                      aria-label={`${p.title} seç`}
+                    />
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <Link to="/product/$slug" params={{ slug: p.slug }} className="font-semibold hover:text-neon break-words">{p.title}</Link>
+                        {p.boost_expires_at && new Date(p.boost_expires_at) > new Date() && (
+                          <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-neon/15 text-neon border border-neon/30">
+                            <Rocket className="h-3 w-3" /> BOOST
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {categoryLabel(p.category)} · {p.platform} · {p.price} AZN · stok: {p.stock}
+                        {!p.is_active && <span className="ml-2 text-destructive">(deaktiv)</span>}
+                      </p>
                     </div>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      {categoryLabel(p.category)} · {p.platform} · {p.price} AZN · stok: {p.stock}
-                      {!p.is_active && <span className="ml-2 text-destructive">(deaktiv)</span>}
-                    </p>
                   </div>
-                  <div className="flex gap-2 flex-wrap justify-end">
+                  <div className="flex gap-2 flex-wrap justify-end sm:justify-end shrink-0">
                     <button
                       onClick={() => toggleActive(p)}
                       className={`h-9 w-9 grid place-items-center rounded-lg border ${p.is_active ? "border-amber-500/40 text-amber-400 hover:bg-amber-500/15" : "border-emerald-500/40 text-emerald-400 hover:bg-emerald-500/15"}`}
