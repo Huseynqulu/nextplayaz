@@ -53,8 +53,10 @@ function MarketplacePage() {
   const [subcats, setSubcats] = useState<{ slug: string; label_az: string; category_slug: string }[]>([]);
   const [platforms, setPlatforms] = useState<{ slug: string; label_az: string }[]>([]);
   const [psubs, setPsubs] = useState<{ slug: string; label_az: string; platform_slug: string }[]>([]);
+  const shuffleSeed = useMemo(() => Math.random(), []);
 
   useEffect(() => { fetchProducts().then(p => { setProducts(p); setLoading(false); }); }, []);
+
   useEffect(() => {
     supabase.from("subcategories" as any).select("slug,label_az,category_slug").eq("is_active", true).order("sort_order")
       .then(({ data }) => setSubcats(((data as any) ?? []) as any));
