@@ -16,8 +16,6 @@ import { useCurrency } from "@/lib/currency";
 import { VerifiedBadge } from "@/components/VerifiedBadge";
 import { useFavorites, isRealProductId } from "@/lib/favorites";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
-import { DirectPurchaseDialog } from "@/components/DirectPurchaseDialog";
-import { CreditCard } from "lucide-react";
 
 export const Route = createFileRoute("/product/$slug")({
   loader: async ({ params }) => {
@@ -50,7 +48,7 @@ function ProductPage() {
   const [code, setCode] = useState("");
   const [showTerms, setShowTerms] = useState(false);
   const [agreed, setAgreed] = useState(false);
-  const [showBirBank, setShowBirBank] = useState(false);
+  
   const discount = p.oldPrice ? Math.round((1 - p.price / p.oldPrice) * 100) : 0;
   const { isFav, toggle: toggleFav } = useFavorites();
   const fav = isFav(p.id);
@@ -271,17 +269,6 @@ function ProductPage() {
                     <button onClick={handleShare} className="grid h-12 w-12 shrink-0 place-items-center rounded-xl border border-border hover:border-primary" aria-label="Paylaş"><Share2 className="h-4 w-4" /></button>
                   </div>
 
-                  <button
-                    disabled={p.stock < 1 || !isDbProduct}
-                    onClick={() => {
-                      if (!user) { toast.info("Daxil olun"); navigate({ to: "/login" }); return; }
-                      if (!isDbProduct) { toast.info("Demo məhsul"); return; }
-                      setShowBirBank(true);
-                    }}
-                    className="w-full h-12 rounded-xl bg-gradient-to-r from-orange-500 to-red-500 text-white font-bold hover:opacity-95 disabled:opacity-50 inline-flex items-center justify-center gap-2"
-                  >
-                    <CreditCard className="h-4 w-4" /> BirBank ilə birbaşa al
-                  </button>
                 </div>
 
 
@@ -442,15 +429,6 @@ function ProductPage() {
         </div>
       )}
 
-      <DirectPurchaseDialog
-        open={showBirBank}
-        onClose={() => setShowBirBank(false)}
-        productId={p.id}
-        title={p.title}
-        unitPrice={p.price}
-        qty={qty}
-        discountCode={code}
-      />
     </div>
   );
 }
