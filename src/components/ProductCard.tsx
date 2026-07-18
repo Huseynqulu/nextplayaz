@@ -51,7 +51,7 @@ export function ProductCard({ p, variant = "default" }: { p: Product; variant?: 
       >
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between gap-3">
-            <h3 className="font-semibold text-sm leading-snug line-clamp-1 group-hover:text-neon transition">{p.title}</h3>
+            <h3 className="font-semibold text-sm leading-snug line-clamp-2 break-words group-hover:text-neon transition">{p.title}</h3>
             {p.delivery === "Instant" && (
               <span className="shrink-0 px-1.5 py-0.5 rounded text-[10px] font-medium bg-neon/15 text-neon border border-neon/30 inline-flex items-center gap-0.5">
                 <Zap className="h-2.5 w-2.5" />Anında
