@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { Shield, Zap, Headphones } from "lucide-react";
+import nextplayLogo from "@/assets/nextplay-logo.png";
 import { useT } from "@/lib/i18n";
 
 export function Footer() {
