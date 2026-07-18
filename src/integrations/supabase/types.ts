@@ -632,7 +632,7 @@ export type Database = {
           funds_release_at: string | null
           funds_released_at: string | null
           id: string
-          product_id: string
+          product_id: string | null
           quantity: number
           reopened_at: string | null
           reopened_by: string | null
@@ -660,7 +660,7 @@ export type Database = {
           funds_release_at?: string | null
           funds_released_at?: string | null
           id?: string
-          product_id: string
+          product_id?: string | null
           quantity?: number
           reopened_at?: string | null
           reopened_by?: string | null
@@ -688,7 +688,7 @@ export type Database = {
           funds_release_at?: string | null
           funds_released_at?: string | null
           id?: string
-          product_id?: string
+          product_id?: string | null
           quantity?: number
           reopened_at?: string | null
           reopened_by?: string | null
