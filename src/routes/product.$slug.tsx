@@ -271,17 +271,6 @@ function ProductPage() {
                     <button onClick={handleShare} className="grid h-12 w-12 shrink-0 place-items-center rounded-xl border border-border hover:border-primary" aria-label="Paylaş"><Share2 className="h-4 w-4" /></button>
                   </div>
 
-                  <button
-                    disabled={p.stock < 1 || !isDbProduct}
-                    onClick={() => {
-                      if (!user) { toast.info("Daxil olun"); navigate({ to: "/login" }); return; }
-                      if (!isDbProduct) { toast.info("Demo məhsul"); return; }
-                      setShowBirBank(true);
-                    }}
-                    className="w-full h-12 rounded-xl bg-gradient-to-r from-orange-500 to-red-500 text-white font-bold hover:opacity-95 disabled:opacity-50 inline-flex items-center justify-center gap-2"
-                  >
-                    <CreditCard className="h-4 w-4" /> BirBank ilə birbaşa al
-                  </button>
                 </div>
 
 
