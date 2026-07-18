@@ -769,31 +769,24 @@ function SellerDashboard() {
                   «{searchQuery}» üçün məhsul tapılmadı
                 </div>
               ) : filtered.map(p => (
-                <div key={p.id} className={`rounded-xl border bg-card-gradient p-4 flex items-center gap-4 ${selectedIds.has(p.id) ? "border-neon/60 ring-1 ring-neon/30" : "border-border"}`}>
+                <div key={p.id} className={`rounded-xl border bg-card-gradient p-3 sm:p-4 flex items-start sm:items-center gap-3 sm:gap-4 flex-wrap ${selectedIds.has(p.id) ? "border-neon/60 ring-1 ring-neon/30" : "border-border"}`}>
                   <input
                     type="checkbox"
                     checked={selectedIds.has(p.id)}
                     onChange={() => toggleSelect(p.id)}
-                    className="h-4 w-4 rounded border-border bg-background accent-primary shrink-0"
+                    className="h-4 w-4 rounded border-border bg-background accent-primary shrink-0 mt-1 sm:mt-0"
                     aria-label={`${p.title} seç`}
                   />
-                  {p.image_url ? (
-                    <img src={p.image_url} alt={p.title} className="h-16 w-16 rounded-lg object-cover" />
-                  ) : (
-                    <div className="h-16 w-16 rounded-lg bg-surface grid place-items-center">
-                      <Package className="h-6 w-6 text-muted-foreground" />
-                    </div>
-                  )}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <Link to="/product/$slug" params={{ slug: p.slug }} className="font-semibold hover:text-neon truncate">{p.title}</Link>
+                      <Link to="/product/$slug" params={{ slug: p.slug }} className="font-semibold hover:text-neon break-words">{p.title}</Link>
                       {p.boost_expires_at && new Date(p.boost_expires_at) > new Date() && (
                         <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-neon/15 text-neon border border-neon/30">
                           <Rocket className="h-3 w-3" /> BOOST
                         </span>
                       )}
                     </div>
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-xs text-muted-foreground mt-1">
                       {categoryLabel(p.category)} · {p.platform} · {p.price} AZN · stok: {p.stock}
                       {!p.is_active && <span className="ml-2 text-destructive">(deaktiv)</span>}
                     </p>
