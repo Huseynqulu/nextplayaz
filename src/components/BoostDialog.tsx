@@ -45,16 +45,17 @@ export function BoostDialog({ productId, productTitle, currentExpiry, onClose, o
   return (
     <div className="fixed inset-0 z-50 grid place-items-center bg-background/80 backdrop-blur p-4" onClick={onClose}>
       <div className="w-full max-w-2xl rounded-2xl border border-border bg-card-gradient p-6 card-shadow" onClick={e => e.stopPropagation()}>
-        <div className="flex items-start justify-between mb-1">
-          <div className="flex items-center gap-2">
-            <div className="h-10 w-10 grid place-items-center rounded-xl bg-neon/15 text-neon"><Rocket className="h-5 w-5" /></div>
-            <div>
+        <div className="flex items-start justify-between gap-2 mb-1">
+          <div className="flex items-center gap-2 min-w-0 flex-1">
+            <div className="h-10 w-10 shrink-0 grid place-items-center rounded-xl bg-neon/15 text-neon"><Rocket className="h-5 w-5" /></div>
+            <div className="min-w-0 flex-1">
               <h3 className="font-display text-xl font-bold">Məhsulu Boost et</h3>
-              <p className="text-xs text-muted-foreground truncate max-w-[420px]">{productTitle}</p>
+              <p className="text-xs text-muted-foreground truncate">{productTitle}</p>
             </div>
           </div>
-          <button onClick={onClose} className="h-9 w-9 grid place-items-center rounded-lg hover:bg-surface"><X className="h-4 w-4" /></button>
+          <button onClick={onClose} className="h-9 w-9 shrink-0 grid place-items-center rounded-lg hover:bg-surface"><X className="h-4 w-4" /></button>
         </div>
+
 
         {active && (
           <div className="mt-3 rounded-lg bg-success/10 border border-success/30 px-3 py-2 text-xs text-success">
