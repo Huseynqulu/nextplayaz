@@ -1,0 +1,1 @@
+UPDATE public.home_categories SET link_url='/marketplace?platforms=xbox' WHERE id='5a0f8215-a437-4846-88d4-5e2454ef0f74';
