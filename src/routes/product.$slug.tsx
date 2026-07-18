@@ -431,15 +431,6 @@ function ProductPage() {
         </div>
       )}
 
-      <DirectPurchaseDialog
-        open={showBirBank}
-        onClose={() => setShowBirBank(false)}
-        productId={p.id}
-        title={p.title}
-        unitPrice={p.price}
-        qty={qty}
-        discountCode={code}
-      />
     </div>
   );
 }
