@@ -34,6 +34,10 @@ export function BoostDialog({ productId, productTitle, currentExpiry, onClose, o
   }, []);
 
   async function pick(hours: number) {
+    const tier = tiers.find(t => t.hours === hours);
+    const costLabel = tier ? format(Number(tier.cost)) : `${hours} saat`;
+    const label = tier?.label ?? "Boost";
+    if (!window.confirm(`"${label}" paketini ${costLabel} müqabilində almaq istədiyinizə əminsiniz? Məbləğ balansınızdan tutulacaq.`)) return;
     setBusy(hours);
     const { error } = await supabase.rpc("boost_product" as any, { _product_id: productId, _hours: hours });
     setBusy(null);
