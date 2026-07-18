@@ -23,6 +23,8 @@ export function trackView(productId: string) {
   } catch {
     /* ignore */
   }
+  // Fire-and-forget server-side view record (only counts if user is signed in)
+  supabase.rpc("record_product_view" as any, { _product_id: productId }).then(() => {}, () => {});
 }
 
 export function getRecentIds(): string[] {
