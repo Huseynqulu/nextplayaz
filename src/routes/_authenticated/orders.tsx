@@ -174,7 +174,20 @@ function OrdersPage() {
           <h1 className="font-display text-3xl sm:text-4xl font-bold flex items-center gap-3">
             <ShoppingBag className="h-7 w-7 text-neon" /> Sifarişlər
           </h1>
-          <p className="text-muted-foreground mt-2 mb-8">Aldığınız məhsulların escrow ilə qorunan sifarişləri.</p>
+          <p className="text-muted-foreground mt-2 mb-4">Aldığınız məhsurları burdan idarə edin. Satıcı isəniz "Satdığım sifarişlər" bölməsinə keçin.</p>
+
+          <div className="mb-6 flex flex-wrap gap-2">
+            <span className="inline-flex items-center gap-1.5 h-9 px-3 rounded-lg bg-neon text-background text-sm font-semibold">
+              <ShoppingBag className="h-4 w-4" /> Aldığım sifarişlər
+            </span>
+            <Link
+              to="/seller-orders"
+              className="inline-flex items-center gap-1.5 h-9 px-3 rounded-lg border border-border bg-surface text-sm font-semibold hover:border-primary text-muted-foreground hover:text-foreground"
+            >
+              <Truck className="h-4 w-4" /> Satdığım sifarişlər
+            </Link>
+          </div>
+
 
 
           {loading ? (

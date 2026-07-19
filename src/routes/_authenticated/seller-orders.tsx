@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate, useSearch } from "@tanstack/react-router";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { useEffect, useState } from "react";
@@ -13,8 +13,10 @@ import { SellerOrderDetailDialog } from "@/components/SellerOrderDetailDialog";
 
 export const Route = createFileRoute("/_authenticated/seller-orders")({
   component: SellerOrdersPage,
+  validateSearch: (s: Record<string, unknown>) => ({ open: typeof s.open === "string" ? s.open : undefined }),
   head: () => ({ meta: [{ title: "Gələn Sifarişlər — NextPlay.az" }] }),
 });
+
 
 type Order = {
   id: string;
@@ -74,6 +76,14 @@ function SellerOrdersPage() {
   }
   useEffect(() => { refresh(); /* eslint-disable-next-line */ }, [user]);
 
+  const { open: openId } = useSearch({ from: "/_authenticated/seller-orders" });
+  useEffect(() => {
+    if (!openId || !orders.length) return;
+    const found = orders.find(o => o.id === openId);
+    if (found) setOpenOrder(found);
+  }, [openId, orders]);
+
+
   async function deliver(o: Order) {
     const payload = payloadInput[o.id]?.trim();
     if (!payload) { toast.error("Çatdırılma məlumatı daxil edin"); return; }
@@ -94,7 +104,20 @@ function SellerOrdersPage() {
           <h1 className="font-display text-3xl sm:text-4xl font-bold flex items-center gap-3">
             <ShoppingBag className="h-7 w-7 text-neon" /> Gələn Sifarişlər
           </h1>
-          <p className="text-muted-foreground mt-2 mb-6">Müştəri sifarişlərini buradan çatdırın.</p>
+          <p className="text-muted-foreground mt-2 mb-4">Müştəri sifarişlərini buradan çatdırın.</p>
+
+          <div className="mb-6 flex flex-wrap gap-2">
+            <Link
+              to="/orders"
+              className="inline-flex items-center gap-1.5 h-9 px-3 rounded-lg border border-border bg-surface text-sm font-semibold hover:border-primary text-muted-foreground hover:text-foreground"
+            >
+              <ShoppingBag className="h-4 w-4" /> Aldığım sifarişlər
+            </Link>
+            <span className="inline-flex items-center gap-1.5 h-9 px-3 rounded-lg bg-neon text-background text-sm font-semibold">
+              <Truck className="h-4 w-4" /> Satdığım sifarişlər
+            </span>
+          </div>
+
 
           {/* Filters */}
           <div className="mb-6 space-y-3">
