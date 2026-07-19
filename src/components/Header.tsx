@@ -29,14 +29,15 @@ export function Header() {
   const [unreadDm, setUnreadDm] = useState(0);
 
   useEffect(() => {
-    if (!user) { setRoles([]); setAvatarUrl(null); setUnreadDm(0); setDisplayLabel(null); return; }
+    if (!user) { setRoles([]); setAvatarUrl(null); setUnreadDm(0); setDisplayLabel(null); setBalance(null); return; }
     supabase.from("user_roles").select("role").eq("user_id", user.id).then(({ data }) => {
       const r = (data ?? []).map((x: any) => x.role);
       setRoles(r);
       const hasSeller = r.includes("seller");
-      supabase.from("profiles").select("avatar_url,shop_name,username,display_name").eq("id", user.id).maybeSingle().then(({ data: p }) => {
+      supabase.from("profiles").select("avatar_url,shop_name,username,display_name,wallet_balance").eq("id", user.id).maybeSingle().then(({ data: p }) => {
         const prof = p as any;
         setAvatarUrl(prof?.avatar_url ?? null);
+        setBalance(prof?.wallet_balance != null ? Number(prof.wallet_balance) : null);
         const label = hasSeller
           ? (prof?.shop_name || prof?.username || prof?.display_name)
           : (prof?.username || prof?.display_name);
@@ -51,6 +52,10 @@ export function Header() {
     loadUnread();
     const ch = supabase.channel(`hdr-dm-${user.id}`)
       .on("postgres_changes", { event: "*", schema: "public", table: "dm_messages" }, loadUnread)
+      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "profiles", filter: `id=eq.${user.id}` }, (payload: any) => {
+        const nb = payload?.new?.wallet_balance;
+        if (nb != null) setBalance(Number(nb));
+      })
       .subscribe();
     return () => { supabase.removeChannel(ch); };
   }, [user]);
