@@ -2193,6 +2193,14 @@ export type Database = {
       toggle_favorite: { Args: { p_product_id: string }; Returns: boolean }
       touch_last_seen: { Args: never; Returns: undefined }
       user_avg_response_minutes: { Args: { p_user: string }; Returns: number }
+      validate_discount_code: {
+        Args: { p_code: string }
+        Returns: {
+          code: string
+          percent: number
+          status: string
+        }[]
+      }
     }
     Enums: {
       app_role: "user" | "seller" | "admin" | "support"
