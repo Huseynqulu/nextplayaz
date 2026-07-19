@@ -111,7 +111,7 @@ export function Header() {
                 title="Cüzdan"
               >
                 <Wallet className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-neon" />
-                <span className="tabular-nums">{format(balance)}</span>
+                <span className="tabular-nums whitespace-nowrap leading-none">{format(balance)}</span>
               </Link>
               <Link
                 to="/wallet"
