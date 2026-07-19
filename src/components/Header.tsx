@@ -16,6 +16,7 @@ import { imgUrl } from "@/lib/image-url";
 
 export function Header() {
   const t = useT();
+  const { format } = useCurrency();
   const [open, setOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const { user, signOut } = useAuth();
@@ -24,6 +25,7 @@ export function Header() {
   const [roles, setRoles] = useState<string[]>([]);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [displayLabel, setDisplayLabel] = useState<string | null>(null);
+  const [balance, setBalance] = useState<number | null>(null);
   const [unreadDm, setUnreadDm] = useState(0);
 
   useEffect(() => {
