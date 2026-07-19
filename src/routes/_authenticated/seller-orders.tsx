@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate, useSearch } from "@tanstack/react-router";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { useEffect, useState } from "react";
@@ -13,8 +13,10 @@ import { SellerOrderDetailDialog } from "@/components/SellerOrderDetailDialog";
 
 export const Route = createFileRoute("/_authenticated/seller-orders")({
   component: SellerOrdersPage,
+  validateSearch: (s: Record<string, unknown>) => ({ open: typeof s.open === "string" ? s.open : undefined }),
   head: () => ({ meta: [{ title: "Gələn Sifarişlər — NextPlay.az" }] }),
 });
+
 
 type Order = {
   id: string;
