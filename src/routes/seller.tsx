@@ -131,7 +131,37 @@ function SellerPage() {
           ) : (
             <form onSubmit={handleSubmit} className="rounded-2xl border border-border bg-card-gradient p-7 card-shadow">
               <h3 className="font-display text-xl font-bold mb-2">Satıcı müraciəti</h3>
-              <p className="text-sm text-muted-foreground mb-6">Yoxlamadan sonra hesabın 24 saat ərzində aktivləşir.</p>
+              <p className="text-sm text-muted-foreground mb-5">Yoxlamadan sonra hesabın 24 saat ərzində aktivləşir.</p>
+
+              <div className="mb-6 rounded-xl border border-neon/30 bg-neon/5 p-4">
+                <div className="flex items-center gap-2 mb-3">
+                  <Info className="h-4 w-4 text-neon" />
+                  <h4 className="font-semibold text-sm">Niyə bu məlumatları tələb edirik?</h4>
+                </div>
+                <p className="text-xs text-muted-foreground leading-relaxed mb-3">
+                  NextPlay.az qanuni və təhlükəsiz bir marketplace-dir. Satıcıları yoxlamaq alıcıları saxta hesablardan,
+                  fraud-dan və oğurluq məhsullardan qoruyur, eyni zamanda sənin öz qazancının və hesabının təhlükəsizliyini təmin edir.
+                </p>
+                <ul className="space-y-2 text-xs">
+                  <li className="flex gap-2">
+                    <UserCheck className="h-3.5 w-3.5 text-neon shrink-0 mt-0.5" />
+                    <span><b className="text-foreground">Ad, Soyad, Vəsiqə və Selfie:</b> Şəxsiyyətini təsdiqləmək üçün. Bu, saxta hesabların qarşısını alır və satışlarından qazandığın pulun yalnız sənə köçürülməsini təmin edir.</span>
+                  </li>
+                  <li className="flex gap-2">
+                    <ShieldCheck className="h-3.5 w-3.5 text-neon shrink-0 mt-0.5" />
+                    <span><b className="text-foreground">Telefon və Email:</b> Sifariş, ödəniş və mübahisə bildirişləri üçün. Alıcıyla təcili əlaqə lazım olduqda dəstək komandasına da kömək edir.</span>
+                  </li>
+                  <li className="flex gap-2">
+                    <Scale className="h-3.5 w-3.5 text-neon shrink-0 mt-0.5" />
+                    <span><b className="text-foreground">Qanuni tələb:</b> Azərbaycan qanunvericiliyi onlayn satış edən şəxslərin kimliyinin yoxlanılmasını tələb edir (KYC). Pul çıxarma da yalnız təsdiqlənmiş satıcılara açıqdır.</span>
+                  </li>
+                  <li className="flex gap-2">
+                    <Lock className="h-3.5 w-3.5 text-neon shrink-0 mt-0.5" />
+                    <span><b className="text-foreground">Məxfilik:</b> Sənədlərin şifrələnmiş şəkildə saxlanılır, yalnız yoxlama komandası tərəfindən görünür və heç vaxt üçüncü tərəflərlə paylaşılmır.</span>
+                  </li>
+                </ul>
+              </div>
+
 
               <div className="grid sm:grid-cols-2 gap-4">
                 <Field label="Ad" placeholder="Eyvaz" required value={form.first_name} onChange={e => setForm({ ...form, first_name: e.target.value })} />
