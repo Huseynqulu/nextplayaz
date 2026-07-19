@@ -168,7 +168,11 @@ export function Header() {
                       <ShoppingBag className="h-4 w-4" /> {t("menu.orders")}
                     </Link>
                     <Link to="/wallet" onClick={() => setMenuOpen(false)} className="flex items-center gap-2 px-4 py-2.5 text-sm hover:bg-surface transition">
-                      <Wallet className="h-4 w-4" /> Cüzdan
+                      <Wallet className="h-4 w-4" />
+                      <span>Cüzdan</span>
+                      {balance !== null && (
+                        <span className="ml-auto text-xs font-semibold text-neon tabular-nums">{format(balance)}</span>
+                      )}
                     </Link>
                     <Link to="/messages" onClick={() => setMenuOpen(false)} className="flex items-center gap-2 px-4 py-2.5 text-sm hover:bg-surface transition">
                       <MessageSquare className="h-4 w-4" /> Mesajlar
