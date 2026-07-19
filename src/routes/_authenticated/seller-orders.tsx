@@ -76,6 +76,14 @@ function SellerOrdersPage() {
   }
   useEffect(() => { refresh(); /* eslint-disable-next-line */ }, [user]);
 
+  const { open: openId } = useSearch({ from: "/_authenticated/seller-orders" });
+  useEffect(() => {
+    if (!openId || !orders.length) return;
+    const found = orders.find(o => o.id === openId);
+    if (found) setOpenOrder(found);
+  }, [openId, orders]);
+
+
   async function deliver(o: Order) {
     const payload = payloadInput[o.id]?.trim();
     if (!payload) { toast.error("Çatdırılma məlumatı daxil edin"); return; }
