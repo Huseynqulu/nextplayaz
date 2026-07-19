@@ -188,10 +188,8 @@ function WalletPage() {
             </button>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-4 mb-8">
-            <GiftCardRedeem onRedeemed={() => refresh()} />
-            <LoyaltyCard onChanged={() => refresh()} />
-          </div>
+
+
 
 
 
