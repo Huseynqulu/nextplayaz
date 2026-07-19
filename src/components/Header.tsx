@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { Search, ShoppingBag, ShoppingCart, Menu, Gamepad2, LogOut, User as UserIcon, LayoutDashboard, ShieldCheck, Package, LifeBuoy, Wallet, MessageSquare, Heart, Gift } from "lucide-react";
+import { Search, ShoppingBag, ShoppingCart, Menu, Gamepad2, LogOut, User as UserIcon, LayoutDashboard, ShieldCheck, Package, LifeBuoy, Wallet, MessageSquare, Heart, Gift, Plus } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
@@ -9,12 +9,14 @@ import { useOnlinePresence } from "@/lib/presence";
 import { NotificationBell } from "@/components/NotificationBell";
 import { SearchBox } from "@/components/SearchBox";
 import { CommandPaletteTrigger } from "@/components/CommandPalette";
+import { useCurrency } from "@/lib/currency";
 
 import nextplayLogo from "@/assets/nextplay-logo.png";
 import { imgUrl } from "@/lib/image-url";
 
 export function Header() {
   const t = useT();
+  const { format } = useCurrency();
   const [open, setOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const { user, signOut } = useAuth();
@@ -23,17 +25,19 @@ export function Header() {
   const [roles, setRoles] = useState<string[]>([]);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [displayLabel, setDisplayLabel] = useState<string | null>(null);
+  const [balance, setBalance] = useState<number | null>(null);
   const [unreadDm, setUnreadDm] = useState(0);
 
   useEffect(() => {
-    if (!user) { setRoles([]); setAvatarUrl(null); setUnreadDm(0); setDisplayLabel(null); return; }
+    if (!user) { setRoles([]); setAvatarUrl(null); setUnreadDm(0); setDisplayLabel(null); setBalance(null); return; }
     supabase.from("user_roles").select("role").eq("user_id", user.id).then(({ data }) => {
       const r = (data ?? []).map((x: any) => x.role);
       setRoles(r);
       const hasSeller = r.includes("seller");
-      supabase.from("profiles").select("avatar_url,shop_name,username,display_name").eq("id", user.id).maybeSingle().then(({ data: p }) => {
+      supabase.from("profiles").select("avatar_url,shop_name,username,display_name,wallet_balance").eq("id", user.id).maybeSingle().then(({ data: p }) => {
         const prof = p as any;
         setAvatarUrl(prof?.avatar_url ?? null);
+        setBalance(prof?.wallet_balance != null ? Number(prof.wallet_balance) : null);
         const label = hasSeller
           ? (prof?.shop_name || prof?.username || prof?.display_name)
           : (prof?.username || prof?.display_name);
@@ -48,6 +52,10 @@ export function Header() {
     loadUnread();
     const ch = supabase.channel(`hdr-dm-${user.id}`)
       .on("postgres_changes", { event: "*", schema: "public", table: "dm_messages" }, loadUnread)
+      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "profiles", filter: `id=eq.${user.id}` }, (payload: any) => {
+        const nb = payload?.new?.wallet_balance;
+        if (nb != null) setBalance(Number(nb));
+      })
       .subscribe();
     return () => { supabase.removeChannel(ch); };
   }, [user]);
@@ -94,6 +102,27 @@ export function Header() {
         <div className="flex items-center gap-2 md:ml-2 ml-auto">
           <CommandPaletteTrigger />
           <LanguageSwitcher />
+          {user && balance !== null && (
+            <div className="hidden sm:inline-flex items-stretch rounded-lg border border-neon/30 bg-neon/10 overflow-hidden">
+              <Link
+                to="/wallet"
+                className="flex items-center gap-1.5 px-2.5 h-10 text-xs sm:text-sm font-semibold text-foreground hover:bg-neon/15 transition"
+                aria-label="Cüzdan balansı"
+                title="Cüzdan"
+              >
+                <Wallet className="h-4 w-4 text-neon" />
+                <span className="tabular-nums">{format(balance)}</span>
+              </Link>
+              <Link
+                to="/wallet"
+                className="grid place-items-center px-2 h-10 border-l border-neon/30 bg-neon text-background hover:opacity-90 transition"
+                aria-label="Balansı artır"
+                title="Balansı artır"
+              >
+                <Plus className="h-4 w-4" />
+              </Link>
+            </div>
+          )}
           <div className="hidden md:block"><CartButton /></div>
           {user && (
             <Link to="/messages" className="hidden md:grid h-10 w-10 place-items-center rounded-lg hover:bg-surface transition relative" aria-label="Mesajlar">
