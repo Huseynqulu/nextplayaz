@@ -103,23 +103,23 @@ export function Header() {
           <CommandPaletteTrigger />
           <LanguageSwitcher />
           {user && balance !== null && (
-            <div className="hidden sm:inline-flex items-stretch rounded-lg border border-neon/30 bg-neon/10 overflow-hidden">
+            <div className="inline-flex items-stretch rounded-lg border border-neon/30 bg-neon/10 overflow-hidden">
               <Link
                 to="/wallet"
-                className="flex items-center gap-1.5 px-2.5 h-10 text-xs sm:text-sm font-semibold text-foreground hover:bg-neon/15 transition"
+                className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 h-9 sm:h-10 text-[11px] sm:text-sm font-semibold text-foreground hover:bg-neon/15 transition"
                 aria-label="Cüzdan balansı"
                 title="Cüzdan"
               >
-                <Wallet className="h-4 w-4 text-neon" />
+                <Wallet className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-neon" />
                 <span className="tabular-nums">{format(balance)}</span>
               </Link>
               <Link
                 to="/wallet"
-                className="grid place-items-center px-2 h-10 border-l border-neon/30 bg-neon text-background hover:opacity-90 transition"
+                className="grid place-items-center px-1.5 sm:px-2 h-9 sm:h-10 border-l border-neon/30 bg-neon text-background hover:opacity-90 transition"
                 aria-label="Balansı artır"
                 title="Balansı artır"
               >
-                <Plus className="h-4 w-4" />
+                <Plus className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
               </Link>
             </div>
           )}
@@ -168,7 +168,11 @@ export function Header() {
                       <ShoppingBag className="h-4 w-4" /> {t("menu.orders")}
                     </Link>
                     <Link to="/wallet" onClick={() => setMenuOpen(false)} className="flex items-center gap-2 px-4 py-2.5 text-sm hover:bg-surface transition">
-                      <Wallet className="h-4 w-4" /> Cüzdan
+                      <Wallet className="h-4 w-4" />
+                      <span>Cüzdan</span>
+                      {balance !== null && (
+                        <span className="ml-auto text-xs font-semibold text-neon tabular-nums">{format(balance)}</span>
+                      )}
                     </Link>
                     <Link to="/messages" onClick={() => setMenuOpen(false)} className="flex items-center gap-2 px-4 py-2.5 text-sm hover:bg-surface transition">
                       <MessageSquare className="h-4 w-4" /> Mesajlar
