@@ -236,31 +236,30 @@ function WalletPage() {
                 <div className="rounded-2xl border border-border bg-card-gradient p-6 card-shadow space-y-4">
                   <h2 className="font-semibold text-lg inline-flex items-center gap-2"><Zap className="h-4 w-4 text-neon" /> BirBank ilə balans artır</h2>
 
-                  <div>
-                    <label className="text-xs font-semibold text-muted-foreground uppercase">Məbləğ (AZN)</label>
-                    <input type="number" min="1" step="1" value={amount} onChange={e => setAmount(e.target.value)}
-                      placeholder="Məs: 15" className="mt-1.5 w-full h-11 px-3 rounded-lg bg-background border border-border" />
+                  <div className="rounded-lg border border-warning/40 bg-warning/10 p-3 text-xs text-warning">
+                    ⚠️ Yalnız tam məbləğlər qəbul olunur (məs: 5, 10, 15 AZN). Qəpiklə (məs: 5.50 AZN) balans artırmaq mümkün deyil.
                   </div>
 
-                  {links.length > 0 && (
-                    <div>
-                      <p className="text-xs text-muted-foreground mb-2">Mövcud məbləğlər — birinə toxunun:</p>
-                      <div className="flex flex-wrap gap-2">
-                        {links.map(l => (
-                          <button key={l.id} type="button" onClick={() => setAmount(String(Number(l.amount)))}
-                            className={`h-9 px-3 rounded-lg text-sm font-semibold border transition ${
-                              matchedLink?.id === l.id ? "bg-neon text-background border-neon" : "bg-surface border-border hover:border-neon/40"
-                            }`}>
-                            {format(Number(l.amount))}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  )}
+                  <div>
+                    <label className="text-xs font-semibold text-muted-foreground uppercase">Məbləğ (AZN)</label>
+                    <input
+                      type="number"
+                      min="1"
+                      step="1"
+                      value={amount}
+                      onChange={e => {
+                        const v = e.target.value;
+                        // yalnız tam ədədlər — qəpik icazə verilmir
+                        if (v === "" || /^\d+$/.test(v)) setAmount(v);
+                      }}
+                      placeholder="Məs: 15"
+                      className="mt-1.5 w-full h-11 px-3 rounded-lg bg-background border border-border"
+                    />
+                  </div>
 
                   {amount && !matchedLink && (
-                    <div className="rounded-lg border border-warning/40 bg-warning/10 p-3 text-xs text-warning">
-                      Bu məbləğ üçün hazır ödəniş linki yoxdur. Yuxarıdakı mövcud məbləğlərdən birini seçin.
+                    <div className="rounded-lg border border-destructive/40 bg-destructive/10 p-3 text-xs text-destructive">
+                      Bu məbləğ üçün hazır ödəniş linki yoxdur. Zəhmət olmasa başqa tam məbləğ daxil edin və ya dəstəklə əlaqə saxlayın.
                     </div>
                   )}
 
