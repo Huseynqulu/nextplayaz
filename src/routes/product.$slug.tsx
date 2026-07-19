@@ -114,10 +114,7 @@ function ProductPage() {
     const balance = Number((prof as any)?.wallet_balance ?? 0);
     const total = Number(p.price) * qty;
     if (balance < total) {
-      const ok = window.confirm(
-        `Balansınız kifayət etmir (${balance.toFixed(2)} AZN / ${total.toFixed(2)} AZN).\n\nBalansınızı artırmaq istəyirsiniz?`
-      );
-      if (ok) navigate({ to: "/wallet" });
+      setLowBalance({ balance, total });
       return;
     }
     setAgreed(false);
