@@ -1,7 +1,8 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
-import { Mail, Lock, Gamepad2, Loader2 } from "lucide-react";
+import { Mail, Lock, Loader2 } from "lucide-react";
+import nextplayLogo from "@/assets/nextplay-logo.png";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
