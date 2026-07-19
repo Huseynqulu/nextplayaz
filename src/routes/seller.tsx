@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
-import { Upload, ShieldCheck, TrendingUp, Wallet, CheckCircle2, Loader2, Clock, XCircle } from "lucide-react";
+import { Upload, ShieldCheck, TrendingUp, Wallet, CheckCircle2, Loader2, Clock, XCircle, Info, Lock, UserCheck, Scale } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
