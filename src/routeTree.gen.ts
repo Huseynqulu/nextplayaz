@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as UserGuideRouteImport } from './routes/user-guide'
+import { Route as UnsubscribeRouteImport } from './routes/unsubscribe'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as SupportRouteImport } from './routes/support'
 import { Route as SellerRouteImport } from './routes/seller'
@@ -47,6 +48,11 @@ import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/e
 const UserGuideRoute = UserGuideRouteImport.update({
   id: '/user-guide',
   path: '/user-guide',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const UnsubscribeRoute = UnsubscribeRouteImport.update({
+  id: '/unsubscribe',
+  path: '/unsubscribe',
   getParentRoute: () => rootRouteImport,
 } as any)
 const TermsRoute = TermsRouteImport.update({
@@ -234,6 +240,7 @@ export interface FileRoutesByFullPath {
   '/seller': typeof SellerRoute
   '/support': typeof SupportRoute
   '/terms': typeof TermsRoute
+  '/unsubscribe': typeof UnsubscribeRoute
   '/user-guide': typeof UserGuideRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/favorites': typeof AuthenticatedFavoritesRoute
@@ -269,6 +276,7 @@ export interface FileRoutesByTo {
   '/seller': typeof SellerRoute
   '/support': typeof SupportRoute
   '/terms': typeof TermsRoute
+  '/unsubscribe': typeof UnsubscribeRoute
   '/user-guide': typeof UserGuideRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/favorites': typeof AuthenticatedFavoritesRoute
@@ -306,6 +314,7 @@ export interface FileRoutesById {
   '/seller': typeof SellerRoute
   '/support': typeof SupportRoute
   '/terms': typeof TermsRoute
+  '/unsubscribe': typeof UnsubscribeRoute
   '/user-guide': typeof UserGuideRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/favorites': typeof AuthenticatedFavoritesRoute
@@ -343,6 +352,7 @@ export interface FileRouteTypes {
     | '/seller'
     | '/support'
     | '/terms'
+    | '/unsubscribe'
     | '/user-guide'
     | '/admin'
     | '/favorites'
@@ -378,6 +388,7 @@ export interface FileRouteTypes {
     | '/seller'
     | '/support'
     | '/terms'
+    | '/unsubscribe'
     | '/user-guide'
     | '/admin'
     | '/favorites'
@@ -414,6 +425,7 @@ export interface FileRouteTypes {
     | '/seller'
     | '/support'
     | '/terms'
+    | '/unsubscribe'
     | '/user-guide'
     | '/_authenticated/admin'
     | '/_authenticated/favorites'
@@ -451,6 +463,7 @@ export interface RootRouteChildren {
   SellerRoute: typeof SellerRoute
   SupportRoute: typeof SupportRoute
   TermsRoute: typeof TermsRoute
+  UnsubscribeRoute: typeof UnsubscribeRoute
   UserGuideRoute: typeof UserGuideRoute
   EmailUnsubscribeRoute: typeof EmailUnsubscribeRoute
   ProductSlugRoute: typeof ProductSlugRoute
@@ -468,6 +481,13 @@ declare module '@tanstack/react-router' {
       path: '/user-guide'
       fullPath: '/user-guide'
       preLoaderRoute: typeof UserGuideRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/unsubscribe': {
+      id: '/unsubscribe'
+      path: '/unsubscribe'
+      fullPath: '/unsubscribe'
+      preLoaderRoute: typeof UnsubscribeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/terms': {
@@ -774,6 +794,7 @@ const rootRouteChildren: RootRouteChildren = {
   SellerRoute: SellerRoute,
   SupportRoute: SupportRoute,
   TermsRoute: TermsRoute,
+  UnsubscribeRoute: UnsubscribeRoute,
   UserGuideRoute: UserGuideRoute,
   EmailUnsubscribeRoute: EmailUnsubscribeRoute,
   ProductSlugRoute: ProductSlugRoute,
