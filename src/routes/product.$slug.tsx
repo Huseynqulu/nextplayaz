@@ -46,10 +46,39 @@ function ProductPage() {
   const [buying, setBuying] = useState(false);
   const [contacting, setContacting] = useState(false);
   const [code, setCode] = useState("");
+  const [applying, setApplying] = useState(false);
+  const [applied, setApplied] = useState<{ code: string; percent: number } | null>(null);
   const [showTerms, setShowTerms] = useState(false);
   const [agreed, setAgreed] = useState(false);
   const [lowBalance, setLowBalance] = useState<{ balance: number; total: number } | null>(null);
-  
+
+  const subtotal = +(Number(p.price) * qty).toFixed(2);
+  const discountAmount = applied ? +(subtotal * applied.percent / 100).toFixed(2) : 0;
+  const finalTotal = +(subtotal - discountAmount).toFixed(2);
+
+  async function applyCode() {
+    const c = code.trim().toUpperCase();
+    if (!c) return;
+    setApplying(true);
+    const { data, error } = await supabase
+      .from("discount_codes")
+      .select("code, percent, is_active, expires_at, max_uses, used_count")
+      .ilike("code", c)
+      .maybeSingle();
+    setApplying(false);
+    if (error || !data) { toast.error("Endirim kodu tapılmadı"); return; }
+    if (!data.is_active) { toast.error("Bu kod aktiv deyil"); return; }
+    if (data.expires_at && new Date(data.expires_at) < new Date()) { toast.error("Kodun vaxtı bitib"); return; }
+    if (data.max_uses && data.used_count >= data.max_uses) { toast.error("Kod limiti dolub"); return; }
+    setApplied({ code: data.code, percent: data.percent });
+    toast.success(`${data.percent}% endirim tətbiq edildi`);
+  }
+
+  function removeCode() {
+    setApplied(null);
+    setCode("");
+  }
+
   const discount = p.oldPrice ? Math.round((1 - p.price / p.oldPrice) * 100) : 0;
   const { isFav, toggle: toggleFav } = useFavorites();
   const fav = isFav(p.id);
