@@ -102,6 +102,27 @@ export function Header() {
         <div className="flex items-center gap-2 md:ml-2 ml-auto">
           <CommandPaletteTrigger />
           <LanguageSwitcher />
+          {user && balance !== null && (
+            <div className="hidden sm:inline-flex items-stretch rounded-lg border border-neon/30 bg-neon/10 overflow-hidden">
+              <Link
+                to="/wallet"
+                className="flex items-center gap-1.5 px-2.5 h-10 text-xs sm:text-sm font-semibold text-foreground hover:bg-neon/15 transition"
+                aria-label="Cüzdan balansı"
+                title="Cüzdan"
+              >
+                <Wallet className="h-4 w-4 text-neon" />
+                <span className="tabular-nums">{format(balance)}</span>
+              </Link>
+              <Link
+                to="/wallet"
+                className="grid place-items-center px-2 h-10 border-l border-neon/30 bg-neon text-background hover:opacity-90 transition"
+                aria-label="Balansı artır"
+                title="Balansı artır"
+              >
+                <Plus className="h-4 w-4" />
+              </Link>
+            </div>
+          )}
           <div className="hidden md:block"><CartButton /></div>
           {user && (
             <Link to="/messages" className="hidden md:grid h-10 w-10 place-items-center rounded-lg hover:bg-surface transition relative" aria-label="Mesajlar">
