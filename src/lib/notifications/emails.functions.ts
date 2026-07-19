@@ -2,14 +2,6 @@ import { createServerFn } from '@tanstack/react-start'
 import { requireSupabaseAuth } from '@/integrations/supabase/auth-middleware'
 import { z } from 'zod'
 
-const schema = z.object({
-  recipientUserId: z.string().uuid().optional(),
-  recipientEmail: z.string().email().optional(),
-  templateName: z.string().min(1),
-  templateData: z.record(z.string(), z.any()).optional(),
-  idempotencyKey: z.string().optional(),
-})
-
 /**
  * Server-side notification email dispatcher.
  * Resolves recipient email via admin client, then enqueues via the shared send route.
@@ -17,7 +9,13 @@ const schema = z.object({
  */
 export const sendNotificationEmail = createServerFn({ method: 'POST' })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: unknown) => schema.parse(data))
+  .inputValidator((data: unknown) => z.object({
+    recipientUserId: z.string().uuid().optional(),
+    recipientEmail: z.string().email().optional(),
+    templateName: z.string().min(1),
+    templateData: z.record(z.string(), z.any()).optional(),
+    idempotencyKey: z.string().optional(),
+  }).parse(data))
   .handler(async ({ data, context }) => {
     let email = data.recipientEmail || null
 
