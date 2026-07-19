@@ -281,19 +281,45 @@ function ProductPage() {
                 </div>
 
                 <div className="mt-5 space-y-3">
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-3 flex-wrap">
                     <div className="flex items-center rounded-xl border border-border bg-background shrink-0">
                       <button onClick={() => setQty(Math.max(1, qty - 1))} className="w-10 h-11 hover:bg-surface rounded-l-xl">−</button>
                       <span className="w-10 text-center font-semibold">{qty}</span>
                       <button onClick={() => setQty(Math.min(p.stock, qty + 1))} className="w-10 h-11 hover:bg-surface rounded-r-xl">+</button>
                     </div>
-                    <input
-                      value={code}
-                      onChange={e => setCode(e.target.value)}
-                      placeholder="Endirim kodu (varsa)"
-                      className="flex-1 min-w-0 h-11 px-3 rounded-xl bg-background border border-border text-sm focus:border-primary outline-none uppercase"
-                    />
+                    {applied ? (
+                      <div className="flex-1 min-w-0 flex items-center justify-between gap-2 h-11 px-3 rounded-xl bg-success/10 border border-success/30 text-sm">
+                        <span className="font-semibold text-success truncate">✓ {applied.code} · −{applied.percent}%</span>
+                        <button onClick={removeCode} className="text-muted-foreground hover:text-destructive shrink-0" aria-label="Kodu sil"><X className="h-4 w-4" /></button>
+                      </div>
+                    ) : (
+                      <div className="flex-1 min-w-0 flex gap-2">
+                        <input
+                          value={code}
+                          onChange={e => setCode(e.target.value)}
+                          onKeyDown={e => { if (e.key === "Enter") applyCode(); }}
+                          placeholder="Endirim kodu (varsa)"
+                          className="flex-1 min-w-0 h-11 px-3 rounded-xl bg-background border border-border text-sm focus:border-primary outline-none uppercase"
+                        />
+                        <button
+                          onClick={applyCode}
+                          disabled={applying || !code.trim()}
+                          className="h-11 px-4 rounded-xl border border-neon/40 bg-neon/10 text-neon text-sm font-semibold hover:bg-neon/20 disabled:opacity-50 shrink-0 inline-flex items-center gap-1.5"
+                        >
+                          {applying ? <Loader2 className="h-4 w-4 animate-spin" /> : "Tətbiq et"}
+                        </button>
+                      </div>
+                    )}
                   </div>
+
+                  {applied && (
+                    <div className="rounded-xl border border-border bg-surface/40 p-3 text-sm space-y-1">
+                      <div className="flex items-center justify-between"><span className="text-muted-foreground">Ara cəmi</span><span className="font-medium">{format(subtotal)}</span></div>
+                      <div className="flex items-center justify-between"><span className="text-muted-foreground">Endirim ({applied.percent}%)</span><span className="text-success">−{format(discountAmount)}</span></div>
+                      <div className="flex items-center justify-between pt-1.5 mt-1 border-t border-border"><span className="font-semibold">Son qiymət</span><span className="font-display text-lg font-bold text-neon">{format(finalTotal)}</span></div>
+                    </div>
+                  )}
+
 
                   <div className="flex items-center gap-2">
                     <button
