@@ -442,6 +442,49 @@ function ProductPage() {
         </div>
       )}
 
+      {lowBalance && (
+        <div className="fixed inset-0 z-50 grid place-items-center bg-background/80 backdrop-blur-sm p-4" onClick={() => setLowBalance(null)}>
+          <div className="w-full max-w-sm rounded-2xl border border-border bg-card card-shadow overflow-hidden" onClick={e => e.stopPropagation()}>
+            <div className="p-5 border-b border-border">
+              <h3 className="font-display text-lg font-bold">Balans kifayət etmir</h3>
+            </div>
+            <div className="px-5 py-4 space-y-3">
+              <div className="rounded-xl border border-border bg-surface/40 p-3 text-sm space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <span className="text-muted-foreground">Mövcud balans</span>
+                  <span className="font-semibold tabular-nums">{format(lowBalance.balance)}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-muted-foreground">Sifariş məbləği</span>
+                  <span className="font-semibold tabular-nums text-neon">{format(lowBalance.total)}</span>
+                </div>
+                <div className="flex items-center justify-between pt-2 border-t border-border">
+                  <span className="text-muted-foreground">Çatışmır</span>
+                  <span className="font-semibold tabular-nums text-destructive">{format(lowBalance.total - lowBalance.balance)}</span>
+                </div>
+              </div>
+              <p className="text-sm text-muted-foreground">Balansınızı artırmaq istəyirsiniz?</p>
+            </div>
+            <div className="flex gap-2 p-4 border-t border-border">
+              <button
+                onClick={() => setLowBalance(null)}
+                className="flex-1 h-11 rounded-xl border border-border text-sm font-medium hover:bg-surface"
+              >
+                İptal
+              </button>
+              <button
+                onClick={() => { setLowBalance(null); navigate({ to: "/wallet" }); }}
+                className="flex-1 h-11 rounded-xl bg-neon text-background font-semibold neon-ring hover:opacity-95"
+              >
+                Balansı artır
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+
+
     </div>
   );
 }
