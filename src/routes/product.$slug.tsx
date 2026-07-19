@@ -94,7 +94,7 @@ function ProductPage() {
   const gallery = Array.from(new Set([p.image, ...((p.images ?? []) as string[])].filter(Boolean)));
   const [activeImg, setActiveImg] = useState(gallery[0] ?? p.image);
 
-  function openBuy() {
+  async function openBuy() {
     if (!user) {
       toast.info("Sifariş üçün daxil olun");
       navigate({ to: "/login" });
@@ -102,6 +102,21 @@ function ProductPage() {
     }
     if (!isDbProduct) {
       toast.info("Demo məhsul — gerçək satıcı məhsulu seçin");
+      return;
+    }
+    // Check balance before opening terms
+    const { data: prof } = await supabase
+      .from("profiles")
+      .select("wallet_balance")
+      .eq("id", user.id)
+      .maybeSingle();
+    const balance = Number((prof as any)?.wallet_balance ?? 0);
+    const total = Number(p.price) * qty;
+    if (balance < total) {
+      const ok = window.confirm(
+        `Balansınız kifayət etmir (${balance.toFixed(2)} AZN / ${total.toFixed(2)} AZN).\n\nBalansınızı artırmaq istəyirsiniz?`
+      );
+      if (ok) navigate({ to: "/wallet" });
       return;
     }
     setAgreed(false);
