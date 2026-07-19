@@ -12,6 +12,7 @@ import { uploadChatAttachment } from "@/lib/chat-attachments";
 import { ChatImage } from "@/components/ChatImage";
 import { DeliveryCard } from "@/components/DeliveryCard";
 import { VerifiedBadge } from "@/components/VerifiedBadge";
+import { notifyEmail } from "@/lib/notifications/notify-email";
 
 export const Route = createFileRoute("/_authenticated/messages/$conversationId")({
   component: ThreadPage,
@@ -159,6 +160,19 @@ function ThreadPage() {
         conversation_id: conv.id, sender_id: user.id, body: body || "", attachment_url,
       } as any);
       if (error) throw error;
+      // Notify recipient by email (best-effort)
+      const recipientId = conv.user_a === user.id ? conv.user_b : conv.user_a;
+      if (recipientId) {
+        notifyEmail({
+          recipientUserId: recipientId,
+          templateName: 'new-message',
+          templateData: {
+            senderName: (user as any)?.user_metadata?.display_name || (user as any)?.email?.split('@')[0] || 'Bir istifadəçi',
+            snippet: (body || '').slice(0, 200),
+            conversationId: conv.id,
+          },
+        });
+      }
       setText(""); setPendingFile(null); setPreview(null);
       broadcastStopTyping();
       inputRef.current?.focus();

@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import { burstConfetti } from "@/lib/celebrate";
 import { Loader2, Minus, Plus, ShoppingCart, Trash2, Tag, Check, X } from "lucide-react";
 import { EmptyState } from "@/components/EmptyState";
+import { notifyEmail } from "@/lib/notifications/notify-email";
 
 export const Route = createFileRoute("/cart")({
   component: CartPage,
@@ -68,7 +69,20 @@ function CartPage() {
         p_discount_code: applied?.code || null,
       } as any);
       if (error) results.fail.push({ title: it.title, msg: error.message });
-      else results.ok += 1;
+      else {
+        results.ok += 1;
+        // Fetch seller id for email
+        try {
+          const { data: prod } = await supabase.from("products").select("seller_id, title, price").eq("id", it.id).maybeSingle();
+          const amt = Number((prod as any)?.price ?? 0) * it.qty * (applied ? (1 - applied.percent / 100) : 1);
+          if (user?.email) {
+            notifyEmail({ recipientEmail: user.email, templateName: 'order-placed-buyer', templateData: { productTitle: it.title, amount: +amt.toFixed(2) } });
+          }
+          if ((prod as any)?.seller_id) {
+            notifyEmail({ recipientUserId: (prod as any).seller_id, templateName: 'new-sale-seller', templateData: { productTitle: it.title, amount: +amt.toFixed(2) } });
+          }
+        } catch {}
+      }
     }
     setBusy(false);
     if (results.ok > 0) {

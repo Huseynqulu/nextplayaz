@@ -15,6 +15,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useCurrency } from "@/lib/currency";
+import { notifyEmail } from "@/lib/notifications/notify-email";
 
 export const Route = createFileRoute("/_authenticated/orders")({
   component: OrdersPage,
@@ -148,6 +149,14 @@ function OrdersPage() {
       });
       if (error) throw error;
       toast.success("Etiraz göndərildi, dəstək baxacaq");
+      if (disputeOrder.seller_id) {
+        notifyEmail({
+          recipientUserId: disputeOrder.seller_id,
+          templateName: 'dispute-opened',
+          templateData: { productTitle: disputeOrder.product?.title, orderId: disputeOrder.id, reason },
+          idempotencyKey: `dispute-${disputeOrder.id}`,
+        });
+      }
       setDisputeOrder(null);
       refresh();
     } catch (e: any) {
