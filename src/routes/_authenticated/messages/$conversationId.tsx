@@ -160,19 +160,39 @@ function ThreadPage() {
         conversation_id: conv.id, sender_id: user.id, body: body || "", attachment_url,
       } as any);
       if (error) throw error;
-      // Notify recipient by email (best-effort)
+      // Notify recipient by email (best-effort) — skip if recipient is online
       const recipientId = conv.user_a === user.id ? conv.user_b : conv.user_a;
       if (recipientId) {
-        notifyEmail({
-          recipientUserId: recipientId,
-          templateName: 'new-message',
-          templateData: {
-            senderName: (user as any)?.user_metadata?.display_name || (user as any)?.email?.split('@')[0] || 'Bir istifadəçi',
-            snippet: (body || '').slice(0, 200),
-            conversationId: conv.id,
-          },
-        });
+        const { data: rec } = await supabase
+          .from("public_profiles" as any)
+          .select("last_seen_at")
+          .eq("id", recipientId)
+          .maybeSingle();
+        const lastSeen = (rec as any)?.last_seen_at ? new Date((rec as any).last_seen_at).getTime() : 0;
+        const isRecipientOnline = lastSeen && (Date.now() - lastSeen) < 2 * 60 * 1000;
+        if (!isRecipientOnline) {
+          const { data: senderProfile } = await supabase
+            .from("public_profiles" as any)
+            .select("shop_name,display_name,username")
+            .eq("id", user.id)
+            .maybeSingle();
+          const senderName =
+            (senderProfile as any)?.shop_name ||
+            (senderProfile as any)?.display_name ||
+            (senderProfile as any)?.username ||
+            'Bir istifadəçi';
+          notifyEmail({
+            recipientUserId: recipientId,
+            templateName: 'new-message',
+            templateData: {
+              senderName,
+              snippet: (body || '').slice(0, 200),
+              conversationId: conv.id,
+            },
+          });
+        }
       }
+
       setText(""); setPendingFile(null); setPreview(null);
       broadcastStopTyping();
       inputRef.current?.focus();
