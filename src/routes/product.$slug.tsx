@@ -46,10 +46,39 @@ function ProductPage() {
   const [buying, setBuying] = useState(false);
   const [contacting, setContacting] = useState(false);
   const [code, setCode] = useState("");
+  const [applying, setApplying] = useState(false);
+  const [applied, setApplied] = useState<{ code: string; percent: number } | null>(null);
   const [showTerms, setShowTerms] = useState(false);
   const [agreed, setAgreed] = useState(false);
   const [lowBalance, setLowBalance] = useState<{ balance: number; total: number } | null>(null);
-  
+
+  const subtotal = +(Number(p.price) * qty).toFixed(2);
+  const discountAmount = applied ? +(subtotal * applied.percent / 100).toFixed(2) : 0;
+  const finalTotal = +(subtotal - discountAmount).toFixed(2);
+
+  async function applyCode() {
+    const c = code.trim().toUpperCase();
+    if (!c) return;
+    setApplying(true);
+    const { data, error } = await supabase
+      .from("discount_codes")
+      .select("code, percent, is_active, expires_at, max_uses, used_count")
+      .ilike("code", c)
+      .maybeSingle();
+    setApplying(false);
+    if (error || !data) { toast.error("Endirim kodu tapılmadı"); return; }
+    if (!data.is_active) { toast.error("Bu kod aktiv deyil"); return; }
+    if (data.expires_at && new Date(data.expires_at) < new Date()) { toast.error("Kodun vaxtı bitib"); return; }
+    if (data.max_uses && data.used_count >= data.max_uses) { toast.error("Kod limiti dolub"); return; }
+    setApplied({ code: data.code, percent: data.percent });
+    toast.success(`${data.percent}% endirim tətbiq edildi`);
+  }
+
+  function removeCode() {
+    setApplied(null);
+    setCode("");
+  }
+
   const discount = p.oldPrice ? Math.round((1 - p.price / p.oldPrice) * 100) : 0;
   const { isFav, toggle: toggleFav } = useFavorites();
   const fav = isFav(p.id);
@@ -112,9 +141,8 @@ function ProductPage() {
       .eq("id", user.id)
       .maybeSingle();
     const balance = Number((prof as any)?.wallet_balance ?? 0);
-    const total = Number(p.price) * qty;
-    if (balance < total) {
-      setLowBalance({ balance, total });
+    if (balance < finalTotal) {
+      setLowBalance({ balance, total: finalTotal });
       return;
     }
     setAgreed(false);
@@ -127,7 +155,7 @@ function ProductPage() {
     const { data, error } = await supabase.rpc("create_order", {
       p_product_id: p.id,
       p_quantity: qty,
-      p_discount_code: code.trim() || null,
+      p_discount_code: applied?.code || null,
     } as any);
     setBuying(false);
     if (error) {
@@ -253,19 +281,45 @@ function ProductPage() {
                 </div>
 
                 <div className="mt-5 space-y-3">
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-3 flex-wrap">
                     <div className="flex items-center rounded-xl border border-border bg-background shrink-0">
                       <button onClick={() => setQty(Math.max(1, qty - 1))} className="w-10 h-11 hover:bg-surface rounded-l-xl">−</button>
                       <span className="w-10 text-center font-semibold">{qty}</span>
                       <button onClick={() => setQty(Math.min(p.stock, qty + 1))} className="w-10 h-11 hover:bg-surface rounded-r-xl">+</button>
                     </div>
-                    <input
-                      value={code}
-                      onChange={e => setCode(e.target.value)}
-                      placeholder="Endirim kodu (varsa)"
-                      className="flex-1 min-w-0 h-11 px-3 rounded-xl bg-background border border-border text-sm focus:border-primary outline-none uppercase"
-                    />
+                    {applied ? (
+                      <div className="flex-1 min-w-0 flex items-center justify-between gap-2 h-11 px-3 rounded-xl bg-success/10 border border-success/30 text-sm">
+                        <span className="font-semibold text-success truncate">✓ {applied.code} · −{applied.percent}%</span>
+                        <button onClick={removeCode} className="text-muted-foreground hover:text-destructive shrink-0" aria-label="Kodu sil"><X className="h-4 w-4" /></button>
+                      </div>
+                    ) : (
+                      <div className="flex-1 min-w-0 flex gap-2">
+                        <input
+                          value={code}
+                          onChange={e => setCode(e.target.value)}
+                          onKeyDown={e => { if (e.key === "Enter") applyCode(); }}
+                          placeholder="Endirim kodu (varsa)"
+                          className="flex-1 min-w-0 h-11 px-3 rounded-xl bg-background border border-border text-sm focus:border-primary outline-none uppercase"
+                        />
+                        <button
+                          onClick={applyCode}
+                          disabled={applying || !code.trim()}
+                          className="h-11 px-4 rounded-xl border border-neon/40 bg-neon/10 text-neon text-sm font-semibold hover:bg-neon/20 disabled:opacity-50 shrink-0 inline-flex items-center gap-1.5"
+                        >
+                          {applying ? <Loader2 className="h-4 w-4 animate-spin" /> : "Tətbiq et"}
+                        </button>
+                      </div>
+                    )}
                   </div>
+
+                  {applied && (
+                    <div className="rounded-xl border border-border bg-surface/40 p-3 text-sm space-y-1">
+                      <div className="flex items-center justify-between"><span className="text-muted-foreground">Ara cəmi</span><span className="font-medium">{format(subtotal)}</span></div>
+                      <div className="flex items-center justify-between"><span className="text-muted-foreground">Endirim ({applied.percent}%)</span><span className="text-success">−{format(discountAmount)}</span></div>
+                      <div className="flex items-center justify-between pt-1.5 mt-1 border-t border-border"><span className="font-semibold">Son qiymət</span><span className="font-display text-lg font-bold text-neon">{format(finalTotal)}</span></div>
+                    </div>
+                  )}
+
 
                   <div className="flex items-center gap-2">
                     <button
@@ -397,12 +451,22 @@ function ProductPage() {
                   <span className="text-muted-foreground">Qiymət × Say</span>
                   <span className="font-medium">{format(p.price)} × {qty}</span>
                 </div>
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">Ara cəmi</span>
+                  <span className="font-medium">{format(subtotal)}</span>
+                </div>
+                {applied && (
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">Endirim ({applied.code} · {applied.percent}%)</span>
+                    <span className="text-success">−{format(discountAmount)}</span>
+                  </div>
+                )}
                 <div className="flex items-center justify-between pt-2 mt-1 border-t border-border">
                   <span className="font-semibold">Ödəniləcək məbləğ</span>
-                  <span className="font-display text-xl font-bold text-neon">{format(p.price * qty)}</span>
+                  <span className="font-display text-xl font-bold text-neon">{format(finalTotal)}</span>
                 </div>
               </div>
-              <p><b className="text-foreground">1. Escrow qoruması.</b> Ödədiyiniz <span className="text-neon font-semibold">{format(p.price * qty)}</span> NextPlay tərəfindən saxlanılır və yalnız sifarişi təsdiqlədikdən sonra satıcıya köçürülür.</p>
+              <p><b className="text-foreground">1. Escrow qoruması.</b> Ödədiyiniz <span className="text-neon font-semibold">{format(finalTotal)}</span> NextPlay tərəfindən saxlanılır və yalnız sifarişi təsdiqlədikdən sonra satıcıya köçürülür.</p>
               <p><b className="text-foreground">2. Çatdırılma müddəti.</b> Satıcı sifarişi 24 saat ərzində mesaj vasitəsi ilə təhvil verməlidir. Anında çatdırılma məhsullarında məlumat dərhal göstərilir.</p>
               <p><b className="text-foreground">3. Avtomatik təsdiq.</b> Çatdırılmadan 24 saat sonra sifariş təsdiq etməsəniz, sistem onu avtomatik tamamlayır və vəsait satıcıya keçir.</p>
               <p><b className="text-foreground">4. Etiraz hüququ.</b> Problem yaranarsa, "Etiraz et" düyməsi ilə dəstəyə müraciət edə bilərsiniz. Etiraz üçün <b>video sübut və ya ekran görüntüsü</b> mütləqdir.</p>
@@ -435,7 +499,7 @@ function ProductPage() {
                 className="flex-1 h-11 rounded-xl bg-neon text-background font-semibold neon-ring transition disabled:opacity-40 disabled:cursor-not-allowed inline-flex items-center justify-center gap-2"
               >
                 {buying && <Loader2 className="h-4 w-4 animate-spin" />}
-                {agreed ? `Razıyam — ${format(p.price * qty)} ödə` : "Şərtləri qəbul edin"}
+                {agreed ? `Razıyam — ${format(finalTotal)} ödə` : "Şərtləri qəbul edin"}
               </button>
             </div>
           </div>
