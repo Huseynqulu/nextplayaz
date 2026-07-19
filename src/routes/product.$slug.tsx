@@ -141,9 +141,8 @@ function ProductPage() {
       .eq("id", user.id)
       .maybeSingle();
     const balance = Number((prof as any)?.wallet_balance ?? 0);
-    const total = Number(p.price) * qty;
-    if (balance < total) {
-      setLowBalance({ balance, total });
+    if (balance < finalTotal) {
+      setLowBalance({ balance, total: finalTotal });
       return;
     }
     setAgreed(false);
@@ -156,7 +155,7 @@ function ProductPage() {
     const { data, error } = await supabase.rpc("create_order", {
       p_product_id: p.id,
       p_quantity: qty,
-      p_discount_code: code.trim() || null,
+      p_discount_code: applied?.code || null,
     } as any);
     setBuying(false);
     if (error) {
