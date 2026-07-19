@@ -286,11 +286,19 @@ function AdminPage() {
   async function sendReply() {
     if (!activeTicket || !reply.trim()) return;
     setBusy("reply");
+    const body = reply.trim();
     const { error } = await supabase.from("support_messages").insert({
-      ticket_id: activeTicket.id, sender_id: user!.id, is_admin: true, body: reply.trim(),
+      ticket_id: activeTicket.id, sender_id: user!.id, is_admin: true, body,
     });
     if (error) toast.error(error.message);
     else {
+      if (activeTicket.user_id) {
+        notifyEmail({
+          recipientUserId: activeTicket.user_id,
+          templateName: 'support-reply',
+          templateData: { ticketId: activeTicket.id, snippet: body.slice(0, 200) },
+        });
+      }
       setReply("");
       const { data } = await supabase.from("support_messages").select("*").eq("ticket_id", activeTicket.id).order("created_at");
       setTicketMsgs((data as any) ?? []);
