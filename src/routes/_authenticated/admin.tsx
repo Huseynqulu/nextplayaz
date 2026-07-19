@@ -20,6 +20,7 @@ const AdminAnnouncements = lazy(() => import("@/components/AdminAnnouncements").
 const AdminSellers = lazy(() => import("@/components/AdminSellers").then(m => ({ default: m.AdminSellers })));
 const AdminHomeCategories = lazy(() => import("@/components/AdminHomeCategories").then(m => ({ default: m.AdminHomeCategories })));
 const AdminTopupLinks = lazy(() => import("@/components/AdminTopupLinks").then(m => ({ default: m.AdminTopupLinks })));
+import { notifyEmail } from "@/lib/notifications/notify-email";
 
 function TabFallback() {
   return <div className="grid place-items-center py-12"><Loader2 className="h-6 w-6 animate-spin text-neon" /></div>;
@@ -434,7 +435,18 @@ function AdminPage() {
     setBusy(t.id);
     const { error } = await supabase.rpc(approve ? "admin_approve_topup" : "admin_reject_topup", { p_topup_id: t.id, p_notes: notes || undefined });
     if (error) toast.error(error.message);
-    else { toast.success(approve ? `+${t.amount} ₼ əlavə edildi` : "Rədd edildi"); await refresh(); }
+    else {
+      toast.success(approve ? `+${t.amount} ₼ əlavə edildi` : "Rədd edildi");
+      if (approve && t.user_id) {
+        notifyEmail({
+          recipientUserId: t.user_id,
+          templateName: 'topup-approved',
+          templateData: { amount: t.amount },
+          idempotencyKey: `topup-${t.id}`,
+        });
+      }
+      await refresh();
+    }
     setBusy(null);
   }
 
