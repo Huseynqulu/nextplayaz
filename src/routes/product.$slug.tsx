@@ -166,6 +166,23 @@ function ProductPage() {
     setShowTerms(false);
     toast.success("Sifariş yaradıldı! Satıcı ilə söhbət açıldı.");
     const orderId = data as string | null;
+    // Fire-and-forget email notifications
+    if (user?.email) {
+      notifyEmail({
+        recipientEmail: user.email,
+        templateName: 'order-placed-buyer',
+        templateData: { name: (user as any)?.user_metadata?.display_name || null, productTitle: p.title, amount: finalTotal, orderId: orderId || undefined },
+        idempotencyKey: orderId ? `order-buyer-${orderId}` : undefined,
+      });
+    }
+    if (p.sellerId) {
+      notifyEmail({
+        recipientUserId: p.sellerId,
+        templateName: 'new-sale-seller',
+        templateData: { productTitle: p.title, amount: finalTotal },
+        idempotencyKey: orderId ? `order-seller-${orderId}` : undefined,
+      });
+    }
     if (orderId) {
       const { data: ord } = await supabase.from("orders").select("conversation_id").eq("id", orderId).maybeSingle();
       const convId = (ord as any)?.conversation_id as string | null;
