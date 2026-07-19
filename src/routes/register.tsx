@@ -117,9 +117,8 @@ function RegisterPage() {
       <main className="flex-1 grid place-items-center px-4 py-16">
         <div className="w-full max-w-md">
           <div className="text-center mb-8">
-            <div className="inline-grid h-14 w-14 place-items-center rounded-2xl bg-neon neon-ring mb-4">
-              <Gamepad2 className="h-7 w-7 text-background" />
-            </div>
+            <img src={nextplayLogo} alt="NextPlay" className="h-16 w-auto mx-auto mb-4" />
+
             <h1 className="font-display text-3xl font-bold">Hesab yarat</h1>
             <p className="mt-2 text-muted-foreground text-sm">NextPlay-ə qoşul və indi başla</p>
           </div>
