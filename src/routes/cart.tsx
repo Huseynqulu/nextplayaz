@@ -37,18 +37,17 @@ function CartPage() {
     const c = code.trim().toUpperCase();
     if (!c) return;
     setApplying(true);
-    const { data, error } = await supabase
-      .from("discount_codes")
-      .select("code, percent, is_active, expires_at, max_uses, used_count")
-      .ilike("code", c)
-      .maybeSingle();
+    const { data, error } = await supabase.rpc("validate_discount_code" as any, { p_code: c });
     setApplying(false);
-    if (error || !data) { toast.error("Endirim kodu tapılmadı"); return; }
-    if (!data.is_active) { toast.error("Bu kod aktiv deyil"); return; }
-    if (data.expires_at && new Date(data.expires_at) < new Date()) { toast.error("Kodun vaxtı bitib"); return; }
-    if (data.max_uses && data.used_count >= data.max_uses) { toast.error("Kod limiti dolub"); return; }
-    setApplied({ code: data.code, percent: data.percent });
-    toast.success(`${data.percent}% endirim tətbiq edildi`);
+    const result = Array.isArray(data) ? data[0] : data;
+    if (error || !result || result.status === "not_found") { toast.error("Endirim kodu tapılmadı"); return; }
+    if (result.status === "inactive") { toast.error("Bu kod aktiv deyil"); return; }
+    if (result.status === "expired") { toast.error("Kodun vaxtı bitib"); return; }
+    if (result.status === "limit_reached") { toast.error("Kod limiti dolub"); return; }
+    if (result.status !== "valid") { toast.error("Endirim kodu tətbiq edilmədi"); return; }
+    const percent = Number(result.percent);
+    setApplied({ code: result.code, percent });
+    toast.success(`${percent}% endirim tətbiq edildi`);
   }
 
   function removeCode() {
