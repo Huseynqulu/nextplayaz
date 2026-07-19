@@ -499,7 +499,7 @@ function ProductPage() {
                 className="flex-1 h-11 rounded-xl bg-neon text-background font-semibold neon-ring transition disabled:opacity-40 disabled:cursor-not-allowed inline-flex items-center justify-center gap-2"
               >
                 {buying && <Loader2 className="h-4 w-4 animate-spin" />}
-                {agreed ? `Razıyam — ${format(p.price * qty)} ödə` : "Şərtləri qəbul edin"}
+                {agreed ? `Razıyam — ${format(finalTotal)} ödə` : "Şərtləri qəbul edin"}
               </button>
             </div>
           </div>
