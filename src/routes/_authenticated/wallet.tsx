@@ -229,7 +229,8 @@ function WalletPage() {
           {loading ? (
             <div className="flex justify-center py-20"><Loader2 className="h-6 w-6 animate-spin text-neon" /></div>
           ) : (
-            <div className="grid lg:grid-cols-2 gap-6">
+            <>
+            <div>
               {tab === "topup" ? (
                 <div className="rounded-2xl border border-border bg-card-gradient p-6 card-shadow space-y-4">
                   <h2 className="font-semibold text-lg inline-flex items-center gap-2"><Zap className="h-4 w-4 text-neon" /> BirBank ilə balans artır</h2>
@@ -247,7 +248,6 @@ function WalletPage() {
                       value={amount}
                       onChange={e => {
                         const v = e.target.value;
-                        // yalnız tam ədədlər — qəpik icazə verilmir
                         if (v === "" || /^\d+$/.test(v)) setAmount(v);
                       }}
                       placeholder="Məs: 15"
@@ -342,57 +342,58 @@ function WalletPage() {
                   </p>
                 </div>
               )}
-
-              {/* History combined */}
-              <div className="rounded-2xl border border-border bg-card-gradient p-6 card-shadow">
-                <h2 className="font-semibold text-lg mb-4 inline-flex items-center gap-2"><Receipt className="h-4 w-4 text-neon" /> Tarixçə</h2>
-
-                {tab === "topup" ? (
-                  history.length === 0 ? (
-                    <p className="text-sm text-muted-foreground text-center py-8">Hələ artırma müraciəti yoxdur.</p>
-                  ) : (
-                    <div className="space-y-2 max-h-[560px] overflow-y-auto pr-1">
-                      {history.map(t => (
-                        <div key={t.id} className="rounded-lg border border-border bg-surface/40 p-3">
-                          <div className="flex items-center justify-between gap-2 flex-wrap">
-                            <span className="font-bold text-success">+{format(t.amount)}</span>
-                            <StatusBadge s={t.status} />
-                          </div>
-                          <p className="text-xs text-muted-foreground mt-1">{t.method} · {new Date(t.created_at).toLocaleString("az-AZ")}</p>
-                          {t.admin_notes && <p className="text-xs mt-1.5 bg-background/50 px-2 py-1 rounded">Admin: {t.admin_notes}</p>}
-                        </div>
-                      ))}
-                    </div>
-                  )
-                ) : (
-                  withdrawals.length === 0 ? (
-                    <p className="text-sm text-muted-foreground text-center py-8">Hələ çıxarış müraciəti yoxdur.</p>
-                  ) : (
-                    <div className="space-y-2 max-h-[560px] overflow-y-auto pr-1">
-                      {withdrawals.map(w => (
-                        <div key={w.id} className="rounded-lg border border-border bg-surface/40 p-3">
-                          <div className="flex items-center justify-between gap-2 flex-wrap">
-                            <div>
-                              <span className="font-bold text-destructive">−{format(w.amount)}</span>
-                              <span className="text-xs text-muted-foreground ml-2">→ alacaq: {format(w.net_amount)}</span>
-                            </div>
-                            <StatusBadge s={w.status} />
-                          </div>
-                          <p className="text-xs text-muted-foreground mt-1">{w.method} · {w.destination} · {new Date(w.created_at).toLocaleString("az-AZ")}</p>
-                          {w.admin_notes && <p className="text-xs mt-1.5 bg-background/50 px-2 py-1 rounded">Admin: {w.admin_notes}</p>}
-                        </div>
-                      ))}
-                    </div>
-                  )
-                )}
-              </div>
             </div>
+
+            <div className="grid md:grid-cols-2 gap-4 mt-8">
+              <GiftCardRedeem onRedeemed={() => refresh()} />
+              <LoyaltyCard onChanged={() => refresh()} />
+            </div>
+
+            <div className="rounded-2xl border border-border bg-card-gradient p-6 card-shadow mt-8">
+              <h2 className="font-semibold text-lg mb-4 inline-flex items-center gap-2"><Receipt className="h-4 w-4 text-neon" /> Tarixçə</h2>
+
+              {tab === "topup" ? (
+                history.length === 0 ? (
+                  <p className="text-sm text-muted-foreground text-center py-8">Hələ artırma müraciəti yoxdur.</p>
+                ) : (
+                  <div className="space-y-2 max-h-[560px] overflow-y-auto pr-1">
+                    {history.map(t => (
+                      <div key={t.id} className="rounded-lg border border-border bg-surface/40 p-3">
+                        <div className="flex items-center justify-between gap-2 flex-wrap">
+                          <span className="font-bold text-success">+{format(t.amount)}</span>
+                          <StatusBadge s={t.status} />
+                        </div>
+                        <p className="text-xs text-muted-foreground mt-1">{t.method} · {new Date(t.created_at).toLocaleString("az-AZ")}</p>
+                        {t.admin_notes && <p className="text-xs mt-1.5 bg-background/50 px-2 py-1 rounded">Admin: {t.admin_notes}</p>}
+                      </div>
+                    ))}
+                  </div>
+                )
+              ) : (
+                withdrawals.length === 0 ? (
+                  <p className="text-sm text-muted-foreground text-center py-8">Hələ çıxarış müraciəti yoxdur.</p>
+                ) : (
+                  <div className="space-y-2 max-h-[560px] overflow-y-auto pr-1">
+                    {withdrawals.map(w => (
+                      <div key={w.id} className="rounded-lg border border-border bg-surface/40 p-3">
+                        <div className="flex items-center justify-between gap-2 flex-wrap">
+                          <div>
+                            <span className="font-bold text-destructive">−{format(w.amount)}</span>
+                            <span className="text-xs text-muted-foreground ml-2">→ alacaq: {format(w.net_amount)}</span>
+                          </div>
+                          <StatusBadge s={w.status} />
+                        </div>
+                        <p className="text-xs text-muted-foreground mt-1">{w.method} · {w.destination} · {new Date(w.created_at).toLocaleString("az-AZ")}</p>
+                        {w.admin_notes && <p className="text-xs mt-1.5 bg-background/50 px-2 py-1 rounded">Admin: {w.admin_notes}</p>}
+                      </div>
+                    ))}
+                  </div>
+                )
+              )}
+            </div>
+            </>
           )}
 
-          <div className="grid md:grid-cols-2 gap-4 mt-8">
-            <GiftCardRedeem onRedeemed={() => refresh()} />
-            <LoyaltyCard onChanged={() => refresh()} />
-          </div>
 
         </div>
       </main>
