@@ -451,12 +451,22 @@ function ProductPage() {
                   <span className="text-muted-foreground">Qiymət × Say</span>
                   <span className="font-medium">{format(p.price)} × {qty}</span>
                 </div>
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">Ara cəmi</span>
+                  <span className="font-medium">{format(subtotal)}</span>
+                </div>
+                {applied && (
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">Endirim ({applied.code} · {applied.percent}%)</span>
+                    <span className="text-success">−{format(discountAmount)}</span>
+                  </div>
+                )}
                 <div className="flex items-center justify-between pt-2 mt-1 border-t border-border">
                   <span className="font-semibold">Ödəniləcək məbləğ</span>
-                  <span className="font-display text-xl font-bold text-neon">{format(p.price * qty)}</span>
+                  <span className="font-display text-xl font-bold text-neon">{format(finalTotal)}</span>
                 </div>
               </div>
-              <p><b className="text-foreground">1. Escrow qoruması.</b> Ödədiyiniz <span className="text-neon font-semibold">{format(p.price * qty)}</span> NextPlay tərəfindən saxlanılır və yalnız sifarişi təsdiqlədikdən sonra satıcıya köçürülür.</p>
+              <p><b className="text-foreground">1. Escrow qoruması.</b> Ödədiyiniz <span className="text-neon font-semibold">{format(finalTotal)}</span> NextPlay tərəfindən saxlanılır və yalnız sifarişi təsdiqlədikdən sonra satıcıya köçürülür.</p>
               <p><b className="text-foreground">2. Çatdırılma müddəti.</b> Satıcı sifarişi 24 saat ərzində mesaj vasitəsi ilə təhvil verməlidir. Anında çatdırılma məhsullarında məlumat dərhal göstərilir.</p>
               <p><b className="text-foreground">3. Avtomatik təsdiq.</b> Çatdırılmadan 24 saat sonra sifariş təsdiq etməsəniz, sistem onu avtomatik tamamlayır və vəsait satıcıya keçir.</p>
               <p><b className="text-foreground">4. Etiraz hüququ.</b> Problem yaranarsa, "Etiraz et" düyməsi ilə dəstəyə müraciət edə bilərsiniz. Etiraz üçün <b>video sübut və ya ekran görüntüsü</b> mütləqdir.</p>
