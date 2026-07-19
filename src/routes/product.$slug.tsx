@@ -48,6 +48,7 @@ function ProductPage() {
   const [code, setCode] = useState("");
   const [showTerms, setShowTerms] = useState(false);
   const [agreed, setAgreed] = useState(false);
+  const [lowBalance, setLowBalance] = useState<{ balance: number; total: number } | null>(null);
   
   const discount = p.oldPrice ? Math.round((1 - p.price / p.oldPrice) * 100) : 0;
   const { isFav, toggle: toggleFav } = useFavorites();
