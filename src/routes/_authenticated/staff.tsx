@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { Loader2, LifeBuoy, MessageSquare, Package, Send, ArrowLeft, Ban, ShieldCheck, AlertTriangle, Paperclip, X } from "lucide-react";
 import { uploadChatAttachment } from "@/lib/chat-attachments";
 import { ChatImage } from "@/components/ChatImage";
+import { notifyEmail } from "@/lib/notifications/notify-email";
 
 export const Route = createFileRoute("/_authenticated/staff")({
   component: StaffPage,
@@ -109,6 +110,13 @@ function StaffPage() {
         ticket_id: activeTicket.id, sender_id: user.id, is_admin: true, body: reply.trim(), attachment_url,
       } as any);
       if (error) throw error;
+      if (activeTicket.user_id) {
+        notifyEmail({
+          recipientUserId: activeTicket.user_id,
+          templateName: 'support-reply',
+          templateData: { ticketId: activeTicket.id, snippet: reply.trim().slice(0, 200) },
+        });
+      }
       setReply(""); setTReplyFile(null); setTReplyPreview(null);
       await openTicket(activeTicket);
     } catch (e: any) { toast.error(e.message ?? "Xəta"); }
