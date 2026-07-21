@@ -6,7 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
 import { burstConfetti } from "@/lib/celebrate";
-import { Wallet, Loader2, Receipt, Copy, CheckCircle2, XCircle, Clock, ArrowDownToLine, ArrowUpFromLine, ExternalLink, Zap, Upload, X } from "lucide-react";
+import { Wallet, Loader2, Receipt, CheckCircle2, XCircle, Clock, ArrowDownToLine, ArrowUpFromLine, ExternalLink, Zap, Upload, X } from "lucide-react";
 import { useCurrency } from "@/lib/currency";
 import { GiftCardRedeem } from "@/components/GiftCardRedeem";
 import { LoyaltyCard } from "@/components/LoyaltyCard";
