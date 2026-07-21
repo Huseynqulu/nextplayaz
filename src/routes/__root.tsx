@@ -65,6 +65,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "apple-mobile-web-app-title", content: "NextPlay" },
       { name: "mobile-web-app-capable", content: "yes" },
       { name: "facebook-domain-verification", content: "hbk69fsytvdddf23uma1nkh84t4qva" },
+      { name: "google-site-verification", content: "dAlTRaNSu8vnSWHVUSOXp1WVUM94_A5S9l7bwuQLrnw" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
