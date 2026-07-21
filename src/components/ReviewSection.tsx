@@ -190,7 +190,7 @@ export function ReviewSection({ productId, sellerId }: { productId: string; sell
           <h3 className="font-semibold mb-3">{myReview ? "Rəyini yenilə" : "Təcrübəni paylaş"}</h3>
           <div className="flex items-center gap-1 mb-4" onMouseLeave={() => setHover(0)}>
             {[1,2,3,4,5].map(i => (
-              <button key={i} type="button" onMouseEnter={() => setHover(i)} onClick={() => setRating(i)}
+              <button key={i} type="button" aria-label={`${i} ulduz`} onMouseEnter={() => setHover(i)} onClick={() => setRating(i)}
                 className="p-1 transition hover:scale-110">
                 <Star className={`h-7 w-7 ${i <= (hover || rating) ? "fill-warning text-warning" : "text-muted"}`} />
               </button>

@@ -24,8 +24,13 @@ export const Route = createFileRoute("/user-guide")({
   head: () => ({
     meta: [
       { title: "Yeni İstifadəçi Bələdçisi — NextPlay.az" },
-      { name: "description", content: "NextPlay.az platformasından təhlükəsiz istifadə üçün addım-addım bələdçi." },
+      { name: "description", content: "NextPlay.az platformasından təhlükəsiz istifadə üçün addım-addım bələdçi: qeydiyyat, alış, satış və dispute." },
+      { property: "og:title", content: "Yeni İstifadəçi Bələdçisi — NextPlay.az" },
+      { property: "og:description", content: "NextPlay.az-dan təhlükəsiz istifadə üçün addım-addım bələdçi." },
+      { property: "og:type", content: "article" },
+      { property: "og:url", content: "https://nextplay.az/user-guide" },
     ],
+    links: [{ rel: "canonical", href: "https://nextplay.az/user-guide" }],
   }),
 });
 

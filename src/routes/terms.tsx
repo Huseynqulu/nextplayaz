@@ -6,7 +6,12 @@ export const Route = createFileRoute("/terms")({
     meta: [
       { title: "İstifadə Şərtləri — NextPlay.az" },
       { name: "description", content: "NextPlay.az platformasından istifadə qaydaları, hüquq və öhdəliklər, qadağan edilmiş əməllər və hesabların idarə olunması." },
+      { property: "og:title", content: "İstifadə Şərtləri — NextPlay.az" },
+      { property: "og:description", content: "NextPlay.az istifadəçi razılığı və platforma qaydaları." },
+      { property: "og:type", content: "article" },
+      { property: "og:url", content: "https://nextplay.az/terms" },
     ],
+    links: [{ rel: "canonical", href: "https://nextplay.az/terms" }],
   }),
   component: TermsPage,
 });

@@ -10,7 +10,17 @@ import { toast } from "sonner";
 
 export const Route = createFileRoute("/login")({
   component: LoginPage,
-  head: () => ({ meta: [{ title: "Daxil ol — NextPlay.az" }] }),
+  head: () => ({
+    meta: [
+      { title: "Daxil ol — NextPlay.az" },
+      { name: "description", content: "NextPlay.az hesabınıza daxil olun və gaming marketplace-də alqı-satqıya davam edin." },
+      { property: "og:title", content: "Daxil ol — NextPlay.az" },
+      { property: "og:description", content: "NextPlay.az hesabınıza daxil olun." },
+      { property: "og:url", content: "https://nextplay.az/login" },
+      { name: "robots", content: "noindex" },
+    ],
+    links: [{ rel: "canonical", href: "https://nextplay.az/login" }],
+  }),
 });
 
 function LoginPage() {

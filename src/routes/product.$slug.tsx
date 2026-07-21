@@ -27,13 +27,36 @@ export const Route = createFileRoute("/product/$slug")({
   component: ProductPage,
   errorComponent: ({ error }) => <div className="min-h-screen grid place-items-center text-muted-foreground">{error.message}</div>,
   notFoundComponent: () => <div className="min-h-screen grid place-items-center text-muted-foreground">Məhsul tapılmadı.</div>,
-  head: ({ loaderData }) => ({
+  head: ({ loaderData, params }) => ({
     meta: loaderData?.product ? [
       { title: `${loaderData.product.title} — NextPlay.az` },
       { name: "description", content: loaderData.product.description },
       { property: "og:title", content: loaderData.product.title },
       { property: "og:description", content: loaderData.product.description },
       { property: "og:image", content: loaderData.product.image },
+      { property: "og:type", content: "product" },
+      { property: "og:url", content: `https://nextplay.az/product/${params.slug}` },
+      { name: "twitter:image", content: loaderData.product.image },
+    ] : [],
+    links: [{ rel: "canonical", href: `https://nextplay.az/product/${params.slug}` }],
+    scripts: loaderData?.product ? [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "Product",
+          name: loaderData.product.title,
+          description: loaderData.product.description,
+          image: loaderData.product.image,
+          offers: {
+            "@type": "Offer",
+            price: loaderData.product.price,
+            priceCurrency: "AZN",
+            availability: "https://schema.org/InStock",
+            url: `https://nextplay.az/product/${params.slug}`,
+          },
+        }),
+      },
     ] : [],
   }),
 });

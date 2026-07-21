@@ -1,0 +1,22 @@
+# NextPlay.az
+
+> Azərbaycanın gaming marketplace platforması — oyunlar, hesablar, açarlar, gift kartları və gaming xidmətləri. Alqı-satqı escrow sistemi ilə qorunur.
+
+NextPlay.az alıcı və satıcıları birləşdirən P2P gaming marketplace-dir. Bütün ödənişlər escrow-da saxlanılır və məhsul çatdırıldıqdan sonra satıcıya açılır. Platforma 24/7 dəstək, anlıq çatdırılma və doğrulanmış satıcılar təklif edir.
+
+## Pages
+
+- [Ana səhifə](/): Marketplace, populyar kateqoriyalar və seçilmiş məhsullar.
+- [Marketplace](/marketplace): Bütün oyunlar, hesablar, açarlar və xidmətlərin siyahısı.
+- [Hədiyyə Kartları](/gift-cards): PlayStation, Steam, Xbox, Netflix və digər platformaların gift kartları.
+- [Satıcı ol](/seller): Satıcı olmaq üçün qeydiyyat və verifikasiya prosesi.
+- [İstifadəçi bələdçisi](/user-guide): Yeni istifadəçilər üçün addım-addım təlimat.
+- [Dəstək](/support): Sual-cavab və dəstək müraciəti.
+- [Qeydiyyat](/register): Yeni hesab yaratmaq.
+- [Daxil ol](/login): Mövcud hesaba daxil olmaq.
+
+## Optional
+
+- [İstifadə Şərtləri](/terms): Platformanın istifadə qaydaları.
+- [Məxfilik Siyasəti](/privacy): Şəxsi məlumatların qorunması.
+- [Geri Qaytarma](/refund): Mübahisə və geri qaytarma qaydaları.

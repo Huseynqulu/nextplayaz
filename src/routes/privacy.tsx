@@ -6,7 +6,12 @@ export const Route = createFileRoute("/privacy")({
     meta: [
       { title: "Məxfilik Siyasəti — NextPlay.az" },
       { name: "description", content: "NextPlay.az şəxsi məlumatların toplanması, istifadəsi, saxlanması və qorunması ilə bağlı məxfilik siyasəti." },
+      { property: "og:title", content: "Məxfilik Siyasəti — NextPlay.az" },
+      { property: "og:description", content: "Şəxsi məlumatların qorunması və istifadəsi qaydaları." },
+      { property: "og:type", content: "article" },
+      { property: "og:url", content: "https://nextplay.az/privacy" },
     ],
+    links: [{ rel: "canonical", href: "https://nextplay.az/privacy" }],
   }),
   component: PrivacyPage,
 });

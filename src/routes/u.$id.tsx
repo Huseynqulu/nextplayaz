@@ -61,11 +61,16 @@ export const Route = createFileRoute("/u/$id")({
   component: SellerProfilePage,
   errorComponent: ({ error }) => <div className="min-h-screen grid place-items-center text-muted-foreground">{error.message}</div>,
   notFoundComponent: () => <div className="min-h-screen grid place-items-center text-muted-foreground">Profil tapılmadı.</div>,
-  head: ({ loaderData }) => ({
+  head: ({ loaderData, params }) => ({
     meta: loaderData?.profile ? [
       { title: `${loaderData.profile.display_name ?? loaderData.profile.username ?? "Satıcı"} — NextPlay.az` },
-      { name: "description", content: `${loaderData.profile.display_name ?? "Satıcı"}-ın profili, məhsulları və rəyləri` },
+      { name: "description", content: `${loaderData.profile.display_name ?? "Satıcı"}-in NextPlay.az profili, məhsulları və müştəri rəyləri.` },
+      { property: "og:title", content: `${loaderData.profile.display_name ?? loaderData.profile.username ?? "Satıcı"} — NextPlay.az` },
+      { property: "og:description", content: `${loaderData.profile.display_name ?? "Satıcı"} — NextPlay.az satıcı profili və rəyləri.` },
+      { property: "og:type", content: "profile" },
+      { property: "og:url", content: `https://nextplay.az/u/${params.id}` },
     ] : [],
+    links: [{ rel: "canonical", href: `https://nextplay.az/u/${params.id}` }],
   }),
 });
 

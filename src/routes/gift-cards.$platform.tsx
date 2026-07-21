@@ -11,8 +11,12 @@ export const Route = createFileRoute("/gift-cards/$platform")({
   head: ({ params }) => ({
     meta: [
       { title: `${cap(params.platform)} Hədiyyə Kartları — NextPlay.az` },
-      { name: "description", content: `${cap(params.platform)} gift kartları ən ucuz qiymətlərlə. Bütün nominallar tək yerdə.` },
+      { name: "description", content: `${cap(params.platform)} gift kartları ən ucuz qiymətlərlə. Bütün nominallar tək yerdə, ani çatdırılma.` },
+      { property: "og:title", content: `${cap(params.platform)} Hədiyyə Kartları — NextPlay.az` },
+      { property: "og:description", content: `${cap(params.platform)} gift kartları ən ucuz qiymətlərlə.` },
+      { property: "og:url", content: `https://nextplay.az/gift-cards/${params.platform}` },
     ],
+    links: [{ rel: "canonical", href: `https://nextplay.az/gift-cards/${params.platform}` }],
   }),
   errorComponent: () => <div className="p-10 text-center">Xəta baş verdi</div>,
   notFoundComponent: () => (

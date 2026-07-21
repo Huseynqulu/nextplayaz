@@ -34,9 +34,13 @@ export const Route = createFileRoute("/marketplace")({
   component: MarketplacePage,
   head: () => ({
     meta: [
-      { title: "Marketplace — NextPlay.az" },
-      { name: "description", content: "Bütün gaming məhsulları bir yerdə. Oyunlar, hesablar, açarlar və xidmətlər." },
+      { title: "Marketplace — Oyunlar, hesablar və açarlar — NextPlay.az" },
+      { name: "description", content: "NextPlay.az marketplace: minlərlə oyun, hesab, CD açar, gift kart və gaming xidməti. Filtrlə, müqayisə et, escrow ilə al." },
+      { property: "og:title", content: "NextPlay.az Marketplace — Oyunlar, hesablar, açarlar" },
+      { property: "og:description", content: "Minlərlə gaming məhsulu tək yerdə. Escrow qorumalı alqı-satqı." },
+      { property: "og:url", content: "https://nextplay.az/marketplace" },
     ],
+    links: [{ rel: "canonical", href: "https://nextplay.az/marketplace" }],
   }),
 });
 
@@ -236,10 +240,10 @@ function MarketplacePage() {
           <aside className="space-y-6">
             <div className="rounded-xl border border-border bg-card-gradient p-3 sm:p-4 text-xs sm:text-sm">
               <div className="flex items-center justify-between mb-2 sm:mb-3">
-                <h3 className="font-semibold text-xs sm:text-sm flex items-center gap-1.5 sm:gap-2">
+                <h2 className="font-semibold text-xs sm:text-sm flex items-center gap-1.5 sm:gap-2">
                   <SlidersHorizontal className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-neon" /> Filtrlər
                   {activeCount > 0 && <span className="text-[10px] bg-neon text-background rounded-full px-1.5 py-0.5">{activeCount}</span>}
-                </h3>
+                </h2>
                 {activeCount > 0 && (
                   <button onClick={reset} className="text-[11px] sm:text-xs text-muted-foreground hover:text-foreground">Sıfırla</button>
                 )}

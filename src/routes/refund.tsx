@@ -6,7 +6,12 @@ export const Route = createFileRoute("/refund")({
     meta: [
       { title: "Geri Qaytarma Siyasəti — NextPlay.az" },
       { name: "description", content: "NextPlay.az platformasında geri qaytarma, mübahisə və kompensasiya qaydaları." },
+      { property: "og:title", content: "Geri Qaytarma Siyasəti — NextPlay.az" },
+      { property: "og:description", content: "Escrow, dispute və geri qaytarma qaydaları." },
+      { property: "og:type", content: "article" },
+      { property: "og:url", content: "https://nextplay.az/refund" },
     ],
+    links: [{ rel: "canonical", href: "https://nextplay.az/refund" }],
   }),
   component: RefundPage,
 });

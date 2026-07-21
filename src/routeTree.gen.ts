@@ -13,6 +13,7 @@ import { Route as UserGuideRouteImport } from './routes/user-guide'
 import { Route as UnsubscribeRouteImport } from './routes/unsubscribe'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as SupportRouteImport } from './routes/support'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as SellerRouteImport } from './routes/seller'
 import { Route as RegisterRouteImport } from './routes/register'
 import { Route as RefundRouteImport } from './routes/refund'
@@ -63,6 +64,11 @@ const TermsRoute = TermsRouteImport.update({
 const SupportRoute = SupportRouteImport.update({
   id: '/support',
   path: '/support',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SellerRoute = SellerRouteImport.update({
@@ -238,6 +244,7 @@ export interface FileRoutesByFullPath {
   '/refund': typeof RefundRoute
   '/register': typeof RegisterRoute
   '/seller': typeof SellerRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/support': typeof SupportRoute
   '/terms': typeof TermsRoute
   '/unsubscribe': typeof UnsubscribeRoute
@@ -274,6 +281,7 @@ export interface FileRoutesByTo {
   '/refund': typeof RefundRoute
   '/register': typeof RegisterRoute
   '/seller': typeof SellerRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/support': typeof SupportRoute
   '/terms': typeof TermsRoute
   '/unsubscribe': typeof UnsubscribeRoute
@@ -312,6 +320,7 @@ export interface FileRoutesById {
   '/refund': typeof RefundRoute
   '/register': typeof RegisterRoute
   '/seller': typeof SellerRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/support': typeof SupportRoute
   '/terms': typeof TermsRoute
   '/unsubscribe': typeof UnsubscribeRoute
@@ -350,6 +359,7 @@ export interface FileRouteTypes {
     | '/refund'
     | '/register'
     | '/seller'
+    | '/sitemap.xml'
     | '/support'
     | '/terms'
     | '/unsubscribe'
@@ -386,6 +396,7 @@ export interface FileRouteTypes {
     | '/refund'
     | '/register'
     | '/seller'
+    | '/sitemap.xml'
     | '/support'
     | '/terms'
     | '/unsubscribe'
@@ -423,6 +434,7 @@ export interface FileRouteTypes {
     | '/refund'
     | '/register'
     | '/seller'
+    | '/sitemap.xml'
     | '/support'
     | '/terms'
     | '/unsubscribe'
@@ -461,6 +473,7 @@ export interface RootRouteChildren {
   RefundRoute: typeof RefundRoute
   RegisterRoute: typeof RegisterRoute
   SellerRoute: typeof SellerRoute
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   SupportRoute: typeof SupportRoute
   TermsRoute: typeof TermsRoute
   UnsubscribeRoute: typeof UnsubscribeRoute
@@ -502,6 +515,13 @@ declare module '@tanstack/react-router' {
       path: '/support'
       fullPath: '/support'
       preLoaderRoute: typeof SupportRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/seller': {
@@ -792,6 +812,7 @@ const rootRouteChildren: RootRouteChildren = {
   RefundRoute: RefundRoute,
   RegisterRoute: RegisterRoute,
   SellerRoute: SellerRoute,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
   SupportRoute: SupportRoute,
   TermsRoute: TermsRoute,
   UnsubscribeRoute: UnsubscribeRoute,
