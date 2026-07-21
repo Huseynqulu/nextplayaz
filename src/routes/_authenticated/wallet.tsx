@@ -320,13 +320,7 @@ function WalletPage() {
                       <div className="rounded-lg border border-neon/30 bg-neon/5 p-3 text-xs space-y-2">
                         <p className="font-semibold text-foreground">Ödəniş məlumatları</p>
                         <div className="flex justify-between"><span className="text-muted-foreground">Məbləğ</span><span className="font-mono font-bold">{format(pendingAmount)}</span></div>
-                        <div className="flex items-center gap-2">
-                          <span className="text-muted-foreground">Referans:</span>
-                          <code className="flex-1 font-mono font-bold text-sm bg-background/60 px-2 py-1 rounded">{lastRef}</code>
-                          <button onClick={() => { if (lastRef) { navigator.clipboard.writeText(lastRef); toast.success("Kopyalandı"); } }}
-                            className="grid h-7 w-7 place-items-center rounded-md hover:bg-background/60"><Copy className="h-3.5 w-3.5" /></button>
-                        </div>
-                        <p className="text-[11px] text-muted-foreground">BirBank ödənişinin “izahat/qeyd” sahəsinə referansı yazın.</p>
+                        <p className="text-[11px] text-muted-foreground">BirBank-da ödənişi tamamladıqdan sonra qəbz şəkilini aşağıda yükləyin.</p>
                       </div>
 
                       <div>
