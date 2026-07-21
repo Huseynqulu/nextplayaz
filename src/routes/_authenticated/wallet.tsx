@@ -91,14 +91,9 @@ function WalletPage() {
 
   const matchedLink = links.find(l => Math.abs(Number(l.amount) - Number(amount || 0)) < 0.005) || null;
 
-  function genRef() {
-    return "NP-" + Math.random().toString(36).slice(2, 8).toUpperCase();
-  }
-
   function openBirbankLink() {
     if (!matchedLink) return;
-    const ref = genRef();
-    setLastRef(ref);
+    setLastRef(null);
     setPendingAmount(Number(matchedLink.amount));
     setStep("receipt");
     window.open(matchedLink.url, "_blank", "noopener,noreferrer");
