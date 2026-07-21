@@ -1,0 +1,19 @@
+User-agent: *
+Allow: /
+
+Disallow: /admin
+Disallow: /staff
+Disallow: /messages
+Disallow: /orders
+Disallow: /seller-orders
+Disallow: /seller-dashboard
+Disallow: /wallet
+Disallow: /profile
+Disallow: /favorites
+Disallow: /support-tickets
+Disallow: /referrals
+Disallow: /cart
+Disallow: /lovable/
+Disallow: /api/
+
+Sitemap: https://nextplay.az/sitemap.xml
