@@ -6,7 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
 import { burstConfetti } from "@/lib/celebrate";
-import { Wallet, Loader2, Receipt, Copy, CheckCircle2, XCircle, Clock, ArrowDownToLine, ArrowUpFromLine, ExternalLink, Zap, Upload, X } from "lucide-react";
+import { Wallet, Loader2, Receipt, CheckCircle2, XCircle, Clock, ArrowDownToLine, ArrowUpFromLine, ExternalLink, Zap, Upload, X } from "lucide-react";
 import { useCurrency } from "@/lib/currency";
 import { GiftCardRedeem } from "@/components/GiftCardRedeem";
 import { LoyaltyCard } from "@/components/LoyaltyCard";
@@ -91,14 +91,9 @@ function WalletPage() {
 
   const matchedLink = links.find(l => Math.abs(Number(l.amount) - Number(amount || 0)) < 0.005) || null;
 
-  function genRef() {
-    return "NP-" + Math.random().toString(36).slice(2, 8).toUpperCase();
-  }
-
   function openBirbankLink() {
     if (!matchedLink) return;
-    const ref = genRef();
-    setLastRef(ref);
+    setLastRef(null);
     setPendingAmount(Number(matchedLink.amount));
     setStep("receipt");
     window.open(matchedLink.url, "_blank", "noopener,noreferrer");
@@ -114,7 +109,7 @@ function WalletPage() {
   }
 
   async function submitReceipt() {
-    if (!user || !lastRef) return;
+    if (!user) return;
     if (!receiptFile) { toast.error("Qəbz şəklini yükləyin"); return; }
     setSubmitting(true);
     try {
@@ -126,8 +121,7 @@ function WalletPage() {
         user_id: user.id,
         amount: pendingAmount,
         method: "birbank" as any,
-        sender_note: `BirBank link ödənişi · Ref: ${lastRef}`,
-        reference_code: lastRef,
+        sender_note: `BirBank link ödənişi`,
         receipt_url: path,
         status: "pending",
       } as any);
@@ -326,13 +320,7 @@ function WalletPage() {
                       <div className="rounded-lg border border-neon/30 bg-neon/5 p-3 text-xs space-y-2">
                         <p className="font-semibold text-foreground">Ödəniş məlumatları</p>
                         <div className="flex justify-between"><span className="text-muted-foreground">Məbləğ</span><span className="font-mono font-bold">{format(pendingAmount)}</span></div>
-                        <div className="flex items-center gap-2">
-                          <span className="text-muted-foreground">Referans:</span>
-                          <code className="flex-1 font-mono font-bold text-sm bg-background/60 px-2 py-1 rounded">{lastRef}</code>
-                          <button onClick={() => { if (lastRef) { navigator.clipboard.writeText(lastRef); toast.success("Kopyalandı"); } }}
-                            className="grid h-7 w-7 place-items-center rounded-md hover:bg-background/60"><Copy className="h-3.5 w-3.5" /></button>
-                        </div>
-                        <p className="text-[11px] text-muted-foreground">BirBank ödənişinin “izahat/qeyd” sahəsinə referansı yazın.</p>
+                        <p className="text-[11px] text-muted-foreground">BirBank-da ödənişi tamamladıqdan sonra qəbz şəkilini aşağıda yükləyin.</p>
                       </div>
 
                       <div>
