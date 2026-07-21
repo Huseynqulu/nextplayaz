@@ -14,8 +14,24 @@ import { LiveSalesTicker } from "@/components/LiveSalesTicker";
 
 import { RecentlyViewed } from "@/components/RecentlyViewed";
 
+const OG_IMAGE = "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/77eb5b66-c504-44a4-9793-fc26f7e0cbdb/id-preview-8d439908--95efcf38-dc42-4a79-833a-d0f4ebe2f022.lovable.app-1782745934722.png";
+
 export const Route = createFileRoute("/")({
   component: HomePage,
+  head: () => ({
+    meta: [
+      { title: "NextPlay.az — Azərbaycanın Gaming Marketplace-i" },
+      { name: "description", content: "Oyunlar, hesablar, açarlar və premium gaming xidmətləri. Escrow ilə qorunan ödənişlər və anında çatdırılma." },
+      { property: "og:title", content: "NextPlay.az — Azərbaycanın Gaming Marketplace-i" },
+      { property: "og:description", content: "Oyunlar, hesablar, açarlar və premium gaming xidmətləri. Escrow ilə qorunan ödənişlər və anında çatdırılma." },
+      { property: "og:url", content: "https://nextplay.az/" },
+      { property: "og:image", content: OG_IMAGE },
+      { name: "twitter:title", content: "NextPlay.az — Azərbaycanın Gaming Marketplace-i" },
+      { name: "twitter:description", content: "Oyunlar, hesablar, açarlar və premium gaming xidmətləri." },
+      { name: "twitter:image", content: OG_IMAGE },
+    ],
+    links: [{ rel: "canonical", href: "https://nextplay.az/" }],
+  }),
 });
 
 function HomePage() {
