@@ -6,7 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
 import { burstConfetti } from "@/lib/celebrate";
-import { Wallet, Loader2, Receipt, Copy, CheckCircle2, XCircle, Clock, ArrowDownToLine, ArrowUpFromLine, ExternalLink, Zap } from "lucide-react";
+import { Wallet, Loader2, Receipt, Copy, CheckCircle2, XCircle, Clock, ArrowDownToLine, ArrowUpFromLine, ExternalLink, Zap, Upload, X } from "lucide-react";
 import { useCurrency } from "@/lib/currency";
 import { GiftCardRedeem } from "@/components/GiftCardRedeem";
 import { LoyaltyCard } from "@/components/LoyaltyCard";
@@ -52,6 +52,10 @@ function WalletPage() {
   const [amount, setAmount] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [lastRef, setLastRef] = useState<string | null>(null);
+  const [step, setStep] = useState<"amount" | "receipt">("amount");
+  const [pendingAmount, setPendingAmount] = useState<number>(0);
+  const [receiptFile, setReceiptFile] = useState<File | null>(null);
+  const [receiptPreview, setReceiptPreview] = useState<string | null>(null);
 
   // Withdraw form
   const [wAmount, setWAmount] = useState("");
@@ -91,28 +95,65 @@ function WalletPage() {
     return "NP-" + Math.random().toString(36).slice(2, 8).toUpperCase();
   }
 
-  async function payWithBirbank() {
-    if (!user || !matchedLink) return;
+  function openBirbankLink() {
+    if (!matchedLink) return;
+    const ref = genRef();
+    setLastRef(ref);
+    setPendingAmount(Number(matchedLink.amount));
+    setStep("receipt");
+    window.open(matchedLink.url, "_blank", "noopener,noreferrer");
+    toast.success("BirBank açıldı. Ödənişdən sonra qəbzi yükləyin.");
+  }
+
+  function onPickReceipt(f: File | null) {
+    if (!f) return;
+    if (!f.type.startsWith("image/")) { toast.error("Yalnız şəkil"); return; }
+    if (f.size > 6 * 1024 * 1024) { toast.error("Maks 6 MB"); return; }
+    setReceiptFile(f);
+    setReceiptPreview(URL.createObjectURL(f));
+  }
+
+  async function submitReceipt() {
+    if (!user || !lastRef) return;
+    if (!receiptFile) { toast.error("Qəbz şəklini yükləyin"); return; }
     setSubmitting(true);
     try {
-      const ref = genRef();
+      const ext = receiptFile.name.split(".").pop() || "jpg";
+      const path = `${user.id}/topups/${Date.now()}.${ext}`;
+      const up = await supabase.storage.from("topup-receipts").upload(path, receiptFile, { contentType: receiptFile.type });
+      if (up.error) throw up.error;
       const { error } = await supabase.from("wallet_topups").insert({
         user_id: user.id,
-        amount: Number(matchedLink.amount),
+        amount: pendingAmount,
         method: "birbank" as any,
-        sender_note: `BirBank link ödənişi · Ref: ${ref}`,
-        reference_code: ref,
+        sender_note: `BirBank link ödənişi · Ref: ${lastRef}`,
+        reference_code: lastRef,
+        receipt_url: path,
         status: "pending",
       } as any);
       if (error) throw error;
-      setLastRef(ref);
-      toast.success("Ödəniş linki açılır. BirBank izahat sahəsinə referans nömrəsini yazın!");
+      toast.success("Ödəniş qəbziniz qəbul edildi. Admin təsdiqindən sonra balansınıza yüklənəcək.");
       burstConfetti();
-      window.open(matchedLink.url, "_blank", "noopener,noreferrer");
+      setStep("amount");
+      setAmount("");
+      setReceiptFile(null);
+      setReceiptPreview(null);
+      setLastRef(null);
+      setPendingAmount(0);
       await refresh();
     } catch (e: any) { toast.error(e.message ?? "Xəta"); }
     finally { setSubmitting(false); }
   }
+
+  function cancelReceiptStep() {
+    setStep("amount");
+    setReceiptFile(null);
+    setReceiptPreview(null);
+    setLastRef(null);
+    setPendingAmount(0);
+  }
+
+
 
 
   async function submitWithdraw() {
@@ -235,61 +276,103 @@ function WalletPage() {
                 <div className="rounded-2xl border border-border bg-card-gradient p-6 card-shadow space-y-4">
                   <h2 className="font-semibold text-lg inline-flex items-center gap-2"><Zap className="h-4 w-4 text-neon" /> BirBank ilə balans artır</h2>
 
-                  <div className="rounded-lg border border-warning/40 bg-warning/10 p-3 text-xs text-warning">
-                    ⚠️ Yalnız tam məbləğlər qəbul olunur (məs: 5, 10, 15 AZN). Qəpiklə (məs: 5.50 AZN) balans artırmaq mümkün deyil.
-                  </div>
-
-                  <div>
-                    <label className="text-xs font-semibold text-muted-foreground uppercase">Məbləğ (AZN)</label>
-                    <input
-                      type="number"
-                      min="1"
-                      step="1"
-                      value={amount}
-                      onChange={e => {
-                        const v = e.target.value;
-                        if (v === "" || /^\d+$/.test(v)) setAmount(v);
-                      }}
-                      placeholder="Məs: 15"
-                      className="mt-1.5 w-full h-11 px-3 rounded-lg bg-background border border-border"
-                    />
-                  </div>
-
-                  {amount && !matchedLink && (
-                    <div className="rounded-lg border border-destructive/40 bg-destructive/10 p-3 text-xs text-destructive">
-                      Bu məbləğ üçün hazır ödəniş linki yoxdur. Zəhmət olmasa başqa tam məbləğ daxil edin və ya dəstəklə əlaqə saxlayın.
-                    </div>
-                  )}
-
-                  {matchedLink && (
-                    <div className="rounded-lg border border-neon/30 bg-neon/5 p-3 text-xs space-y-1">
-                      <p className="font-semibold text-foreground">{format(Number(matchedLink.amount))} ödənişi hazırdır</p>
-                      <p className="text-muted-foreground">Düyməyə basdıqda BirBank səhifəsi yeni tabda açılacaq və müraciət avtomatik yaradılacaq.</p>
-                    </div>
-                  )}
-
-                  <button disabled={submitting || !matchedLink} onClick={payWithBirbank}
-                    className="w-full h-11 rounded-lg bg-neon text-background font-semibold neon-ring disabled:opacity-50 inline-flex items-center justify-center gap-2">
-                    {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <ExternalLink className="h-4 w-4" />}
-                    BirBank ilə ödə
-                  </button>
-
-                  {lastRef && (
-                    <div className="rounded-lg border border-success/40 bg-success/10 p-3 text-xs space-y-2">
-                      <p className="font-semibold text-success">Referans nömrəniz</p>
-                      <div className="flex items-center gap-2">
-                        <code className="flex-1 font-mono font-bold text-sm bg-background/60 px-2 py-1.5 rounded">{lastRef}</code>
-                        <button onClick={() => { navigator.clipboard.writeText(lastRef); toast.success("Kopyalandı"); }}
-                          className="grid h-8 w-8 place-items-center rounded-md hover:bg-background/60"><Copy className="h-3.5 w-3.5" /></button>
+                  {step === "amount" ? (
+                    <>
+                      <div className="rounded-lg border border-warning/40 bg-warning/10 p-3 text-xs text-warning">
+                        ⚠️ Yalnız tam məbləğlər qəbul olunur (məs: 5, 10, 15 AZN). Qəpiklə (məs: 5.50 AZN) balans artırmaq mümkün deyil.
                       </div>
-                      <p className="text-muted-foreground">BirBank ödənişinin “izahat/qeyd” sahəsinə bu nömrəni yazın — admin ödənişinizi bu nömrə ilə tanıyır.</p>
-                    </div>
-                  )}
 
-                  <p className="text-[11px] text-muted-foreground">
-                    Ödəniş etdikdən sonra admin BirBank hesabında yoxlayıb balansınıza avtomatik yükləyəcək. Adətən 15 dəqiqə – 24 saat.
-                  </p>
+                      <div>
+                        <label className="text-xs font-semibold text-muted-foreground uppercase">Məbləğ (AZN)</label>
+                        <input
+                          type="number"
+                          min="1"
+                          step="1"
+                          value={amount}
+                          onChange={e => {
+                            const v = e.target.value;
+                            if (v === "" || /^\d+$/.test(v)) setAmount(v);
+                          }}
+                          placeholder="Məs: 15"
+                          className="mt-1.5 w-full h-11 px-3 rounded-lg bg-background border border-border"
+                        />
+                      </div>
+
+                      {amount && !matchedLink && (
+                        <div className="rounded-lg border border-destructive/40 bg-destructive/10 p-3 text-xs text-destructive">
+                          Bu məbləğ üçün hazır ödəniş linki yoxdur. Zəhmət olmasa başqa tam məbləğ daxil edin və ya dəstəklə əlaqə saxlayın.
+                        </div>
+                      )}
+
+                      {matchedLink && (
+                        <div className="rounded-lg border border-neon/30 bg-neon/5 p-3 text-xs space-y-1">
+                          <p className="font-semibold text-foreground">{format(Number(matchedLink.amount))} ödənişi hazırdır</p>
+                          <p className="text-muted-foreground">Düyməyə basdıqda BirBank yeni tabda açılacaq. Ödədikdən sonra qəbz şəkli yükləyəcəksiniz.</p>
+                        </div>
+                      )}
+
+                      <button disabled={!matchedLink} onClick={openBirbankLink}
+                        className="w-full h-11 rounded-lg bg-neon text-background font-semibold neon-ring disabled:opacity-50 inline-flex items-center justify-center gap-2">
+                        <ExternalLink className="h-4 w-4" />
+                        BirBank-a keç və ödə
+                      </button>
+
+                      <p className="text-[11px] text-muted-foreground">
+                        Ödəniş etdikdən sonra bu səhifəyə qayıdıb qəbz şəkilini yükləyin. Admin təsdiqindən sonra balans avtomatik yüklənir.
+                      </p>
+                    </>
+                  ) : (
+                    <>
+                      <div className="rounded-lg border border-neon/30 bg-neon/5 p-3 text-xs space-y-2">
+                        <p className="font-semibold text-foreground">Ödəniş məlumatları</p>
+                        <div className="flex justify-between"><span className="text-muted-foreground">Məbləğ</span><span className="font-mono font-bold">{format(pendingAmount)}</span></div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-muted-foreground">Referans:</span>
+                          <code className="flex-1 font-mono font-bold text-sm bg-background/60 px-2 py-1 rounded">{lastRef}</code>
+                          <button onClick={() => { if (lastRef) { navigator.clipboard.writeText(lastRef); toast.success("Kopyalandı"); } }}
+                            className="grid h-7 w-7 place-items-center rounded-md hover:bg-background/60"><Copy className="h-3.5 w-3.5" /></button>
+                        </div>
+                        <p className="text-[11px] text-muted-foreground">BirBank ödənişinin “izahat/qeyd” sahəsinə referansı yazın.</p>
+                      </div>
+
+                      <div>
+                        <label className="text-xs font-semibold text-muted-foreground uppercase">Ödəniş qəbzi (şəkil)</label>
+                        {receiptPreview ? (
+                          <div className="mt-1.5 relative rounded-lg border border-border overflow-hidden">
+                            <img src={receiptPreview} alt="Qəbz" className="w-full max-h-64 object-contain bg-background" />
+                            <button onClick={() => { setReceiptFile(null); setReceiptPreview(null); }}
+                              className="absolute top-2 right-2 grid h-8 w-8 place-items-center rounded-full bg-background/90 border border-border hover:border-destructive">
+                              <X className="h-4 w-4" />
+                            </button>
+                          </div>
+                        ) : (
+                          <label className="mt-1.5 flex flex-col items-center justify-center gap-2 h-32 rounded-lg border-2 border-dashed border-border hover:border-neon cursor-pointer bg-background/40">
+                            <Upload className="h-5 w-5 text-muted-foreground" />
+                            <span className="text-xs text-muted-foreground">Qəbz şəkilini seçin (maks 6 MB)</span>
+                            <input type="file" accept="image/*" hidden onChange={e => onPickReceipt(e.target.files?.[0] ?? null)} />
+                          </label>
+                        )}
+                      </div>
+
+                      <div className="flex gap-2">
+                        <button onClick={cancelReceiptStep} disabled={submitting}
+                          className="h-11 px-4 rounded-lg border border-border bg-surface hover:border-destructive text-sm">
+                          Ləğv et
+                        </button>
+                        <button disabled={submitting || !receiptFile} onClick={submitReceipt}
+                          className="flex-1 h-11 rounded-lg bg-neon text-background font-semibold neon-ring disabled:opacity-50 inline-flex items-center justify-center gap-2">
+                          {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
+                          Qəbzi göndər və təsdiqlə
+                        </button>
+                      </div>
+
+                      <p className="text-[11px] text-muted-foreground">
+                        Qəbz göndərildikdən sonra admin BirBank hesabında yoxlayıb balansınıza yükləyəcək. Adətən 15 dəqiqə – 24 saat.
+                      </p>
+                    </>
+                  )}
                 </div>
+
               ) : (
                 <div className="rounded-2xl border border-border bg-card-gradient p-6 card-shadow space-y-4">
                   <h2 className="font-semibold text-lg inline-flex items-center gap-2">
