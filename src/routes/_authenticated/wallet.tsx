@@ -52,6 +52,10 @@ function WalletPage() {
   const [amount, setAmount] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [lastRef, setLastRef] = useState<string | null>(null);
+  const [step, setStep] = useState<"amount" | "receipt">("amount");
+  const [pendingAmount, setPendingAmount] = useState<number>(0);
+  const [receiptFile, setReceiptFile] = useState<File | null>(null);
+  const [receiptPreview, setReceiptPreview] = useState<string | null>(null);
 
   // Withdraw form
   const [wAmount, setWAmount] = useState("");
@@ -91,28 +95,65 @@ function WalletPage() {
     return "NP-" + Math.random().toString(36).slice(2, 8).toUpperCase();
   }
 
-  async function payWithBirbank() {
-    if (!user || !matchedLink) return;
+  function openBirbankLink() {
+    if (!matchedLink) return;
+    const ref = genRef();
+    setLastRef(ref);
+    setPendingAmount(Number(matchedLink.amount));
+    setStep("receipt");
+    window.open(matchedLink.url, "_blank", "noopener,noreferrer");
+    toast.success("BirBank açıldı. Ödənişdən sonra qəbzi yükləyin.");
+  }
+
+  function onPickReceipt(f: File | null) {
+    if (!f) return;
+    if (!f.type.startsWith("image/")) { toast.error("Yalnız şəkil"); return; }
+    if (f.size > 6 * 1024 * 1024) { toast.error("Maks 6 MB"); return; }
+    setReceiptFile(f);
+    setReceiptPreview(URL.createObjectURL(f));
+  }
+
+  async function submitReceipt() {
+    if (!user || !lastRef) return;
+    if (!receiptFile) { toast.error("Qəbz şəklini yükləyin"); return; }
     setSubmitting(true);
     try {
-      const ref = genRef();
+      const ext = receiptFile.name.split(".").pop() || "jpg";
+      const path = `${user.id}/topups/${Date.now()}.${ext}`;
+      const up = await supabase.storage.from("topup-receipts").upload(path, receiptFile, { contentType: receiptFile.type });
+      if (up.error) throw up.error;
       const { error } = await supabase.from("wallet_topups").insert({
         user_id: user.id,
-        amount: Number(matchedLink.amount),
+        amount: pendingAmount,
         method: "birbank" as any,
-        sender_note: `BirBank link ödənişi · Ref: ${ref}`,
-        reference_code: ref,
+        sender_note: `BirBank link ödənişi · Ref: ${lastRef}`,
+        reference_code: lastRef,
+        receipt_url: path,
         status: "pending",
       } as any);
       if (error) throw error;
-      setLastRef(ref);
-      toast.success("Ödəniş linki açılır. BirBank izahat sahəsinə referans nömrəsini yazın!");
+      toast.success("Ödəniş qəbziniz qəbul edildi. Admin təsdiqindən sonra balansınıza yüklənəcək.");
       burstConfetti();
-      window.open(matchedLink.url, "_blank", "noopener,noreferrer");
+      setStep("amount");
+      setAmount("");
+      setReceiptFile(null);
+      setReceiptPreview(null);
+      setLastRef(null);
+      setPendingAmount(0);
       await refresh();
     } catch (e: any) { toast.error(e.message ?? "Xəta"); }
     finally { setSubmitting(false); }
   }
+
+  function cancelReceiptStep() {
+    setStep("amount");
+    setReceiptFile(null);
+    setReceiptPreview(null);
+    setLastRef(null);
+    setPendingAmount(0);
+  }
+
+
 
 
   async function submitWithdraw() {
