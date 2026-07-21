@@ -109,7 +109,7 @@ function WalletPage() {
   }
 
   async function submitReceipt() {
-    if (!user || !lastRef) return;
+    if (!user) return;
     if (!receiptFile) { toast.error("Qəbz şəklini yükləyin"); return; }
     setSubmitting(true);
     try {
@@ -121,8 +121,7 @@ function WalletPage() {
         user_id: user.id,
         amount: pendingAmount,
         method: "birbank" as any,
-        sender_note: `BirBank link ödənişi · Ref: ${lastRef}`,
-        reference_code: lastRef,
+        sender_note: `BirBank link ödənişi`,
         receipt_url: path,
         status: "pending",
       } as any);
