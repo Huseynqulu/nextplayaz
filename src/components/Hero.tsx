@@ -28,7 +28,10 @@ export function Hero() {
               key={id}
               src={`https://cdn.akamai.steamstatic.com/steam/apps/${id}/library_600x900.jpg`}
               alt=""
-              loading="eager"
+              loading="lazy"
+              decoding="async"
+              width={600}
+              height={900}
               className="aspect-[2/3] w-full object-cover rounded-xl border border-white/10"
               style={{ transform: `translateY(${i % 2 === 0 ? "-20px" : "20px"})` }}
             />
