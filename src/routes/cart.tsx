@@ -14,7 +14,14 @@ import { notifyEmail } from "@/lib/notifications/notify-email";
 
 export const Route = createFileRoute("/cart")({
   component: CartPage,
-  head: () => ({ meta: [{ title: "Səbət — NextPlay.az" }] }),
+  head: () => ({
+    meta: [
+      { title: "Səbət — NextPlay.az" },
+      { name: "description", content: "NextPlay.az səbətinizi nəzərdən keçirin və gaming məhsullarınızı təhlükəsiz ödəniş ilə alın." },
+      { name: "robots", content: "noindex" },
+    ],
+    links: [{ rel: "canonical", href: "https://nextplay.az/cart" }],
+  }),
 });
 
 type AppliedCode = { code: string; percent: number };

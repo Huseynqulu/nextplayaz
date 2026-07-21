@@ -14,7 +14,17 @@ const searchSchema = z.object({ ref: z.string().optional() });
 export const Route = createFileRoute("/register")({
   validateSearch: searchSchema,
   component: RegisterPage,
-  head: () => ({ meta: [{ title: "Qeydiyyat — NextPlay.az" }] }),
+  head: () => ({
+    meta: [
+      { title: "Qeydiyyat — NextPlay.az" },
+      { name: "description", content: "NextPlay.az-da pulsuz hesab yaradın və Azərbaycanın gaming marketplace-inə qoşulun. Escrow qorumalı alqı-satqı." },
+      { property: "og:title", content: "Qeydiyyat — NextPlay.az" },
+      { property: "og:description", content: "NextPlay.az-da pulsuz hesab yaradın və gaming marketplace-inə qoşulun." },
+      { property: "og:url", content: "https://nextplay.az/register" },
+      { name: "robots", content: "noindex" },
+    ],
+    links: [{ rel: "canonical", href: "https://nextplay.az/register" }],
+  }),
 });
 
 async function redeemIfAny(code: string | undefined) {

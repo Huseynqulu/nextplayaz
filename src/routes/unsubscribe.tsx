@@ -3,7 +3,14 @@ import { useEffect, useState } from 'react'
 
 export const Route = createFileRoute('/unsubscribe')({
   component: UnsubscribePage,
-  head: () => ({ meta: [{ title: 'Bildirişlərdən çıx — NextPlay.az' }] }),
+  head: () => ({
+    meta: [
+      { title: "Bildirişlərdən çıx — NextPlay.az" },
+      { name: "description", content: "NextPlay.az e-poçt bildirişlərindən abunəlikdən çıxma səhifəsi." },
+      { name: "robots", content: "noindex" },
+    ],
+    links: [{ rel: "canonical", href: "https://nextplay.az/unsubscribe" }],
+  }),
 })
 
 function UnsubscribePage() {

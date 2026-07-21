@@ -8,8 +8,15 @@ import { useCurrency } from "@/lib/currency";
 
 export const Route = createFileRoute("/gift-cards/$platform/$denom")({
   component: DenomSellers,
-  head: () => ({
-    meta: [{ title: "Hədiyyə kartı — Satıcılar — NextPlay.az" }],
+  head: ({ params }) => ({
+    meta: [
+      { title: `${params.platform} ${params.denom} hədiyyə kartı — Satıcılar — NextPlay.az` },
+      { name: "description", content: `${params.platform} ${params.denom} hədiyyə kartını təklif edən satıcıların siyahısı. Qiymət, reytinq və ani çatdırılma müqayisəsi.` },
+      { property: "og:title", content: `${params.platform} ${params.denom} — Satıcılar` },
+      { property: "og:description", content: `${params.platform} ${params.denom} gift kartı üçün satıcı təklifləri.` },
+      { property: "og:url", content: `https://nextplay.az/gift-cards/${params.platform}/${params.denom}` },
+    ],
+    links: [{ rel: "canonical", href: `https://nextplay.az/gift-cards/${params.platform}/${params.denom}` }],
   }),
   errorComponent: () => <div className="p-10 text-center">Xəta baş verdi</div>,
   notFoundComponent: () => (

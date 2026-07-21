@@ -9,7 +9,16 @@ import { toast } from "sonner";
 
 export const Route = createFileRoute("/seller")({
   component: SellerPage,
-  head: () => ({ meta: [{ title: "Satıcı ol — NextPlay.az" }] }),
+  head: () => ({
+    meta: [
+      { title: "Satıcı ol — NextPlay.az" },
+      { name: "description", content: "NextPlay.az-da satıcı ol: verifikasiyadan keç, məhsul yerləşdir və Azərbaycanın gaming auditoriyasına sat." },
+      { property: "og:title", content: "Satıcı ol — NextPlay.az" },
+      { property: "og:description", content: "Verifikasiyadan keç, məhsul yerləşdir və NextPlay.az-da sat." },
+      { property: "og:url", content: "https://nextplay.az/seller" },
+    ],
+    links: [{ rel: "canonical", href: "https://nextplay.az/seller" }],
+  }),
 });
 
 type FileSlot = "id_front" | "id_back" | "selfie";
