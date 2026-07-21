@@ -1,0 +1,1 @@
+GRANT EXECUTE ON FUNCTION public.get_seller_reviews(uuid) TO anon, authenticated;
