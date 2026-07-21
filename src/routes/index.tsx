@@ -31,6 +31,33 @@ export const Route = createFileRoute("/")({
       { name: "twitter:image", content: OG_IMAGE },
     ],
     links: [{ rel: "canonical", href: "https://nextplay.az/" }],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "Organization",
+          name: "NextPlay.az",
+          url: "https://nextplay.az",
+          logo: "https://nextplay.az/icon-512.png",
+          sameAs: [],
+        }),
+      },
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "WebSite",
+          name: "NextPlay.az",
+          url: "https://nextplay.az",
+          potentialAction: {
+            "@type": "SearchAction",
+            target: "https://nextplay.az/marketplace?q={search_term_string}",
+            "query-input": "required name=search_term_string",
+          },
+        }),
+      },
+    ],
   }),
 });
 

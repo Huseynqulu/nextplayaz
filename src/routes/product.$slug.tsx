@@ -39,6 +39,25 @@ export const Route = createFileRoute("/product/$slug")({
       { name: "twitter:image", content: loaderData.product.image },
     ] : [],
     links: [{ rel: "canonical", href: `https://nextplay.az/product/${params.slug}` }],
+    scripts: loaderData?.product ? [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "Product",
+          name: loaderData.product.title,
+          description: loaderData.product.description,
+          image: loaderData.product.image,
+          offers: {
+            "@type": "Offer",
+            price: loaderData.product.price,
+            priceCurrency: "AZN",
+            availability: "https://schema.org/InStock",
+            url: `https://nextplay.az/product/${params.slug}`,
+          },
+        }),
+      },
+    ] : [],
   }),
 });
 
