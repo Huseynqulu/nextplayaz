@@ -403,7 +403,7 @@ function ThemeToggleMobile({ closeMenu }: { closeMenu: () => void }) {
   return (
     <button 
       onClick={() => { toggle(); closeMenu(); }}
-      className="flex items-center justify-center gap-2 h-10 rounded-lg border border-border bg-surface/50 text-[11px] font-semibold w-full"
+      className="flex items-center justify-center gap-2 h-12 rounded-xl border border-border bg-surface/50 text-sm font-semibold w-full active:scale-95 transition-all shadow-sm"
     >
       <Moon className="h-3.5 w-3.5" /> {theme === "dark" ? "İşıqlı" : "Qaranlıq"}
     </button>
