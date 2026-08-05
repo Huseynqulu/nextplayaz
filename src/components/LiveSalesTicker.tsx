@@ -47,11 +47,7 @@ export function LiveSalesTicker() {
     return () => clearInterval(t2);
   }, []);
 
-  if (!sales.length) return (
-    <div className="mx-auto max-w-7xl px-4 py-8 text-center border border-dashed rounded-2xl">
-      <p className="text-muted-foreground">Son sifarişlər yüklənmədi</p>
-    </div>
-  );
+  if (!sales.length) return null;
 
   return (
     <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
