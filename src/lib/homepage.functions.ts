@@ -17,17 +17,23 @@ export const getHomeCategories = createServerFn({ method: "GET" })
     return data || [];
   });
 
-export const getFeaturedProducts = createServerFn({ method: "GET" })
+export const getHomepageStats = createServerFn({ method: "GET" })
   .handler(async () => {
-    const { data, error } = await supabase
-      .from("products")
-      .select("*")
-      .eq("is_active", true)
-      .limit(8);
-    
+    const { data, error } = await supabase.rpc("get_homepage_stats");
     if (error) {
-       console.error("Error fetching featured products:", error);
-       return [];
+      console.error("Error fetching homepage stats:", error);
+      return null;
+    }
+    return data;
+  });
+
+export const getRecentSales = createServerFn({ method: "GET" })
+  .handler(async ({ data: _limit }: { data: number }) => {
+    const { data, error } = await supabase.rpc("get_recent_sales", { _limit: _limit || 14 });
+    if (error) {
+      console.error("Error fetching recent sales:", error);
+      return [];
     }
     return data || [];
   });
+

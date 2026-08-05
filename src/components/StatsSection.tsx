@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Users, Package, ShoppingBag, Store } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { getHomepageStats } from "@/lib/homepage.functions";
 import { useT } from "@/lib/i18n";
 
 type Stats = { users: number; sellers: number; products: number; orders: number };
@@ -44,8 +44,12 @@ export function StatsSection() {
 
   useEffect(() => {
     (async () => {
-      const { data } = await supabase.rpc("get_homepage_stats");
-      if (data) setStats(data as unknown as Stats);
+      try {
+        const data = await getHomepageStats();
+        if (data) setStats(data as unknown as Stats);
+      } catch (err) {
+        console.error("Failed to load homepage stats:", err);
+      }
     })();
   }, []);
 
