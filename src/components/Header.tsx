@@ -365,7 +365,7 @@ export function Header() {
                   <span>{t("menu.signOut")}</span>
                 </button>
               )}
-            </nav>
+            </div>
           </div>
         </>
       )}
