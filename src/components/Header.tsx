@@ -144,8 +144,11 @@ export function Header() {
               <button
                 onClick={() => setMenuOpen(!menuOpen)}
                 className="flex items-center gap-2 h-10 px-2 sm:px-3 rounded-lg hover:bg-surface transition"
+                aria-expanded={menuOpen}
+                aria-haspopup="true"
+                aria-label="İstifadəçi menyusu"
               >
-                <div className="grid h-7 w-7 place-items-center rounded-full bg-neon text-background text-xs font-bold overflow-hidden">
+                <div className="grid h-7 w-7 place-items-center rounded-full bg-neon text-background text-xs font-bold overflow-hidden ring-1 ring-neon/20 group-hover:ring-neon/50 transition">
                   {avatarUrl ? (
                     <img src={imgUrl(avatarUrl, { width: 56, height: 56, quality: 70 })} alt="" loading="lazy" decoding="async" className="h-full w-full object-cover" />
                   ) : (
@@ -155,6 +158,7 @@ export function Header() {
                 <span className="hidden sm:inline text-sm font-medium max-w-[140px] truncate">
                   {displayLabel ?? user.user_metadata?.display_name ?? user.email?.split("@")[0]}
                 </span>
+                <Menu className="h-4 w-4 text-muted-foreground ml-0.5 hidden sm:block" />
               </button>
               {menuOpen && (
                 <>
@@ -231,8 +235,12 @@ export function Header() {
           )}
 
           <div className="flex items-center gap-2 lg:hidden ml-2">
-            <button onClick={() => setOpen(!open)} className="grid h-10 w-10 place-items-center rounded-lg hover:bg-surface" aria-label="Menu">
-              <Menu className="h-6 w-6" />
+            <button 
+              onClick={() => setOpen(!open)} 
+              className="grid h-10 w-10 place-items-center rounded-lg hover:bg-surface border border-border/40 transition active:scale-95" 
+              aria-label="Menu"
+            >
+              <Menu className="h-6 w-6 text-foreground" />
             </button>
           </div>
         </div>
@@ -244,16 +252,26 @@ export function Header() {
 
       {open && (
         <>
-          <div className="fixed inset-0 z-[100] bg-background/40 backdrop-blur-sm lg:hidden" onClick={() => setOpen(false)} />
-          <div className="fixed inset-y-0 right-0 z-[110] w-[280px] bg-background border-l border-border shadow-2xl animate-in slide-in-from-right duration-300 lg:hidden overflow-y-auto">
-            <div className="flex items-center justify-between p-4 border-b border-border">
-              <span className="font-bold text-lg">Menu</span>
-              <button onClick={() => setOpen(false)} className="p-2 hover:bg-surface rounded-lg">
-                <X className="h-6 w-6" />
+          <div 
+            className="fixed inset-0 z-[100] bg-background/80 backdrop-blur-md lg:hidden animate-in fade-in duration-300" 
+            onClick={() => setOpen(false)} 
+          />
+          <div className="fixed inset-y-0 right-0 z-[110] w-[300px] bg-background border-l border-border/60 shadow-2xl animate-in slide-in-from-right duration-500 lg:hidden overflow-hidden flex flex-col">
+            <div className="flex items-center justify-between p-5 border-b border-border/40 bg-surface/50">
+              <div className="flex items-center gap-3">
+                <img src={nextplayLogo} alt="" className="h-8 w-auto" />
+                <span className="font-bold text-lg tracking-tight">Menu</span>
+              </div>
+              <button 
+                onClick={() => setOpen(false)} 
+                className="p-2 hover:bg-surface rounded-full transition-colors border border-border/40"
+              >
+                <X className="h-5 w-5" />
               </button>
             </div>
-            <nav className="flex flex-col p-4 gap-1">
-              <div className="pb-4 mb-2 border-b border-border">
+            
+            <div className="flex-1 overflow-y-auto px-4 py-6">
+              <div className="mb-8">
                 <SearchBox variant="mobile" />
               </div>
               
@@ -347,7 +365,7 @@ export function Header() {
                   <span>{t("menu.signOut")}</span>
                 </button>
               )}
-            </nav>
+            </div>
           </div>
         </>
       )}
