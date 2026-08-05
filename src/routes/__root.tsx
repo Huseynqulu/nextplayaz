@@ -1,15 +1,17 @@
+import { useEffect, useRef } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
   Outlet,
   Link,
   createRootRouteWithContext,
   useRouter,
+  useRouterState,
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
 
 import appCss from "../styles.css?url";
-import { META_PIXEL_ID } from "@/lib/fbq";
+import { META_PIXEL_ID, trackPageView } from "@/lib/fbq";
 
 function NotFoundComponent() {
   return (
