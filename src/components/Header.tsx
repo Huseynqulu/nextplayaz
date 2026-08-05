@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { Search, ShoppingBag, ShoppingCart, Menu, Gamepad2, LogOut, User as UserIcon, LayoutDashboard, ShieldCheck, Package, LifeBuoy, Wallet, MessageSquare, Heart, Gift, Plus, Globe, Moon } from "lucide-react";
+import { Search, ShoppingBag, ShoppingCart, Menu, Gamepad2, LogOut, User as UserIcon, LayoutDashboard, ShieldCheck, Package, LifeBuoy, Wallet, MessageSquare, Heart, Gift, Plus, Globe, Moon, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
@@ -79,12 +79,8 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-50 border-b border-border/60 bg-background/70 backdrop-blur-xl">
-      <div className="mx-auto flex h-16 max-w-7xl items-center gap-4 px-4 sm:px-6 lg:px-8">
-        <button onClick={() => setOpen(!open)} className="lg:hidden grid h-10 w-10 place-items-center rounded-lg hover:bg-surface -ml-2" aria-label="Menu">
-          <Menu className="h-6 w-6" />
-        </button>
-
-        <Link to="/" aria-label="NextPlay ana səhifə" className="flex items-center gap-2 group shrink-0">
+      <div className="mx-auto flex h-16 max-w-7xl items-center px-4 sm:px-6 lg:px-8">
+        <Link to="/" aria-label="NextPlay ana səhifə" className="flex items-center gap-2 group shrink-0 mr-auto">
           <img src={nextplayLogo} alt="NextPlay — Azərbaycanın Gaming Marketplace-i" className="h-10 sm:h-12 w-auto drop-shadow-[0_0_12px_hsl(var(--neon)/0.4)] group-hover:drop-shadow-[0_0_18px_hsl(var(--neon)/0.6)] transition" />
         </Link>
 
@@ -232,6 +228,10 @@ export function Header() {
             </>
           )}
 
+        <div className="flex items-center gap-2 lg:hidden ml-2">
+          <button onClick={() => setOpen(!open)} className="grid h-10 w-10 place-items-center rounded-lg hover:bg-surface" aria-label="Menu">
+            <Menu className="h-6 w-6" />
+          </button>
         </div>
       </div>
 
@@ -241,7 +241,15 @@ export function Header() {
 
 
       {open && (
-        <div className="lg:hidden border-t border-border bg-background/95 backdrop-blur-xl animate-in slide-in-from-top-4 duration-300">
+        <>
+          <div className="fixed inset-0 z-[100] bg-background/40 backdrop-blur-sm lg:hidden" onClick={() => setOpen(false)} />
+          <div className="fixed inset-y-0 right-0 z-[110] w-[280px] bg-background border-l border-border shadow-2xl animate-in slide-in-from-right duration-300 lg:hidden overflow-y-auto">
+            <div className="flex items-center justify-between p-4 border-b border-border">
+              <span className="font-bold text-lg">Menu</span>
+              <button onClick={() => setOpen(false)} className="p-2 hover:bg-surface rounded-lg">
+                <X className="h-6 w-6" />
+              </button>
+            </div>
           <nav className="flex flex-col p-4 gap-1">
             <div className="pb-4 mb-2 border-b border-border">
               <SearchBox variant="mobile" />
