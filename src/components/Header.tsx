@@ -300,29 +300,39 @@ export function Header() {
 
               {user ? (
                 <>
-                  <Link to="/profile" onClick={() => setOpen(false)} className="flex items-center gap-3 px-3 py-3 rounded-xl text-base font-semibold hover:bg-surface transition">
-                    <UserIcon className="h-5 w-5" />
+                  <Link to="/profile" onClick={() => setOpen(false)} className="flex items-center gap-4 px-4 py-3.5 rounded-xl text-lg font-semibold hover:bg-surface active:scale-[0.98] transition-all">
+                    <div className="w-10 h-10 rounded-lg bg-surface grid place-items-center shrink-0 border border-border/40">
+                      <UserIcon className="h-6 w-6 text-foreground/80" />
+                    </div>
                     <span>{t("menu.profile")}</span>
                   </Link>
-                  <Link to="/orders" onClick={() => setOpen(false)} className="flex items-center gap-3 px-3 py-3 rounded-xl text-base font-semibold hover:bg-surface transition">
-                    <Package className="h-5 w-5" />
+                  <Link to="/orders" onClick={() => setOpen(false)} className="flex items-center gap-4 px-4 py-3.5 rounded-xl text-lg font-semibold hover:bg-surface active:scale-[0.98] transition-all">
+                    <div className="w-10 h-10 rounded-lg bg-surface grid place-items-center shrink-0 border border-border/40">
+                      <Package className="h-6 w-6 text-foreground/80" />
+                    </div>
                     <span>{t("menu.orders")}</span>
                   </Link>
-                  <Link to="/wallet" onClick={() => setOpen(false)} className="flex items-center gap-3 px-3 py-3 rounded-xl text-base font-semibold hover:bg-surface transition">
-                    <Wallet className="h-5 w-5" />
+                  <Link to="/wallet" onClick={() => setOpen(false)} className="flex items-center gap-4 px-4 py-3.5 rounded-xl text-lg font-semibold hover:bg-surface active:scale-[0.98] transition-all">
+                    <div className="w-10 h-10 rounded-lg bg-surface grid place-items-center shrink-0 border border-border/40">
+                      <Wallet className="h-6 w-6 text-foreground/80" />
+                    </div>
                     <span>Cüzdan ({balance !== null ? format(balance) : "0 AZN"})</span>
                   </Link>
-                  <Link to="/messages" onClick={() => setOpen(false)} className="flex items-center gap-3 px-3 py-3 rounded-xl text-base font-semibold hover:bg-surface transition relative">
-                    <MessageSquare className="h-5 w-5" />
+                  <Link to="/messages" onClick={() => setOpen(false)} className="flex items-center gap-4 px-4 py-3.5 rounded-xl text-lg font-semibold hover:bg-surface active:scale-[0.98] transition-all relative">
+                    <div className="w-10 h-10 rounded-lg bg-surface grid place-items-center shrink-0 border border-border/40">
+                      <MessageSquare className="h-6 w-6 text-foreground/80" />
+                    </div>
                     <span>Mesajlar</span>
                     {unreadDm > 0 && (
-                      <span className="ml-auto min-w-[20px] h-5 px-1.5 grid place-items-center rounded-full bg-neon text-background text-[11px] font-bold">
+                      <span className="ml-auto min-w-[24px] h-6 px-2 grid place-items-center rounded-full bg-neon text-background text-xs font-bold shadow-[0_0_12px_rgba(0,255,170,0.4)]">
                         {unreadDm}
                       </span>
                     )}
                   </Link>
-                  <Link to="/favorites" onClick={() => setOpen(false)} className="flex items-center gap-3 px-3 py-3 rounded-xl text-base font-semibold hover:bg-surface transition">
-                    <Heart className="h-5 w-5" />
+                  <Link to="/favorites" onClick={() => setOpen(false)} className="flex items-center gap-4 px-4 py-3.5 rounded-xl text-lg font-semibold hover:bg-surface active:scale-[0.98] transition-all">
+                    <div className="w-10 h-10 rounded-lg bg-surface grid place-items-center shrink-0 border border-border/40">
+                      <Heart className="h-6 w-6 text-foreground/80" />
+                    </div>
                     <span>İstək siyahım</span>
                   </Link>
                 </>
