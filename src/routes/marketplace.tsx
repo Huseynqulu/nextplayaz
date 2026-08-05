@@ -77,7 +77,7 @@ function MarketplacePage() {
 
   // Debounce free-text search → URL
   useEffect(() => {
-    const t = setTimeout(() => { if (qLocal !== s.q) { update({ q: qLocal }); trackSearch(qLocal); } }, 250);
+    const t = setTimeout(() => { if (qLocal !== s.q) { update({ q: qLocal }); } }, 250);
     return () => clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [qLocal]);
