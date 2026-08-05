@@ -11,7 +11,7 @@ import { StatsSection } from "@/components/StatsSection";
 import { HowItWorks } from "@/components/HowItWorks";
 import { SellerCta } from "@/components/SellerCta";
 import { LiveSalesTicker } from "@/components/LiveSalesTicker";
-
+import { Announcements } from "@/components/Announcements";
 import { RecentlyViewed } from "@/components/RecentlyViewed";
 
 const OG_IMAGE = "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/77eb5b66-c504-44a4-9793-fc26f7e0cbdb/id-preview-8d439908--95efcf38-dc42-4a79-833a-d0f4ebe2f022.lovable.app-1782745934722.png";
@@ -64,9 +64,9 @@ export const Route = createFileRoute("/")({
 function HomePage() {
   return (
     <div className="min-h-screen flex flex-col">
+      <Announcements />
       <Header />
       <main className="flex-1">
-        
         <Hero />
         <HomeCategoriesGrid />
         <BannerCarousel />
