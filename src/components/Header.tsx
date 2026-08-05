@@ -355,8 +355,6 @@ export function Header() {
   );
 }
 
-import { useCart } from "@/lib/cart";
-import { useTheme } from "@/lib/theme";
 
 function ThemeToggleMobile({ closeMenu }: { closeMenu: () => void }) {
   const { theme, toggle } = useTheme();
