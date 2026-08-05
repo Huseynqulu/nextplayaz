@@ -31,7 +31,11 @@ export function HomeCategoriesGrid() {
     })();
   }, []);
 
-  if (!loading && cats.length === 0) return null;
+  if (!loading && cats.length === 0) return (
+    <div className="mx-auto max-w-7xl px-4 py-8 text-center border border-dashed rounded-2xl">
+      <p className="text-muted-foreground">Kateqoriyalar yüklənmədi (DB count: 0)</p>
+    </div>
+  );
 
   return (
     <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 sm:py-12">

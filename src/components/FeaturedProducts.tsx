@@ -69,7 +69,11 @@ export function FeaturedProducts() {
     return () => { cancelled = true; };
   }, [user?.id]);
 
-  if (!items.length) return null;
+  if (!items.length) return (
+    <div className="mx-auto max-w-7xl px-4 py-8 text-center border border-dashed rounded-2xl">
+      <p className="text-muted-foreground">Tövsiyə olunan məhsullar yüklənmədi (DB count: 0)</p>
+    </div>
+  );
 
   const kicker = personalized ? "Sizin üçün seçilmiş" : t("home.editorsKicker");
   const title = personalized ? "Sizə uyğun məhsullar" : t("home.editorsTitle");

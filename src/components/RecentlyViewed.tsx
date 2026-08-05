@@ -48,7 +48,11 @@ export function RecentlyViewed({ excludeId, title }: { excludeId?: string; title
     el.scrollBy({ left: dir * Math.max(280, el.clientWidth * 0.8), behavior: "smooth" });
   }
 
-  if (loading || items.length === 0) return null;
+  if (loading || items.length === 0) return (
+    <div className="mx-auto max-w-7xl px-4 py-8 text-center border border-dashed rounded-2xl mt-8">
+      <p className="text-muted-foreground">Son baxılanlar boşdur</p>
+    </div>
+  );
 
   return (
     <section className="mt-14">
