@@ -363,21 +363,27 @@ export function Header() {
                 <span>{t("nav.seller")}</span>
               </Link>
               
-              <Link to="/support" onClick={() => setOpen(false)} className="flex items-center gap-3 px-3 py-3 rounded-xl text-base font-semibold hover:bg-surface transition">
-                <LifeBuoy className="h-5 w-5 text-neon" />
+              <Link to="/support" onClick={() => setOpen(false)} className="flex items-center gap-4 px-4 py-3.5 rounded-xl text-lg font-semibold hover:bg-surface active:scale-[0.98] transition-all">
+                <div className="w-10 h-10 rounded-lg bg-neon/10 grid place-items-center shrink-0">
+                  <LifeBuoy className="h-6 w-6 text-neon" />
+                </div>
                 <span>{t("nav.support")}</span>
               </Link>
 
               {isAdmin && (
-                <Link to="/admin" onClick={() => setOpen(false)} className="flex items-center gap-3 px-3 py-3 rounded-xl text-base font-semibold bg-neon/10 text-neon transition mt-2">
-                  <ShieldCheck className="h-5 w-5" />
+                <Link to="/admin" onClick={() => setOpen(false)} className="flex items-center gap-4 px-4 py-3.5 rounded-xl text-lg font-semibold bg-neon/10 text-neon transition mt-4 shadow-[0_0_15px_rgba(0,255,170,0.1)]">
+                  <div className="w-10 h-10 rounded-lg bg-neon grid place-items-center shrink-0">
+                    <ShieldCheck className="h-6 w-6 text-background" />
+                  </div>
                   <span>{t("menu.admin")}</span>
                 </Link>
               )}
 
               {user && (
-                <button onClick={handleSignOut} className="flex items-center gap-3 px-3 py-3 mt-4 rounded-xl text-base font-semibold text-destructive hover:bg-destructive/10 transition w-full text-left">
-                  <LogOut className="h-5 w-5" />
+                <button onClick={handleSignOut} className="flex items-center gap-4 px-4 py-3.5 mt-8 rounded-xl text-lg font-semibold text-destructive hover:bg-destructive/10 transition w-full text-left">
+                  <div className="w-10 h-10 rounded-lg bg-destructive/10 grid place-items-center shrink-0">
+                    <LogOut className="h-6 w-6 text-destructive" />
+                  </div>
                   <span>{t("menu.signOut")}</span>
                 </button>
               )}
