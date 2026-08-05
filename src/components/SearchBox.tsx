@@ -74,6 +74,13 @@ export function SearchBox({ variant = "desktop" }: { variant?: "desktop" | "mobi
   function submit(e: React.FormEvent) {
     e.preventDefault();
     const term = q.trim();
+    if (term) {
+      if (typeof window !== "undefined" && (window as any).fbq) {
+        (window as any).fbq('track', 'Search', {
+          search_string: term
+        });
+      }
+    }
     setOpen(false);
     navigate({ to: "/marketplace", search: term ? { q: term } : {} });
   }
