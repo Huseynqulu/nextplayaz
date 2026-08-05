@@ -144,8 +144,11 @@ export function Header() {
               <button
                 onClick={() => setMenuOpen(!menuOpen)}
                 className="flex items-center gap-2 h-10 px-2 sm:px-3 rounded-lg hover:bg-surface transition"
+                aria-expanded={menuOpen}
+                aria-haspopup="true"
+                aria-label="İstifadəçi menyusu"
               >
-                <div className="grid h-7 w-7 place-items-center rounded-full bg-neon text-background text-xs font-bold overflow-hidden">
+                <div className="grid h-7 w-7 place-items-center rounded-full bg-neon text-background text-xs font-bold overflow-hidden ring-1 ring-neon/20 group-hover:ring-neon/50 transition">
                   {avatarUrl ? (
                     <img src={imgUrl(avatarUrl, { width: 56, height: 56, quality: 70 })} alt="" loading="lazy" decoding="async" className="h-full w-full object-cover" />
                   ) : (
@@ -155,6 +158,7 @@ export function Header() {
                 <span className="hidden sm:inline text-sm font-medium max-w-[140px] truncate">
                   {displayLabel ?? user.user_metadata?.display_name ?? user.email?.split("@")[0]}
                 </span>
+                <Menu className="h-4 w-4 text-muted-foreground ml-0.5 hidden sm:block" />
               </button>
               {menuOpen && (
                 <>
@@ -231,8 +235,12 @@ export function Header() {
           )}
 
           <div className="flex items-center gap-2 lg:hidden ml-2">
-            <button onClick={() => setOpen(!open)} className="grid h-10 w-10 place-items-center rounded-lg hover:bg-surface" aria-label="Menu">
-              <Menu className="h-6 w-6" />
+            <button 
+              onClick={() => setOpen(!open)} 
+              className="grid h-10 w-10 place-items-center rounded-lg hover:bg-surface border border-border/40 transition active:scale-95" 
+              aria-label="Menu"
+            >
+              <Menu className="h-6 w-6 text-foreground" />
             </button>
           </div>
         </div>
