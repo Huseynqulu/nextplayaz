@@ -3,6 +3,7 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import { Search, Loader2, Package, Gift } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useCurrency } from "@/lib/currency";
+import { trackSearch } from "@/lib/fbq";
 
 
 type Hit = {
@@ -75,6 +76,7 @@ export function SearchBox({ variant = "desktop" }: { variant?: "desktop" | "mobi
     e.preventDefault();
     const term = q.trim();
     setOpen(false);
+    trackSearch(term);
     navigate({ to: "/marketplace", search: term ? { q: term } : {} });
   }
 
