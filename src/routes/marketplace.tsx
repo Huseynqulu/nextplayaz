@@ -77,7 +77,7 @@ function MarketplacePage() {
 
   // Debounce free-text search → URL
   useEffect(() => {
-    const t = setTimeout(() => { if (qLocal !== s.q) { update({ q: qLocal }); trackSearch(qLocal); } }, 250);
+    const t = setTimeout(() => { if (qLocal !== s.q) { update({ q: qLocal }); } }, 250);
     return () => clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [qLocal]);
@@ -166,6 +166,7 @@ function MarketplacePage() {
                 <input
                   value={qLocal}
                   onChange={e => setQLocal(e.target.value)}
+                  onKeyDown={e => { if (e.key === "Enter") { e.preventDefault(); update({ q: qLocal }); trackSearch(qLocal); } }}
                   placeholder="Məhsul, satıcı və ya mağaza axtar..."
                   className="w-full h-12 pl-12 pr-10 rounded-xl bg-background border border-border focus:outline-none focus:ring-2 focus:ring-ring"
                 />
