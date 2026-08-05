@@ -85,14 +85,35 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
 const THEME_INIT_SCRIPT = `(function(){try{var t=localStorage.getItem('np-theme');if(!t){t='dark';}if(t==='dark'){document.documentElement.classList.add('dark');}document.documentElement.style.colorScheme=t;}catch(e){document.documentElement.classList.add('dark');}})();`;
 
+const META_PIXEL_SCRIPT = `!function(f,b,e,v,n,t,s)
+{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];
+s.parentNode.insertBefore(t,s)}(window,document,'script',
+'https://connect.facebook.net/en_US/fbevents.js');
+fbq('init','${META_PIXEL_ID}');
+fbq('track','PageView');`;
+
 function RootShell({ children }: { children: React.ReactNode }) {
   return (
     <html lang="az">
       <head>
         <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
+        <script dangerouslySetInnerHTML={{ __html: META_PIXEL_SCRIPT }} />
         <HeadContent />
       </head>
       <body>
+        <noscript>
+          <img
+            height="1"
+            width="1"
+            style={{ display: "none" }}
+            alt=""
+            src={`https://www.facebook.com/tr?id=${META_PIXEL_ID}&ev=PageView&noscript=1`}
+          />
+        </noscript>
         {children}
         <Scripts />
       </body>
