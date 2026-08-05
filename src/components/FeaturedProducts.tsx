@@ -3,38 +3,12 @@ import { Link } from "@tanstack/react-router";
 import { Sparkles, ArrowRight } from "lucide-react";
 import { ProductCard } from "./ProductCard";
 import { fetchProducts } from "@/lib/products";
-import { supabase } from "@/integrations/supabase/client";
-import { dbToProduct, type DbProduct, type SellerLite } from "@/lib/products";
+import { getRecommendedProducts } from "@/lib/homepage.functions";
 import { boostScore, type Product } from "@/lib/marketplace-data";
 import { useAuth } from "@/hooks/use-auth";
 import { useT } from "@/lib/i18n";
 
-async function fetchRecommended(): Promise<Product[]> {
-  const { data, error } = await supabase.rpc("get_recommended_products" as any, { _limit: 8 });
-  if (error || !data || !Array.isArray(data) || data.length === 0) return [];
-  const rows = data as any[];
-  const sellerIds = Array.from(new Set(rows.map((r) => r.seller_id).filter(Boolean)));
-  let sellerMap = new Map<string, SellerLite>();
-  if (sellerIds.length) {
-    const { data: profs } = await supabase
-      .from("public_profiles" as any)
-      .select("id, display_name, username, shop_name, avatar_url, verified_at, sales_count")
-      .in("id", sellerIds);
-    sellerMap = new Map(
-      ((profs as any[]) ?? []).map((p: any) => [
-        p.id,
-        {
-          name: p.display_name || p.username || "Satıcı",
-          shopName: p.shop_name ?? null,
-          avatarUrl: p.avatar_url ?? null,
-          verified: !!p.verified_at,
-          sales: p.sales_count ?? 0,
-        } as SellerLite,
-      ])
-    );
-  }
-  return rows.map((r) => dbToProduct(r as DbProduct, sellerMap.get(r.seller_id)));
-}
+// Removed local fetchRecommended in favor of server function
 
 export function FeaturedProducts() {
   const t = useT();
@@ -47,7 +21,7 @@ export function FeaturedProducts() {
     (async () => {
       // Try personalized recommendations first (only works when signed in and has views)
       if (user) {
-        const rec = await fetchRecommended();
+        const rec = await getRecommendedProducts();
         if (!cancelled && rec.length >= 4) {
           setItems(rec.slice(0, 8));
           setPersonalized(true);
