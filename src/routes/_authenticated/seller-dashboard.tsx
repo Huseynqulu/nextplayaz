@@ -287,6 +287,7 @@ function SellerDashboard() {
             <div className="flex gap-2 flex-wrap">
               <Link
                 to="/seller-orders"
+                search={{ open: undefined }}
                 className="inline-flex items-center gap-2 h-11 px-5 rounded-lg border border-border bg-surface font-semibold hover:border-neon"
               >
                 <ShoppingBag className="h-4 w-4" /> Gələn sifarişlər
