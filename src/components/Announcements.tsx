@@ -17,11 +17,13 @@ export function Announcements() {
   const [isVisible, setIsVisible] = useState(true);
 
   useEffect(() => {
-    supabase.from("announcements" as any)
+    supabase.from("site_announcements" as any)
       .select("*")
       .eq("is_active", true)
+      .order("created_at", { ascending: false })
+      .limit(1)
       .then(({ data }) => {
-        if (data) setItems(data as any);
+        if (data && data.length > 0) setItems(data as any);
       });
   }, []);
 
@@ -32,7 +34,7 @@ export function Announcements() {
 
   return (
     <div 
-      className="relative z-50 border-b border-white/10 overflow-hidden"
+      className="relative z-[60] border-b border-white/10 overflow-hidden"
       style={{ 
         backgroundColor: item.bg_color || "hsl(var(--neon))",
         color: item.text_color || "hsl(var(--background))"
