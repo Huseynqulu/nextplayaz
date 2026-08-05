@@ -1380,6 +1380,36 @@ export type Database = {
         }
         Relationships: []
       }
+      site_announcements: {
+        Row: {
+          bg_color: string | null
+          content: string
+          created_at: string | null
+          id: string
+          is_active: boolean | null
+          link_url: string | null
+          text_color: string | null
+        }
+        Insert: {
+          bg_color?: string | null
+          content: string
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          link_url?: string | null
+          text_color?: string | null
+        }
+        Update: {
+          bg_color?: string | null
+          content?: string
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          link_url?: string | null
+          text_color?: string | null
+        }
+        Relationships: []
+      }
       subcategories: {
         Row: {
           category_slug: string
@@ -2107,13 +2137,15 @@ export type Database = {
           reviews_count: number
         }[]
       }
-      has_role: {
-        Args: {
-          _role: Database["public"]["Enums"]["app_role"]
-          _user_id: string
-        }
-        Returns: boolean
-      }
+      has_role:
+        | {
+            Args: {
+              _role: Database["public"]["Enums"]["app_role"]
+              _user_id: string
+            }
+            Returns: boolean
+          }
+        | { Args: { _role: string; _user_id: string }; Returns: boolean }
       mark_conversation_read: {
         Args: { p_conversation_id: string }
         Returns: undefined
