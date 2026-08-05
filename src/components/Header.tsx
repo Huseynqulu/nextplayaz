@@ -256,8 +256,8 @@ export function Header() {
             className="fixed inset-0 z-[100] bg-background/80 backdrop-blur-md lg:hidden animate-in fade-in duration-300" 
             onClick={() => setOpen(false)} 
           />
-          <div className="fixed inset-y-0 right-0 z-[110] w-[300px] bg-background border-l border-border/60 shadow-2xl animate-in slide-in-from-right duration-500 lg:hidden overflow-hidden flex flex-col">
-            <div className="flex items-center justify-between p-5 border-b border-border/40 bg-surface/50">
+          <div className="fixed inset-y-0 right-0 z-[110] w-[85vw] max-w-[360px] bg-background border-l border-border/60 shadow-2xl animate-in slide-in-from-right duration-500 lg:hidden overflow-hidden flex flex-col">
+            <div className="flex items-center justify-between p-6 border-b border-border/40 bg-surface/50">
               <div className="flex items-center gap-3">
                 <img src={nextplayLogo} alt="" className="h-8 w-auto" />
                 <span className="font-bold text-lg tracking-tight">Menu</span>
