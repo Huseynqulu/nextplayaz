@@ -4,7 +4,7 @@ import { Sparkles, ArrowRight } from "lucide-react";
 import { ProductCard } from "./ProductCard";
 import { fetchProducts } from "@/lib/products";
 import { getRecommendedProducts } from "@/lib/homepage.functions";
-import { type Product } from "@/lib/marketplace-data";
+import { boostScore, type Product } from "@/lib/marketplace-data";
 import { useAuth } from "@/hooks/use-auth";
 import { useT } from "@/lib/i18n";
 
