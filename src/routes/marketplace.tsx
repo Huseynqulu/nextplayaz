@@ -166,6 +166,7 @@ function MarketplacePage() {
                 <input
                   value={qLocal}
                   onChange={e => setQLocal(e.target.value)}
+                  onKeyDown={e => { if (e.key === "Enter") { e.preventDefault(); update({ q: qLocal }); trackSearch(qLocal); } }}
                   placeholder="Məhsul, satıcı və ya mağaza axtar..."
                   className="w-full h-12 pl-12 pr-10 rounded-xl bg-background border border-border focus:outline-none focus:ring-2 focus:ring-ring"
                 />
