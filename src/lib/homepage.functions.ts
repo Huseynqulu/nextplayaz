@@ -28,12 +28,11 @@ export const getHomepageStats = createServerFn({ method: "GET" })
   });
 
 export const getRecentSales = createServerFn({ method: "GET" })
-  .handler(async ({ data: _limit }: { data: number }) => {
-    const { data, error } = await supabase.rpc("get_recent_sales", { _limit: _limit || 14 });
+  .handler(async () => {
+    const { data, error } = await supabase.rpc("get_recent_sales", { _limit: 14 });
     if (error) {
       console.error("Error fetching recent sales:", error);
       return [];
     }
     return data || [];
   });
-

@@ -39,7 +39,7 @@ export function LiveSalesTicker() {
 
   async function load() {
     try {
-      const data = await getRecentSales({ data: 14 });
+      const data = await getRecentSales();
       if (Array.isArray(data)) setSales(data as Sale[]);
     } catch (err) {
       console.error("Failed to load recent sales:", err);
