@@ -231,9 +231,6 @@ export function Header() {
             </>
           )}
 
-          <button onClick={() => setOpen(!open)} className="lg:hidden grid h-10 w-10 place-items-center rounded-lg hover:bg-surface" aria-label="Menu">
-            <Menu className="h-5 w-5" />
-          </button>
         </div>
       </div>
 
