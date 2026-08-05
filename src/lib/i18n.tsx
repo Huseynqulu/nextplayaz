@@ -41,6 +41,11 @@ const az: Dict = {
   "auth.terms": "Davam edərək Şərtləri və Məxfilik siyasətini qəbul edirəm",
 
   // user menu
+  "nav.home": "Ana səhifə",
+  "nav.marketplace": "Marketplace",
+  "nav.giftcards": "Hədiyyə kartları",
+  "nav.seller": "Satıcı ol",
+  "nav.support": "Dəstək",
   "menu.profile": "Profil",
   "menu.orders": "Sifarişlərim",
   "menu.becomeSeller": "Satıcı ol",
@@ -366,6 +371,11 @@ const en: Dict = {
   "auth.or": "or",
   "auth.terms": "By continuing I accept the Terms and Privacy Policy",
 
+  "nav.home": "Home",
+  "nav.marketplace": "Marketplace",
+  "nav.giftcards": "Gift Cards",
+  "nav.seller": "Become a Seller",
+  "nav.support": "Support",
   "menu.profile": "Profile",
   "menu.orders": "My orders",
   "menu.becomeSeller": "Become a seller",
@@ -676,6 +686,11 @@ const ru: Dict = {
   "auth.or": "или",
   "auth.terms": "Продолжая, я принимаю Условия и Политику конфиденциальности",
 
+  "nav.home": "Главная",
+  "nav.marketplace": "Маркетплейс",
+  "nav.giftcards": "Подарочные карты",
+  "nav.seller": "Стать продавцом",
+  "nav.support": "Поддержка",
   "menu.profile": "Профиль",
   "menu.orders": "Мои заказы",
   "menu.becomeSeller": "Стать продавцом",
