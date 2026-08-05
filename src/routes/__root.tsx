@@ -1,15 +1,17 @@
+import { useEffect, useRef } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
   Outlet,
   Link,
   createRootRouteWithContext,
   useRouter,
+  useRouterState,
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
 
 import appCss from "../styles.css?url";
-import { META_PIXEL_ID } from "@/lib/fbq";
+import { META_PIXEL_ID, trackPageView } from "@/lib/fbq";
 
 function NotFoundComponent() {
   return (
@@ -169,6 +171,16 @@ function AppToaster() {
   );
 }
 
+function PixelPageViews() {
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const first = useRef(true);
+  useEffect(() => {
+    if (first.current) { first.current = false; return; } // base code already sent it
+    trackPageView();
+  }, [pathname]);
+  return null;
+}
+
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   return (
@@ -179,6 +191,7 @@ function RootComponent() {
             <FavoritesProvider>
               <CartProvider>
                 <IpTracker />
+                <PixelPageViews />
                 <Outlet />
                 <InstallAppBanner />
                 <OnboardingTour />
