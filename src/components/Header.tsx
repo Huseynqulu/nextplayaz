@@ -239,13 +239,93 @@ export function Header() {
 
 
       {open && (
-        <div className="lg:hidden border-t border-border bg-background/95 backdrop-blur">
+        <div className="lg:hidden border-t border-border bg-background/95 backdrop-blur-xl animate-in slide-in-from-top-4 duration-300">
           <nav className="flex flex-col p-4 gap-1">
-            {nav.map(n => (
-              <Link key={n.to} to={n.to} onClick={() => setOpen(false)} className="px-3 py-2.5 rounded-md text-sm font-medium hover:bg-surface">
-                {n.label}
+            <div className="pb-4 mb-2 border-b border-border">
+              <SearchBox variant="mobile" />
+            </div>
+            
+            <Link to="/" onClick={() => setOpen(false)} className="flex items-center gap-3 px-3 py-3 rounded-xl text-base font-semibold hover:bg-surface transition">
+              <Gamepad2 className="h-5 w-5 text-neon" />
+              <span>{t("nav.home")}</span>
+            </Link>
+            
+            <Link to="/marketplace" onClick={() => setOpen(false)} className="flex items-center gap-3 px-3 py-3 rounded-xl text-base font-semibold hover:bg-surface transition">
+              <ShoppingBag className="h-5 w-5 text-neon" />
+              <span>{t("nav.marketplace")}</span>
+            </Link>
+
+            <Link to="/gift-cards" onClick={() => setOpen(false)} className="flex items-center gap-3 px-3 py-3 rounded-xl text-base font-semibold hover:bg-surface transition">
+              <Gift className="h-5 w-5 text-neon" />
+              <span>Hədiyyə Kartları</span>
+            </Link>
+
+            <div className="my-2 h-px bg-border" />
+
+            {user ? (
+              <>
+                <Link to="/profile" onClick={() => setOpen(false)} className="flex items-center gap-3 px-3 py-3 rounded-xl text-base font-semibold hover:bg-surface transition">
+                  <UserIcon className="h-5 w-5" />
+                  <span>{t("menu.profile")}</span>
+                </Link>
+                <Link to="/orders" onClick={() => setOpen(false)} className="flex items-center gap-3 px-3 py-3 rounded-xl text-base font-semibold hover:bg-surface transition">
+                  <Package className="h-5 w-5" />
+                  <span>{t("menu.orders")}</span>
+                </Link>
+                <Link to="/wallet" onClick={() => setOpen(false)} className="flex items-center gap-3 px-3 py-3 rounded-xl text-base font-semibold hover:bg-surface transition">
+                  <Wallet className="h-5 w-5" />
+                  <span>Cüzdan ({balance !== null ? format(balance) : "0 AZN"})</span>
+                </Link>
+                <Link to="/messages" onClick={() => setOpen(false)} className="flex items-center gap-3 px-3 py-3 rounded-xl text-base font-semibold hover:bg-surface transition relative">
+                  <MessageSquare className="h-5 w-5" />
+                  <span>Mesajlar</span>
+                  {unreadDm > 0 && (
+                    <span className="ml-auto min-w-[20px] h-5 px-1.5 grid place-items-center rounded-full bg-neon text-background text-[11px] font-bold">
+                      {unreadDm}
+                    </span>
+                  )}
+                </Link>
+                <Link to="/favorites" onClick={() => setOpen(false)} className="flex items-center gap-3 px-3 py-3 rounded-xl text-base font-semibold hover:bg-surface transition">
+                  <Heart className="h-5 w-5" />
+                  <span>İstək siyahım</span>
+                </Link>
+              </>
+            ) : (
+              <div className="grid grid-cols-2 gap-3 p-2">
+                <Link to="/login" onClick={() => setOpen(false)} className="flex items-center justify-center h-12 rounded-xl border border-border font-semibold text-sm">
+                  {t("auth.login")}
+                </Link>
+                <Link to="/register" onClick={() => setOpen(false)} className="flex items-center justify-center h-12 rounded-xl bg-neon text-background font-bold text-sm">
+                  {t("auth.register")}
+                </Link>
+              </div>
+            )}
+
+            <div className="my-2 h-px bg-border" />
+
+            <Link to="/seller" onClick={() => setOpen(false)} className="flex items-center gap-3 px-3 py-3 rounded-xl text-base font-semibold hover:bg-surface transition">
+              <LayoutDashboard className="h-5 w-5 text-neon" />
+              <span>{t("nav.seller")}</span>
+            </Link>
+            
+            <Link to="/support" onClick={() => setOpen(false)} className="flex items-center gap-3 px-3 py-3 rounded-xl text-base font-semibold hover:bg-surface transition">
+              <LifeBuoy className="h-5 w-5 text-neon" />
+              <span>{t("nav.support")}</span>
+            </Link>
+
+            {isAdmin && (
+              <Link to="/admin" onClick={() => setOpen(false)} className="flex items-center gap-3 px-3 py-3 rounded-xl text-base font-semibold bg-neon/10 text-neon transition mt-2">
+                <ShieldCheck className="h-5 w-5" />
+                <span>{t("menu.admin")}</span>
               </Link>
-            ))}
+            )}
+
+            {user && (
+              <button onClick={handleSignOut} className="flex items-center gap-3 px-3 py-3 mt-4 rounded-xl text-base font-semibold text-destructive hover:bg-destructive/10 transition">
+                <LogOut className="h-5 w-5" />
+                <span>{t("menu.signOut")}</span>
+              </button>
+            )}
           </nav>
         </div>
       )}
