@@ -10,6 +10,8 @@ import { NotificationBell } from "@/components/NotificationBell";
 import { SearchBox } from "@/components/SearchBox";
 import { CommandPaletteTrigger } from "@/components/CommandPalette";
 import { useCurrency } from "@/lib/currency";
+import { useCart } from "@/lib/cart";
+import { useTheme } from "@/lib/theme";
 
 import nextplayLogo from "@/assets/nextplay-logo.png";
 import { imgUrl } from "@/lib/image-url";
