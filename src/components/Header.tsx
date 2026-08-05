@@ -227,6 +227,8 @@ export function Header() {
               </Link>
             </>
           )}
+          </div>
+        </div>
 
         <div className="flex items-center gap-2 lg:hidden ml-2">
           <button onClick={() => setOpen(!open)} className="grid h-10 w-10 place-items-center rounded-lg hover:bg-surface" aria-label="Menu">
