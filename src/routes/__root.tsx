@@ -191,6 +191,7 @@ function RootComponent() {
             <FavoritesProvider>
               <CartProvider>
                 <IpTracker />
+                <PixelPageViews />
                 <Outlet />
                 <InstallAppBanner />
                 <OnboardingTour />
