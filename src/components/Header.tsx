@@ -227,20 +227,18 @@ export function Header() {
               </Link>
             </>
           )}
-          </div>
-        </div>
 
-        <div className="flex items-center gap-2 lg:hidden ml-2">
-          <button onClick={() => setOpen(!open)} className="grid h-10 w-10 place-items-center rounded-lg hover:bg-surface" aria-label="Menu">
-            <Menu className="h-6 w-6" />
-          </button>
+          <div className="flex items-center gap-2 lg:hidden ml-2">
+            <button onClick={() => setOpen(!open)} className="grid h-10 w-10 place-items-center rounded-lg hover:bg-surface" aria-label="Menu">
+              <Menu className="h-6 w-6" />
+            </button>
+          </div>
         </div>
       </div>
 
       <div className="md:hidden border-t border-border/60 px-4 pb-3 pt-2">
         <SearchBox variant="mobile" />
       </div>
-
 
       {open && (
         <>
@@ -252,129 +250,103 @@ export function Header() {
                 <X className="h-6 w-6" />
               </button>
             </div>
-          <nav className="flex flex-col p-4 gap-1">
-            <div className="pb-4 mb-2 border-b border-border">
-              <SearchBox variant="mobile" />
-            </div>
-            
-            <Link to="/" onClick={() => setOpen(false)} className="flex items-center gap-3 px-3 py-3 rounded-xl text-base font-semibold hover:bg-surface transition">
-              <Gamepad2 className="h-5 w-5 text-neon" />
-              <span>{t("nav.home")}</span>
-            </Link>
-            
-            <Link to="/marketplace" onClick={() => setOpen(false)} className="flex items-center gap-3 px-3 py-3 rounded-xl text-base font-semibold hover:bg-surface transition">
-              <ShoppingBag className="h-5 w-5 text-neon" />
-              <span>{t("nav.marketplace")}</span>
-            </Link>
-
-            <Link to="/gift-cards" onClick={() => setOpen(false)} className="flex items-center gap-3 px-3 py-3 rounded-xl text-base font-semibold hover:bg-surface transition">
-              <Gift className="h-5 w-5 text-neon" />
-              <span>Hədiyyə Kartları</span>
-            </Link>
-
-            <div className="my-2 h-px bg-border" />
-
-            {user ? (
-              <>
-                <Link to="/profile" onClick={() => setOpen(false)} className="flex items-center gap-3 px-3 py-3 rounded-xl text-base font-semibold hover:bg-surface transition">
-                  <UserIcon className="h-5 w-5" />
-                  <span>{t("menu.profile")}</span>
-                </Link>
-                <Link to="/orders" onClick={() => setOpen(false)} className="flex items-center gap-3 px-3 py-3 rounded-xl text-base font-semibold hover:bg-surface transition">
-                  <Package className="h-5 w-5" />
-                  <span>{t("menu.orders")}</span>
-                </Link>
-                <Link to="/wallet" onClick={() => setOpen(false)} className="flex items-center gap-3 px-3 py-3 rounded-xl text-base font-semibold hover:bg-surface transition">
-                  <Wallet className="h-5 w-5" />
-                  <span>Cüzdan ({balance !== null ? format(balance) : "0 AZN"})</span>
-                </Link>
-                <Link to="/messages" onClick={() => setOpen(false)} className="flex items-center gap-3 px-3 py-3 rounded-xl text-base font-semibold hover:bg-surface transition relative">
-                  <MessageSquare className="h-5 w-5" />
-                  <span>Mesajlar</span>
-                  {unreadDm > 0 && (
-                    <span className="ml-auto min-w-[20px] h-5 px-1.5 grid place-items-center rounded-full bg-neon text-background text-[11px] font-bold">
-                      {unreadDm}
-                    </span>
-                  )}
-                </Link>
-                <Link to="/favorites" onClick={() => setOpen(false)} className="flex items-center gap-3 px-3 py-3 rounded-xl text-base font-semibold hover:bg-surface transition">
-                  <Heart className="h-5 w-5" />
-                  <span>İstək siyahım</span>
-                </Link>
-              </>
-            ) : (
-              <div className="grid grid-cols-2 gap-3 p-2">
-                <Link to="/login" onClick={() => setOpen(false)} className="flex items-center justify-center h-12 rounded-xl border border-border font-semibold text-sm">
-                  {t("auth.login")}
-                </Link>
-                <Link to="/register" onClick={() => setOpen(false)} className="flex items-center justify-center h-12 rounded-xl bg-neon text-background font-bold text-sm">
-                  {t("auth.register")}
-                </Link>
+            <nav className="flex flex-col p-4 gap-1">
+              <div className="pb-4 mb-2 border-b border-border">
+                <SearchBox variant="mobile" />
               </div>
-            )}
-
-            <div className="my-2 h-px bg-border" />
-
-            <div className="px-3 pt-2 pb-2">
-              <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold mb-3">Tənzimləmələr</p>
-              <div className="grid grid-cols-2 gap-2">
-                <button 
-                  onClick={() => { setOpen(false); /* The language switcher button in header can be triggered or we just link to a settings-like flow if available, but for now we'll keep it simple or use the existing component if possible */ }}
-                  className="flex items-center justify-center gap-2 h-10 rounded-lg border border-border bg-surface/50 text-[11px] font-semibold"
-                >
-                  <Globe className="h-3.5 w-3.5" /> Burda isə özəl kompaniya olsun.
-                </button>
-                <ThemeToggleMobile closeMenu={() => setOpen(false)} />
-              </div>
-            </div>
-
-            <div className="my-2 h-px bg-border" />
-
-            <Link to="/seller" onClick={() => setOpen(false)} className="flex items-center gap-3 px-3 py-3 rounded-xl text-base font-semibold hover:bg-surface transition">
-              <LayoutDashboard className="h-5 w-5 text-neon" />
-              <span>{t("nav.seller")}</span>
-            </Link>
-            
-            <Link to="/support" onClick={() => setOpen(false)} className="flex items-center gap-3 px-3 py-3 rounded-xl text-base font-semibold hover:bg-surface transition">
-              <LifeBuoy className="h-5 w-5 text-neon" />
-              <span>{t("nav.support")}</span>
-            </Link>
-
-            <div className="my-2 h-px bg-border" />
-
-            <div className="px-3 pt-2 pb-2">
-              <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold mb-3">Tənzimləmələr</p>
-              <div className="grid grid-cols-2 gap-2">
-                <button 
-                  onClick={() => { supabase.auth.signOut(); setOpen(false); }}
-                  className="flex items-center justify-center gap-2 h-10 rounded-lg border border-border bg-surface/50 text-xs font-semibold"
-                >
-                  <Globe className="h-3.5 w-3.5" /> Dil / Valyuta
-                </button>
-                <button 
-                  onClick={() => { /* toggle theme logic if accessible */ }}
-                  className="flex items-center justify-center gap-2 h-10 rounded-lg border border-border bg-surface/50 text-xs font-semibold"
-                >
-                  <Moon className="h-3.5 w-3.5" /> Rejim
-                </button>
-              </div>
-            </div>
-
-            {isAdmin && (
-              <Link to="/admin" onClick={() => setOpen(false)} className="flex items-center gap-3 px-3 py-3 rounded-xl text-base font-semibold bg-neon/10 text-neon transition mt-2">
-                <ShieldCheck className="h-5 w-5" />
-                <span>{t("menu.admin")}</span>
+              
+              <Link to="/" onClick={() => setOpen(false)} className="flex items-center gap-3 px-3 py-3 rounded-xl text-base font-semibold hover:bg-surface transition">
+                <Gamepad2 className="h-5 w-5 text-neon" />
+                <span>{t("nav.home")}</span>
               </Link>
-            )}
+              
+              <Link to="/marketplace" onClick={() => setOpen(false)} className="flex items-center gap-3 px-3 py-3 rounded-xl text-base font-semibold hover:bg-surface transition">
+                <ShoppingBag className="h-5 w-5 text-neon" />
+                <span>{t("nav.marketplace")}</span>
+              </Link>
 
-            {user && (
-              <button onClick={handleSignOut} className="flex items-center gap-3 px-3 py-3 mt-4 rounded-xl text-base font-semibold text-destructive hover:bg-destructive/10 transition">
-                <LogOut className="h-5 w-5" />
-                <span>{t("menu.signOut")}</span>
-              </button>
-            )}
-          </nav>
-        </div>
+              <Link to="/gift-cards" onClick={() => setOpen(false)} className="flex items-center gap-3 px-3 py-3 rounded-xl text-base font-semibold hover:bg-surface transition">
+                <Gift className="h-5 w-5 text-neon" />
+                <span>Hədiyyə Kartları</span>
+              </Link>
+
+              <div className="my-2 h-px bg-border" />
+
+              {user ? (
+                <>
+                  <Link to="/profile" onClick={() => setOpen(false)} className="flex items-center gap-3 px-3 py-3 rounded-xl text-base font-semibold hover:bg-surface transition">
+                    <UserIcon className="h-5 w-5" />
+                    <span>{t("menu.profile")}</span>
+                  </Link>
+                  <Link to="/orders" onClick={() => setOpen(false)} className="flex items-center gap-3 px-3 py-3 rounded-xl text-base font-semibold hover:bg-surface transition">
+                    <Package className="h-5 w-5" />
+                    <span>{t("menu.orders")}</span>
+                  </Link>
+                  <Link to="/wallet" onClick={() => setOpen(false)} className="flex items-center gap-3 px-3 py-3 rounded-xl text-base font-semibold hover:bg-surface transition">
+                    <Wallet className="h-5 w-5" />
+                    <span>Cüzdan ({balance !== null ? format(balance) : "0 AZN"})</span>
+                  </Link>
+                  <Link to="/messages" onClick={() => setOpen(false)} className="flex items-center gap-3 px-3 py-3 rounded-xl text-base font-semibold hover:bg-surface transition relative">
+                    <MessageSquare className="h-5 w-5" />
+                    <span>Mesajlar</span>
+                    {unreadDm > 0 && (
+                      <span className="ml-auto min-w-[20px] h-5 px-1.5 grid place-items-center rounded-full bg-neon text-background text-[11px] font-bold">
+                        {unreadDm}
+                      </span>
+                    )}
+                  </Link>
+                  <Link to="/favorites" onClick={() => setOpen(false)} className="flex items-center gap-3 px-3 py-3 rounded-xl text-base font-semibold hover:bg-surface transition">
+                    <Heart className="h-5 w-5" />
+                    <span>İstək siyahım</span>
+                  </Link>
+                </>
+              ) : (
+                <div className="grid grid-cols-2 gap-3 p-2">
+                  <Link to="/login" onClick={() => setOpen(false)} className="flex items-center justify-center h-12 rounded-xl border border-border font-semibold text-sm">
+                    {t("auth.login")}
+                  </Link>
+                  <Link to="/register" onClick={() => setOpen(false)} className="flex items-center justify-center h-12 rounded-xl bg-neon text-background font-bold text-sm">
+                    {t("auth.register")}
+                  </Link>
+                </div>
+              )}
+
+              <div className="my-2 h-px bg-border" />
+
+              <div className="px-3 pt-2 pb-2">
+                <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold mb-3">Tənzimləmələr</p>
+                <div className="grid grid-cols-2 gap-2">
+                  <ThemeToggleMobile closeMenu={() => setOpen(false)} />
+                </div>
+              </div>
+
+              <div className="my-2 h-px bg-border" />
+
+              <Link to="/seller" onClick={() => setOpen(false)} className="flex items-center gap-3 px-3 py-3 rounded-xl text-base font-semibold hover:bg-surface transition">
+                <LayoutDashboard className="h-5 w-5 text-neon" />
+                <span>{t("nav.seller")}</span>
+              </Link>
+              
+              <Link to="/support" onClick={() => setOpen(false)} className="flex items-center gap-3 px-3 py-3 rounded-xl text-base font-semibold hover:bg-surface transition">
+                <LifeBuoy className="h-5 w-5 text-neon" />
+                <span>{t("nav.support")}</span>
+              </Link>
+
+              {isAdmin && (
+                <Link to="/admin" onClick={() => setOpen(false)} className="flex items-center gap-3 px-3 py-3 rounded-xl text-base font-semibold bg-neon/10 text-neon transition mt-2">
+                  <ShieldCheck className="h-5 w-5" />
+                  <span>{t("menu.admin")}</span>
+                </Link>
+              )}
+
+              {user && (
+                <button onClick={handleSignOut} className="flex items-center gap-3 px-3 py-3 mt-4 rounded-xl text-base font-semibold text-destructive hover:bg-destructive/10 transition w-full text-left">
+                  <LogOut className="h-5 w-5" />
+                  <span>{t("menu.signOut")}</span>
+                </button>
+              )}
+            </nav>
+          </div>
         </>
       )}
     </header>
@@ -389,7 +361,7 @@ function ThemeToggleMobile({ closeMenu }: { closeMenu: () => void }) {
   return (
     <button 
       onClick={() => { toggle(); closeMenu(); }}
-      className="flex items-center justify-center gap-2 h-10 rounded-lg border border-border bg-surface/50 text-[11px] font-semibold"
+      className="flex items-center justify-center gap-2 h-10 rounded-lg border border-border bg-surface/50 text-[11px] font-semibold w-full"
     >
       <Moon className="h-3.5 w-3.5" /> {theme === "dark" ? "İşıqlı" : "Qaranlıq"}
     </button>
