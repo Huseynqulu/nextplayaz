@@ -312,7 +312,7 @@ export function Header() {
                   onClick={() => { setOpen(false); /* The language switcher button in header can be triggered or we just link to a settings-like flow if available, but for now we'll keep it simple or use the existing component if possible */ }}
                   className="flex items-center justify-center gap-2 h-10 rounded-lg border border-border bg-surface/50 text-[11px] font-semibold"
                 >
-                  <Globe className="h-3.5 w-3.5" /> Dil / Valyuta
+                  <Globe className="h-3.5 w-3.5" /> I have approved the plan
                 </button>
                 <ThemeToggleMobile closeMenu={() => setOpen(false)} />
               </div>
