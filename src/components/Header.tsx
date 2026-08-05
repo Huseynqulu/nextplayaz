@@ -275,8 +275,10 @@ export function Header() {
                 <SearchBox variant="mobile" />
               </div>
               
-              <Link to="/" onClick={() => setOpen(false)} className="flex items-center gap-3 px-3 py-3 rounded-xl text-base font-semibold hover:bg-surface transition">
-                <Gamepad2 className="h-5 w-5 text-neon" />
+              <Link to="/" onClick={() => setOpen(false)} className="flex items-center gap-4 px-4 py-3.5 rounded-xl text-lg font-semibold hover:bg-surface active:scale-[0.98] transition-all border border-transparent hover:border-border/40">
+                <div className="w-10 h-10 rounded-lg bg-neon/10 grid place-items-center shrink-0">
+                  <Gamepad2 className="h-6 w-6 text-neon" />
+                </div>
                 <span>{t("nav.home")}</span>
               </Link>
               
