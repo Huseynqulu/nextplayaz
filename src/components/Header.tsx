@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { Search, ShoppingBag, ShoppingCart, Menu, Gamepad2, LogOut, User as UserIcon, LayoutDashboard, ShieldCheck, Package, LifeBuoy, Wallet, MessageSquare, Heart, Gift, Plus, Globe, Moon, X } from "lucide-react";
+import { Search, ShoppingBag, ShoppingCart, Menu, Gamepad2, LogOut, User as UserIcon, LayoutDashboard, ShieldCheck, Package, LifeBuoy, Wallet, MessageSquare, Heart, Gift, Plus } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
@@ -10,8 +10,6 @@ import { NotificationBell } from "@/components/NotificationBell";
 import { SearchBox } from "@/components/SearchBox";
 import { CommandPaletteTrigger } from "@/components/CommandPalette";
 import { useCurrency } from "@/lib/currency";
-import { useCart } from "@/lib/cart";
-import { useTheme } from "@/lib/theme";
 
 import nextplayLogo from "@/assets/nextplay-logo.png";
 import { imgUrl } from "@/lib/image-url";
@@ -81,9 +79,9 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-50 border-b border-border/60 bg-background/70 backdrop-blur-xl">
-      <div className="mx-auto flex h-16 max-w-7xl items-center px-4 sm:px-6 lg:px-8">
-        <Link to="/" aria-label="NextPlay ana səhifə" className="flex items-center gap-2 group shrink-0 mr-auto">
-          <img src={nextplayLogo} alt="NextPlay — Azərbaycanın Gaming Marketplace-i" className="h-10 sm:h-12 w-auto drop-shadow-[0_0_12px_hsl(var(--neon)/0.4)] group-hover:drop-shadow-[0_0_18px_hsl(var(--neon)/0.6)] transition" />
+      <div className="mx-auto flex h-16 max-w-7xl items-center gap-4 px-4 sm:px-6 lg:px-8">
+        <Link to="/" aria-label="NextPlay ana səhifə" className="flex items-center gap-2 group shrink-0">
+          <img src={nextplayLogo} alt="NextPlay — Azərbaycanın Gaming Marketplace-i" className="h-11 sm:h-12 w-auto drop-shadow-[0_0_12px_hsl(var(--neon)/0.4)] group-hover:drop-shadow-[0_0_18px_hsl(var(--neon)/0.6)] transition" />
         </Link>
 
         <nav className="hidden lg:flex items-center gap-1 ml-6">
@@ -113,8 +111,7 @@ export function Header() {
                 title="Cüzdan"
               >
                 <Wallet className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-neon" />
-                <span className="tabular-nums whitespace-nowrap leading-none hidden sm:inline">{format(balance)}</span>
-                <span className="tabular-nums whitespace-nowrap leading-none sm:hidden">{Math.floor(balance)} ₼</span>
+                <span className="tabular-nums whitespace-nowrap leading-none">{format(balance)}</span>
               </Link>
               <Link
                 to="/wallet"
@@ -144,11 +141,8 @@ export function Header() {
               <button
                 onClick={() => setMenuOpen(!menuOpen)}
                 className="flex items-center gap-2 h-10 px-2 sm:px-3 rounded-lg hover:bg-surface transition"
-                aria-expanded={menuOpen}
-                aria-haspopup="true"
-                aria-label="İstifadəçi menyusu"
               >
-                <div className="grid h-7 w-7 place-items-center rounded-full bg-neon text-background text-xs font-bold overflow-hidden ring-1 ring-neon/20 group-hover:ring-neon/50 transition">
+                <div className="grid h-7 w-7 place-items-center rounded-full bg-neon text-background text-xs font-bold overflow-hidden">
                   {avatarUrl ? (
                     <img src={imgUrl(avatarUrl, { width: 56, height: 56, quality: 70 })} alt="" loading="lazy" decoding="async" className="h-full w-full object-cover" />
                   ) : (
@@ -158,7 +152,6 @@ export function Header() {
                 <span className="hidden sm:inline text-sm font-medium max-w-[140px] truncate">
                   {displayLabel ?? user.user_metadata?.display_name ?? user.email?.split("@")[0]}
                 </span>
-                <Menu className="h-4 w-4 text-muted-foreground ml-0.5 hidden sm:block" />
               </button>
               {menuOpen && (
                 <>
@@ -201,7 +194,7 @@ export function Header() {
                         <Link to="/seller-dashboard" onClick={() => setMenuOpen(false)} className="flex items-center gap-2 px-4 py-2.5 text-sm hover:bg-surface transition">
                           <Package className="h-4 w-4" /> {t("menu.myProducts")}
                         </Link>
-                        <Link to="/seller-orders" search={{ open: undefined }} onClick={() => setMenuOpen(false)} className="flex items-center gap-2 px-4 py-2.5 text-sm hover:bg-surface transition">
+                        <Link to="/seller-orders" onClick={() => setMenuOpen(false)} className="flex items-center gap-2 px-4 py-2.5 text-sm hover:bg-surface transition">
                           <ShoppingBag className="h-4 w-4" /> Gələn sifarişlər
                         </Link>
                       </>
@@ -234,15 +227,9 @@ export function Header() {
             </>
           )}
 
-          <div className="flex items-center gap-2 lg:hidden ml-2">
-            <button 
-              onClick={() => setOpen(!open)} 
-              className="grid h-10 w-10 place-items-center rounded-lg hover:bg-surface border border-border/40 transition active:scale-95" 
-              aria-label="Menu"
-            >
-              <Menu className="h-6 w-6 text-foreground" />
-            </button>
-          </div>
+          <button onClick={() => setOpen(!open)} className="lg:hidden grid h-10 w-10 place-items-center rounded-lg hover:bg-surface" aria-label="Menu">
+            <Menu className="h-5 w-5" />
+          </button>
         </div>
       </div>
 
@@ -250,166 +237,23 @@ export function Header() {
         <SearchBox variant="mobile" />
       </div>
 
+
       {open && (
-        <>
-          <div 
-            className="fixed inset-0 z-[100] bg-background/80 backdrop-blur-md lg:hidden animate-in fade-in duration-300" 
-            onClick={() => setOpen(false)} 
-          />
-          <div className="fixed inset-y-0 right-0 z-[110] w-[85vw] max-w-[360px] bg-background border-l border-border/60 shadow-2xl animate-in slide-in-from-right duration-500 lg:hidden overflow-hidden flex flex-col">
-            <div className="flex items-center justify-between p-6 border-b border-border/40 bg-surface/50">
-              <div className="flex items-center gap-3">
-                <img src={nextplayLogo} alt="" className="h-8 w-auto" />
-                <span className="font-bold text-lg tracking-tight">Menu</span>
-              </div>
-              <button 
-                onClick={() => setOpen(false)} 
-                className="p-2 hover:bg-surface rounded-full transition-colors border border-border/40"
-              >
-                <X className="h-5 w-5" />
-              </button>
-            </div>
-            
-            <div className="flex-1 overflow-y-auto px-5 py-8">
-              <div className="mb-8">
-                <SearchBox variant="mobile" />
-              </div>
-              
-              <Link to="/" onClick={() => setOpen(false)} className="flex items-center gap-4 px-4 py-3.5 rounded-xl text-lg font-semibold hover:bg-surface active:scale-[0.98] transition-all border border-transparent hover:border-border/40">
-                <div className="w-10 h-10 rounded-lg bg-neon/10 grid place-items-center shrink-0">
-                  <Gamepad2 className="h-6 w-6 text-neon" />
-                </div>
-                <span>{t("nav.home")}</span>
+        <div className="lg:hidden border-t border-border bg-background/95 backdrop-blur">
+          <nav className="flex flex-col p-4 gap-1">
+            {nav.map(n => (
+              <Link key={n.to} to={n.to} onClick={() => setOpen(false)} className="px-3 py-2.5 rounded-md text-sm font-medium hover:bg-surface">
+                {n.label}
               </Link>
-              
-              <Link to="/marketplace" onClick={() => setOpen(false)} className="flex items-center gap-4 px-4 py-3.5 rounded-xl text-lg font-semibold hover:bg-surface active:scale-[0.98] transition-all border border-transparent hover:border-border/40">
-                <div className="w-10 h-10 rounded-lg bg-neon/10 grid place-items-center shrink-0">
-                  <ShoppingBag className="h-6 w-6 text-neon" />
-                </div>
-                <span>{t("nav.marketplace")}</span>
-              </Link>
-
-              <Link to="/gift-cards" onClick={() => setOpen(false)} className="flex items-center gap-4 px-4 py-3.5 rounded-xl text-lg font-semibold hover:bg-surface active:scale-[0.98] transition-all border border-transparent hover:border-border/40">
-                <div className="w-10 h-10 rounded-lg bg-neon/10 grid place-items-center shrink-0">
-                  <Gift className="h-6 w-6 text-neon" />
-                </div>
-                <span>Hədiyyə Kartları</span>
-              </Link>
-
-              <div className="my-2 h-px bg-border" />
-
-              {user ? (
-                <>
-                  <Link to="/profile" onClick={() => setOpen(false)} className="flex items-center gap-4 px-4 py-3.5 rounded-xl text-lg font-semibold hover:bg-surface active:scale-[0.98] transition-all">
-                    <div className="w-10 h-10 rounded-lg bg-surface grid place-items-center shrink-0 border border-border/40">
-                      <UserIcon className="h-6 w-6 text-foreground/80" />
-                    </div>
-                    <span>{t("menu.profile")}</span>
-                  </Link>
-                  <Link to="/orders" onClick={() => setOpen(false)} className="flex items-center gap-4 px-4 py-3.5 rounded-xl text-lg font-semibold hover:bg-surface active:scale-[0.98] transition-all">
-                    <div className="w-10 h-10 rounded-lg bg-surface grid place-items-center shrink-0 border border-border/40">
-                      <Package className="h-6 w-6 text-foreground/80" />
-                    </div>
-                    <span>{t("menu.orders")}</span>
-                  </Link>
-                  <Link to="/wallet" onClick={() => setOpen(false)} className="flex items-center gap-4 px-4 py-3.5 rounded-xl text-lg font-semibold hover:bg-surface active:scale-[0.98] transition-all">
-                    <div className="w-10 h-10 rounded-lg bg-surface grid place-items-center shrink-0 border border-border/40">
-                      <Wallet className="h-6 w-6 text-foreground/80" />
-                    </div>
-                    <span>Cüzdan ({balance !== null ? format(balance) : "0 AZN"})</span>
-                  </Link>
-                  <Link to="/messages" onClick={() => setOpen(false)} className="flex items-center gap-4 px-4 py-3.5 rounded-xl text-lg font-semibold hover:bg-surface active:scale-[0.98] transition-all relative">
-                    <div className="w-10 h-10 rounded-lg bg-surface grid place-items-center shrink-0 border border-border/40">
-                      <MessageSquare className="h-6 w-6 text-foreground/80" />
-                    </div>
-                    <span>Mesajlar</span>
-                    {unreadDm > 0 && (
-                      <span className="ml-auto min-w-[24px] h-6 px-2 grid place-items-center rounded-full bg-neon text-background text-xs font-bold shadow-[0_0_12px_rgba(0,255,170,0.4)]">
-                        {unreadDm}
-                      </span>
-                    )}
-                  </Link>
-                  <Link to="/favorites" onClick={() => setOpen(false)} className="flex items-center gap-4 px-4 py-3.5 rounded-xl text-lg font-semibold hover:bg-surface active:scale-[0.98] transition-all">
-                    <div className="w-10 h-10 rounded-lg bg-surface grid place-items-center shrink-0 border border-border/40">
-                      <Heart className="h-6 w-6 text-foreground/80" />
-                    </div>
-                    <span>İstək siyahım</span>
-                  </Link>
-                </>
-              ) : (
-                <div className="grid grid-cols-2 gap-3 p-2">
-                  <Link to="/login" onClick={() => setOpen(false)} className="flex items-center justify-center h-12 rounded-xl border border-border font-semibold text-sm">
-                    {t("auth.login")}
-                  </Link>
-                  <Link to="/register" onClick={() => setOpen(false)} className="flex items-center justify-center h-12 rounded-xl bg-neon text-background font-bold text-sm">
-                    {t("auth.register")}
-                  </Link>
-                </div>
-              )}
-
-              <div className="my-2 h-px bg-border" />
-
-              <div className="px-3 pt-2 pb-2">
-                <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold mb-3">Tənzimləmələr</p>
-                <div className="grid grid-cols-2 gap-2">
-                  <ThemeToggleMobile closeMenu={() => setOpen(false)} />
-                </div>
-              </div>
-
-              <div className="my-2 h-px bg-border" />
-
-              <Link to="/seller" onClick={() => setOpen(false)} className="flex items-center gap-4 px-4 py-3.5 rounded-xl text-lg font-semibold hover:bg-surface active:scale-[0.98] transition-all">
-                <div className="w-10 h-10 rounded-lg bg-neon/10 grid place-items-center shrink-0">
-                  <LayoutDashboard className="h-6 w-6 text-neon" />
-                </div>
-                <span>{t("nav.seller")}</span>
-              </Link>
-              
-              <Link to="/support" onClick={() => setOpen(false)} className="flex items-center gap-4 px-4 py-3.5 rounded-xl text-lg font-semibold hover:bg-surface active:scale-[0.98] transition-all">
-                <div className="w-10 h-10 rounded-lg bg-neon/10 grid place-items-center shrink-0">
-                  <LifeBuoy className="h-6 w-6 text-neon" />
-                </div>
-                <span>{t("nav.support")}</span>
-              </Link>
-
-              {isAdmin && (
-                <Link to="/admin" onClick={() => setOpen(false)} className="flex items-center gap-4 px-4 py-3.5 rounded-xl text-lg font-semibold bg-neon/10 text-neon transition mt-4 shadow-[0_0_15px_rgba(0,255,170,0.1)]">
-                  <div className="w-10 h-10 rounded-lg bg-neon grid place-items-center shrink-0">
-                    <ShieldCheck className="h-6 w-6 text-background" />
-                  </div>
-                  <span>{t("menu.admin")}</span>
-                </Link>
-              )}
-
-              {user && (
-                <button onClick={handleSignOut} className="flex items-center gap-4 px-4 py-3.5 mt-8 rounded-xl text-lg font-semibold text-destructive hover:bg-destructive/10 transition w-full text-left">
-                  <div className="w-10 h-10 rounded-lg bg-destructive/10 grid place-items-center shrink-0">
-                    <LogOut className="h-6 w-6 text-destructive" />
-                  </div>
-                  <span>{t("menu.signOut")}</span>
-                </button>
-              )}
-            </div>
-          </div>
-        </>
+            ))}
+          </nav>
+        </div>
       )}
     </header>
   );
 }
 
-
-function ThemeToggleMobile({ closeMenu }: { closeMenu: () => void }) {
-  const { theme, toggle } = useTheme();
-  return (
-    <button 
-      onClick={() => { toggle(); closeMenu(); }}
-      className="flex items-center justify-center gap-2 h-12 rounded-xl border border-border bg-surface/50 text-sm font-semibold w-full active:scale-95 transition-all shadow-sm"
-    >
-      <Moon className="h-3.5 w-3.5" /> {theme === "dark" ? "İşıqlı" : "Qaranlıq"}
-    </button>
-  );
-}
-
+import { useCart } from "@/lib/cart";
 function CartButton() {
   const { count } = useCart();
   return (

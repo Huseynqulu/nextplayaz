@@ -13,7 +13,7 @@ import { SellerOrderDetailDialog } from "@/components/SellerOrderDetailDialog";
 
 export const Route = createFileRoute("/_authenticated/seller-orders")({
   component: SellerOrdersPage,
-  validateSearch: (s: Record<string, unknown>) => ({ open: s.open as string | undefined }),
+  validateSearch: (s: Record<string, unknown>) => ({ open: typeof s.open === "string" ? s.open : undefined }),
   head: () => ({ meta: [{ title: "Gələn Sifarişlər — NextPlay.az" }] }),
 });
 

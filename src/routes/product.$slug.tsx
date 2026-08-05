@@ -107,7 +107,7 @@ function ProductPage() {
   const fav = isFav(p.id);
   useEffect(() => { trackView(p.id); }, [p.id]);
   async function handleFav() {
-    if (!user) { toast.error("Daxil olun"); navigate({ to: "/login" }); return; }
+    if (!user) { toast.error("Daxil olun"); navigate({ to: "/auth" }); return; }
     if (!isRealProductId(p.id)) { toast.error("Bu məhsul saxlanıla bilməz"); return; }
     await toggleFav(p.id);
   }

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { getRecentSales } from "@/lib/homepage.functions";
+import { supabase } from "@/integrations/supabase/client";
 import { ShoppingBag, Sparkles } from "lucide-react";
 import { useCurrency } from "@/lib/currency";
 import { useT } from "@/lib/i18n";
@@ -38,12 +38,8 @@ export function LiveSalesTicker() {
   const [sales, setSales] = useState<Sale[]>([]);
 
   async function load() {
-    try {
-      const data = await getRecentSales();
-      if (Array.isArray(data)) setSales(data as Sale[]);
-    } catch (err) {
-      console.error("Failed to load recent sales:", err);
-    }
+    const { data } = await supabase.rpc("get_recent_sales" as any, { _limit: 14 });
+    if (Array.isArray(data)) setSales(data as Sale[]);
   }
   useEffect(() => {
     void load();
