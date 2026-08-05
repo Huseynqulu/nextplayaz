@@ -252,16 +252,26 @@ export function Header() {
 
       {open && (
         <>
-          <div className="fixed inset-0 z-[100] bg-background/40 backdrop-blur-sm lg:hidden" onClick={() => setOpen(false)} />
-          <div className="fixed inset-y-0 right-0 z-[110] w-[280px] bg-background border-l border-border shadow-2xl animate-in slide-in-from-right duration-300 lg:hidden overflow-y-auto">
-            <div className="flex items-center justify-between p-4 border-b border-border">
-              <span className="font-bold text-lg">Menu</span>
-              <button onClick={() => setOpen(false)} className="p-2 hover:bg-surface rounded-lg">
-                <X className="h-6 w-6" />
+          <div 
+            className="fixed inset-0 z-[100] bg-background/80 backdrop-blur-md lg:hidden animate-in fade-in duration-300" 
+            onClick={() => setOpen(false)} 
+          />
+          <div className="fixed inset-y-0 right-0 z-[110] w-[300px] bg-background border-l border-border/60 shadow-2xl animate-in slide-in-from-right duration-500 lg:hidden overflow-hidden flex flex-col">
+            <div className="flex items-center justify-between p-5 border-b border-border/40 bg-surface/50">
+              <div className="flex items-center gap-3">
+                <img src={nextplayLogo} alt="" className="h-8 w-auto" />
+                <span className="font-bold text-lg tracking-tight">Menu</span>
+              </div>
+              <button 
+                onClick={() => setOpen(false)} 
+                className="p-2 hover:bg-surface rounded-full transition-colors border border-border/40"
+              >
+                <X className="h-5 w-5" />
               </button>
             </div>
-            <nav className="flex flex-col p-4 gap-1">
-              <div className="pb-4 mb-2 border-b border-border">
+            
+            <div className="flex-1 overflow-y-auto px-4 py-6">
+              <div className="mb-8">
                 <SearchBox variant="mobile" />
               </div>
               
