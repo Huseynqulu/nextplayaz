@@ -314,6 +314,26 @@ export function Header() {
               <span>{t("nav.support")}</span>
             </Link>
 
+            <div className="my-2 h-px bg-border" />
+
+            <div className="px-3 pt-2 pb-2">
+              <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold mb-3">Tənzimləmələr</p>
+              <div className="grid grid-cols-2 gap-2">
+                <button 
+                  onClick={() => { supabase.auth.signOut(); setOpen(false); }}
+                  className="flex items-center justify-center gap-2 h-10 rounded-lg border border-border bg-surface/50 text-xs font-semibold"
+                >
+                  <Globe className="h-3.5 w-3.5" /> Dil / Valyuta
+                </button>
+                <button 
+                  onClick={() => { /* toggle theme logic if accessible */ }}
+                  className="flex items-center justify-center gap-2 h-10 rounded-lg border border-border bg-surface/50 text-xs font-semibold"
+                >
+                  <Moon className="h-3.5 w-3.5" /> Rejim
+                </button>
+              </div>
+            </div>
+
             {isAdmin && (
               <Link to="/admin" onClick={() => setOpen(false)} className="flex items-center gap-3 px-3 py-3 rounded-xl text-base font-semibold bg-neon/10 text-neon transition mt-2">
                 <ShieldCheck className="h-5 w-5" />
