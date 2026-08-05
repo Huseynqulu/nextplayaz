@@ -169,6 +169,16 @@ function AppToaster() {
   );
 }
 
+function PixelPageViews() {
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const first = useRef(true);
+  useEffect(() => {
+    if (first.current) { first.current = false; return; } // base code already sent it
+    trackPageView();
+  }, [pathname]);
+  return null;
+}
+
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   return (
