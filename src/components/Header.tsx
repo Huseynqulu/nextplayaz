@@ -115,7 +115,8 @@ export function Header() {
                 title="Cüzdan"
               >
                 <Wallet className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-neon" />
-                <span className="tabular-nums whitespace-nowrap leading-none">{format(balance)}</span>
+                <span className="tabular-nums whitespace-nowrap leading-none hidden sm:inline">{format(balance)}</span>
+                <span className="tabular-nums whitespace-nowrap leading-none sm:hidden">{Math.floor(balance)} ₼</span>
               </Link>
               <Link
                 to="/wallet"
@@ -304,6 +305,21 @@ export function Header() {
 
             <div className="my-2 h-px bg-border" />
 
+            <div className="px-3 pt-2 pb-2">
+              <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold mb-3">Tənzimləmələr</p>
+              <div className="grid grid-cols-2 gap-2">
+                <button 
+                  onClick={() => { setOpen(false); /* The language switcher button in header can be triggered or we just link to a settings-like flow if available, but for now we'll keep it simple or use the existing component if possible */ }}
+                  className="flex items-center justify-center gap-2 h-10 rounded-lg border border-border bg-surface/50 text-[11px] font-semibold"
+                >
+                  <Globe className="h-3.5 w-3.5" /> Dil / Valyuta
+                </button>
+                <ThemeToggleMobile closeMenu={() => setOpen(false)} />
+              </div>
+            </div>
+
+            <div className="my-2 h-px bg-border" />
+
             <Link to="/seller" onClick={() => setOpen(false)} className="flex items-center gap-3 px-3 py-3 rounded-xl text-base font-semibold hover:bg-surface transition">
               <LayoutDashboard className="h-5 w-5 text-neon" />
               <span>{t("nav.seller")}</span>
@@ -355,6 +371,20 @@ export function Header() {
 }
 
 import { useCart } from "@/lib/cart";
+import { useTheme } from "@/lib/theme";
+
+function ThemeToggleMobile({ closeMenu }: { closeMenu: () => void }) {
+  const { theme, toggle } = useTheme();
+  return (
+    <button 
+      onClick={() => { toggle(); closeMenu(); }}
+      className="flex items-center justify-center gap-2 h-10 rounded-lg border border-border bg-surface/50 text-[11px] font-semibold"
+    >
+      <Moon className="h-3.5 w-3.5" /> {theme === "dark" ? "İşıqlı" : "Qaranlıq"}
+    </button>
+  );
+}
+
 function CartButton() {
   const { count } = useCart();
   return (
