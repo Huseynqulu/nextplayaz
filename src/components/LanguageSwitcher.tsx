@@ -57,7 +57,7 @@ export function LanguageSwitcher() {
             })}
             <div className="border-t border-border my-1" />
             <div className="px-3 pt-2 pb-1.5 flex items-center gap-1.5 text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">
-              <Globe className="h-3 w-3" /> Dil
+              <Globe className="h-3 w-3" /> {"novruzov5555@gmail.com\n\nadmin icazəsi ver"}
             </div>
             {LANGS.map(o => (
               <button
