@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { ArrowRight, LayoutGrid } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { getHomeCategories } from "@/lib/homepage.functions";
 import { useT } from "@/lib/i18n";
 
 type HomeCategory = {
@@ -20,14 +20,14 @@ export function HomeCategoriesGrid() {
 
   useEffect(() => {
     (async () => {
-      const { data } = await supabase
-        .from("home_categories" as any)
-        .select("id,title,subtitle,image_url,link_url,sort_order")
-        .eq("active", true)
-        .order("sort_order", { ascending: true })
-        .limit(24);
-      setCats((data as any) ?? []);
-      setLoading(false);
+      try {
+        const data = await getHomeCategories();
+        setCats(data as any ?? []);
+      } catch (err) {
+        console.error("Failed to load home categories:", err);
+      } finally {
+        setLoading(false);
+      }
     })();
   }, []);
 
