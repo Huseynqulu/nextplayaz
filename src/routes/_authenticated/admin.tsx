@@ -860,6 +860,127 @@ function AdminPage() {
                 ))}
               </div>
             )
+          ) : tab === "coupons" ? (
+            <div className="space-y-4">
+              <div className="rounded-2xl border border-border bg-card-gradient p-5 card-shadow">
+                <h3 className="font-semibold mb-4 inline-flex items-center gap-2"><Plus className="h-4 w-4 text-neon" /> Yeni Kampaniya / Endirim Kodu</h3>
+                <div className="grid sm:grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-[10px] uppercase text-muted-foreground font-bold px-1">Kod</label>
+                    <input value={newCode.code} onChange={e => setNewCode({ ...newCode, code: e.target.value })}
+                      placeholder="Məs: YENI10" className="h-10 px-3 rounded-md bg-background border border-border text-sm" />
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-[10px] uppercase text-muted-foreground font-bold px-1">Növ</label>
+                    <select value={newCode.discount_type} onChange={e => setNewCode({ ...newCode, discount_type: e.target.value })}
+                      className="h-10 px-3 rounded-md bg-background border border-border text-sm">
+                      <option value="percentage">Faiz (%)</option>
+                      <option value="fixed">Sabit Məbləğ (AZN)</option>
+                    </select>
+                  </div>
+                  {newCode.discount_type === 'percentage' ? (
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-[10px] uppercase text-muted-foreground font-bold px-1">Faiz (%)</label>
+                      <input type="number" value={newCode.percent} onChange={e => setNewCode({ ...newCode, percent: e.target.value })}
+                        placeholder="10" className="h-10 px-3 rounded-md bg-background border border-border text-sm" />
+                    </div>
+                  ) : (
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-[10px] uppercase text-muted-foreground font-bold px-1">Məbləğ (AZN)</label>
+                      <input type="number" value={newCode.fixed_amount} onChange={e => setNewCode({ ...newCode, fixed_amount: e.target.value })}
+                        placeholder="5.00" className="h-10 px-3 rounded-md bg-background border border-border text-sm" />
+                    </div>
+                  )}
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-[10px] uppercase text-muted-foreground font-bold px-1">Maks. Endirim (AZN)</label>
+                    <input type="number" value={newCode.max_discount_amount} onChange={e => setNewCode({ ...newCode, max_discount_amount: e.target.value })}
+                      placeholder="Limitsiz" className="h-10 px-3 rounded-md bg-background border border-border text-sm" />
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-[10px] uppercase text-muted-foreground font-bold px-1">Min. Sifariş (AZN)</label>
+                    <input type="number" value={newCode.min_subtotal} onChange={e => setNewCode({ ...newCode, min_subtotal: e.target.value })}
+                      className="h-10 px-3 rounded-md bg-background border border-border text-sm" />
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-[10px] uppercase text-muted-foreground font-bold px-1">Maliyyələşmə</label>
+                    <select value={newCode.funding_source} onChange={e => setNewCode({ ...newCode, funding_source: e.target.value as any })}
+                      className="h-10 px-3 rounded-md bg-background border border-border text-sm">
+                      <option value="seller">Satıcı (Seller)</option>
+                      <option value="platform">Platforma (NextPlay)</option>
+                    </select>
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-[10px] uppercase text-muted-foreground font-bold px-1">Ümumi Limit</label>
+                    <input type="number" value={newCode.max_uses} onChange={e => setNewCode({ ...newCode, max_uses: e.target.value })}
+                      placeholder="Limitsiz" className="h-10 px-3 rounded-md bg-background border border-border text-sm" />
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-[10px] uppercase text-muted-foreground font-bold px-1">Bitmə Tarixi</label>
+                    <input type="date" value={newCode.expires_at} onChange={e => setNewCode({ ...newCode, expires_at: e.target.value })}
+                      className="h-10 px-3 rounded-md bg-background border border-border text-sm" />
+                  </div>
+                  <div className="col-span-full md:col-span-2 flex flex-col gap-1.5">
+                    <label className="text-[10px] uppercase text-muted-foreground font-bold px-1">Kampaniya Adı (Admin üçün)</label>
+                    <input value={newCode.campaign_name} onChange={e => setNewCode({ ...newCode, campaign_name: e.target.value })}
+                      placeholder="Məs: Yeni İl Endirimi" className="h-10 px-3 rounded-md bg-background border border-border text-sm" />
+                  </div>
+                  <div className="flex items-end pb-1 gap-4">
+                    <label className="inline-flex items-center gap-2 text-xs font-semibold cursor-pointer">
+                      <input type="checkbox" checked={newCode.is_new_customer_only} onChange={e => setNewCode({ ...newCode, is_new_customer_only: e.target.checked })}
+                        className="h-4 w-4 accent-neon" />
+                      Yalnız Yeni
+                    </label>
+                    <button onClick={createCode} disabled={busy === "new-code"}
+                      className="h-10 flex-1 px-4 rounded-md bg-neon text-background text-sm font-bold neon-ring disabled:opacity-50">
+                      Yarat
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid gap-3">
+                {codes.length === 0 && <p className="text-muted-foreground text-center py-12">Heç bir endirim kodu yoxdur.</p>}
+                {codes.map(c => (
+                  <div key={c.id} className="rounded-xl border border-border bg-card-gradient p-4 card-shadow">
+                    <div className="flex items-center justify-between gap-4 flex-wrap">
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="font-mono font-bold text-neon bg-neon/10 px-2 py-0.5 rounded border border-neon/20">{c.code}</span>
+                          {c.campaign_name && <span className="text-xs text-muted-foreground">({c.campaign_name})</span>}
+                          {c.is_new_customer_only && <span className="text-[10px] font-bold bg-warning/20 text-warning px-1.5 py-0.5 rounded">YENİ</span>}
+                        </div>
+                        <div className="flex items-center gap-3 mt-2 text-xs">
+                          <span className="font-bold text-lg">
+                            {c.discount_type === 'percentage' ? `${c.percent}%` : `${c.fixed_amount} AZN`}
+                          </span>
+                          <span className="text-muted-foreground">·</span>
+                          <span>Min: {c.min_subtotal} AZN</span>
+                          <span className="text-muted-foreground">·</span>
+                          <span className={c.funding_source === 'platform' ? 'text-neon font-bold' : ''}>
+                            {c.funding_source === 'platform' ? 'Platforma' : 'Satıcı'}
+                          </span>
+                        </div>
+                        <p className="text-[11px] text-muted-foreground mt-1">
+                          İstifadə: <span className="font-bold text-foreground">{c.used_count}</span>
+                          {c.max_uses ? ` / ${c.max_uses}` : " (Limitsiz)"}
+                          {c.expires_at && ` · Bitir: ${new Date(c.expires_at).toLocaleDateString()}`}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <button onClick={() => toggleCode(c)} disabled={busy === c.id}
+                          className={`h-9 px-3 rounded-md text-xs font-bold transition ${c.is_active ? "bg-success/20 text-success border border-success/30" : "bg-muted text-muted-foreground border border-border"}`}>
+                          {c.is_active ? "Aktiv" : "Deaktiv"}
+                        </button>
+                        <button onClick={() => deleteCode(c)} disabled={busy === c.id}
+                          className="h-9 w-9 grid place-items-center rounded-md bg-destructive/10 text-destructive border border-destructive/20 hover:bg-destructive hover:text-white transition">
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
           ) : tab === "topups" ? (
             <div className="space-y-3">
               <div className="flex gap-2 flex-wrap mb-2">
