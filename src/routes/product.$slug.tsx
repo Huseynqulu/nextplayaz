@@ -292,7 +292,7 @@ function ProductPage() {
                   p.delivery === "Instant" ? "bg-neon/15 text-neon border border-neon/30" : "bg-surface border border-border"
                 }`}>
                   {p.delivery === "Instant" && <Zap className="h-3 w-3" />}
-                  {p.delivery === "Instant" ? "Anında çatdırılma" : "Əllə çatdırılma"}
+                  {p.delivery === "Instant" ? t("product.delivery.instant") : t("product.delivery.manual")}
                 </span>
               </div>
 

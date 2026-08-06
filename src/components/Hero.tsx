@@ -75,9 +75,9 @@ export function Hero() {
           </div>
 
           <div className="mt-12 grid grid-cols-3 gap-6 max-w-lg">
-            <Stat icon={<Trophy className="h-4 w-4" />} value="5000+" label={t("hero.stat1")} />
-            <Stat icon={<ShieldCheck className="h-4 w-4" />} value="100%" label={t("hero.stat2")} />
-            <Stat icon={<Zap className="h-4 w-4" />} value="24/7" label={t("hero.stat3")} />
+            <Stat icon={<Trophy className="h-4 w-4" />} label={t("hero.stat1")} />
+            <Stat icon={<ShieldCheck className="h-4 w-4" />} label={t("hero.stat2")} />
+            <Stat icon={<Zap className="h-4 w-4" />} label={t("hero.stat3")} />
           </div>
         </div>
       </div>
@@ -87,12 +87,11 @@ export function Hero() {
   );
 }
 
-function Stat({ icon, value, label }: { icon: React.ReactNode; value: string; label: string }) {
+function Stat({ icon, label }: { icon: React.ReactNode; label: string }) {
   return (
     <div className="border-l-2 border-neon/40 pl-3">
       <div className="flex items-center gap-1.5 text-neon mb-1">{icon}</div>
-      <div className="font-display text-2xl font-bold">{value}</div>
-      <div className="text-xs text-muted-foreground leading-tight">{label}</div>
+      <div className="text-xs text-muted-foreground leading-tight font-semibold uppercase tracking-wider">{label}</div>
     </div>
   );
 }
