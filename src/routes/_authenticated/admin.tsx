@@ -423,14 +423,35 @@ function AdminPage() {
     const payload: any = {
       code: newCode.code.trim().toUpperCase(),
       percent: Number(newCode.percent),
+      discount_type: newCode.discount_type,
+      fixed_amount: newCode.fixed_amount ? Number(newCode.fixed_amount) : null,
+      max_discount_amount: newCode.max_discount_amount ? Number(newCode.max_discount_amount) : null,
+      min_subtotal: Number(newCode.min_subtotal),
+      funding_source: newCode.funding_source,
+      is_new_customer_only: newCode.is_new_customer_only,
+      per_user_limit: Number(newCode.per_user_limit),
       max_uses: newCode.max_uses ? Number(newCode.max_uses) : null,
       expires_at: newCode.expires_at ? new Date(newCode.expires_at).toISOString() : null,
       created_by: user!.id,
+      campaign_name: newCode.campaign_name || null
     };
     const { error } = await supabase.from("discount_codes").insert(payload);
     if (error) toast.error(error.message); else {
       toast.success("Endirim kodu yaradıldı");
-      setNewCode({ code: "", percent: "10", max_uses: "", expires_at: "" });
+      setNewCode({ 
+        code: "", 
+        percent: "10", 
+        discount_type: "percentage",
+        fixed_amount: "",
+        max_discount_amount: "",
+        min_subtotal: "0",
+        funding_source: "seller",
+        is_new_customer_only: false,
+        per_user_limit: "1",
+        max_uses: "", 
+        expires_at: "",
+        campaign_name: ""
+      });
       await refresh();
     }
     setBusy(null);
