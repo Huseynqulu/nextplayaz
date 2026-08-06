@@ -269,6 +269,30 @@ function WalletPage() {
               {tab === "topup" ? (
                 <div className="rounded-2xl border border-border bg-card-gradient p-6 card-shadow space-y-4">
                   <h2 className="font-semibold text-lg inline-flex items-center gap-2"><Zap className="h-4 w-4 text-neon" /> BirBank ilə balans artır</h2>
+                  
+                  <div className="space-y-4 my-4">
+                    <p className="text-sm text-muted-foreground">{t("wallet.instructions")}</p>
+                    <div className="space-y-3">
+                      <div className="flex items-start gap-3">
+                        <div className="h-6 w-6 rounded-full bg-neon/10 text-neon flex items-center justify-center text-xs font-bold shrink-0">1</div>
+                        <p className="text-sm">{t("wallet.step1")}</p>
+                      </div>
+                      <div className="flex items-start gap-3">
+                        <div className="h-6 w-6 rounded-full bg-neon/10 text-neon flex items-center justify-center text-xs font-bold shrink-0">2</div>
+                        <p className="text-sm">{t("wallet.step2")}</p>
+                      </div>
+                      <div className="flex items-start gap-3">
+                        <div className="h-6 w-6 rounded-full bg-neon/10 text-neon flex items-center justify-center text-xs font-bold shrink-0">3</div>
+                        <p className="text-sm">{t("wallet.step3")}</p>
+                      </div>
+                    </div>
+                    <div className="p-4 rounded-xl border border-warning/30 bg-warning/5 flex items-start gap-3">
+                      <Clock className="h-4 w-4 text-warning mt-0.5 shrink-0" />
+                      <p className="text-xs text-warning-foreground leading-relaxed">
+                        {t("wallet.verificationNotice")}
+                      </p>
+                    </div>
+                  </div>
 
                   {step === "amount" ? (
                     <>
