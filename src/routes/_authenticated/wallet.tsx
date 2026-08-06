@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { burstConfetti } from "@/lib/celebrate";
 import { Wallet, Loader2, Receipt, CheckCircle2, XCircle, Clock, ArrowDownToLine, ArrowUpFromLine, ExternalLink, Zap, Upload, X } from "lucide-react";
 import { useCurrency } from "@/lib/currency";
+import { useT } from "@/lib/i18n";
 import { GiftCardRedeem } from "@/components/GiftCardRedeem";
 import { LoyaltyCard } from "@/components/LoyaltyCard";
 
@@ -36,6 +37,7 @@ const WITHDRAW_METHODS: { value: string; label: string; hint: string }[] = [
 ];
 
 function WalletPage() {
+  const t = useT();
   const { user } = useAuth();
   const { format } = useCurrency();
   const [balance, setBalance] = useState<number>(0);

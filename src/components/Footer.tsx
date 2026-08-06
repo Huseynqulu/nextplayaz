@@ -44,6 +44,9 @@ export function Footer() {
         </div>
 
         <div className="mt-12 pt-8 border-t border-border flex flex-col sm:flex-row justify-between items-center gap-4">
+          <div className="flex flex-wrap gap-4 opacity-50 grayscale hover:grayscale-0 transition-all duration-500">
+            {/* Supported methods are described in the Wallet and Support pages */}
+          </div>
           <p className="text-xs text-muted-foreground">© {new Date().getFullYear()} NextPlay.az — {t("footer.rights")}</p>
           <div className="flex gap-6 text-xs text-muted-foreground">
             <Link to="/terms" className="hover:text-foreground transition">{t("footer.terms")}</Link>
