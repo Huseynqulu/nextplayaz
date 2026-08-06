@@ -268,6 +268,7 @@ export type Database = {
           hero_badge_az: string | null
           hero_badge_en: string | null
           hero_badge_ru: string | null
+          hero_countdown_enabled: boolean | null
           hero_cta_az: string | null
           hero_cta_dest: string | null
           hero_cta_en: string | null
@@ -276,10 +277,14 @@ export type Database = {
           hero_description_en: string | null
           hero_description_ru: string | null
           hero_enabled: boolean | null
+          hero_featured_category_id: string | null
+          hero_featured_product_id: string | null
           hero_headline_az: string | null
           hero_headline_en: string | null
           hero_headline_ru: string | null
           hero_image_url: string | null
+          hero_image_url_mobile: string | null
+          hero_placement: string | null
           hero_priority: number | null
           hero_theme: string | null
           id: string
@@ -311,6 +316,7 @@ export type Database = {
           hero_badge_az?: string | null
           hero_badge_en?: string | null
           hero_badge_ru?: string | null
+          hero_countdown_enabled?: boolean | null
           hero_cta_az?: string | null
           hero_cta_dest?: string | null
           hero_cta_en?: string | null
@@ -319,10 +325,14 @@ export type Database = {
           hero_description_en?: string | null
           hero_description_ru?: string | null
           hero_enabled?: boolean | null
+          hero_featured_category_id?: string | null
+          hero_featured_product_id?: string | null
           hero_headline_az?: string | null
           hero_headline_en?: string | null
           hero_headline_ru?: string | null
           hero_image_url?: string | null
+          hero_image_url_mobile?: string | null
+          hero_placement?: string | null
           hero_priority?: number | null
           hero_theme?: string | null
           id?: string
@@ -354,6 +364,7 @@ export type Database = {
           hero_badge_az?: string | null
           hero_badge_en?: string | null
           hero_badge_ru?: string | null
+          hero_countdown_enabled?: boolean | null
           hero_cta_az?: string | null
           hero_cta_dest?: string | null
           hero_cta_en?: string | null
@@ -362,10 +373,14 @@ export type Database = {
           hero_description_en?: string | null
           hero_description_ru?: string | null
           hero_enabled?: boolean | null
+          hero_featured_category_id?: string | null
+          hero_featured_product_id?: string | null
           hero_headline_az?: string | null
           hero_headline_en?: string | null
           hero_headline_ru?: string | null
           hero_image_url?: string | null
+          hero_image_url_mobile?: string | null
+          hero_placement?: string | null
           hero_priority?: number | null
           hero_theme?: string | null
           id?: string
@@ -381,7 +396,22 @@ export type Database = {
           updated_at?: string
           used_count?: number
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "discount_codes_hero_featured_category_id_fkey"
+            columns: ["hero_featured_category_id"]
+            isOneToOne: false
+            referencedRelation: "home_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "discount_codes_hero_featured_product_id_fkey"
+            columns: ["hero_featured_product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       dm_messages: {
         Row: {
@@ -1867,10 +1897,12 @@ export type Database = {
         Row: {
           code: string | null
           discount_type: string | null
+          ends_at: string | null
           fixed_amount: number | null
           hero_badge_az: string | null
           hero_badge_en: string | null
           hero_badge_ru: string | null
+          hero_countdown_enabled: boolean | null
           hero_cta_az: string | null
           hero_cta_dest: string | null
           hero_cta_en: string | null
@@ -1878,10 +1910,14 @@ export type Database = {
           hero_description_az: string | null
           hero_description_en: string | null
           hero_description_ru: string | null
+          hero_featured_category_id: string | null
+          hero_featured_product_id: string | null
           hero_headline_az: string | null
           hero_headline_en: string | null
           hero_headline_ru: string | null
           hero_image_url: string | null
+          hero_image_url_mobile: string | null
+          hero_placement: string | null
           hero_priority: number | null
           hero_theme: string | null
           id: string | null
@@ -1890,10 +1926,12 @@ export type Database = {
         Insert: {
           code?: string | null
           discount_type?: string | null
+          ends_at?: string | null
           fixed_amount?: number | null
           hero_badge_az?: string | null
           hero_badge_en?: string | null
           hero_badge_ru?: string | null
+          hero_countdown_enabled?: boolean | null
           hero_cta_az?: string | null
           hero_cta_dest?: string | null
           hero_cta_en?: string | null
@@ -1901,10 +1939,14 @@ export type Database = {
           hero_description_az?: string | null
           hero_description_en?: string | null
           hero_description_ru?: string | null
+          hero_featured_category_id?: string | null
+          hero_featured_product_id?: string | null
           hero_headline_az?: string | null
           hero_headline_en?: string | null
           hero_headline_ru?: string | null
           hero_image_url?: string | null
+          hero_image_url_mobile?: string | null
+          hero_placement?: string | null
           hero_priority?: number | null
           hero_theme?: string | null
           id?: string | null
@@ -1913,10 +1955,12 @@ export type Database = {
         Update: {
           code?: string | null
           discount_type?: string | null
+          ends_at?: string | null
           fixed_amount?: number | null
           hero_badge_az?: string | null
           hero_badge_en?: string | null
           hero_badge_ru?: string | null
+          hero_countdown_enabled?: boolean | null
           hero_cta_az?: string | null
           hero_cta_dest?: string | null
           hero_cta_en?: string | null
@@ -1924,16 +1968,35 @@ export type Database = {
           hero_description_az?: string | null
           hero_description_en?: string | null
           hero_description_ru?: string | null
+          hero_featured_category_id?: string | null
+          hero_featured_product_id?: string | null
           hero_headline_az?: string | null
           hero_headline_en?: string | null
           hero_headline_ru?: string | null
           hero_image_url?: string | null
+          hero_image_url_mobile?: string | null
+          hero_placement?: string | null
           hero_priority?: number | null
           hero_theme?: string | null
           id?: string | null
           percent?: number | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "discount_codes_hero_featured_category_id_fkey"
+            columns: ["hero_featured_category_id"]
+            isOneToOne: false
+            referencedRelation: "home_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "discount_codes_hero_featured_product_id_fkey"
+            columns: ["hero_featured_product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       public_profiles: {
         Row: {
