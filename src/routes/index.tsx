@@ -6,9 +6,10 @@ import { BannerCarousel } from "@/components/BannerCarousel";
 
 
 import { HomeCategoriesGrid } from "@/components/HomeCategoriesGrid";
-import { FeaturedProducts } from "@/components/FeaturedProducts";
+import { SelectedProducts } from "@/components/SelectedProducts";
 import { StatsSection } from "@/components/StatsSection";
 import { HowItWorks } from "@/components/HowItWorks";
+
 import { SellerCta } from "@/components/SellerCta";
 import { LiveSalesTicker } from "@/components/LiveSalesTicker";
 
@@ -78,7 +79,7 @@ function HomePage() {
         
 
 
-        <FeaturedProducts />
+        <SelectedProducts />
         <StatsSection />
         <HowItWorks />
         <SellerCta />
