@@ -47,7 +47,7 @@ export function CampaignCarousel() {
         ctaDest: c.hero_cta_dest,
         imageUrl: c.hero_image_url,
         theme: c.hero_theme,
-        type: "campaign"
+        type: "campaign" as const
       }));
     }
   });
