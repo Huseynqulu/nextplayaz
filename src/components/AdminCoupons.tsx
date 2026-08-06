@@ -182,28 +182,28 @@ export function AdminCoupons() {
                 <div className="space-y-4">
                   <div className="space-y-1">
                     <span className="text-[10px] uppercase font-bold text-muted-foreground">Badge ({tab})</span>
-                    <input value={c[`hero_badge_${tab}` as keyof DiscountCode] || ""} onChange={e => {
+                    <input value={(c[`hero_badge_${tab}` as keyof DiscountCode] as string) || ""} onChange={e => {
                       const n = [...items]; (n[i] as any)[`hero_badge_${tab}`] = e.target.value; setItems(n);
                     }} className="w-full h-9 px-3 rounded-md bg-background border border-border text-sm" />
                   </div>
 
                   <div className="space-y-1">
                     <span className="text-[10px] uppercase font-bold text-muted-foreground">Headline ({tab})</span>
-                    <input value={c[`hero_headline_${tab}` as keyof DiscountCode] || ""} onChange={e => {
+                    <input value={(c[`hero_headline_${tab}` as keyof DiscountCode] as string) || ""} onChange={e => {
                       const n = [...items]; (n[i] as any)[`hero_headline_${tab}`] = e.target.value; setItems(n);
                     }} className="w-full h-9 px-3 rounded-md bg-background border border-border text-sm" />
                   </div>
 
                   <div className="space-y-1">
                     <span className="text-[10px] uppercase font-bold text-muted-foreground">Açıqlama ({tab})</span>
-                    <textarea value={c[`hero_description_${tab}` as keyof DiscountCode] || ""} onChange={e => {
+                    <textarea value={(c[`hero_description_${tab}` as keyof DiscountCode] as string) || ""} onChange={e => {
                       const n = [...items]; (n[i] as any)[`hero_description_${tab}`] = e.target.value; setItems(n);
                     }} className="w-full px-3 py-2 rounded-md bg-background border border-border text-sm min-h-[80px]" />
                   </div>
 
                    <div className="space-y-1">
                     <span className="text-[10px] uppercase font-bold text-muted-foreground">CTA Text ({tab})</span>
-                    <input value={c[`hero_cta_${tab}` as keyof DiscountCode] || ""} onChange={e => {
+                    <input value={(c[`hero_cta_${tab}` as keyof DiscountCode] as string) || ""} onChange={e => {
                       const n = [...items]; (n[i] as any)[`hero_cta_${tab}`] = e.target.value; setItems(n);
                     }} className="w-full h-9 px-3 rounded-md bg-background border border-border text-sm" />
                   </div>
