@@ -58,7 +58,7 @@ export function CampaignCarousel() {
       code: "",
       type: "brand",
       badge: t("hero.badge"),
-      headline: t("hero.title1") + " " + t("hero.title2"),
+      headline: t("hero.title"),
       description: t("hero.sub"),
       ctaLabel: t("hero.cta1"),
       ctaDest: "/marketplace",
@@ -176,16 +176,16 @@ export function CampaignCarousel() {
                   className="pt-8 grid grid-cols-3 gap-6 max-w-lg border-t border-border/50"
                 >
                   <div className="flex flex-col gap-1">
-                    <Trophy className="h-4 w-4 text-neon" />
-                    <span className="text-[10px] uppercase font-bold tracking-widest text-muted-foreground">{t("hero.trust1")}</span>
+                    <ShieldCheck className="h-4 w-4 text-neon" />
+                    <span className="text-[10px] uppercase font-bold tracking-widest text-muted-foreground">{t("hero.trustSafeOrder")}</span>
                   </div>
                   <div className="flex flex-col gap-1">
-                    <ShieldCheck className="h-4 w-4 text-neon" />
-                    <span className="text-[10px] uppercase font-bold tracking-widest text-muted-foreground">{t("hero.trust2")}</span>
+                    <Trophy className="h-4 w-4 text-neon" />
+                    <span className="text-[10px] uppercase font-bold tracking-widest text-muted-foreground">{t("hero.trustVerifiedSellers")}</span>
                   </div>
                   <div className="flex flex-col gap-1">
                     <Zap className="h-4 w-4 text-neon" />
-                    <span className="text-[10px] uppercase font-bold tracking-widest text-muted-foreground">{t("hero.trust3")}</span>
+                    <span className="text-[10px] uppercase font-bold tracking-widest text-muted-foreground">{t("hero.trustSupport")}</span>
                   </div>
                 </motion.div>
               )}
