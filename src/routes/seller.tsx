@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useT } from "@/lib/i18n";
 
 export const Route = createFileRoute("/seller")({
   component: SellerPage,
@@ -24,6 +25,7 @@ export const Route = createFileRoute("/seller")({
 type FileSlot = "id_front" | "id_back" | "selfie";
 
 function SellerPage() {
+  const t = useT();
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const [existing, setExisting] = useState<{ status: string; created_at: string } | null>(null);
@@ -104,7 +106,7 @@ function SellerPage() {
               Gaming məhsullarınla <br /><span className="text-gradient">qazanmağa başla</span>
             </h1>
             <p className="mt-5 text-muted-foreground max-w-2xl mx-auto">
-              Sadəcə bir neçə addımda yoxlanılmış satıcı statusu qazan və minlərlə alıcıya çıxış əldə et.
+              {t("home.seller.sub")}
             </p>
           </div>
         </section>
@@ -113,9 +115,9 @@ function SellerPage() {
           <div className="space-y-5">
             <h2 className="font-display text-2xl font-bold">Niyə NextPlay-də satmalısan?</h2>
             {[
-              { icon: TrendingUp, t: "Yüksək qazanc", d: "Orta aylıq satıcı qazancı 800-2500 AZN" },
-              { icon: Wallet, t: "Sürətli ödəniş", d: "Tamamlanmış sifariş — 24 saata balansda" },
-              { icon: ShieldCheck, t: "Tam qorunma", d: "Escrow sistem fraud-dan qoruyur" },
+              { icon: TrendingUp, t: t("home.seller.f1.title"), d: t("home.seller.f1.desc") },
+              { icon: Wallet, t: t("home.seller.f2.title"), d: t("home.seller.f2.desc") },
+              { icon: ShieldCheck, t: t("home.seller.f3.title"), d: t("home.seller.f3.desc") },
             ].map((f, i) => (
               <div key={i} className="flex gap-4 p-5 rounded-2xl border border-border bg-card-gradient">
                 <div className="grid h-11 w-11 place-items-center rounded-xl bg-neon/15 border border-neon/30 shrink-0">

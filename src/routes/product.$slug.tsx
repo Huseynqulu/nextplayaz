@@ -14,6 +14,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
 import { useCurrency } from "@/lib/currency";
 import { VerifiedBadge } from "@/components/VerifiedBadge";
+import { useT } from "@/lib/i18n";
 import { useFavorites, isRealProductId } from "@/lib/favorites";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { notifyEmail } from "@/lib/notifications/notify-email";
@@ -62,6 +63,7 @@ export const Route = createFileRoute("/product/$slug")({
 });
 
 function ProductPage() {
+  const t = useT();
   const { product: p } = Route.useLoaderData();
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -292,7 +294,7 @@ function ProductPage() {
                   p.delivery === "Instant" ? "bg-neon/15 text-neon border border-neon/30" : "bg-surface border border-border"
                 }`}>
                   {p.delivery === "Instant" && <Zap className="h-3 w-3" />}
-                  {p.delivery === "Instant" ? "Anında çatdırılma" : "Əllə çatdırılma"}
+                  {p.delivery === "Instant" ? t("product.delivery.instant") : t("product.delivery.manual")}
                 </span>
               </div>
 

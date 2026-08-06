@@ -41,7 +41,7 @@ function RefundPage() {
               "Satıcı sifarişi ləğv etdikdə;",
               "Administrator alıcının xeyrinə qərar verdikdə.",
             ],
-            "Bütün geri qaytarmalar alıcının NextPlay cüzdanına 100% məbləğdə qaytarılır və dərhal yeni alış üçün və ya bank hesabına çıxarmaq üçün istifadə oluna bilər.",
+            "Bütün geri qaytarmalar alıcının NextPlay cüzdanına tam məbləğdə qaytarılır və dərhal yeni alış üçün və ya bank hesabına çıxarmaq üçün istifadə oluna bilər.",
           ],
         },
         {
