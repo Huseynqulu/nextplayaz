@@ -17,6 +17,7 @@ import { VerifiedBadge } from "@/components/VerifiedBadge";
 import { useT } from "@/lib/i18n";
 import { useFavorites, isRealProductId } from "@/lib/favorites";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
+import { ProductCoverPlaceholder } from "@/components/ProductCoverPlaceholder";
 import { notifyEmail } from "@/lib/notifications/notify-email";
 
 export const Route = createFileRoute("/product/$slug")({

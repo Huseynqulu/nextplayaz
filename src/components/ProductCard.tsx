@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { Star, Zap, Heart, ShoppingCart, BadgeCheck, Flame } from "lucide-react";
 import { VerifiedBadge } from "@/components/VerifiedBadge";
+import { ProductCoverPlaceholder } from "@/components/ProductCoverPlaceholder";
 import type { Product } from "@/lib/marketplace-data";
 import { useFavorites, isRealProductId } from "@/lib/favorites";
 import { useAuth } from "@/hooks/use-auth";
@@ -40,7 +41,7 @@ export function ProductCard({ p, variant = "default" }: { p: Product; variant?: 
 
   function addToCart(e: React.MouseEvent) {
     e.preventDefault(); e.stopPropagation();
-    add({ id: p.id, slug: p.slug, title: p.title, image: p.image || undefined, price: p.price, sellerName: p.seller.name, stock: p.stock });
+    add({ id: p.id, slug: p.slug, title: p.title, image: p.image, price: p.price, sellerName: p.seller.name, stock: p.stock });
     toast.success("Səbətə əlavə edildi");
   }
 

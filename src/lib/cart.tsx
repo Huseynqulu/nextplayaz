@@ -4,7 +4,7 @@ export type CartItem = {
   id: string;          // product id
   slug: string;
   title: string;
-  image: string;
+  image?: string | null;
   price: number;
   sellerName: string;
   qty: number;
