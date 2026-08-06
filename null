@@ -1,3 +1,1 @@
-ls: cannot access 'src/lib/discount*': No such file or directory
-ls: cannot access 'src/lib/promo*': No such file or directory
-ls: cannot access 'src/lib/coupon*': No such file or directory
+bash: line 3: supabase--read_query: command not found
