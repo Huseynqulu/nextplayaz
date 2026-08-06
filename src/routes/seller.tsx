@@ -6,6 +6,10 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useT } from "@/lib/i18n";
+import { useAuth } from "@/hooks/use-auth";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/seller")({
   component: SellerPage,
@@ -24,6 +28,7 @@ export const Route = createFileRoute("/seller")({
 type FileSlot = "id_front" | "id_back" | "selfie";
 
 function SellerPage() {
+  const t = useT();
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const [existing, setExisting] = useState<{ status: string; created_at: string } | null>(null);

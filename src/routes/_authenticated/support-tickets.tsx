@@ -276,7 +276,7 @@ function SupportTicketsPage() {
                 <EmptyState
                   icon={LifeBuoy}
                   title="Müraciətin yoxdur"
-                  description="Hər hansı problem var? Yeni müraciət aç, dəstək komandamız 24/7 cavab verir."
+                  description={`Hər hansı problem var? Yeni müraciət aç, dəstək komandamız operativ cavab verir.`}
                   ctaLabel="Yeni müraciət"
                   ctaOnClick={() => setCreating(true)}
                 />

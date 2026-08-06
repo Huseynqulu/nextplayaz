@@ -32,7 +32,7 @@ function SupportPage() {
         <section className="border-b border-border bg-hero">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-20 text-center">
             <h1 className="font-display text-4xl sm:text-5xl font-bold">Sənə necə kömək edə bilərik?</h1>
-            <p className="mt-4 text-muted-foreground">24/7 onlayn dəstək, sürətli cavab</p>
+            <p className="mt-4 text-muted-foreground">Operativ onlayn dəstək, sürətli cavab</p>
             <Link to="/support-tickets" className="inline-flex items-center gap-2 mt-6 h-11 px-5 rounded-xl bg-neon text-background font-semibold neon-ring hover:scale-[1.02] transition">
               <LifeBuoy className="h-4 w-4" /> Dəstəyə müraciət et
             </Link>
