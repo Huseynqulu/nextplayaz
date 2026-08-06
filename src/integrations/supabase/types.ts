@@ -155,6 +155,13 @@ export type Database = {
             foreignKeyName: "campaign_usage_campaign_id_fkey"
             columns: ["campaign_id"]
             isOneToOne: false
+            referencedRelation: "active_hero_campaigns"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "campaign_usage_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
             referencedRelation: "discount_codes"
             referencedColumns: ["id"]
           },
@@ -258,6 +265,23 @@ export type Database = {
           funding_source:
             | Database["public"]["Enums"]["campaign_funding_source"]
             | null
+          hero_badge_az: string | null
+          hero_badge_en: string | null
+          hero_badge_ru: string | null
+          hero_cta_az: string | null
+          hero_cta_dest: string | null
+          hero_cta_en: string | null
+          hero_cta_ru: string | null
+          hero_description_az: string | null
+          hero_description_en: string | null
+          hero_description_ru: string | null
+          hero_enabled: boolean | null
+          hero_headline_az: string | null
+          hero_headline_en: string | null
+          hero_headline_ru: string | null
+          hero_image_url: string | null
+          hero_priority: number | null
+          hero_theme: string | null
           id: string
           is_active: boolean
           is_new_customer_only: boolean | null
@@ -284,6 +308,23 @@ export type Database = {
           funding_source?:
             | Database["public"]["Enums"]["campaign_funding_source"]
             | null
+          hero_badge_az?: string | null
+          hero_badge_en?: string | null
+          hero_badge_ru?: string | null
+          hero_cta_az?: string | null
+          hero_cta_dest?: string | null
+          hero_cta_en?: string | null
+          hero_cta_ru?: string | null
+          hero_description_az?: string | null
+          hero_description_en?: string | null
+          hero_description_ru?: string | null
+          hero_enabled?: boolean | null
+          hero_headline_az?: string | null
+          hero_headline_en?: string | null
+          hero_headline_ru?: string | null
+          hero_image_url?: string | null
+          hero_priority?: number | null
+          hero_theme?: string | null
           id?: string
           is_active?: boolean
           is_new_customer_only?: boolean | null
@@ -310,6 +351,23 @@ export type Database = {
           funding_source?:
             | Database["public"]["Enums"]["campaign_funding_source"]
             | null
+          hero_badge_az?: string | null
+          hero_badge_en?: string | null
+          hero_badge_ru?: string | null
+          hero_cta_az?: string | null
+          hero_cta_dest?: string | null
+          hero_cta_en?: string | null
+          hero_cta_ru?: string | null
+          hero_description_az?: string | null
+          hero_description_en?: string | null
+          hero_description_ru?: string | null
+          hero_enabled?: boolean | null
+          hero_headline_az?: string | null
+          hero_headline_en?: string | null
+          hero_headline_ru?: string | null
+          hero_image_url?: string | null
+          hero_priority?: number | null
+          hero_theme?: string | null
           id?: string
           is_active?: boolean
           is_new_customer_only?: boolean | null
@@ -1805,6 +1863,78 @@ export type Database = {
       }
     }
     Views: {
+      active_hero_campaigns: {
+        Row: {
+          code: string | null
+          discount_type: string | null
+          fixed_amount: number | null
+          hero_badge_az: string | null
+          hero_badge_en: string | null
+          hero_badge_ru: string | null
+          hero_cta_az: string | null
+          hero_cta_dest: string | null
+          hero_cta_en: string | null
+          hero_cta_ru: string | null
+          hero_description_az: string | null
+          hero_description_en: string | null
+          hero_description_ru: string | null
+          hero_headline_az: string | null
+          hero_headline_en: string | null
+          hero_headline_ru: string | null
+          hero_image_url: string | null
+          hero_priority: number | null
+          hero_theme: string | null
+          id: string | null
+          percent: number | null
+        }
+        Insert: {
+          code?: string | null
+          discount_type?: string | null
+          fixed_amount?: number | null
+          hero_badge_az?: string | null
+          hero_badge_en?: string | null
+          hero_badge_ru?: string | null
+          hero_cta_az?: string | null
+          hero_cta_dest?: string | null
+          hero_cta_en?: string | null
+          hero_cta_ru?: string | null
+          hero_description_az?: string | null
+          hero_description_en?: string | null
+          hero_description_ru?: string | null
+          hero_headline_az?: string | null
+          hero_headline_en?: string | null
+          hero_headline_ru?: string | null
+          hero_image_url?: string | null
+          hero_priority?: number | null
+          hero_theme?: string | null
+          id?: string | null
+          percent?: number | null
+        }
+        Update: {
+          code?: string | null
+          discount_type?: string | null
+          fixed_amount?: number | null
+          hero_badge_az?: string | null
+          hero_badge_en?: string | null
+          hero_badge_ru?: string | null
+          hero_cta_az?: string | null
+          hero_cta_dest?: string | null
+          hero_cta_en?: string | null
+          hero_cta_ru?: string | null
+          hero_description_az?: string | null
+          hero_description_en?: string | null
+          hero_description_ru?: string | null
+          hero_headline_az?: string | null
+          hero_headline_en?: string | null
+          hero_headline_ru?: string | null
+          hero_image_url?: string | null
+          hero_priority?: number | null
+          hero_theme?: string | null
+          id?: string | null
+          percent?: number | null
+        }
+        Relationships: []
+      }
       public_profiles: {
         Row: {
           avatar_url: string | null
