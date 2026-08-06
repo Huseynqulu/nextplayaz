@@ -1591,7 +1591,7 @@ function AdminPage() {
             <Suspense fallback={<TabFallback />}><AdminBoostPricing /></Suspense>
           ) : tab === "announcements" ? (
             <Suspense fallback={<TabFallback />}><AdminAnnouncements /></Suspense>
-          ) : tab === "coupons" ? (
+          ) : (tab as string) === "coupons" ? (
             <Suspense fallback={<TabFallback />}><AdminCoupons /></Suspense>
           ) : tab === "sellers" ? (
             <Suspense fallback={<TabFallback />}><AdminSellers /></Suspense>
