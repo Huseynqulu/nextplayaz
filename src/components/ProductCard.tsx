@@ -6,6 +6,7 @@ import { useFavorites, isRealProductId } from "@/lib/favorites";
 import { useAuth } from "@/hooks/use-auth";
 import { useCurrency } from "@/lib/currency";
 import { useCart } from "@/lib/cart";
+import { useT } from "@/lib/i18n";
 import { toast } from "sonner";
 
 function formatSoldAgo(iso?: string | null): string | null {
@@ -24,6 +25,7 @@ function formatSoldAgo(iso?: string | null): string | null {
 
 export function ProductCard({ p, variant = "default" }: { p: Product; variant?: "default" | "compact" | "list" }) {
   const { format } = useCurrency();
+  const t = useT();
   const discount = p.oldPrice ? Math.round((1 - p.price / p.oldPrice) * 100) : 0;
   const { isFav, toggle } = useFavorites();
   const { user } = useAuth();
