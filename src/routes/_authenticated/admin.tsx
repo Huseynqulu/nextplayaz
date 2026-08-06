@@ -20,6 +20,7 @@ const AdminAnnouncements = lazy(() => import("@/components/AdminAnnouncements").
 const AdminSellers = lazy(() => import("@/components/AdminSellers").then(m => ({ default: m.AdminSellers })));
 const AdminHomeCategories = lazy(() => import("@/components/AdminHomeCategories").then(m => ({ default: m.AdminHomeCategories })));
 const AdminTopupLinks = lazy(() => import("@/components/AdminTopupLinks").then(m => ({ default: m.AdminTopupLinks })));
+const AdminCoupons = lazy(() => import("@/components/AdminCoupons").then(m => ({ default: m.AdminCoupons })));
 import { notifyEmail } from "@/lib/notifications/notify-email";
 
 function TabFallback() {
