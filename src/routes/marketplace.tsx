@@ -36,9 +36,9 @@ export const Route = createFileRoute("/marketplace")({
   head: () => ({
     meta: [
       { title: "Marketplace — Oyunlar, hesablar və açarlar — NextPlay.az" },
-      { name: "description", content: "NextPlay.az marketplace: minlərlə oyun, hesab, CD açar, gift kart və gaming xidməti. Filtrlə, müqayisə et, escrow ilə al." },
+      { name: "description", content: "NextPlay.az marketplace: müxtəlif oyunlar, hesablar, CD açarlar, gift kartlar və gaming xidmətləri. Filtrlə, müqayisə et, təhlükəsiz şəkildə al." },
       { property: "og:title", content: "NextPlay.az Marketplace — Oyunlar, hesablar, açarlar" },
-      { property: "og:description", content: "Minlərlə gaming məhsulu tək yerdə. Escrow qorumalı alqı-satqı." },
+      { property: "og:description", content: "Gaming məhsulları tək yerdə. Təhlükəsiz sifariş prosesi ilə alqı-satqı." },
       { property: "og:url", content: "https://nextplay.az/marketplace" },
     ],
     links: [{ rel: "canonical", href: "https://nextplay.az/marketplace" }],

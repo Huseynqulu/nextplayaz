@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
+import { useT } from "@/lib/i18n";
 import { Loader2, LifeBuoy, Plus, ArrowLeft, Send, ShoppingBag, Paperclip, X } from "lucide-react";
 import { TicketListSkeleton } from "@/components/Skeletons";
 import { EmptyState } from "@/components/EmptyState";
@@ -43,6 +44,7 @@ const STATUS_COLOR: Record<string, string> = {
 };
 
 function SupportTicketsPage() {
+  const t = useT();
   const { user } = useAuth();
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [orders, setOrders] = useState<OrderOpt[]>([]);

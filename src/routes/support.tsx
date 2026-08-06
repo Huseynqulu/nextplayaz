@@ -8,9 +8,9 @@ export const Route = createFileRoute("/support")({
   head: () => ({
     meta: [
       { title: "Dəstək — NextPlay.az" },
-      { name: "description", content: "NextPlay.az dəstək mərkəzi: sual-cavab, mübahisə həlli və 24/7 canlı dəstək komandası ilə əlaqə." },
+      { name: "description", content: "NextPlay.az dəstək mərkəzi: sual-cavab, mübahisə həlli və operativ dəstək komandası ilə əlaqə." },
       { property: "og:title", content: "Dəstək — NextPlay.az" },
-      { property: "og:description", content: "24/7 canlı dəstək, mübahisə həlli və sual-cavab." },
+      { property: "og:description", content: "Operativ canlı dəstək, mübahisə həlli və sual-cavab." },
       { property: "og:url", content: "https://nextplay.az/support" },
     ],
     links: [{ rel: "canonical", href: "https://nextplay.az/support" }],
