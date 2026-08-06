@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Link } from "@tanstack/react-router";
-import { ArrowRight, Copy, ChevronLeft, ChevronRight, Gift, Tag, Sparkles, ShieldCheck, Zap, Trophy, Loader2 } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { ArrowRight, Copy, ChevronLeft, ChevronRight, Gift, Tag, Sparkles, ShieldCheck, Zap, Trophy, Loader2, Gamepad, Key, UserCircle, Star } from "lucide-react";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { useT, Lang } from "@/lib/i18n";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -25,6 +25,7 @@ export function CampaignCarousel() {
   const [idx, setIdx] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const [copied, setCopied] = useState(false);
+  const shouldReduceMotion = useReducedMotion();
   const lang = (document.documentElement.lang || "az") as Lang;
 
   const { data: campaigns = [], isLoading } = useQuery({
@@ -58,7 +59,7 @@ export function CampaignCarousel() {
       code: "",
       type: "brand",
       badge: t("hero.badge"),
-      headline: t("hero.title1") + " " + t("hero.title2"),
+      headline: t("hero.title"),
       description: t("hero.sub"),
       ctaLabel: t("hero.cta1"),
       ctaDest: "/marketplace",
@@ -176,16 +177,16 @@ export function CampaignCarousel() {
                   className="pt-8 grid grid-cols-3 gap-6 max-w-lg border-t border-border/50"
                 >
                   <div className="flex flex-col gap-1">
-                    <Trophy className="h-4 w-4 text-neon" />
-                    <span className="text-[10px] uppercase font-bold tracking-widest text-muted-foreground">{t("hero.trust1")}</span>
+                    <ShieldCheck className="h-4 w-4 text-neon" />
+                    <span className="text-[10px] uppercase font-bold tracking-widest text-muted-foreground">{t("hero.trustSafeOrder")}</span>
                   </div>
                   <div className="flex flex-col gap-1">
-                    <ShieldCheck className="h-4 w-4 text-neon" />
-                    <span className="text-[10px] uppercase font-bold tracking-widest text-muted-foreground">{t("hero.trust2")}</span>
+                    <Trophy className="h-4 w-4 text-neon" />
+                    <span className="text-[10px] uppercase font-bold tracking-widest text-muted-foreground">{t("hero.trustVerifiedSellers")}</span>
                   </div>
                   <div className="flex flex-col gap-1">
                     <Zap className="h-4 w-4 text-neon" />
-                    <span className="text-[10px] uppercase font-bold tracking-widest text-muted-foreground">{t("hero.trust3")}</span>
+                    <span className="text-[10px] uppercase font-bold tracking-widest text-muted-foreground">{t("hero.trustSupport")}</span>
                   </div>
                 </motion.div>
               )}
@@ -207,11 +208,101 @@ export function CampaignCarousel() {
                   {current.imageUrl ? (
                     <img src={current.imageUrl} alt="" className="w-full max-w-md rounded-2xl shadow-2xl border border-white/10" />
                   ) : current.type === "brand" ? (
-                    <div className="relative w-80 h-80 grid place-items-center">
-                       <Sparkles className="w-full h-full text-neon opacity-20 absolute animate-slow-spin" />
-                       <div className="w-48 h-48 rounded-3xl bg-card-gradient border border-neon/30 flex items-center justify-center rotate-12 neon-ring">
-                          <Gift className="w-20 h-20 text-neon" />
-                       </div>
+                    <div className="relative w-[420px] h-[360px] hidden md:flex items-center justify-center">
+                      {/* Floating Glass Panels */}
+                      <motion.div 
+                        animate={shouldReduceMotion ? {} : { y: [0, -10, 0] }}
+                        transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                        className="absolute top-10 right-10 w-32 h-40 bg-white/5 backdrop-blur-md rounded-2xl border border-white/10 shadow-2xl z-0"
+                      />
+                      <motion.div 
+                        animate={shouldReduceMotion ? {} : { y: [0, 15, 0] }}
+                        transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+                        className="absolute bottom-5 left-0 w-40 h-28 bg-white/5 backdrop-blur-md rounded-2xl border border-white/10 shadow-2xl z-0"
+                      />
+
+                      {/* Central Premium Card */}
+                      <motion.div 
+                        animate={shouldReduceMotion ? {} : { rotateY: [-5, 5, -5], rotateX: [2, -2, 2] }}
+                        transition={{ duration: 6, repeat: Infinity, ease: "linear" }}
+                        className="relative w-64 h-40 bg-gradient-to-br from-surface/80 to-background/90 rounded-2xl border border-neon/30 shadow-[0_0_50px_-12px_rgba(0,255,242,0.3)] z-20 flex flex-col p-6 overflow-hidden group/card"
+                      >
+                        <div className="absolute top-0 right-0 p-4 opacity-20">
+                          <Sparkles className="w-12 h-12 text-neon" />
+                        </div>
+                        <div className="flex-1">
+                          <div className="w-12 h-8 bg-neon/20 rounded border border-neon/30 mb-4" />
+                          <div className="h-4 w-32 bg-white/10 rounded mb-2" />
+                          <div className="h-4 w-24 bg-white/5 rounded" />
+                        </div>
+                        <div className="flex justify-between items-end">
+                          <span className="text-neon font-mono font-bold tracking-widest">NEXTPLAY</span>
+                          <div className="flex -space-x-2">
+                            <div className="w-8 h-8 rounded-full bg-neon/40 blur-[2px]" />
+                            <div className="w-8 h-8 rounded-full bg-primary/40 blur-[2px]" />
+                          </div>
+                        </div>
+                        <div className="absolute inset-0 bg-gradient-to-t from-neon/5 to-transparent pointer-events-none" />
+                      </motion.div>
+
+                      {/* Floating Icons */}
+                      <motion.div 
+                        animate={shouldReduceMotion ? {} : { y: [-15, 15, -15], x: [-5, 5, -5] }}
+                        transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                        className="absolute -top-4 left-20 z-30 p-3 bg-surface/90 rounded-xl border border-border shadow-xl"
+                      >
+                        <Gamepad className="w-8 h-8 text-primary" />
+                      </motion.div>
+
+                      <motion.div 
+                        animate={shouldReduceMotion ? {} : { y: [10, -10, 10], x: [10, -10, 10] }}
+                        transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
+                        className="absolute top-24 -left-6 z-30 p-3 bg-surface/90 rounded-xl border border-border shadow-xl"
+                      >
+                        <Key className="w-8 h-8 text-neon" />
+                      </motion.div>
+
+                      <motion.div 
+                        animate={shouldReduceMotion ? {} : { y: [-10, 10, -10], scale: [1, 1.1, 1] }}
+                        transition={{ duration: 4.5, repeat: Infinity, ease: "easeInOut", delay: 1.5 }}
+                        className="absolute bottom-10 right-0 z-30 p-3 bg-surface/90 rounded-xl border border-border shadow-xl"
+                      >
+                        <UserCircle className="w-8 h-8 text-white" />
+                      </motion.div>
+
+                      <motion.div 
+                        animate={shouldReduceMotion ? {} : { rotate: [0, 360], scale: [1, 1.2, 1] }}
+                        transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
+                        className="absolute -bottom-8 left-32 z-30"
+                      >
+                        <Star className="w-10 h-10 text-yellow-500 fill-yellow-500/20 blur-[1px]" />
+                      </motion.div>
+                      
+                      {/* Particles/Glow */}
+                      <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-full">
+                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-radial-gradient from-neon/10 to-transparent blur-3xl" />
+                      </div>
+                    </div>
+                  ) : current.id === "yeni10" || current.code === "YENI10" ? (
+                    <div className="relative w-80 h-80 flex items-center justify-center">
+                      <motion.div 
+                        animate={shouldReduceMotion ? {} : { scale: [1, 1.05, 1], rotate: [0, 1, 0] }}
+                        transition={{ duration: 5, repeat: Infinity }}
+                        className="w-full h-64 bg-gradient-to-br from-surface to-background rounded-3xl border-2 border-dashed border-neon/40 flex flex-col items-center justify-center relative overflow-hidden shadow-[0_0_40px_-15px_rgba(0,255,242,0.5)]"
+                      >
+                        <div className="absolute -top-10 -right-10 w-32 h-32 bg-neon/10 rounded-full blur-2xl" />
+                        <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-primary/10 rounded-full blur-2xl" />
+                        
+                        <Gift className="w-12 h-12 text-neon mb-4" />
+                        <span className="text-6xl font-black text-gradient leading-none">10%</span>
+                        <div className="mt-4 px-6 py-2 bg-neon/10 border border-neon/30 rounded-full">
+                          <span className="text-neon font-mono font-bold tracking-widest text-xl">YENI10</span>
+                        </div>
+                        <div className="mt-6 flex items-center gap-2 text-muted-foreground text-sm font-bold uppercase tracking-widest">
+                          <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
+                          Promo kod
+                        </div>
+                      </motion.div>
                     </div>
                   ) : (
                     <div className="w-80 h-80 rounded-2xl bg-card-gradient border border-border p-8 flex flex-col justify-center gap-4">
