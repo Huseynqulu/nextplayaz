@@ -400,6 +400,22 @@ function MarketplacePage() {
 
             {loading ? (
               <ProductGridSkeleton count={8} />
+            ) : error ? (
+              <div className="flex flex-col items-center justify-center py-20 px-4 text-center rounded-3xl border border-dashed border-border bg-surface/10">
+                <div className="h-16 w-16 rounded-2xl bg-destructive/10 flex items-center justify-center mb-4">
+                  <AlertCircle className="h-8 w-8 text-destructive" />
+                </div>
+                <h3 className="text-xl font-bold mb-2">Məlumat yüklənmədi</h3>
+                <p className="text-muted-foreground mb-6 max-w-sm mx-auto">
+                  Serverlə əlaqə zamanı xəta baş verdi. Zəhmət olmasa yenidən cəhd edin.
+                </p>
+                <button
+                  onClick={loadProducts}
+                  className="inline-flex items-center gap-2 h-11 px-6 rounded-xl bg-neon text-background font-semibold neon-ring"
+                >
+                  <RefreshCw className="h-4 w-4" /> Yenidən cəhd et
+                </button>
+              </div>
             ) : filtered.length === 0 ? (
               <EmptyState
                 icon={Search}
