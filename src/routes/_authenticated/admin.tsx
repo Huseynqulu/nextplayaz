@@ -40,7 +40,25 @@ type Application = {
 
 type ProductRow = { id: string; title: string; price: number; stock: number; category: string; is_active: boolean; seller_id: string; created_at: string };
 type AdminUser = { id: string; email: string | null; display_name: string | null; username: string | null; wallet_balance: number; roles: ("user"|"seller"|"admin"|"support")[]; created_at: string; verified_at: string | null; last_ip?: string | null; last_ip_at?: string | null; signup_ip?: string | null; banned_at?: string | null; ban_reason?: string | null };
-type DiscountCode = { id: string; code: string; percent: number; max_uses: number | null; used_count: number; is_active: boolean; expires_at: string | null; created_at: string };
+type DiscountCode = { 
+  id: string; 
+  code: string; 
+  percent: number; 
+  discount_type: 'percentage' | 'fixed';
+  fixed_amount: number | null;
+  max_discount_amount: number | null;
+  min_subtotal: number;
+  funding_source: 'platform' | 'seller';
+  is_new_customer_only: boolean;
+  per_user_limit: number;
+  max_uses: number | null; 
+  used_count: number; 
+  is_active: boolean; 
+  start_at: string | null;
+  expires_at: string | null; 
+  created_at: string;
+  campaign_name: string | null;
+};
 type AdminTicket = { id: string; user_id: string; order_id: string | null; subject: string; message: string; category: string; status: string; priority: string; created_at: string; updated_at: string };
 type TicketMsg = { id: string; sender_id: string; is_admin: boolean; body: string; created_at: string; attachment_url?: string | null };
 type TopUp = { id: string; user_id: string; amount: number; method: string; sender_note: string | null; receipt_url: string | null; reference_code: string | null; status: "pending"|"approved"|"rejected"; admin_notes: string | null; created_at: string };
@@ -118,7 +136,20 @@ function AdminPage() {
 
 
   // new code form
-  const [newCode, setNewCode] = useState({ code: "", percent: "10", max_uses: "", expires_at: "" });
+  const [newCode, setNewCode] = useState({ 
+    code: "", 
+    percent: "10", 
+    discount_type: "percentage",
+    fixed_amount: "",
+    max_discount_amount: "",
+    min_subtotal: "0",
+    funding_source: "seller",
+    is_new_customer_only: false,
+    per_user_limit: "1",
+    max_uses: "", 
+    expires_at: "",
+    campaign_name: ""
+  });
 
   useEffect(() => {
     if (!user) return;

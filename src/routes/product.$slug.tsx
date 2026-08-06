@@ -87,30 +87,37 @@ function ProductPage() {
   const [contacting, setContacting] = useState(false);
   const [code, setCode] = useState("");
   const [applying, setApplying] = useState(false);
-  const [applied, setApplied] = useState<{ code: string; percent: number } | null>(null);
+  const [applied, setApplied] = useState<any>(null);
   const [showTerms, setShowTerms] = useState(false);
   const [agreed, setAgreed] = useState(false);
   const [lowBalance, setLowBalance] = useState<{ balance: number; total: number } | null>(null);
 
   const subtotal = +(Number(p.price) * qty).toFixed(2);
-  const discountAmount = applied ? +(subtotal * applied.percent / 100).toFixed(2) : 0;
+  const discountAmount = applied ? (
+    applied.discount_type === 'fixed' 
+      ? Math.min(applied.fixed_amount, subtotal)
+      : Math.min(+(subtotal * applied.percent / 100).toFixed(2), applied.max_discount_amount || 999999)
+  ) : 0;
   const finalTotal = +(subtotal - discountAmount).toFixed(2);
 
   async function applyCode() {
     const c = code.trim().toUpperCase();
     if (!c) return;
     setApplying(true);
-    const { data, error } = await supabase.rpc("validate_discount_code" as any, { p_code: c });
+    const { data, error } = await supabase.rpc("validate_discount_code" as any, { 
+      p_code: c,
+      p_user_id: user?.id,
+      p_product_id: p.id,
+      p_subtotal: subtotal
+    });
     setApplying(false);
     const result = Array.isArray(data) ? data[0] : data;
-    if (error || !result || result.status === "not_found") { toast.error("Endirim kodu tapılmadı"); return; }
-    if (result.status === "inactive") { toast.error("Bu kod aktiv deyil"); return; }
-    if (result.status === "expired") { toast.error("Kodun vaxtı bitib"); return; }
-    if (result.status === "limit_reached") { toast.error("Kod limiti dolub"); return; }
-    if (result.status !== "valid") { toast.error("Endirim kodu tətbiq edilmədi"); return; }
-    const percent = Number(result.percent);
-    setApplied({ code: result.code, percent });
-    toast.success(`${percent}% endirim tətbiq edildi`);
+    if (error || !result || result.status !== "valid") { 
+      toast.error(result?.message || "Endirim kodu tapılmadı"); 
+      return; 
+    }
+    setApplied(result);
+    toast.success(`Endirim tətbiq edildi`);
   }
 
   function removeCode() {
