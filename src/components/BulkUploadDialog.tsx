@@ -18,7 +18,7 @@ const HEADER = [
 ];
 
 const TEMPLATE_CSV = `title,description,price,old_price,category,platform,delivery,stock,stock_items,image_url,auto_message
-"Valorant 1000 VP","Anında çatdırılma",9.99,12,Games,Valorant,Instant,,"KOD1|KOD2|KOD3",https://...,Təşəkkürlər!
+"Valorant 1000 VP","Sürətli çatdırılma",9.99,12,Games,Valorant,Instant,,"KOD1|KOD2|KOD3",https://...,Təşəkkürlər!
 "PUBG 60 UC Hesabı","Tam giriş",4.5,,Accounts,PUBG Mobile,Manual,1,,https://...,
 "Steam Wallet Key 50₺","Steam üçün cüzdan kodu",25,,Keys,Steam,Instant,,"AAAA-BBBB-CCCC|DDDD-EEEE-FFFF",,`;
 
@@ -115,7 +115,7 @@ export function BulkUploadDialog({ open, onClose, sellerId, onDone }: Props) {
         const stock = delivery === "Instant"
           ? stockItems.length
           : Math.max(1, Number(get("stock") || "1"));
-        if (delivery === "Instant" && stockItems.length === 0) throw new Error("Anında çatdırılma üçün stock_items boşdur");
+        if (delivery === "Instant" && stockItems.length === 0) throw new Error("Sürətli çatdırılma üçün stock_items boşdur");
 
         const imageUrlRaw = get("image_url");
         const imageUrls = imageUrlRaw

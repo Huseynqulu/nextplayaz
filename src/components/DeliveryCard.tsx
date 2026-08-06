@@ -30,11 +30,11 @@ export function DeliveryCard({ body }: { body: string }) {
         <span className="inline-flex items-center justify-center h-7 w-7 rounded-full bg-neon/20 text-neon">
           <Zap className="h-4 w-4" />
         </span>
-        <div className="text-sm font-bold text-foreground">Anında çatdırılma</div>
+        <div className="text-sm font-bold text-foreground">Sürətli çatdırılma</div>
       </div>
       {before && (
         <p className="text-xs text-muted-foreground whitespace-pre-wrap mb-3">
-          {before.replace(/^✅\s*Anında çatdırılma\s*—\s*/, "")}
+          {before.replace(/^✅\s*Sürətli çatdırılma\s*—\s*/, "")}
         </p>
       )}
 

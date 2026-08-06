@@ -174,7 +174,7 @@ function MarketplacePage() {
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10">
             <h1 className="font-display text-4xl sm:text-5xl font-bold">Marketplace</h1>
             <p className="mt-3 text-muted-foreground max-w-2xl">
-              {loading ? "Yüklənir..." : `${products.length} məhsul`}, yoxlanılmış satıcılar, escrow qorunma altında.
+              {loading ? "Yüklənir..." : `${products.length} məhsul`}, yoxlanılmış satıcılar, təhlükəsiz qorunma altında.
             </p>
 
             <div className="mt-8 flex flex-col lg:flex-row gap-3">

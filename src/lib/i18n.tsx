@@ -55,14 +55,14 @@ const az: Dict = {
   "menu.support": "Dəstək biletlərim",
 
   // hero
-  "hero.badge": "Azərbaycanın #1 Gaming Marketplace-i",
+  "hero.badge": "Oyun dünyasına növbəti addım",
   "hero.title1": "Gaming aləminin",
   "hero.title2": "yeni mərkəzi",
-  "hero.sub": "Oyunlar, hesablar, açarlar və premium gaming xidmətləri. Escrow sistemi ilə qorunan ödənişlər. Yoxlanılmış satıcılar. Anında çatdırılma.",
+  "hero.sub": "Rəqəmsal məhsullar, açarlar və premium xidmətlər. Təhlükəsiz sifariş prosesi. Yoxlanılmış satıcılar. Operativ dəstək.",
   "hero.cta1": "Marketplace-ə keç",
   "hero.cta2": "Satıcı ol",
-  "hero.stat1": "Tamamlanmış sifariş",
-  "hero.stat2": "Escrow qorunma",
+  "hero.stat1": "Təhlükəsiz sifariş",
+  "hero.stat2": "Operativ dəstək",
   "hero.stat3": "Online dəstək",
 
   // home sections
@@ -70,10 +70,10 @@ const az: Dict = {
   "home.howTitle": "Təhlükəsiz alış-veriş 4 addımda",
   "home.how1.title": "Məhsul seç",
   "home.how1.desc": "Yoxlanılmış satıcılardan istədiyin məhsulu seç və sifariş ver.",
-  "home.how2.title": "Escrow ödəniş",
+  "home.how2.title": "Təhlükəsiz ödəniş",
   "home.how2.desc": "Ödəniş platformada saxlanılır. Satıcı pulu yalnız çatdırılmadan sonra alır.",
   "home.how3.title": "Çatdırılma",
-  "home.how3.desc": "Açar, hesab və ya xidmət sənə anında və ya manual olaraq çatdırılır.",
+  "home.how3.desc": "Açar, hesab və ya xidmət sənə sürətli və ya manual olaraq çatdırılır.",
   "home.how4.title": "Təsdiqlə",
   "home.how4.desc": "Razı qaldıqda sifarişi təsdiqlə. Bütün proses qorunma altındadır.",
 
@@ -82,7 +82,7 @@ const az: Dict = {
   "home.stat.users": "Aktiv istifadəçi",
   "home.stat.sellers": "Doğrulanmış satıcı",
   "home.stat.products": "Aktiv məhsul",
-  "home.stat.orders": "Tamamlanmış sifariş",
+  "home.stat.orders": "Uğurlu sifariş",
 
   "home.catsTitle": "Populyar kateqoriyalar",
   "home.catsSub": "Bütün gaming ehtiyaclarınız bir yerdə",
@@ -318,7 +318,7 @@ const az: Dict = {
   "common.dayAgo": "gün əvvəl",
 
   // footer
-  "footer.tagline": "Azərbaycanın ilk premium gaming marketplace platforması. Təhlükəsiz escrow ödənişlər, yoxlanılmış satıcılar, anında çatdırılma.",
+  "footer.tagline": "Azərbaycanın ilk premium gaming marketplace platforması. Təhlükəsiz ödənişlər, yoxlanılmış satıcılar.",
   "footer.marketplace": "Marketplace",
   "footer.all": "Bütün məhsullar",
   "footer.games": "Oyunlar",
@@ -327,8 +327,8 @@ const az: Dict = {
   "footer.services": "Xidmətlər",
   "footer.account": "Hesab",
   "footer.why": "Niyə NextPlay?",
-  "footer.escrow": "Escrow qorunma",
-  "footer.instant": "Anında çatdırılma",
+  "footer.escrow": "Təhlükəsizlik",
+  "footer.instant": "Sürətli çatdırılma",
   "footer.support24": "24/7 dəstək",
   "footer.rights": "Bütün hüquqlar qorunur.",
   "footer.terms": "Şərtlər",
@@ -390,14 +390,14 @@ const en: Dict = {
   "menu.signOut": "Sign out",
   "menu.support": "My tickets",
 
-  "hero.badge": "Azerbaijan's #1 Gaming Marketplace",
+  "hero.badge": "Next step in gaming",
   "hero.title1": "The new home of",
   "hero.title2": "gaming",
-  "hero.sub": "Games, accounts, keys and premium gaming services. Escrow-protected payments. Verified sellers. Instant delivery.",
+  "hero.sub": "Digital products, keys and premium services. Secure ordering process. Verified sellers. Prompt support.",
   "hero.cta1": "Go to Marketplace",
   "hero.cta2": "Become a seller",
-  "hero.stat1": "Completed orders",
-  "hero.stat2": "Escrow protection",
+  "hero.stat1": "Secure order",
+  "hero.stat2": "Prompt support",
   "hero.stat3": "Online support",
 
   "home.howKicker": "How it works",

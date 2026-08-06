@@ -205,7 +205,7 @@ function SellerDashboard() {
       const lines = form.stock_items.split("\n").map(s => s.trim()).filter(Boolean);
       const stockNum = isInstant ? lines.length : Number(form.stock);
       if (isInstant && lines.length === 0) {
-        throw new Error("Anında çatdırılma üçün ən azı 1 stok elementi əlavə edin");
+        throw new Error("Sürətli çatdırılma üçün ən azı 1 stok elementi əlavə edin");
       }
       if (form.is_gift_card && !form.gift_denomination_id) {
         throw new Error("Hədiyyə kartı üçün platforma və nominal seçin");
@@ -326,7 +326,7 @@ function SellerDashboard() {
                   <h3 className="font-display text-lg font-bold">Necə məhsul yerləşdirim?</h3>
                   <p className="text-sm text-muted-foreground mt-1">
                     Aşağıdakı düyməyə bas — məhsul əlavə etmə forması açılacaq.
-                    Başlıq, qiymət, şəkil və kateqoriyanı doldur. <strong className="text-foreground">Anında çatdırılma</strong> seçsən,
+                    Başlıq, qiymət, şəkil və kateqoriyanı doldur. <strong className="text-foreground">Sürətli çatdırılma</strong> seçsən,
                     stok elementlərini alt-alta yaza bilərsən (key/hesab və s.).
                   </p>
                 </div>
@@ -589,7 +589,7 @@ function SellerDashboard() {
                 <div className="sm:col-span-2 rounded-xl border border-neon/30 bg-neon/5 p-4">
                   <div className="flex items-center justify-between gap-3 mb-2 flex-wrap">
                     <div>
-                      <label className="text-sm font-semibold text-neon">Anında çatdırılma — stok elementləri</label>
+                      <label className="text-sm font-semibold text-neon">Sürətli çatdırılma — stok elementləri</label>
                       <p className="text-xs text-muted-foreground mt-0.5">Hər sətirə bir kod / akkaunt / açar yazın. Hər sətir = 1 stok. Alıcıya sifariş anında avtomatik göndəriləcək.</p>
                     </div>
                     <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-neon/15 text-neon">
