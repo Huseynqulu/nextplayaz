@@ -2,17 +2,18 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { ProductCard } from "@/components/ProductCard";
-import { categories, products as mockProducts, CATEGORY_LABEL_AZ, boostScore } from "@/lib/marketplace-data";
+import { categories, CATEGORY_LABEL_AZ, boostScore } from "@/lib/marketplace-data";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { fetchProducts } from "@/lib/products";
 import { supabase } from "@/integrations/supabase/client";
 import { useEffect, useMemo, useState } from "react";
-import { Search, SlidersHorizontal, X, Zap, ShieldCheck, Star, LayoutGrid, Grid3x3, List } from "lucide-react";
+import { Search, SlidersHorizontal, X, Star, LayoutGrid, Grid3x3, List, RefreshCw, AlertCircle } from "lucide-react";
 import { ProductGridSkeleton } from "@/components/Skeletons";
 import { EmptyState } from "@/components/EmptyState";
 import { z } from "zod";
 import { zodValidator, fallback } from "@tanstack/zod-adapter";
 import { trackSearch } from "@/lib/fbq";
+import { useT } from "@/lib/i18n";
 
 const searchSchema = z.object({
   q: fallback(z.string(), "").default(""),
@@ -47,12 +48,14 @@ export const Route = createFileRoute("/marketplace")({
 
 function MarketplacePage() {
   const s = Route.useSearch();
+  const t = useT();
   const navigate = useNavigate({ from: "/marketplace" });
   const update = (patch: Partial<typeof s>) =>
     navigate({ search: ((prev: any) => ({ ...prev, ...patch })) as any, replace: true });
 
   const [products, setProducts] = useState<import("@/lib/marketplace-data").Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
   const [qLocal, setQLocal] = useState(s.q);
   const [view, setView] = useState<"compact" | "grid" | "list">("list");
   const [subcats, setSubcats] = useState<{ slug: string; label_az: string; category_slug: string }[]>([]);
@@ -60,7 +63,21 @@ function MarketplacePage() {
   const [psubs, setPsubs] = useState<{ slug: string; label_az: string; platform_slug: string }[]>([]);
   const shuffleSeed = useMemo(() => Math.random(), []);
 
-  useEffect(() => { fetchProducts().then(p => { setProducts(p); setLoading(false); }); }, []);
+  const loadProducts = async () => {
+    setLoading(true);
+    setError(false);
+    try {
+      const p = await fetchProducts();
+      setProducts(p);
+    } catch (err) {
+      console.error("Marketplace fetch error:", err);
+      setError(true);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => { loadProducts(); }, []);
 
   useEffect(() => {
     supabase.from("subcategories" as any).select("slug,label_az,category_slug").eq("is_active", true).order("sort_order")
@@ -187,16 +204,21 @@ function MarketplacePage() {
             </div>
 
             <div className="mt-6 flex flex-wrap gap-2">
-              {categories.map(c => (
-                <button key={c.id} onClick={() => update({ cat: c.id, sub: "all" })}
-                  className={`px-4 py-2 rounded-full text-sm font-medium transition border ${
-                    s.cat === c.id
-                      ? "bg-neon text-background border-transparent neon-ring"
-                      : "bg-surface border-border text-muted-foreground hover:text-foreground hover:border-primary/40"
-                  }`}>
-                  {c.label} <span className="opacity-60">({c.count})</span>
-                </button>
-              ))}
+              {categories.map(c => {
+                const count = c.id === "all" 
+                  ? products.length 
+                  : products.filter(p => p.category === c.id).length;
+                return (
+                  <button key={c.id} onClick={() => update({ cat: c.id, sub: "all" })}
+                    className={`px-4 py-2 rounded-full text-sm font-medium transition border ${
+                      s.cat === c.id
+                        ? "bg-neon text-background border-transparent neon-ring"
+                        : "bg-surface border-border text-muted-foreground hover:text-foreground hover:border-primary/40"
+                    }`}>
+                    {t(c.key as any)} <span className="opacity-60">({count})</span>
+                  </button>
+                );
+              })}
             </div>
 
             {currentSubs.length > 0 && (
