@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { burstConfetti } from "@/lib/celebrate";
 import { Wallet, Loader2, Receipt, CheckCircle2, XCircle, Clock, ArrowDownToLine, ArrowUpFromLine, ExternalLink, Zap, Upload, X } from "lucide-react";
 import { useCurrency } from "@/lib/currency";
+import { useT } from "@/lib/i18n";
 import { GiftCardRedeem } from "@/components/GiftCardRedeem";
 import { LoyaltyCard } from "@/components/LoyaltyCard";
 
@@ -30,12 +31,13 @@ type Withdraw = {
 };
 
 const WITHDRAW_METHODS: { value: string; label: string; hint: string }[] = [
-  { value: "card", label: "Bank kartı (Visa/Master)", hint: "16 rəqəmli kart nömrəsi" },
+  { value: "card", label: "Bank kartı", hint: "16 rəqəmli kart nömrəsi" },
   { value: "m10", label: "m10", hint: "m10 telefon nömrəsi (+994...)" },
   { value: "bank_transfer", label: "Bank köçürməsi (IBAN)", hint: "AZxx XXXX XXXX XXXX XXXX XXXX XXXX" },
 ];
 
 function WalletPage() {
+  const t = useT();
   const { user } = useAuth();
   const { format } = useCurrency();
   const [balance, setBalance] = useState<number>(0);
@@ -269,6 +271,30 @@ function WalletPage() {
               {tab === "topup" ? (
                 <div className="rounded-2xl border border-border bg-card-gradient p-6 card-shadow space-y-4">
                   <h2 className="font-semibold text-lg inline-flex items-center gap-2"><Zap className="h-4 w-4 text-neon" /> BirBank ilə balans artır</h2>
+                  
+                  <div className="space-y-4 my-4">
+                    <p className="text-sm text-muted-foreground">{t("wallet.instructions")}</p>
+                    <div className="space-y-3">
+                      <div className="flex items-start gap-3">
+                        <div className="h-6 w-6 rounded-full bg-neon/10 text-neon flex items-center justify-center text-xs font-bold shrink-0">1</div>
+                        <p className="text-sm">{t("wallet.step1")}</p>
+                      </div>
+                      <div className="flex items-start gap-3">
+                        <div className="h-6 w-6 rounded-full bg-neon/10 text-neon flex items-center justify-center text-xs font-bold shrink-0">2</div>
+                        <p className="text-sm">{t("wallet.step2")}</p>
+                      </div>
+                      <div className="flex items-start gap-3">
+                        <div className="h-6 w-6 rounded-full bg-neon/10 text-neon flex items-center justify-center text-xs font-bold shrink-0">3</div>
+                        <p className="text-sm">{t("wallet.step3")}</p>
+                      </div>
+                    </div>
+                    <div className="p-4 rounded-xl border border-warning/30 bg-warning/5 flex items-start gap-3">
+                      <Clock className="h-4 w-4 text-warning mt-0.5 shrink-0" />
+                      <p className="text-xs text-warning-foreground leading-relaxed">
+                        {t("wallet.verificationNotice")}
+                      </p>
+                    </div>
+                  </div>
 
                   {step === "amount" ? (
                     <>

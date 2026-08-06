@@ -125,9 +125,9 @@ function UserGuidePage() {
 
           <Section icon={Wallet} step="Addım 2 / 8" title="Cüzdana təhlükəsiz balans yükləmək">
             <p>
-              NextPlay.az-da cüzdanına bank köçürməsi və ya admin tərəfindən təsdiqlənən manual
-              yükləmə üsulu ilə balans əlavə edə bilərsən. Çek/qəbz faylını yüklə — admin
-              təsdiqlədikdən sonra balansın avtomatik artır.
+              NextPlay.az-da cüzdanınıza BirBank və ya bank köçürməsi üsulu ilə balans əlavə edə bilərsən.
+              Bunun üçün cüzdan bölməsində məbləği daxil et, ödənişi tamamla və qəbz şəklini yüklə.
+              Admin tərəfindən yoxlanıldıqdan sonra balansın artırılacaq.
             </p>
             <Link
               to="/wallet"
