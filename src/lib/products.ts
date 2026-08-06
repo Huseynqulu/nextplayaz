@@ -1,5 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
-import { products as mockProducts, type Product } from "./marketplace-data";
+import type { Product } from "./marketplace-data";
 
 export type DbProduct = {
   id: string;
