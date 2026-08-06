@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Star, Loader2, MessageSquare, Store, Pencil, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
+import { useT } from "@/lib/i18n";
 import { toast } from "sonner";
 import { Link } from "@tanstack/react-router";
 
@@ -17,7 +18,8 @@ type Review = {
 };
 
 export function ReviewSection({ productId, sellerId }: { productId: string; sellerId?: string | null }) {
-  const { user, t } = useAuth() as any; // Assuming useAuth provides t or we use useT
+  const { user } = useAuth();
+  const t = useT();
   const isSeller = !!user && !!sellerId && user.id === sellerId;
   const [mode, setMode] = useState<"product" | "seller">(sellerId ? "seller" : "product");
   const [reviews, setReviews] = useState<Review[]>([]);
