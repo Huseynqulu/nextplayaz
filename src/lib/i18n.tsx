@@ -284,6 +284,7 @@ const az: Dict = {
   "guide.sub": "NextPlay-də necə alış-veriş etməli və satmalı",
 
   // common
+  "common.language": "Dil",
   "common.loading": "Yüklənir...",
   "common.save": "Yadda saxla",
   "common.cancel": "Ləğv et",
@@ -597,6 +598,7 @@ const en: Dict = {
   "guide.title": "New user guide",
   "guide.sub": "How to buy and sell on NextPlay",
 
+  "common.language": "Language",
   "common.loading": "Loading...",
   "common.save": "Save",
   "common.cancel": "Cancel",
@@ -908,6 +910,7 @@ const ru: Dict = {
   "guide.title": "Гид для нового пользователя",
   "guide.sub": "Как покупать и продавать на NextPlay",
 
+  "common.language": "Язык",
   "common.loading": "Загрузка...",
   "common.save": "Сохранить",
   "common.cancel": "Отмена",

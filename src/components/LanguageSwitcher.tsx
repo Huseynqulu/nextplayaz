@@ -58,7 +58,7 @@ export function LanguageSwitcher() {
             <div className="border-t border-border my-1" />
             <div className="px-3 pt-2 pb-1.5 flex items-start gap-1.5 text-[10px] uppercase tracking-wider text-muted-foreground font-semibold whitespace-pre-line">
               <Globe className="h-3 w-3 mt-0.5" />
-              <span>Implement Phase 3 for NextPlay.az</span>
+              <span>{t("common.language")}</span>
             </div>
             {LANGS.map(o => (
               <button
