@@ -21,7 +21,7 @@ const faqs = [
   { q: "Escrow sistem necə işləyir?", a: "Ödənişin satıcıya yalnız sən sifarişi təsdiqlədikdən sonra köçürülür. Pul bu müddətdə platformada təhlükəsiz şəkildə saxlanılır." },
   { q: "Sifariş çatmadıqda nə olur?", a: "24 saat ərzində dəstək komandasına müraciət et. Pul tam geri qaytarılır." },
   { q: "Satıcı olmaq üçün nə tələb olunur?", a: "Şəxsiyyət vəsiqəsi və selfie. Yoxlama 24 saat çəkir." },
-  { q: "Hansı ödəniş üsulları dəstəklənir?", a: "Visa, Mastercard, Apple Pay, Google Pay və Azərbaycan bank kartları." },
+  { q: "Hansı ödəniş üsulları dəstəklənir?", a: "Balansınızı BirBank və ya bank köçürməsi ilə artıra bilərsiniz. Ödəniş qəbzi yoxlanıldıqdan sonra vəsait cüzdanınıza əlavə olunacaq." },
 ];
 
 function SupportPage() {

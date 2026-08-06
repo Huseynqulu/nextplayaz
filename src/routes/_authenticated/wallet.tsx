@@ -30,7 +30,7 @@ type Withdraw = {
 };
 
 const WITHDRAW_METHODS: { value: string; label: string; hint: string }[] = [
-  { value: "card", label: "Bank kartı (Visa/Master)", hint: "16 rəqəmli kart nömrəsi" },
+  { value: "card", label: "Bank kartı", hint: "16 rəqəmli kart nömrəsi" },
   { value: "m10", label: "m10", hint: "m10 telefon nömrəsi (+994...)" },
   { value: "bank_transfer", label: "Bank köçürməsi (IBAN)", hint: "AZxx XXXX XXXX XXXX XXXX XXXX XXXX" },
 ];
