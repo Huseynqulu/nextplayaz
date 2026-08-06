@@ -32,9 +32,9 @@ export function ProductCard({ p, variant = "default" }: { p: Product; variant?: 
   const canCart = isRealProductId(p.id) && p.stock > 0;
   const fav = canFav && isFav(p.id);
   const soldAgo = formatSoldAgo(p.lastSoldAt);
-  const sellerRating = Number(p.seller.rating || p.rating || 5);
+  const sellerRating = Number(p.seller.rating || p.rating || 0);
   const sellerReviews = p.seller.reviewsCount ?? p.reviews ?? 0;
-  const sellerRatingText = Number.isInteger(sellerRating) ? String(sellerRating) : sellerRating.toFixed(1);
+  const sellerRatingText = sellerRating > 0 ? (Number.isInteger(sellerRating) ? String(sellerRating) : sellerRating.toFixed(1)) : null;
 
   function addToCart(e: React.MouseEvent) {
     e.preventDefault(); e.stopPropagation();
@@ -62,8 +62,12 @@ export function ProductCard({ p, variant = "default" }: { p: Product; variant?: 
             {p.seller.verified && <BadgeCheck className="h-3.5 w-3.5 text-sky-400 fill-sky-500/25 shrink-0" strokeWidth={2.5} />}
             <span className="truncate max-w-[140px]">{p.seller.name}</span>
             <span>·</span>
-            <Star className="h-2.5 w-2.5 fill-warning text-warning" />
-            <span>{sellerRatingText} ({sellerReviews})</span>
+            {sellerRating > 0 && (
+              <>
+                <Star className="h-2.5 w-2.5 fill-warning text-warning" />
+                <span>{sellerRatingText} ({sellerReviews})</span>
+              </>
+            )}
             <span>·</span>
             <span>{p.platform}</span>
             {soldAgo && (
@@ -113,7 +117,7 @@ export function ProductCard({ p, variant = "default" }: { p: Product; variant?: 
               p.delivery === "Instant" ? "bg-neon/15 border-neon/30 text-neon" : "bg-surface border-border text-muted-foreground"
             }`}>
               {p.delivery === "Instant" && <Zap className="h-2 w-2" />}
-              {p.delivery === "Instant" ? "Anında" : "Əllə"}
+              {p.delivery === "Instant" ? t("product.delivery.instant") : t("product.delivery.manual")}
             </span>
           </div>
           {canFav && (
@@ -138,8 +142,12 @@ export function ProductCard({ p, variant = "default" }: { p: Product; variant?: 
           {p.seller.verified && <BadgeCheck className="h-3 w-3 text-sky-400 fill-sky-500/25 shrink-0" strokeWidth={2.5} />}
           <span className="truncate max-w-[110px]">{p.seller.name}</span>
           <span>·</span>
-          <Star className="h-2.5 w-2.5 fill-warning text-warning" />
-          <span>{sellerRatingText} ({sellerReviews})</span>
+          {sellerRating > 0 && (
+            <>
+              <Star className="h-2.5 w-2.5 fill-warning text-warning" />
+              <span>{sellerRatingText} ({sellerReviews})</span>
+            </>
+          )}
           <span>·</span>
           <span className="truncate">{p.platform}</span>
         </div>
@@ -151,11 +159,17 @@ export function ProductCard({ p, variant = "default" }: { p: Product; variant?: 
           </div>
         )}
 
-        <div className="flex items-center gap-1 text-[11px] bg-warning/10 border border-warning/25 rounded px-1.5 py-1 self-start">
-          <Star className="h-3 w-3 fill-warning text-warning" />
-          <span className="font-bold text-warning">{sellerRatingText}</span>
-          <span className="text-muted-foreground">/ 5 · {sellerReviews} rəy</span>
-        </div>
+        {sellerRating > 0 ? (
+          <div className="flex items-center gap-1 text-[11px] bg-warning/10 border border-warning/25 rounded px-1.5 py-1 self-start">
+            <Star className="h-3 w-3 fill-warning text-warning" />
+            <span className="font-bold text-warning">{sellerRatingText}</span>
+            <span className="text-muted-foreground">/ 5 · {sellerReviews} {t("product.reviews")}</span>
+          </div>
+        ) : (
+          <div className="text-[10px] text-muted-foreground italic px-0.5">
+            {t("product.noReviews")}
+          </div>
+        )}
 
 
         <div className="flex items-end justify-between mt-auto pt-1">
