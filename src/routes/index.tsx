@@ -21,9 +21,9 @@ export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
       { title: "NextPlay.az — Oyun dünyasına növbəti addım" },
-      { name: "description", content: "Oyunlar, hesablar, açarlar və rəqəmsal xidmətləri kəşf et. Təhlükəsiz sifariş prosesi və yoxlanılmış satıcılar." },
+      { name: "description", content: "Oyunlar, hesablar, açarlar və rəqəmsal xidmətləri bir məkanda kəşf et. Təhlükəsiz sifariş prosesi və yoxlanılmış satıcılar." },
       { property: "og:title", content: "NextPlay.az — Oyun dünyasına növbəti addım" },
-      { property: "og:description", content: "Oyunlar, hesablar, açarlar və rəqəmsal xidmətləri kəşf et. Təhlükəsiz sifariş prosesi və yoxlanılmış satıcılar." },
+      { property: "og:description", content: "Oyunlar, hesablar, açarlar və rəqəmsal xidmətləri bir məkanda kəşf et. Təhlükəsiz sifariş prosesi və yoxlanılmış satıcılar." },
       { property: "og:url", content: "https://nextplay.az/" },
       { property: "og:image", content: OG_IMAGE },
       { name: "twitter:title", content: "NextPlay.az — Oyun dünyasına növbəti addım" },
