@@ -171,6 +171,7 @@ const az: Dict = {
   "product.seller": "Satıcı",
   "product.verified": "Doğrulanmış",
   "product.rating": "Reytinq",
+  "product.noReviews": "Hələ rəy yoxdur",
   "product.reviews": "rəy",
   "product.sold": "satıldı",
   "product.lastSold": "əvvəl satıldı",
@@ -183,6 +184,9 @@ const az: Dict = {
   "product.report": "Şikayət et",
   "product.terms": "Alış-veriş şərtlərini qəbul edirəm",
   "product.allReviews": "Bütün satıcı dəyərləndirmələri",
+  "product.delivery.instant": "Ani çatdırılma",
+  "product.delivery.manual": "Əl ilə çatdırılma",
+  "product.delivery.manualSubtitle": "Satıcı təsdiqindən sonra",
 
   // cart / checkout
   "cart.title": "Səbət",
