@@ -1,11 +1,13 @@
 import { Link } from "@tanstack/react-router";
 import { Star, Zap, Heart, ShoppingCart, BadgeCheck, Flame } from "lucide-react";
 import { VerifiedBadge } from "@/components/VerifiedBadge";
+import { ProductCoverPlaceholder } from "@/components/ProductCoverPlaceholder";
 import type { Product } from "@/lib/marketplace-data";
 import { useFavorites, isRealProductId } from "@/lib/favorites";
 import { useAuth } from "@/hooks/use-auth";
 import { useCurrency } from "@/lib/currency";
 import { useCart } from "@/lib/cart";
+import { useT } from "@/lib/i18n";
 import { toast } from "sonner";
 
 function formatSoldAgo(iso?: string | null): string | null {
@@ -24,6 +26,7 @@ function formatSoldAgo(iso?: string | null): string | null {
 
 export function ProductCard({ p, variant = "default" }: { p: Product; variant?: "default" | "compact" | "list" }) {
   const { format } = useCurrency();
+  const t = useT();
   const discount = p.oldPrice ? Math.round((1 - p.price / p.oldPrice) * 100) : 0;
   const { isFav, toggle } = useFavorites();
   const { user } = useAuth();
@@ -32,9 +35,9 @@ export function ProductCard({ p, variant = "default" }: { p: Product; variant?: 
   const canCart = isRealProductId(p.id) && p.stock > 0;
   const fav = canFav && isFav(p.id);
   const soldAgo = formatSoldAgo(p.lastSoldAt);
-  const sellerRating = Number(p.seller.rating || p.rating || 5);
+  const sellerRating = Number(p.seller.rating || p.rating || 0);
   const sellerReviews = p.seller.reviewsCount ?? p.reviews ?? 0;
-  const sellerRatingText = Number.isInteger(sellerRating) ? String(sellerRating) : sellerRating.toFixed(1);
+  const sellerRatingText = sellerRating > 0 ? (Number.isInteger(sellerRating) ? String(sellerRating) : sellerRating.toFixed(1)) : null;
 
   function addToCart(e: React.MouseEvent) {
     e.preventDefault(); e.stopPropagation();
@@ -52,9 +55,13 @@ export function ProductCard({ p, variant = "default" }: { p: Product; variant?: 
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between gap-3">
             <h3 className="font-semibold text-sm leading-snug line-clamp-2 break-words group-hover:text-neon transition">{p.title}</h3>
-            {p.delivery === "Instant" && (
+            {p.delivery === "Instant" ? (
               <span className="shrink-0 px-1.5 py-0.5 rounded text-[10px] font-medium bg-neon/15 text-neon border border-neon/30 inline-flex items-center gap-0.5">
-                <Zap className="h-2.5 w-2.5" />Anında
+                <Zap className="h-2.5 w-2.5" />{t("product.delivery.instant")}
+              </span>
+            ) : (
+              <span className="shrink-0 px-1.5 py-0.5 rounded text-[10px] font-medium bg-surface text-muted-foreground border border-border inline-flex items-center gap-0.5">
+                {t("product.delivery.manual")}
               </span>
             )}
           </div>
@@ -62,8 +69,12 @@ export function ProductCard({ p, variant = "default" }: { p: Product; variant?: 
             {p.seller.verified && <BadgeCheck className="h-3.5 w-3.5 text-sky-400 fill-sky-500/25 shrink-0" strokeWidth={2.5} />}
             <span className="truncate max-w-[140px]">{p.seller.name}</span>
             <span>·</span>
-            <Star className="h-2.5 w-2.5 fill-warning text-warning" />
-            <span>{sellerRatingText} ({sellerReviews})</span>
+            {sellerRating > 0 && (
+              <>
+                <Star className="h-2.5 w-2.5 fill-warning text-warning" />
+                <span>{sellerRatingText} ({sellerReviews})</span>
+              </>
+            )}
             <span>·</span>
             <span>{p.platform}</span>
             {soldAgo && (
@@ -92,6 +103,19 @@ export function ProductCard({ p, variant = "default" }: { p: Product; variant?: 
       params={{ slug: p.slug }}
       className="group relative flex flex-col rounded-xl overflow-hidden bg-card-gradient border border-border card-shadow hover:border-primary/60 transition-all duration-300 hover:-translate-y-0.5"
     >
+      <div className="relative aspect-[4/3] overflow-hidden bg-surface/30">
+        {p.image ? (
+          <img 
+            src={p.image} 
+            alt={p.title} 
+            loading="lazy" 
+            decoding="async"
+            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110" 
+          />
+        ) : (
+          <ProductCoverPlaceholder title={p.title} />
+        )}
+      </div>
       <div className={`flex flex-1 flex-col ${isCompact ? "p-3 gap-2" : "p-4 gap-2.5"}`}>
         <div className="flex items-start justify-between gap-2">
           <div className="flex gap-1 flex-wrap">
@@ -113,7 +137,7 @@ export function ProductCard({ p, variant = "default" }: { p: Product; variant?: 
               p.delivery === "Instant" ? "bg-neon/15 border-neon/30 text-neon" : "bg-surface border-border text-muted-foreground"
             }`}>
               {p.delivery === "Instant" && <Zap className="h-2 w-2" />}
-              {p.delivery === "Instant" ? "Anında" : "Əllə"}
+              {p.delivery === "Instant" ? t("product.delivery.instant") : t("product.delivery.manual")}
             </span>
           </div>
           {canFav && (
@@ -138,8 +162,12 @@ export function ProductCard({ p, variant = "default" }: { p: Product; variant?: 
           {p.seller.verified && <BadgeCheck className="h-3 w-3 text-sky-400 fill-sky-500/25 shrink-0" strokeWidth={2.5} />}
           <span className="truncate max-w-[110px]">{p.seller.name}</span>
           <span>·</span>
-          <Star className="h-2.5 w-2.5 fill-warning text-warning" />
-          <span>{sellerRatingText} ({sellerReviews})</span>
+          {sellerRating > 0 && (
+            <>
+              <Star className="h-2.5 w-2.5 fill-warning text-warning" />
+              <span>{sellerRatingText} ({sellerReviews})</span>
+            </>
+          )}
           <span>·</span>
           <span className="truncate">{p.platform}</span>
         </div>
@@ -151,11 +179,17 @@ export function ProductCard({ p, variant = "default" }: { p: Product; variant?: 
           </div>
         )}
 
-        <div className="flex items-center gap-1 text-[11px] bg-warning/10 border border-warning/25 rounded px-1.5 py-1 self-start">
-          <Star className="h-3 w-3 fill-warning text-warning" />
-          <span className="font-bold text-warning">{sellerRatingText}</span>
-          <span className="text-muted-foreground">/ 5 · {sellerReviews} rəy</span>
-        </div>
+        {sellerRating > 0 ? (
+          <div className="flex items-center gap-1 text-[11px] bg-warning/10 border border-warning/25 rounded px-1.5 py-1 self-start">
+            <Star className="h-3 w-3 fill-warning text-warning" />
+            <span className="font-bold text-warning">{sellerRatingText}</span>
+            <span className="text-muted-foreground">/ 5 · {sellerReviews} {t("product.reviews")}</span>
+          </div>
+        ) : (
+          <div className="text-[10px] text-muted-foreground italic px-0.5">
+            {t("product.noReviews")}
+          </div>
+        )}
 
 
         <div className="flex items-end justify-between mt-auto pt-1">

@@ -16,7 +16,7 @@ export type Product = {
   platformSubcategory?: string | null;
   category: "Games" | "Accounts" | "Keys" | "Services";
   subcategory?: string | null;
-  image: string;
+  image: string | null;
   images?: string[];
   stock: number;
   rating: number;

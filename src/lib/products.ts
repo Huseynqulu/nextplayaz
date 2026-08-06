@@ -26,7 +26,7 @@ export type DbProduct = {
 };
 
 export const PRODUCT_PLACEHOLDER = "__np_placeholder__";
-const FALLBACK_IMG = PRODUCT_PLACEHOLDER;
+const FALLBACK_IMG = null; // No string fallback here, handle in components
 
 export type SellerLite = { name: string; avatarUrl?: string | null; shopName?: string | null; verified?: boolean; rating?: number; sales?: number; reviewsCount?: number };
 
@@ -35,7 +35,7 @@ function summarizeRating(rows: Array<{ rating: number | null }>) {
   const reviewsCount = valid.length;
   const rating = reviewsCount
     ? Math.round((valid.reduce((sum, row) => sum + Number(row.rating), 0) / reviewsCount) * 10) / 10
-    : 5;
+    : 0;
 
   return { rating, reviewsCount };
 }
@@ -67,7 +67,7 @@ function getSellerReviewStats(rows: Array<{ seller_id: string; rating: number | 
 
   grouped.forEach((value, sellerId) => {
     stats.set(sellerId, {
-      rating: value.count > 0 ? Math.round((value.weighted / value.count) * 10) / 10 : 5,
+      rating: value.count > 0 ? Math.round((value.weighted / value.count) * 10) / 10 : 0,
       reviewsCount: value.count,
     });
   });
@@ -115,14 +115,14 @@ export function dbToProduct(p: DbProduct, seller?: SellerLite | string): Product
     platformSubcategory: p.platform_subcategory ?? null,
     category: p.category,
     subcategory: p.subcategory ?? null,
-    image: p.image_url || FALLBACK_IMG,
-    images: Array.isArray(p.image_urls) ? p.image_urls.filter(Boolean) : [],
+    image: p.image_url && p.image_url !== PRODUCT_PLACEHOLDER ? p.image_url : null,
+    images: Array.isArray(p.image_urls) ? p.image_urls.filter(img => img && img !== PRODUCT_PLACEHOLDER) : [],
     stock: p.stock,
-    rating: Number(p.rating) || 5,
+    rating: Number(p.rating) || 0,
     reviews: p.reviews_count,
     seller: {
       name: displayName,
-      rating: s.rating ?? 5,
+      rating: s.rating ?? 0,
       sales: s.sales ?? 0,
       verified: s.verified ?? false,
       avatarUrl: s.avatarUrl ?? null,
@@ -175,7 +175,7 @@ export async function fetchProducts(): Promise<Product[]> {
     const legacyReviewStats = getSellerReviewStats(((sellerProds as any[]) ?? []) as any);
     sellerMap = new Map(((profs as any[]) ?? []).map((p: any) => {
       if (p.suspended_until && new Date(p.suspended_until) > new Date()) suspendedIds.add(p.id);
-      const stats = legacyReviewStats.get(p.id) ?? { rating: 5, reviewsCount: 0 };
+      const stats = legacyReviewStats.get(p.id) ?? { rating: 0, reviewsCount: 0 };
       return [p.id, {
         name: p.display_name || p.username || "Satıcı",
         shopName: p.shop_name ?? null,
@@ -207,7 +207,7 @@ export async function fetchProductBySlug(slug: string): Promise<Product | null> 
   ]);
 
   const sellerProductRows = (sellerProds as any[]) ?? [];
-  const finalSellerSummary = getSellerReviewStats(sellerProductRows).get(data.seller_id) ?? { rating: 5, reviewsCount: 0 };
+  const finalSellerSummary = getSellerReviewStats(sellerProductRows).get(data.seller_id) ?? { rating: 0, reviewsCount: 0 };
 
   const prof = profRaw as any;
   return dbToProduct(data as unknown as DbProduct, {

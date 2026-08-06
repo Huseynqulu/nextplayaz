@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Star, Loader2, MessageSquare, Store, Pencil, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
+import { useT } from "@/lib/i18n";
 import { toast } from "sonner";
 import { Link } from "@tanstack/react-router";
 
@@ -18,6 +19,7 @@ type Review = {
 
 export function ReviewSection({ productId, sellerId }: { productId: string; sellerId?: string | null }) {
   const { user } = useAuth();
+  const t = useT();
   const isSeller = !!user && !!sellerId && user.id === sellerId;
   const [mode, setMode] = useState<"product" | "seller">(sellerId ? "seller" : "product");
   const [reviews, setReviews] = useState<Review[]>([]);
@@ -221,7 +223,7 @@ export function ReviewSection({ productId, sellerId }: { productId: string; sell
       {loading ? (
         <div className="flex justify-center py-10"><Loader2 className="h-5 w-5 animate-spin text-neon" /></div>
       ) : reviews.length === 0 ? (
-        <p className="text-muted-foreground py-10 text-center rounded-2xl border border-dashed border-border">Hələ rəy yoxdur. İlk rəyi sən yaz!</p>
+        <p className="text-muted-foreground py-10 text-center rounded-2xl border border-dashed border-border">{t("product.noReviews")}</p>
       ) : (
         <div className="space-y-3">
           {reviews.map(r => {
