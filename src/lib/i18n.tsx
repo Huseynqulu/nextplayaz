@@ -140,6 +140,7 @@ const az: Dict = {
   "home.seller.f3.desc": "Escrow sistemi həm alıcını, həm satıcını qoruyur",
 
   // marketplace / filters
+  "market.all": "Hamısı",
   "market.title": "Marketplace",
   "market.results": "nəticə",
   "market.sort": "Sıralama",
@@ -462,6 +463,7 @@ const en: Dict = {
   "home.seller.f3.title": "Full protection",
   "home.seller.f3.desc": "Escrow protects both buyer and seller",
 
+  "market.all": "All",
   "market.title": "Marketplace",
   "market.results": "results",
   "market.sort": "Sort",
@@ -772,6 +774,7 @@ const ru: Dict = {
   "home.seller.f3.title": "Отслеживайте прибыль",
   "home.seller.f3.desc": "Полностью прозрачная и безопасная система оплаты",
 
+  "market.all": "Все",
   "market.title": "Маркетплейс",
   "market.results": "результатов",
   "market.sort": "Сортировка",

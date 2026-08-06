@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { Flame, ArrowRight } from "lucide-react";
-import { products as mock, boostScore } from "@/lib/marketplace-data";
+import { boostScore } from "@/lib/marketplace-data";
 import type { Product } from "@/lib/marketplace-data";
 import { ProductCard } from "./ProductCard";
 import { fetchProducts } from "@/lib/products";
