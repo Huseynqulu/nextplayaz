@@ -102,8 +102,8 @@ function RefundPage() {
         {
           heading: "Müraciət müddəti",
           body: [
-            "Etiraz sifariş tamamlandıqdan sonra 7 təqvim günü ərzində açıla bilər.",
-            "Bu müddətdən sonra texniki olaraq dispute mümkün deyil və satıcının xeyrinə tam ödəniş qüvvədə qalır.",
+            "Etiraz (dispute) yalnız sifariş tamamlanmadan əvvəl (çatdırıldı statusunda olarkən) açıla bilər.",
+            "Sifariş tamamlandıqdan (vəsait satıcıya keçdikdən) sonra texniki olaraq dispute açmaq mümkün deyil. Alıcı hər hansı ciddi problem aşkar edərsə, dəstək bileti açaraq administratora müraciət edə bilər, lakin bu halda geri qaytarma zəmanəti tətbiq olunmur.",
           ],
         },
         {

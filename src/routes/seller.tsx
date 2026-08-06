@@ -150,8 +150,7 @@ function SellerPage() {
                   <h4 className="font-semibold text-sm">Niyə bu məlumatları tələb edirik?</h4>
                 </div>
                 <p className="text-xs text-muted-foreground leading-relaxed mb-3">
-                  NextPlay.az qanuni və təhlükəsiz bir marketplace-dir. Satıcıları yoxlamaq alıcıları saxta hesablardan,
-                  fraud-dan və oğurluq məhsullardan qoruyur, eyni zamanda sənin öz qazancının və hesabının təhlükəsizliyini təmin edir.
+                  NextPlay.az qanuni və təhlükəsiz bir marketplace-dir. Platformanın təhlükəsizliyini qorumaq və fırıldaqçılıq riskini azaltmaq üçün satıcılardan şəxsiyyət təsdiqi tələb oluna bilər.
                 </p>
                 <ul className="space-y-2 text-xs">
                   <li className="flex gap-2">
@@ -163,12 +162,8 @@ function SellerPage() {
                     <span><b className="text-foreground">Telefon və Email:</b> Sifariş, ödəniş və mübahisə bildirişləri üçün. Alıcıyla təcili əlaqə lazım olduqda dəstək komandasına da kömək edir.</span>
                   </li>
                   <li className="flex gap-2">
-                    <Scale className="h-3.5 w-3.5 text-neon shrink-0 mt-0.5" />
-                    <span><b className="text-foreground">Qanuni tələb:</b> Azərbaycan qanunvericiliyi onlayn satış edən şəxslərin kimliyinin yoxlanılmasını tələb edir (KYC). Pul çıxarma da yalnız təsdiqlənmiş satıcılara açıqdır.</span>
-                  </li>
-                  <li className="flex gap-2">
                     <Lock className="h-3.5 w-3.5 text-neon shrink-0 mt-0.5" />
-                    <span><b className="text-foreground">Məxfilik:</b> Sənədlərin şifrələnmiş şəkildə saxlanılır, yalnız yoxlama komandası tərəfindən görünür və heç vaxt üçüncü tərəflərlə paylaşılmır.</span>
+                    <span><b className="text-foreground">Məxfilik:</b> Şəxsiyyət sənədləri yalnız hesabın yoxlanılması, təhlükəsizlik, fırıldaqçılığın qarşısının alınması və qanuni öhdəliklərin yerinə yetirilməsi məqsədilə emal edilir. Məlumatlar Məxfilik Siyasətində göstərilən hallar istisna olmaqla paylaşılmır.</span>
                   </li>
                 </ul>
               </div>

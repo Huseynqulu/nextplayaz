@@ -27,7 +27,7 @@ function PrivacyPage() {
           heading: "Toplanan məlumatlar",
           body: [
             "Hesab məlumatları: ad, soyad, e-poçt, telefon nömrəsi, profil şəkli, parol (şifrələnmiş şəkildə).",
-            "Verifikasiya məlumatları (satıcılar üçün): şəxsiyyət vəsiqəsinin ön/arxa tərəfi və selfie. Bu sənədlər yalnız administratorun verifikasiya məqsədli baxışına açıqdır və şifrələnmiş özəl yaddaşda saxlanılır.",
+            "Verifikasiya məlumatları (satıcılar üçün): şəxsiyyət vəsiqəsinin ön/arxa tərəfi və selfie. Şəxsiyyət sənədləri yalnız hesabın yoxlanılması, təhlükəsizlik, fırıldaqçılığın qarşısının alınması və qanuni öhdəliklərin yerinə yetirilməsi məqsədilə emal edilir. Məlumatlar Məxfilik Siyasətində göstərilən hallar istisna olmaqla paylaşılmır.",
             "Maliyyə məlumatları: cüzdan balansı, balans artırma qəbzləri, pul çıxarma rekvizitləri (kart nömrəsi, m10 hesabı və s.).",
             "Sövdələşmə məlumatları: sifariş tarixçəsi, mesajlaşma, rəylər, mübahisələr.",
             "Texniki məlumatlar: IP ünvan, brauzer növü, cihaz tipi, giriş tarixləri, son aktivlik vaxtı (online/offline statusu üçün).",

@@ -135,7 +135,7 @@ const az: Dict = {
   "home.seller.f1.title": "Yüksək qazanc",
   "home.seller.f1.desc": "Aylıq orta satıcı qazancı 800-2500 AZN",
   "home.seller.f2.title": "Sürətli ödəniş",
-  "home.seller.f2.desc": "Sifariş tamamlandıqdan 48 saat sonra balansda",
+  "home.seller.f2.desc": "Sifariş tamamlandıqdan dərhal sonra balansda",
   "home.seller.f3.title": "Tam qorunma",
   "home.seller.f3.desc": "Escrow sistemi həm alıcını, həm satıcını qoruyur",
 
@@ -469,7 +469,7 @@ const en: Dict = {
   "home.seller.f1.title": "High earnings",
   "home.seller.f1.desc": "Average seller earns 800–2500 AZN per month",
   "home.seller.f2.title": "Fast payouts",
-  "home.seller.f2.desc": "Funds land in your balance 48h after order completion",
+  "home.seller.f2.desc": "Funds land in your balance immediately after order completion",
   "home.seller.f3.title": "Full protection",
   "home.seller.f3.desc": "Escrow protects both buyer and seller",
 
