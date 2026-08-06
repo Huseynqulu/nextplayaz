@@ -40,7 +40,25 @@ type Application = {
 
 type ProductRow = { id: string; title: string; price: number; stock: number; category: string; is_active: boolean; seller_id: string; created_at: string };
 type AdminUser = { id: string; email: string | null; display_name: string | null; username: string | null; wallet_balance: number; roles: ("user"|"seller"|"admin"|"support")[]; created_at: string; verified_at: string | null; last_ip?: string | null; last_ip_at?: string | null; signup_ip?: string | null; banned_at?: string | null; ban_reason?: string | null };
-type DiscountCode = { id: string; code: string; percent: number; max_uses: number | null; used_count: number; is_active: boolean; expires_at: string | null; created_at: string };
+type DiscountCode = { 
+  id: string; 
+  code: string; 
+  percent: number; 
+  discount_type: 'percentage' | 'fixed';
+  fixed_amount: number | null;
+  max_discount_amount: number | null;
+  min_subtotal: number;
+  funding_source: 'platform' | 'seller';
+  is_new_customer_only: boolean;
+  per_user_limit: number;
+  max_uses: number | null; 
+  used_count: number; 
+  is_active: boolean; 
+  start_at: string | null;
+  expires_at: string | null; 
+  created_at: string;
+  campaign_name: string | null;
+};
 type AdminTicket = { id: string; user_id: string; order_id: string | null; subject: string; message: string; category: string; status: string; priority: string; created_at: string; updated_at: string };
 type TicketMsg = { id: string; sender_id: string; is_admin: boolean; body: string; created_at: string; attachment_url?: string | null };
 type TopUp = { id: string; user_id: string; amount: number; method: string; sender_note: string | null; receipt_url: string | null; reference_code: string | null; status: "pending"|"approved"|"rejected"; admin_notes: string | null; created_at: string };
@@ -49,7 +67,7 @@ type OrderPayment = { id: string; buyer_id: string; product_id: string; quantity
 type Category = { slug: string; label_az: string; label_en: string; label_ru: string; sort_order: number; is_active: boolean };
 type Subcategory = { id?: string; category_slug: string; slug: string; label_az: string; label_en: string; label_ru: string; sort_order: number; is_active: boolean };
 
-type Tab = "analytics" | "applications" | "users" | "sellers" | "codes" | "products" | "tickets" | "topups" | "topuplinks" | "orderpayments" | "withdrawals" | "platform" | "payments" | "categories" | "platforms" | "disputes" | "banners" | "reviews" | "giftcards" | "giftmarket" | "boost" | "announcements" | "homecats";
+type Tab = "analytics" | "applications" | "users" | "sellers" | "codes" | "products" | "tickets" | "topups" | "topuplinks" | "orderpayments" | "withdrawals" | "platform" | "payments" | "categories" | "platforms" | "disputes" | "banners" | "reviews" | "giftcards" | "giftmarket" | "boost" | "announcements" | "homecats" | "coupons";
 
 type PlatformRow = { slug: string; label_az: string; label_en: string; label_ru: string; sort_order: number; is_active: boolean };
 type PlatformSub = { platform_slug: string; slug: string; label_az: string; label_en: string; label_ru: string; sort_order: number; is_active: boolean };
@@ -118,7 +136,20 @@ function AdminPage() {
 
 
   // new code form
-  const [newCode, setNewCode] = useState({ code: "", percent: "10", max_uses: "", expires_at: "" });
+  const [newCode, setNewCode] = useState({ 
+    code: "", 
+    percent: "10", 
+    discount_type: "percentage",
+    fixed_amount: "",
+    max_discount_amount: "",
+    min_subtotal: "0",
+    funding_source: "seller",
+    is_new_customer_only: false,
+    per_user_limit: "1",
+    max_uses: "", 
+    expires_at: "",
+    campaign_name: ""
+  });
 
   useEffect(() => {
     if (!user) return;
@@ -392,14 +423,35 @@ function AdminPage() {
     const payload: any = {
       code: newCode.code.trim().toUpperCase(),
       percent: Number(newCode.percent),
+      discount_type: newCode.discount_type,
+      fixed_amount: newCode.fixed_amount ? Number(newCode.fixed_amount) : null,
+      max_discount_amount: newCode.max_discount_amount ? Number(newCode.max_discount_amount) : null,
+      min_subtotal: Number(newCode.min_subtotal),
+      funding_source: newCode.funding_source,
+      is_new_customer_only: newCode.is_new_customer_only,
+      per_user_limit: Number(newCode.per_user_limit),
       max_uses: newCode.max_uses ? Number(newCode.max_uses) : null,
       expires_at: newCode.expires_at ? new Date(newCode.expires_at).toISOString() : null,
       created_by: user!.id,
+      campaign_name: newCode.campaign_name || null
     };
     const { error } = await supabase.from("discount_codes").insert(payload);
     if (error) toast.error(error.message); else {
       toast.success("Endirim kodu yaradıldı");
-      setNewCode({ code: "", percent: "10", max_uses: "", expires_at: "" });
+      setNewCode({ 
+        code: "", 
+        percent: "10", 
+        discount_type: "percentage",
+        fixed_amount: "",
+        max_discount_amount: "",
+        min_subtotal: "0",
+        funding_source: "seller",
+        is_new_customer_only: false,
+        per_user_limit: "1",
+        max_uses: "", 
+        expires_at: "",
+        campaign_name: ""
+      });
       await refresh();
     }
     setBusy(null);
@@ -536,7 +588,7 @@ function AdminPage() {
               ["giftcards", "Hədiyyə kartları"],
               ["giftmarket", "🎮 Gift Marketplace"],
               ["boost", "🚀 Boost qiymətləri"],
-              ["codes", "Endirim kodları"],
+              ["coupons", "🎟️ Kampaniyalar"],
               ["products", "Məhsullar"],
             ] as const).map(([key, label]) => (
               <button key={key} onClick={() => setTab(key as Tab)}
@@ -808,6 +860,127 @@ function AdminPage() {
                 ))}
               </div>
             )
+            ) : tab === "coupons" ? (
+            <div className="space-y-4">
+              <div className="rounded-2xl border border-border bg-card-gradient p-5 card-shadow">
+                <h3 className="font-semibold mb-4 inline-flex items-center gap-2"><Plus className="h-4 w-4 text-neon" /> Yeni Kampaniya / Endirim Kodu</h3>
+                <div className="grid sm:grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-[10px] uppercase text-muted-foreground font-bold px-1">Kod</label>
+                    <input value={newCode.code} onChange={e => setNewCode({ ...newCode, code: e.target.value })}
+                      placeholder="Məs: YENI10" className="h-10 px-3 rounded-md bg-background border border-border text-sm" />
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-[10px] uppercase text-muted-foreground font-bold px-1">Növ</label>
+                    <select value={newCode.discount_type} onChange={e => setNewCode({ ...newCode, discount_type: e.target.value })}
+                      className="h-10 px-3 rounded-md bg-background border border-border text-sm">
+                      <option value="percentage">Faiz (%)</option>
+                      <option value="fixed">Sabit Məbləğ (AZN)</option>
+                    </select>
+                  </div>
+                  {newCode.discount_type === 'percentage' ? (
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-[10px] uppercase text-muted-foreground font-bold px-1">Faiz (%)</label>
+                      <input type="number" value={newCode.percent} onChange={e => setNewCode({ ...newCode, percent: e.target.value })}
+                        placeholder="10" className="h-10 px-3 rounded-md bg-background border border-border text-sm" />
+                    </div>
+                  ) : (
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-[10px] uppercase text-muted-foreground font-bold px-1">Məbləğ (AZN)</label>
+                      <input type="number" value={newCode.fixed_amount} onChange={e => setNewCode({ ...newCode, fixed_amount: e.target.value })}
+                        placeholder="5.00" className="h-10 px-3 rounded-md bg-background border border-border text-sm" />
+                    </div>
+                  )}
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-[10px] uppercase text-muted-foreground font-bold px-1">Maks. Endirim (AZN)</label>
+                    <input type="number" value={newCode.max_discount_amount} onChange={e => setNewCode({ ...newCode, max_discount_amount: e.target.value })}
+                      placeholder="Limitsiz" className="h-10 px-3 rounded-md bg-background border border-border text-sm" />
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-[10px] uppercase text-muted-foreground font-bold px-1">Min. Sifariş (AZN)</label>
+                    <input type="number" value={newCode.min_subtotal} onChange={e => setNewCode({ ...newCode, min_subtotal: e.target.value })}
+                      className="h-10 px-3 rounded-md bg-background border border-border text-sm" />
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-[10px] uppercase text-muted-foreground font-bold px-1">Maliyyələşmə</label>
+                    <select value={newCode.funding_source} onChange={e => setNewCode({ ...newCode, funding_source: e.target.value as any })}
+                      className="h-10 px-3 rounded-md bg-background border border-border text-sm">
+                      <option value="seller">Satıcı (Seller)</option>
+                      <option value="platform">Platforma (NextPlay)</option>
+                    </select>
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-[10px] uppercase text-muted-foreground font-bold px-1">Ümumi Limit</label>
+                    <input type="number" value={newCode.max_uses} onChange={e => setNewCode({ ...newCode, max_uses: e.target.value })}
+                      placeholder="Limitsiz" className="h-10 px-3 rounded-md bg-background border border-border text-sm" />
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-[10px] uppercase text-muted-foreground font-bold px-1">Bitmə Tarixi</label>
+                    <input type="date" value={newCode.expires_at} onChange={e => setNewCode({ ...newCode, expires_at: e.target.value })}
+                      className="h-10 px-3 rounded-md bg-background border border-border text-sm" />
+                  </div>
+                  <div className="col-span-full md:col-span-2 flex flex-col gap-1.5">
+                    <label className="text-[10px] uppercase text-muted-foreground font-bold px-1">Kampaniya Adı (Admin üçün)</label>
+                    <input value={newCode.campaign_name} onChange={e => setNewCode({ ...newCode, campaign_name: e.target.value })}
+                      placeholder="Məs: Yeni İl Endirimi" className="h-10 px-3 rounded-md bg-background border border-border text-sm" />
+                  </div>
+                  <div className="flex items-end pb-1 gap-4">
+                    <label className="inline-flex items-center gap-2 text-xs font-semibold cursor-pointer">
+                      <input type="checkbox" checked={newCode.is_new_customer_only} onChange={e => setNewCode({ ...newCode, is_new_customer_only: e.target.checked })}
+                        className="h-4 w-4 accent-neon" />
+                      Yalnız Yeni
+                    </label>
+                    <button onClick={createCode} disabled={busy === "new-code"}
+                      className="h-10 flex-1 px-4 rounded-md bg-neon text-background text-sm font-bold neon-ring disabled:opacity-50">
+                      Yarat
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid gap-3">
+                {codes.length === 0 && <p className="text-muted-foreground text-center py-12">Heç bir endirim kodu yoxdur.</p>}
+                {codes.map(c => (
+                  <div key={c.id} className="rounded-xl border border-border bg-card-gradient p-4 card-shadow">
+                    <div className="flex items-center justify-between gap-4 flex-wrap">
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="font-mono font-bold text-neon bg-neon/10 px-2 py-0.5 rounded border border-neon/20">{c.code}</span>
+                          {c.campaign_name && <span className="text-xs text-muted-foreground">({c.campaign_name})</span>}
+                          {c.is_new_customer_only && <span className="text-[10px] font-bold bg-warning/20 text-warning px-1.5 py-0.5 rounded">YENİ</span>}
+                        </div>
+                        <div className="flex items-center gap-3 mt-2 text-xs">
+                          <span className="font-bold text-lg">
+                            {c.discount_type === 'percentage' ? `${c.percent}%` : `${c.fixed_amount} AZN`}
+                          </span>
+                          <span className="text-muted-foreground">·</span>
+                          <span>Min: {c.min_subtotal} AZN</span>
+                          <span className="text-muted-foreground">·</span>
+                          <span className={c.funding_source === 'platform' ? 'text-neon font-bold' : ''}>
+                            {c.funding_source === 'platform' ? 'Platforma' : 'Satıcı'}
+                          </span>
+                        </div>
+                        <p className="text-[11px] text-muted-foreground mt-1">
+                          İstifadə: <span className="font-bold text-foreground">{c.used_count}</span>
+                          {c.max_uses ? ` / ${c.max_uses}` : " (Limitsiz)"}
+                          {c.expires_at && ` · Bitir: ${new Date(c.expires_at).toLocaleDateString()}`}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <button onClick={() => toggleCode(c)} disabled={busy === c.id}
+                          className={`h-9 px-3 rounded-md text-xs font-bold transition ${c.is_active ? "bg-success/20 text-success border border-success/30" : "bg-muted text-muted-foreground border border-border"}`}>
+                          {c.is_active ? "Aktiv" : "Deaktiv"}
+                        </button>
+                        <button onClick={() => deleteCode(c)} disabled={busy === c.id}
+                          className="h-9 w-9 grid place-items-center rounded-md bg-destructive/10 text-destructive border border-destructive/20 hover:bg-destructive hover:text-white transition">
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
           ) : tab === "topups" ? (
             <div className="space-y-3">
               <div className="flex gap-2 flex-wrap mb-2">
