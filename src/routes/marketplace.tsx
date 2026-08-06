@@ -7,7 +7,7 @@ import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { fetchProducts } from "@/lib/products";
 import { supabase } from "@/integrations/supabase/client";
 import { useEffect, useMemo, useState } from "react";
-import { Search, SlidersHorizontal, X, Star, LayoutGrid, Grid3x3, List, RefreshCw, AlertCircle } from "lucide-react";
+import { Search, SlidersHorizontal, X, Star, LayoutGrid, Grid3x3, List, RefreshCw, AlertCircle, ShieldCheck, Zap } from "lucide-react";
 import { ProductGridSkeleton } from "@/components/Skeletons";
 import { EmptyState } from "@/components/EmptyState";
 import { z } from "zod";
