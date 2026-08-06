@@ -125,6 +125,48 @@ export type Database = {
         }
         Relationships: []
       }
+      campaign_usage: {
+        Row: {
+          campaign_id: string
+          created_at: string
+          discount_amount: number
+          id: string
+          order_id: string
+          user_id: string
+        }
+        Insert: {
+          campaign_id: string
+          created_at?: string
+          discount_amount: number
+          id?: string
+          order_id: string
+          user_id: string
+        }
+        Update: {
+          campaign_id?: string
+          created_at?: string
+          discount_amount?: number
+          id?: string
+          order_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campaign_usage_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "discount_codes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "campaign_usage_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       categories: {
         Row: {
           created_at: string
@@ -204,38 +246,80 @@ export type Database = {
       }
       discount_codes: {
         Row: {
+          campaign_name: string | null
           code: string
           created_at: string
           created_by: string | null
+          discount_type: string | null
+          eligible_product_ids: string[] | null
+          eligible_seller_ids: string[] | null
           expires_at: string | null
+          fixed_amount: number | null
+          funding_source:
+            | Database["public"]["Enums"]["campaign_funding_source"]
+            | null
           id: string
           is_active: boolean
+          is_new_customer_only: boolean | null
+          is_stackable: boolean | null
+          max_discount_amount: number | null
           max_uses: number | null
+          min_subtotal: number | null
+          per_user_limit: number | null
           percent: number
+          start_at: string | null
           updated_at: string
           used_count: number
         }
         Insert: {
+          campaign_name?: string | null
           code: string
           created_at?: string
           created_by?: string | null
+          discount_type?: string | null
+          eligible_product_ids?: string[] | null
+          eligible_seller_ids?: string[] | null
           expires_at?: string | null
+          fixed_amount?: number | null
+          funding_source?:
+            | Database["public"]["Enums"]["campaign_funding_source"]
+            | null
           id?: string
           is_active?: boolean
+          is_new_customer_only?: boolean | null
+          is_stackable?: boolean | null
+          max_discount_amount?: number | null
           max_uses?: number | null
+          min_subtotal?: number | null
+          per_user_limit?: number | null
           percent: number
+          start_at?: string | null
           updated_at?: string
           used_count?: number
         }
         Update: {
+          campaign_name?: string | null
           code?: string
           created_at?: string
           created_by?: string | null
+          discount_type?: string | null
+          eligible_product_ids?: string[] | null
+          eligible_seller_ids?: string[] | null
           expires_at?: string | null
+          fixed_amount?: number | null
+          funding_source?:
+            | Database["public"]["Enums"]["campaign_funding_source"]
+            | null
           id?: string
           is_active?: boolean
+          is_new_customer_only?: boolean | null
+          is_stackable?: boolean | null
+          max_discount_amount?: number | null
           max_uses?: number | null
+          min_subtotal?: number | null
+          per_user_limit?: number | null
           percent?: number
+          start_at?: string | null
           updated_at?: string
           used_count?: number
         }
@@ -2223,18 +2307,37 @@ export type Database = {
       toggle_favorite: { Args: { p_product_id: string }; Returns: boolean }
       touch_last_seen: { Args: never; Returns: undefined }
       user_avg_response_minutes: { Args: { p_user: string }; Returns: number }
-      validate_discount_code: {
-        Args: { p_code: string }
-        Returns: {
-          code: string
-          percent: number
-          status: string
-        }[]
-      }
+      validate_discount_code:
+        | {
+            Args: { p_code: string }
+            Returns: {
+              code: string
+              percent: number
+              status: string
+            }[]
+          }
+        | {
+            Args: {
+              p_code: string
+              p_product_id?: string
+              p_subtotal?: number
+              p_user_id?: string
+            }
+            Returns: {
+              code: string
+              discount_type: string
+              fixed_amount: number
+              max_discount_amount: number
+              message: string
+              percent: number
+              status: string
+            }[]
+          }
     }
     Enums: {
       app_role: "user" | "seller" | "admin" | "support"
       application_status: "pending" | "approved" | "rejected"
+      campaign_funding_source: "platform" | "seller"
       delivery_type: "Instant" | "Manual"
       order_status:
         | "pending"
@@ -2393,6 +2496,7 @@ export const Constants = {
     Enums: {
       app_role: ["user", "seller", "admin", "support"],
       application_status: ["pending", "approved", "rejected"],
+      campaign_funding_source: ["platform", "seller"],
       delivery_type: ["Instant", "Manual"],
       order_status: [
         "pending",
