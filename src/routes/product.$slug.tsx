@@ -28,43 +28,56 @@ export const Route = createFileRoute("/product/$slug")({
   component: ProductPage,
   errorComponent: ({ error }) => <div className="min-h-screen grid place-items-center text-muted-foreground">{error.message}</div>,
   notFoundComponent: () => <div className="min-h-screen grid place-items-center text-muted-foreground">Məhsul tapılmadı.</div>,
-  head: ({ loaderData, params }) => ({
-    meta: loaderData?.product ? [
-      { title: `${loaderData.product.title} — NextPlay.az` },
-      { name: "description", content: loaderData.product.description },
-      { property: "og:title", content: loaderData.product.title },
-      { property: "og:description", content: loaderData.product.description },
-      { property: "og:image", content: loaderData.product.image },
-      { property: "og:type", content: "product" },
-      { property: "og:url", content: `https://nextplay.az/product/${params.slug}` },
-      { name: "twitter:image", content: loaderData.product.image },
-    ] : [],
-    links: [{ rel: "canonical", href: `https://nextplay.az/product/${params.slug}` }],
-    scripts: loaderData?.product ? [
-      {
-        type: "application/ld+json",
-        children: JSON.stringify({
-          "@context": "https://schema.org",
-          "@type": "Product",
-          name: loaderData.product.title,
-          description: loaderData.product.description,
-          image: loaderData.product.image,
-          offers: {
-            "@type": "Offer",
-            price: loaderData.product.price,
-            priceCurrency: "AZN",
-            availability: "https://schema.org/InStock",
-            url: `https://nextplay.az/product/${params.slug}`,
-          },
-        }),
-      },
-    ] : [],
-  }),
+  head: ({ loaderData, params }) => {
+    const p = loaderData?.product;
+    const fallbackSocial = "https://nextplay.az/icon-512.png";
+    const socialImage = p?.image && !p.image.includes("__np_placeholder__") ? p.image : fallbackSocial;
+    
+    return {
+      meta: p ? [
+        { title: `${p.title} — NextPlay.az` },
+        { name: "description", content: p.description },
+        { property: "og:title", content: p.title },
+        { property: "og:description", content: p.description },
+        { property: "og:image", content: socialImage },
+        { property: "og:type", content: "product" },
+        { property: "og:url", content: `https://nextplay.az/product/${params.slug}` },
+        { name: "twitter:image", content: socialImage },
+      ] : [],
+      links: [{ rel: "canonical", href: `https://nextplay.az/product/${params.slug}` }],
+      scripts: p ? [
+        {
+          type: "application/ld+json",
+          children: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "Product",
+            name: p.title,
+            description: p.description,
+            image: socialImage,
+            ...(p.rating > 0 && p.reviews > 0 ? {
+              aggregateRating: {
+                "@type": "AggregateRating",
+                ratingValue: p.rating,
+                reviewCount: p.reviews
+              }
+            } : {}),
+            offers: {
+              "@type": "Offer",
+              price: p.price,
+              priceCurrency: "AZN",
+              availability: "https://schema.org/InStock",
+              url: `https://nextplay.az/product/${params.slug}`,
+            },
+          }),
+        },
+      ] : [],
+    };
+  },
 });
 
 function ProductPage() {
   const t = useT();
-  const { product: p } = Route.useLoaderData();
+  const { product: p } = Route.useLoaderData() as { product: any };
   const { user } = useAuth();
   const navigate = useNavigate();
   const { format } = useCurrency();
@@ -146,8 +159,8 @@ function ProductPage() {
     return () => { cancel = true; };
   }, [p.id, p.category]);
   const isDbProduct = /^[0-9a-f]{8}-/i.test(p.id);
-  const gallery = Array.from(new Set([p.image, ...((p.images ?? []) as string[])].filter(Boolean)));
-  const [activeImg, setActiveImg] = useState(gallery[0] ?? p.image);
+  const gallery = Array.from(new Set([p.image, ...((p.images ?? []) as string[])].filter((img): img is string => !!img && img !== PRODUCT_PLACEHOLDER)));
+  const [activeImg, setActiveImg] = useState(gallery[0] || null);
 
   async function openBuy() {
     if (!user) {
@@ -260,27 +273,27 @@ function ProductPage() {
           <div className="grid lg:grid-cols-[260px_1fr] gap-8 min-w-0">
             {/* Gallery — kiçik */}
             <div className="min-w-0 flex flex-col items-center lg:items-start">
-              {p.image && p.image !== PRODUCT_PLACEHOLDER ? (
-                <>
-                  <div className="relative aspect-square overflow-hidden rounded-xl border border-border card-shadow w-full max-w-[260px]">
-                    <img src={activeImg} alt={p.title} className="absolute inset-0 h-full w-full object-cover" />
-                    {p.tag && (
-                      <span className="absolute top-2 left-2 px-2 py-0.5 rounded text-[10px] font-bold bg-destructive text-destructive-foreground">
-                        {p.tag}
-                      </span>
-                    )}
-                  </div>
-                  {gallery.length > 1 && (
-                    <div className="mt-3 grid grid-cols-4 gap-2 w-full max-w-[260px]">
-                      {gallery.map((src, i) => (
-                        <button key={i} onClick={() => setActiveImg(src)} className={`aspect-square overflow-hidden rounded-md border transition ${activeImg === src ? "border-primary" : "border-border hover:border-primary/60"}`}>
-                          <img src={src} alt="" className="h-full w-full object-cover" />
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </>
-              ) : null}
+              <div className="relative aspect-square overflow-hidden rounded-xl border border-border card-shadow w-full max-w-[260px] bg-surface/40">
+                {activeImg ? (
+                  <img src={activeImg} alt={p.title} className="absolute inset-0 h-full w-full object-cover" loading="eager" />
+                ) : (
+                  <ProductCoverPlaceholder title={p.title} />
+                )}
+                {p.tag && (
+                  <span className="absolute top-2 left-2 px-2 py-0.5 rounded text-[10px] font-bold bg-destructive text-destructive-foreground">
+                    {p.tag}
+                  </span>
+                )}
+              </div>
+              {gallery.length > 1 && (
+                <div className="mt-3 grid grid-cols-4 gap-2 w-full max-w-[260px]">
+                  {gallery.map((src, i) => (
+                    <button key={i} onClick={() => setActiveImg(src)} className={`aspect-square overflow-hidden rounded-md border transition ${activeImg === src ? "border-primary" : "border-border hover:border-primary/60"}`}>
+                      <img src={src} alt="" className="h-full w-full object-cover" />
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
 
 
@@ -293,8 +306,17 @@ function ProductPage() {
                 <span className={`px-2.5 py-1 rounded-md text-xs font-semibold flex items-center gap-1 ${
                   p.delivery === "Instant" ? "bg-neon/15 text-neon border border-neon/30" : "bg-surface border border-border"
                 }`}>
-                  {p.delivery === "Instant" && <Zap className="h-3 w-3" />}
-                  {p.delivery === "Instant" ? t("product.delivery.instant") : t("product.delivery.manual")}
+                  {p.delivery === "Instant" ? (
+                    <>
+                      <Zap className="h-3 w-3" />
+                      {t("product.delivery.instant")}
+                    </>
+                  ) : (
+                    <div className="flex flex-col">
+                      <span>{t("product.delivery.manual")}</span>
+                      <span className="text-[10px] opacity-70 font-normal">{t("product.delivery.manualSubtitle")}</span>
+                    </div>
+                  )}
                 </span>
               </div>
 
@@ -302,11 +324,19 @@ function ProductPage() {
 
               <div className="mt-4 flex items-center gap-4">
                 <div className="flex items-center gap-1">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} className={`h-4 w-4 ${i < Math.round(p.rating) ? "fill-warning text-warning" : "text-muted"}`} />
-                  ))}
-                  <span className="ml-1 font-semibold">{p.rating}</span>
-                  <span className="text-muted-foreground text-sm">({p.reviews} rəy)</span>
+                  {p.rating > 0 ? (
+                    <>
+                      <div className="flex items-center gap-0.5">
+                        {[...Array(5)].map((_, i) => (
+                          <Star key={i} className={`h-4 w-4 ${i < Math.round(p.rating) ? "fill-warning text-warning" : "text-muted"}`} />
+                        ))}
+                      </div>
+                      <span className="ml-1 font-semibold">{p.rating}</span>
+                      <span className="text-muted-foreground text-sm">({p.reviews} {t("product.reviews")})</span>
+                    </>
+                  ) : (
+                    <span className="text-sm text-muted-foreground italic">{t("product.noReviews")}</span>
+                  )}
                 </div>
                 <span className="text-sm text-muted-foreground">Stok: <span className="text-success font-semibold">{p.stock}</span></span>
               </div>

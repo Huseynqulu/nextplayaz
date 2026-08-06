@@ -40,7 +40,7 @@ export function ProductCard({ p, variant = "default" }: { p: Product; variant?: 
 
   function addToCart(e: React.MouseEvent) {
     e.preventDefault(); e.stopPropagation();
-    add({ id: p.id, slug: p.slug, title: p.title, image: p.image, price: p.price, sellerName: p.seller.name, stock: p.stock });
+    add({ id: p.id, slug: p.slug, title: p.title, image: p.image || undefined, price: p.price, sellerName: p.seller.name, stock: p.stock });
     toast.success("Səbətə əlavə edildi");
   }
 
@@ -54,9 +54,13 @@ export function ProductCard({ p, variant = "default" }: { p: Product; variant?: 
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between gap-3">
             <h3 className="font-semibold text-sm leading-snug line-clamp-2 break-words group-hover:text-neon transition">{p.title}</h3>
-            {p.delivery === "Instant" && (
+            {p.delivery === "Instant" ? (
               <span className="shrink-0 px-1.5 py-0.5 rounded text-[10px] font-medium bg-neon/15 text-neon border border-neon/30 inline-flex items-center gap-0.5">
-                <Zap className="h-2.5 w-2.5" />Anında
+                <Zap className="h-2.5 w-2.5" />{t("product.delivery.instant")}
+              </span>
+            ) : (
+              <span className="shrink-0 px-1.5 py-0.5 rounded text-[10px] font-medium bg-surface text-muted-foreground border border-border inline-flex items-center gap-0.5">
+                {t("product.delivery.manual")}
               </span>
             )}
           </div>
@@ -98,6 +102,19 @@ export function ProductCard({ p, variant = "default" }: { p: Product; variant?: 
       params={{ slug: p.slug }}
       className="group relative flex flex-col rounded-xl overflow-hidden bg-card-gradient border border-border card-shadow hover:border-primary/60 transition-all duration-300 hover:-translate-y-0.5"
     >
+      <div className="relative aspect-[4/3] overflow-hidden bg-surface/30">
+        {p.image ? (
+          <img 
+            src={p.image} 
+            alt={p.title} 
+            loading="lazy" 
+            decoding="async"
+            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110" 
+          />
+        ) : (
+          <ProductCoverPlaceholder title={p.title} />
+        )}
+      </div>
       <div className={`flex flex-1 flex-col ${isCompact ? "p-3 gap-2" : "p-4 gap-2.5"}`}>
         <div className="flex items-start justify-between gap-2">
           <div className="flex gap-1 flex-wrap">
