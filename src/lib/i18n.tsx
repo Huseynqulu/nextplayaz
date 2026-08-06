@@ -166,8 +166,9 @@ const az: Dict = {
   "product.outOfStock": "Stokda yoxdur",
   "product.inStock": "Stokda var",
   "product.stockLeft": "stok qaldı",
-  "product.delivery.instant": "Anında çatdırılma",
+  "product.delivery.instant": "Ani çatdırılma",
   "product.delivery.manual": "Əl ilə çatdırılma",
+  "product.delivery.manualSubtitle": "Satıcı təsdiqindən sonra",
   "product.seller": "Satıcı",
   "product.verified": "Doğrulanmış",
   "product.rating": "Reytinq",
@@ -184,9 +185,6 @@ const az: Dict = {
   "product.report": "Şikayət et",
   "product.terms": "Alış-veriş şərtlərini qəbul edirəm",
   "product.allReviews": "Bütün satıcı dəyərləndirmələri",
-  "product.delivery.instant": "Ani çatdırılma",
-  "product.delivery.manual": "Əl ilə çatdırılma",
-  "product.delivery.manualSubtitle": "Satıcı təsdiqindən sonra",
 
   // cart / checkout
   "cart.title": "Səbət",
