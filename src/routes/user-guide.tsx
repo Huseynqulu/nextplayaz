@@ -147,9 +147,7 @@ function UserGuidePage() {
               <div className="flex items-start gap-2">
                 <Lock className="h-4 w-4 text-neon mt-0.5 shrink-0" />
                 <div className="text-sm">
-                  <strong>Məxfilik təminatı:</strong> Bu məlumatları heç bir 3-cü şəxs və ya
-                  qurumla bölüşmürük. Yalnız məhkəmə-istintaq orqanlarının rəsmi sorğusu əsasında
-                  paylaşıla bilər.
+                  <strong>Məxfilik təminatı:</strong> Şəxsiyyət sənədləri yalnız hesabın yoxlanılması, təhlükəsizlik, fırıldaqçılığın qarşısının alınması və qanuni öhdəliklərin yerinə yetirilməsi məqsədilə emal edilir. Məlumatlar Məxfilik Siyasətində göstərilən hallar istisna olmaqla paylaşılmır.
                 </div>
               </div>
             </div>

@@ -161,7 +161,9 @@ function RegisterPage() {
 
             <label className="flex gap-2 text-xs text-muted-foreground">
               <input type="checkbox" required className="accent-primary mt-0.5" />
-              <span>Mən <a href="#" className="text-neon hover:underline">istifadə şərtləri</a> ilə razıyam</span>
+              <span>
+                Mən <Link to="/terms" target="_blank" rel="noopener noreferrer" className="text-neon hover:underline">istifadə şərtləri</Link> və <Link to="/privacy" target="_blank" rel="noopener noreferrer" className="text-neon hover:underline">məxfilik siyasəti</Link> ilə razıyam
+              </span>
             </label>
 
             <button type="submit" disabled={loading} className="w-full h-11 rounded-xl bg-neon text-background font-semibold neon-ring hover:scale-[1.01] transition disabled:opacity-60 flex items-center justify-center gap-2">

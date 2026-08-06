@@ -43,8 +43,8 @@ function TermsPage() {
         {
           heading: "Satıcı statusu və verifikasiya",
           body: [
-            "Satıcı statusu əldə etmək üçün istifadəçi “Satıcı ol” bölməsindən şəxsiyyət vəsiqəsinin ön və arxa tərəfi və selfie ilə müraciət göndərməlidir.",
-            "Bütün sənədlər şifrələnmiş şəkildə saxlanılır və yalnız administrator tərəfindən verifikasiya məqsədilə baxıla bilər.",
+            "Platformanın təhlükəsizliyini qorumaq və fırıldaqçılıq riskini azaltmaq üçün satıcılardan şəxsiyyət təsdiqi tələb oluna bilər.",
+            "Şəxsiyyət sənədləri yalnız hesabın yoxlanılması, təhlükəsizlik, fırıldaqçılığın qarşısının alınması və qanuni öhdəliklərin yerinə yetirilməsi məqsədilə emal edilir. Məlumatlar Məxfilik Siyasətində göstərilən hallar istisna olmaqla paylaşılmır.",
             "Satıcı təsdiq olunduqdan sonra məhsul yerləşdirə, sifariş qəbul edə və balans çıxara bilər.",
             "Saxta sənəd təqdim edən istifadəçinin hesabı dərhal və daimi olaraq bloklanır, balansı isə zərərçəkmişlərin kompensasiyasına yönəldilə bilər.",
           ],
@@ -86,7 +86,7 @@ function TermsPage() {
           heading: "Komissiyalar və ödənişlər",
           body: [
             "Satıcıdan: hər tamamlanmış satışdan 5% komissiya tutulur.",
-            "Pul çıxarma: hər çıxarış əməliyyatından əlavə 5% xidmət haqqı tutulur.",
+            "Pul çıxarma: hər çıxarış əməliyyatından 5% xidmət haqqı tutulur. Minimum çıxarış məbləği 20 AZN-dir.",
             "Balans artırma: hazırda manual (bank köçürməsi / m10) üsul ilə həyata keçirilir və admin tərəfindən təsdiqlənir.",
             "Bütün tarifələr əvvəlcədən bildirilmədən dəyişdirilə bilər; dəyişiklik yalnız tətbiq tarixindən sonrakı əməliyyatlara aiddir.",
           ],

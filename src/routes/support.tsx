@@ -19,7 +19,7 @@ export const Route = createFileRoute("/support")({
 
 const faqs = [
   { q: "Escrow sistem necə işləyir?", a: "Ödənişin satıcıya yalnız sən sifarişi təsdiqlədikdən sonra köçürülür. Pul bu müddətdə platformada təhlükəsiz şəkildə saxlanılır." },
-  { q: "Sifariş çatmadıqda nə olur?", a: "24 saat ərzində dəstək komandasına müraciət et. Pul tam geri qaytarılır." },
+  { q: "Sifariş çatmadıqda nə olur?", a: "Sifariş çatdırıldıqdan sonra 24 saat ərzində (və ya sifariş 'Ödənilib' statusunda olarkən istənilən vaxt) etiraz açın. Problem təsdiqlənərsə, pul tam geri qaytarılır." },
   { q: "Satıcı olmaq üçün nə tələb olunur?", a: "Şəxsiyyət vəsiqəsi və selfie. Yoxlama 24 saat çəkir." },
   { q: "Hansı ödəniş üsulları dəstəklənir?", a: "Balansınızı BirBank və ya bank köçürməsi ilə artıra bilərsiniz. Ödəniş qəbzi yoxlanıldıqdan sonra vəsait cüzdanınıza əlavə olunacaq." },
 ];
