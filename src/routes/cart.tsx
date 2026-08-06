@@ -128,7 +128,13 @@ function CartPage() {
             <div className="space-y-3">
               {items.map(it => (
                 <div key={it.id} className="rounded-2xl border border-border bg-card-gradient p-4 flex gap-4 items-center">
-                  <img src={it.image} alt={it.title} className="h-20 w-20 rounded-xl object-cover shrink-0" />
+                  {it.image ? (
+                    <img src={it.image} alt={it.title} className="h-20 w-20 rounded-xl object-cover shrink-0" />
+                  ) : (
+                    <div className="h-20 w-20 rounded-xl bg-surface/40 flex items-center justify-center shrink-0">
+                      <ShoppingCart className="h-8 w-8 text-muted-foreground/30" />
+                    </div>
+                  )}
                   <div className="flex-1 min-w-0">
                     <Link to="/product/$slug" params={{ slug: it.slug }} className="font-semibold hover:text-neon line-clamp-2">{it.title}</Link>
                     <p className="text-xs text-muted-foreground mt-0.5">Satıcı: {it.sellerName}</p>
