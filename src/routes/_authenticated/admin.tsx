@@ -67,7 +67,7 @@ type OrderPayment = { id: string; buyer_id: string; product_id: string; quantity
 type Category = { slug: string; label_az: string; label_en: string; label_ru: string; sort_order: number; is_active: boolean };
 type Subcategory = { id?: string; category_slug: string; slug: string; label_az: string; label_en: string; label_ru: string; sort_order: number; is_active: boolean };
 
-type Tab = "analytics" | "applications" | "users" | "sellers" | "codes" | "products" | "tickets" | "topups" | "topuplinks" | "orderpayments" | "withdrawals" | "platform" | "payments" | "categories" | "platforms" | "disputes" | "banners" | "reviews" | "giftcards" | "giftmarket" | "boost" | "announcements" | "homecats";
+type Tab = "analytics" | "applications" | "users" | "sellers" | "codes" | "products" | "tickets" | "topups" | "topuplinks" | "orderpayments" | "withdrawals" | "platform" | "payments" | "categories" | "platforms" | "disputes" | "banners" | "reviews" | "giftcards" | "giftmarket" | "boost" | "announcements" | "homecats" | "coupons";
 
 type PlatformRow = { slug: string; label_az: string; label_en: string; label_ru: string; sort_order: number; is_active: boolean };
 type PlatformSub = { platform_slug: string; slug: string; label_az: string; label_en: string; label_ru: string; sort_order: number; is_active: boolean };
@@ -588,7 +588,7 @@ function AdminPage() {
               ["giftcards", "Hədiyyə kartları"],
               ["giftmarket", "🎮 Gift Marketplace"],
               ["boost", "🚀 Boost qiymətləri"],
-              ["codes", "Endirim kodları"],
+              ["coupons", "🎟️ Kampaniyalar"],
               ["products", "Məhsullar"],
             ] as const).map(([key, label]) => (
               <button key={key} onClick={() => setTab(key as Tab)}
@@ -860,7 +860,7 @@ function AdminPage() {
                 ))}
               </div>
             )
-          ) : tab === "coupons" ? (
+            ) : tab === "coupons" ? (
             <div className="space-y-4">
               <div className="rounded-2xl border border-border bg-card-gradient p-5 card-shadow">
                 <h3 className="font-semibold mb-4 inline-flex items-center gap-2"><Plus className="h-4 w-4 text-neon" /> Yeni Kampaniya / Endirim Kodu</h3>
