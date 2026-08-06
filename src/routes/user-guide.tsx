@@ -114,7 +114,7 @@ function UserGuidePage() {
             <div className="rounded-xl border border-border bg-surface/50 p-4">
               <div className="font-semibold text-foreground mb-2">Niyə NextPlay.az?</div>
               <ul className="space-y-1.5 list-disc pl-5">
-                <li>Escrow sistemi ilə qorunan ödənişlər</li>
+                <li>Təhlükəsizlik sistemi ilə qorunan ödənişlər</li>
                 <li>Sektordan aşağı 5% komissiya</li>
                 <li>Doğrulanmış satıcı təminatı</li>
                 <li>Mağaza aç və müntəzəm gəlir əldə et</li>
@@ -190,7 +190,7 @@ function UserGuidePage() {
               <li>Satıcı panelinə keç və “Məhsul əlavə et”-ə bas</li>
               <li>Kateqoriya və alt kateqoriya seç</li>
               <li>Məhsul detallarını, şəkillərini və qiymətini doldur</li>
-              <li>Anında çatdırılma seçirsənsə, stok elementlərini alt-alta əlavə et</li>
+              <li>Sürətli çatdırılma seçirsənsə, stok elementlərini alt-alta əlavə et</li>
               <li>Yayımla — məhsulun anında marketdə görünəcək</li>
             </ol>
           </Section>

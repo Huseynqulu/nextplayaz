@@ -483,8 +483,8 @@ function ProductPage() {
             <aside className="rounded-2xl border border-border bg-card-gradient p-6 card-shadow h-fit">
               <h3 className="font-display font-semibold mb-4">Zəmanətlər</h3>
               <ul className="space-y-3 text-sm">
-                <li className="flex gap-3"><ShieldCheck className="h-5 w-5 text-neon shrink-0" /> 100% escrow qorunma — pul satıcıya yalnız təsdiqdən sonra köçür</li>
-                <li className="flex gap-3"><Zap className="h-5 w-5 text-neon shrink-0" /> Anında çatdırılma — sifariş sonrası dərhal</li>
+                <li className="flex gap-3"><ShieldCheck className="h-5 w-5 text-neon shrink-0" /> 100% təhlükəsiz sifariş — pul satıcıya yalnız təsdiqdən sonra köçür</li>
+                <li className="flex gap-3"><Zap className="h-5 w-5 text-neon shrink-0" /> Sürətli çatdırılma — sifariş sonrası dərhal</li>
                 <li className="flex gap-3"><Package className="h-5 w-5 text-neon shrink-0" /> Geri qaytarma — çatdırılma uğursuz olarsa</li>
               </ul>
             </aside>
@@ -547,11 +547,11 @@ function ProductPage() {
                 </div>
               </div>
               <p><b className="text-foreground">1. Escrow qoruması.</b> Ödədiyiniz <span className="text-neon font-semibold">{format(finalTotal)}</span> NextPlay tərəfindən saxlanılır və yalnız sifarişi təsdiqlədikdən sonra satıcıya köçürülür.</p>
-              <p><b className="text-foreground">2. Çatdırılma müddəti.</b> Satıcı sifarişi 24 saat ərzində mesaj vasitəsi ilə təhvil verməlidir. Anında çatdırılma məhsullarında məlumat dərhal göstərilir.</p>
+              <p><b className="text-foreground">2. Çatdırılma müddəti.</b> Satıcı sifarişi 24 saat ərzində mesaj vasitəsi ilə təhvil verməlidir. Sürətli çatdırılma məhsullarında məlumat dərhal göstərilir.</p>
               <p><b className="text-foreground">3. Avtomatik təsdiq.</b> Çatdırılmadan 24 saat sonra sifariş təsdiq etməsəniz, sistem onu avtomatik tamamlayır və vəsait satıcıya keçir.</p>
               <p><b className="text-foreground">4. Etiraz hüququ.</b> Problem yaranarsa, "Etiraz et" düyməsi ilə dəstəyə müraciət edə bilərsiniz. Etiraz üçün <b>video sübut və ya ekran görüntüsü</b> mütləqdir.</p>
               <p><b className="text-foreground">5. Geri qaytarma.</b> Sübutlu etirazda admin tam və ya qismən geri qaytarma edə bilər. Hesab dəyişikliyi (şifrə, e-poçt) edildikdən sonra geri qaytarma rədd edilir.</p>
-              <p><b className="text-foreground">6. Qadağalar.</b> Satıcı ilə platforma xaricində ödəniş və ya əlaqə qadağandır — bu halda Escrow qorunması itirilir və hesab bloklana bilər.</p>
+              <p><b className="text-foreground">6. Qadağalar.</b> Satıcı ilə platforma xaricində ödəniş və ya əlaqə qadağandır — bu halda təhlükəsizlik qorunması itirilir və hesab bloklana bilər.</p>
               <p><b className="text-foreground">7. Komissiya.</b> NextPlay hər uğurlu sifarişdən 5% komissiya tutur — bu məbləğ satıcıdan tutulur, alıcı yalnız məhsul qiymətini ödəyir.</p>
               <p>Tam mətn üçün <Link to="/terms" target="_blank" className="text-neon hover:underline">Şərtlər</Link>, <Link to="/refund" target="_blank" className="text-neon hover:underline">Geri qaytarma</Link> və <Link to="/privacy" target="_blank" className="text-neon hover:underline">Məxfilik</Link> səhifələrinə baxın.</p>
             </div>

@@ -25,7 +25,7 @@ const STEPS: Step[] = [
   {
     icon: ShoppingBag,
     title: "2. Məhsul tap və al",
-    body: "Marketdə oyunları, hesabları, açarları və xidmətləri tap. Anında çatdırılma seçimi olan məhsullar saniyələr ərzində təhvil verilir.",
+    body: "Marketdə oyunları, hesabları, açarları və xidmətləri tap. Sürətli çatdırılma seçimi olan məhsullar saniyələr ərzində təhvil verilir.",
     cta: { label: "Marketə keç", to: "/marketplace" },
   },
   {
