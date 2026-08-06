@@ -26,7 +26,7 @@ export type DbProduct = {
 };
 
 export const PRODUCT_PLACEHOLDER = "__np_placeholder__";
-const FALLBACK_IMG = PRODUCT_PLACEHOLDER;
+const FALLBACK_IMG = null; // No string fallback here, handle in components
 
 export type SellerLite = { name: string; avatarUrl?: string | null; shopName?: string | null; verified?: boolean; rating?: number; sales?: number; reviewsCount?: number };
 
@@ -115,8 +115,8 @@ export function dbToProduct(p: DbProduct, seller?: SellerLite | string): Product
     platformSubcategory: p.platform_subcategory ?? null,
     category: p.category,
     subcategory: p.subcategory ?? null,
-    image: p.image_url || FALLBACK_IMG,
-    images: Array.isArray(p.image_urls) ? p.image_urls.filter(Boolean) : [],
+    image: p.image_url && p.image_url !== PRODUCT_PLACEHOLDER ? p.image_url : null,
+    images: Array.isArray(p.image_urls) ? p.image_urls.filter(img => img && img !== PRODUCT_PLACEHOLDER) : [],
     stock: p.stock,
     rating: Number(p.rating) || 0,
     reviews: p.reviews_count,
