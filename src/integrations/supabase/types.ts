@@ -884,6 +884,8 @@ export type Database = {
           created_at: string
           delivered_at: string | null
           delivery_payload: string | null
+          discount_amount: number
+          discount_code: string | null
           dispute_evidence_path: string | null
           dispute_evidence_url: string | null
           disputed_at: string | null
@@ -912,6 +914,8 @@ export type Database = {
           created_at?: string
           delivered_at?: string | null
           delivery_payload?: string | null
+          discount_amount?: number
+          discount_code?: string | null
           dispute_evidence_path?: string | null
           dispute_evidence_url?: string | null
           disputed_at?: string | null
@@ -940,6 +944,8 @@ export type Database = {
           created_at?: string
           delivered_at?: string | null
           delivery_payload?: string | null
+          discount_amount?: number
+          discount_code?: string | null
           dispute_evidence_path?: string | null
           dispute_evidence_url?: string | null
           disputed_at?: string | null
