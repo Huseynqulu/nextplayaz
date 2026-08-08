@@ -136,7 +136,7 @@ function LoginPage() {
 
             <div className="flex items-center justify-between text-sm">
               <label className="flex items-center gap-2 text-muted-foreground"><input type="checkbox" className="accent-primary" /> Məni xatırla</label>
-              <a href="#" className="text-neon hover:underline">Şifrəni unutdun?</a>
+              <button type="button" onClick={() => { setForgot(true); setResetSent(false); }} className="text-neon hover:underline">Şifrəni unutdun?</button>
             </div>
 
             <button type="submit" disabled={loading} className="w-full h-11 rounded-xl bg-neon text-background font-semibold neon-ring hover:scale-[1.01] transition disabled:opacity-60 flex items-center justify-center gap-2">
