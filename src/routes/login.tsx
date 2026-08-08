@@ -30,6 +30,21 @@ function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [mfa, setMfa] = useState<{ factorId: string; challengeId: string } | null>(null);
   const [mfaCode, setMfaCode] = useState("");
+  const [forgot, setForgot] = useState(false);
+  const [resetSent, setResetSent] = useState(false);
+
+  async function handleForgot(e: React.FormEvent) {
+    e.preventDefault();
+    if (!email) { toast.error("Email daxil edin"); return; }
+    setLoading(true);
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
+    setLoading(false);
+    if (error) { toast.error(error.message); return; }
+    setResetSent(true);
+    toast.success("Şifrə sıfırlama linki emailinizə göndərildi");
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
