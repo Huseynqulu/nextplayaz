@@ -30,6 +30,21 @@ function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [mfa, setMfa] = useState<{ factorId: string; challengeId: string } | null>(null);
   const [mfaCode, setMfaCode] = useState("");
+  const [forgot, setForgot] = useState(false);
+  const [resetSent, setResetSent] = useState(false);
+
+  async function handleForgot(e: React.FormEvent) {
+    e.preventDefault();
+    if (!email) { toast.error("Email daxil edin"); return; }
+    setLoading(true);
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
+    setLoading(false);
+    if (error) { toast.error(error.message); return; }
+    setResetSent(true);
+    toast.success("Şifrə sıfırlama linki emailinizə göndərildi");
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -97,7 +112,30 @@ function LoginPage() {
             <p className="mt-2 text-muted-foreground text-sm">Gaming aləminə davam et</p>
           </div>
 
-          {mfa ? (
+          {forgot ? (
+            <form onSubmit={handleForgot} className="rounded-2xl border border-border bg-card-gradient p-7 card-shadow space-y-4">
+              <div className="text-center">
+                <h2 className="font-display text-lg font-bold">Şifrəni sıfırla</h2>
+                <p className="text-xs text-muted-foreground mt-1">Emailinizi yazın — sıfırlama linki göndərəcəyik</p>
+              </div>
+              {resetSent ? (
+                <p className="text-sm text-center text-muted-foreground">
+                  Link <span className="text-foreground font-medium">{email}</span> ünvanına göndərildi. Poçtunuzu (spam qovluğunu da) yoxlayın.
+                </p>
+              ) : (
+                <>
+                  <Field icon={<Mail className="h-4 w-4" />} type="email" placeholder="Email" required value={email} onChange={e => setEmail(e.target.value)} />
+                  <button type="submit" disabled={loading}
+                    className="w-full h-11 rounded-xl bg-neon text-background font-semibold neon-ring disabled:opacity-60 flex items-center justify-center gap-2">
+                    {loading && <Loader2 className="h-4 w-4 animate-spin" />} Link göndər
+                  </button>
+                </>
+              )}
+              <button type="button" onClick={() => setForgot(false)} className="w-full text-xs text-muted-foreground hover:text-foreground">
+                Girişə qayıt
+              </button>
+            </form>
+          ) : mfa ? (
             <form onSubmit={verifyMfa} className="rounded-2xl border border-border bg-card-gradient p-7 card-shadow space-y-4">
               <div className="text-center">
                 <h2 className="font-display text-lg font-bold">İki addımlı doğrulama</h2>
@@ -121,7 +159,7 @@ function LoginPage() {
 
             <div className="flex items-center justify-between text-sm">
               <label className="flex items-center gap-2 text-muted-foreground"><input type="checkbox" className="accent-primary" /> Məni xatırla</label>
-              <a href="#" className="text-neon hover:underline">Şifrəni unutdun?</a>
+              <button type="button" onClick={() => { setForgot(true); setResetSent(false); }} className="text-neon hover:underline">Şifrəni unutdun?</button>
             </div>
 
             <button type="submit" disabled={loading} className="w-full h-11 rounded-xl bg-neon text-background font-semibold neon-ring hover:scale-[1.01] transition disabled:opacity-60 flex items-center justify-center gap-2">

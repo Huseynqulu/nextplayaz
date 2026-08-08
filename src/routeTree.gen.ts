@@ -15,6 +15,7 @@ import { Route as TermsRouteImport } from './routes/terms'
 import { Route as SupportRouteImport } from './routes/support'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as SellerRouteImport } from './routes/seller'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as RegisterRouteImport } from './routes/register'
 import { Route as RefundRouteImport } from './routes/refund'
 import { Route as PrivacyRouteImport } from './routes/privacy'
@@ -76,6 +77,11 @@ const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
 const SellerRoute = SellerRouteImport.update({
   id: '/seller',
   path: '/seller',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RegisterRoute = RegisterRouteImport.update({
@@ -255,6 +261,7 @@ export interface FileRoutesByFullPath {
   '/privacy': typeof PrivacyRoute
   '/refund': typeof RefundRoute
   '/register': typeof RegisterRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/seller': typeof SellerRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/support': typeof SupportRoute
@@ -294,6 +301,7 @@ export interface FileRoutesByTo {
   '/privacy': typeof PrivacyRoute
   '/refund': typeof RefundRoute
   '/register': typeof RegisterRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/seller': typeof SellerRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/support': typeof SupportRoute
@@ -335,6 +343,7 @@ export interface FileRoutesById {
   '/privacy': typeof PrivacyRoute
   '/refund': typeof RefundRoute
   '/register': typeof RegisterRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/seller': typeof SellerRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/support': typeof SupportRoute
@@ -376,6 +385,7 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/refund'
     | '/register'
+    | '/reset-password'
     | '/seller'
     | '/sitemap.xml'
     | '/support'
@@ -415,6 +425,7 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/refund'
     | '/register'
+    | '/reset-password'
     | '/seller'
     | '/sitemap.xml'
     | '/support'
@@ -455,6 +466,7 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/refund'
     | '/register'
+    | '/reset-password'
     | '/seller'
     | '/sitemap.xml'
     | '/support'
@@ -496,6 +508,7 @@ export interface RootRouteChildren {
   PrivacyRoute: typeof PrivacyRoute
   RefundRoute: typeof RefundRoute
   RegisterRoute: typeof RegisterRoute
+  ResetPasswordRoute: typeof ResetPasswordRoute
   SellerRoute: typeof SellerRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   SupportRoute: typeof SupportRoute
@@ -555,6 +568,13 @@ declare module '@tanstack/react-router' {
       path: '/seller'
       fullPath: '/seller'
       preLoaderRoute: typeof SellerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/register': {
@@ -851,6 +871,7 @@ const rootRouteChildren: RootRouteChildren = {
   PrivacyRoute: PrivacyRoute,
   RefundRoute: RefundRoute,
   RegisterRoute: RegisterRoute,
+  ResetPasswordRoute: ResetPasswordRoute,
   SellerRoute: SellerRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   SupportRoute: SupportRoute,
@@ -870,13 +891,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
