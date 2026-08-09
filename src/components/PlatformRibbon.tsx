@@ -29,7 +29,11 @@ export function PlatformRibbon() {
           {items.map((item, i) => (
             <Link
               key={i}
-              to={`/marketplace?${item.filter}`}
+              to="/marketplace"
+              search={{ 
+                platform: item.filter.startsWith('platform=') ? item.filter.split('=')[1] : undefined,
+                category: item.filter.startsWith('category=') ? item.filter.split('=')[1] : undefined
+              } as any}
               className={`flex-none flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold text-muted-foreground transition-all hover:bg-white/5 whitespace-nowrap ${item.color}`}
             >
               <item.icon className="h-4 w-4 opacity-70" />
