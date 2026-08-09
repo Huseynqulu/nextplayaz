@@ -26,11 +26,7 @@ export function CampaignCarousel() {
   const [isPaused, setIsPaused] = useState(false);
   const [copied, setCopied] = useState(false);
   const shouldReduceMotion = useReducedMotion();
-  const [lang, setLang] = useState<Lang>("az");
-
-  useEffect(() => {
-    setLang((document.documentElement.lang || "az") as Lang);
-  }, []);
+  const lang = (document.documentElement.lang || "az") as Lang;
 
   const { data: campaigns = [], isLoading } = useQuery({
     queryKey: ["hero-campaigns", lang],
