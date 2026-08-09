@@ -8,7 +8,11 @@ import { Flame, Clock } from "lucide-react";
 
 export function AnnouncementBar() {
   const t = useT();
-  const lang = (document.documentElement.lang || "az") as Lang;
+  const [lang, setLang] = useState<Lang>("az");
+
+  useEffect(() => {
+    setLang((document.documentElement.lang || "az") as Lang);
+  }, []);
   const [timeLeft, setTimeLeft] = useState<{ d: number; h: number; m: number; s: number } | null>(null);
 
   const { data: campaign } = useQuery({
