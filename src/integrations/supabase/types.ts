@@ -249,6 +249,13 @@ export type Database = {
             referencedRelation: "products"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "conversations_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "public_active_products"
+            referencedColumns: ["id"]
+          },
         ]
       }
       discount_codes: {
@@ -411,6 +418,13 @@ export type Database = {
             referencedRelation: "products"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "discount_codes_hero_featured_product_id_fkey"
+            columns: ["hero_featured_product_id"]
+            isOneToOne: false
+            referencedRelation: "public_active_products"
+            referencedColumns: ["id"]
+          },
         ]
       }
       dm_messages: {
@@ -563,6 +577,13 @@ export type Database = {
             columns: ["product_id"]
             isOneToOne: false
             referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "favorites_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "public_active_products"
             referencedColumns: ["id"]
           },
         ]
@@ -872,6 +893,13 @@ export type Database = {
             referencedRelation: "products"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "order_payments_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "public_active_products"
+            referencedColumns: ["id"]
+          },
         ]
       }
       orders: {
@@ -971,6 +999,13 @@ export type Database = {
             columns: ["product_id"]
             isOneToOne: false
             referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "orders_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "public_active_products"
             referencedColumns: ["id"]
           },
         ]
@@ -1169,6 +1204,13 @@ export type Database = {
             referencedRelation: "products"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "product_stock_items_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "public_active_products"
+            referencedColumns: ["id"]
+          },
         ]
       }
       product_views: {
@@ -1202,6 +1244,13 @@ export type Database = {
             columns: ["product_id"]
             isOneToOne: false
             referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "product_views_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "public_active_products"
             referencedColumns: ["id"]
           },
         ]
@@ -1503,6 +1552,13 @@ export type Database = {
             columns: ["product_id"]
             isOneToOne: false
             referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reviews_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "public_active_products"
             referencedColumns: ["id"]
           },
         ]
@@ -2002,7 +2058,89 @@ export type Database = {
             referencedRelation: "products"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "discount_codes_hero_featured_product_id_fkey"
+            columns: ["hero_featured_product_id"]
+            isOneToOne: false
+            referencedRelation: "public_active_products"
+            referencedColumns: ["id"]
+          },
         ]
+      }
+      public_active_products: {
+        Row: {
+          boost_expires_at: string | null
+          boost_tier: string | null
+          category: string | null
+          created_at: string | null
+          delivery: Database["public"]["Enums"]["delivery_type"] | null
+          description: string | null
+          id: string | null
+          image_url: string | null
+          image_urls: string[] | null
+          is_gift_product: boolean | null
+          last_sold_at: string | null
+          old_price: number | null
+          platform: string | null
+          platform_subcategory: string | null
+          price: number | null
+          rating: number | null
+          reviews_count: number | null
+          seller_id: string | null
+          slug: string | null
+          stock: number | null
+          subcategory: string | null
+          title: string | null
+        }
+        Insert: {
+          boost_expires_at?: string | null
+          boost_tier?: string | null
+          category?: string | null
+          created_at?: string | null
+          delivery?: Database["public"]["Enums"]["delivery_type"] | null
+          description?: string | null
+          id?: string | null
+          image_url?: string | null
+          image_urls?: string[] | null
+          is_gift_product?: never
+          last_sold_at?: never
+          old_price?: number | null
+          platform?: string | null
+          platform_subcategory?: string | null
+          price?: number | null
+          rating?: number | null
+          reviews_count?: number | null
+          seller_id?: string | null
+          slug?: string | null
+          stock?: number | null
+          subcategory?: string | null
+          title?: string | null
+        }
+        Update: {
+          boost_expires_at?: string | null
+          boost_tier?: string | null
+          category?: string | null
+          created_at?: string | null
+          delivery?: Database["public"]["Enums"]["delivery_type"] | null
+          description?: string | null
+          id?: string | null
+          image_url?: string | null
+          image_urls?: string[] | null
+          is_gift_product?: never
+          last_sold_at?: never
+          old_price?: number | null
+          platform?: string | null
+          platform_subcategory?: string | null
+          price?: number | null
+          rating?: number | null
+          reviews_count?: number | null
+          seller_id?: string | null
+          slug?: string | null
+          stock?: number | null
+          subcategory?: string | null
+          title?: string | null
+        }
+        Relationships: []
       }
       public_profiles: {
         Row: {
@@ -2351,6 +2489,16 @@ export type Database = {
           price: number
           product_slug: string
           product_title: string
+        }[]
+      }
+      get_recent_sales_public: {
+        Args: { _limit?: number }
+        Returns: {
+          buyer_name_masked: string
+          display_price: number
+          product_slug: string
+          product_title: string
+          sold_at: string
         }[]
       }
       get_recommended_products: {
