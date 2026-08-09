@@ -257,7 +257,7 @@ export function Hero() {
                       </div>
                     </div>
                     <div className="z-10 pt-4">
-                      <Link to={`/product/${weeklyDeals[0].id}`} className="h-10 px-6 rounded-xl bg-neon text-background text-xs font-black inline-flex items-center hover:scale-105 transition">
+                      <Link to="/product/$slug" params={{ slug: weeklyDeals[0].id }} className="h-10 px-6 rounded-xl bg-neon text-background text-xs font-black inline-flex items-center hover:scale-105 transition">
                         {t("product.buyNow")}
                       </Link>
                     </div>
