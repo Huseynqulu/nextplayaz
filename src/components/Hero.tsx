@@ -29,7 +29,11 @@ export function Hero() {
   const [idx, setIdx] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const [copied, setCopied] = useState(false);
-  const lang = (document.documentElement.lang || "az") as Lang;
+  const [lang, setLang] = useState<Lang>("az");
+
+  useEffect(() => {
+    setLang((document.documentElement.lang || "az") as Lang);
+  }, []);
 
   // 1. Fetch Campaigns (Carousel + Right Cards)
   const { data: allHeroData } = useQuery({
