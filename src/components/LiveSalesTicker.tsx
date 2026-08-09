@@ -5,13 +5,12 @@ import { ShoppingBag, Sparkles } from "lucide-react";
 import { useCurrency } from "@/lib/currency";
 import { useT } from "@/lib/i18n";
 
-type Sale = {
-  order_id: string;
+type PublicRecentSale = {
   product_title: string;
   product_slug: string;
-  buyer_name: string;
-  price: number;
-  created_at: string;
+  buyer_name_masked: string;
+  display_price: number;
+  sold_at: string;
 };
 
 function useTimeAgo() {
@@ -25,21 +24,17 @@ function useTimeAgo() {
   };
 }
 
-function maskName(n: string) {
-  if (!n) return "***";
-  if (n.length <= 2) return n[0] + "*";
-  return n.slice(0, 2) + "*".repeat(Math.min(n.length - 2, 4));
-}
-
 export function LiveSalesTicker() {
   const t = useT();
   const timeAgo = useTimeAgo();
   const { format } = useCurrency();
-  const [sales, setSales] = useState<Sale[]>([]);
+  const [sales, setSales] = useState<PublicRecentSale[]>([]);
 
   async function load() {
-    const { data } = await supabase.rpc("get_recent_sales" as any, { _limit: 14 });
-    if (Array.isArray(data)) setSales(data as Sale[]);
+    const { data } = await supabase.rpc("get_recent_sales_public" as any, {
+      _limit: 14,
+    });
+    if (Array.isArray(data)) setSales(data as PublicRecentSale[]);
   }
   useEffect(() => {
     void load();
@@ -68,7 +63,7 @@ export function LiveSalesTicker() {
           <div className="flex gap-3 animate-[scroll_45s_linear_infinite] group-hover:[animation-play-state:paused] w-max">
             {[...sales, ...sales].map((s, i) => (
               <Link
-                key={`${s.order_id}-${i}`}
+                key={`${s.product_slug}-${s.sold_at}-${i}`}
                 to="/product/$slug"
                 params={{ slug: s.product_slug }}
                 className="shrink-0 inline-flex items-center gap-2.5 rounded-xl border border-border bg-surface/60 hover:border-neon/40 transition px-3.5 py-2.5"
@@ -78,13 +73,13 @@ export function LiveSalesTicker() {
                 </div>
                 <div className="text-xs">
                   <div className="font-semibold">
-                    <span className="text-neon">{maskName(s.buyer_name)}</span> {t("home.liveBought")}
+                    <span className="text-neon">{s.buyer_name_masked}</span> {t("home.liveBought")}
                   </div>
                   <div className="text-muted-foreground truncate max-w-[200px]">{s.product_title}</div>
                 </div>
                 <div className="text-right ml-2">
-                  <div className="text-sm font-bold text-gradient">{format(Number(s.price))}</div>
-                  <div className="text-[10px] text-muted-foreground">{timeAgo(s.created_at)}</div>
+                  <div className="text-sm font-bold text-gradient">{format(Number(s.display_price))}</div>
+                  <div className="text-[10px] text-muted-foreground">{timeAgo(s.sold_at)}</div>
                 </div>
               </Link>
             ))}
