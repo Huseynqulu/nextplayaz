@@ -186,8 +186,8 @@ export async function fetchProducts(): Promise<Product[]> {
     }));
   }
 
-  const visible = data.filter((d: any) => !suspendedIds.has(d.seller_id));
-  const dbItems = visible.map(d => dbToProduct(d as unknown as DbProduct, sellerMap.get(d.seller_id)));
+  const visible = data.filter((d: any) => d.seller_id && !suspendedIds.has(d.seller_id));
+  const dbItems = visible.map(d => dbToProduct(d as unknown as DbProduct, sellerMap.get(d.seller_id || "")));
   return dbItems;
 }
 
