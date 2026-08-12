@@ -142,9 +142,8 @@ export async function fetchProducts(): Promise<Product[]> {
   // Active boosts first (highest tier first), then by created_at desc
   const nowIso = new Date().toISOString();
   const { data, error } = await supabase
-    .from("products")
-    .select("*")
-    .eq("is_active", true)
+    .from("public_active_products")
+    .select("id, seller_id, slug, title, description, price, old_price, platform, platform_subcategory, category, subcategory, image_url, image_urls, stock, rating, reviews_count, delivery, created_at, last_sold_at, boost_tier, boost_expires_at, is_gift_product, gift_denomination_id")
     .is("gift_denomination_id", null)
     .order("boost_expires_at", { ascending: false, nullsFirst: false })
     .order("created_at", { ascending: false });
