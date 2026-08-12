@@ -2075,6 +2075,7 @@ export type Database = {
           created_at: string | null
           delivery: Database["public"]["Enums"]["delivery_type"] | null
           description: string | null
+          gift_denomination_id: string | null
           id: string | null
           image_url: string | null
           image_urls: string[] | null
@@ -2099,6 +2100,7 @@ export type Database = {
           created_at?: string | null
           delivery?: Database["public"]["Enums"]["delivery_type"] | null
           description?: string | null
+          gift_denomination_id?: string | null
           id?: string | null
           image_url?: string | null
           image_urls?: string[] | null
@@ -2123,6 +2125,7 @@ export type Database = {
           created_at?: string | null
           delivery?: Database["public"]["Enums"]["delivery_type"] | null
           description?: string | null
+          gift_denomination_id?: string | null
           id?: string | null
           image_url?: string | null
           image_urls?: string[] | null
@@ -2140,7 +2143,15 @@ export type Database = {
           subcategory?: string | null
           title?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "products_gift_denomination_id_fkey"
+            columns: ["gift_denomination_id"]
+            isOneToOne: false
+            referencedRelation: "gift_denominations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       public_profiles: {
         Row: {
@@ -2462,6 +2473,13 @@ export type Database = {
           count: number
         }[]
       }
+      get_conversation_product_context: {
+        Args: { p_conversation_id: string }
+        Returns: {
+          slug: string
+          title: string
+        }[]
+      }
       get_homepage_stats: { Args: never; Returns: Json }
       get_my_profile: {
         Args: never
@@ -2537,6 +2555,34 @@ export type Database = {
           isOneToOne: false
           isSetofReturn: true
         }
+      }
+      get_recommended_products_public: {
+        Args: { _limit?: number }
+        Returns: {
+          boost_expires_at: string
+          boost_tier: string
+          category: string
+          created_at: string
+          delivery: Database["public"]["Enums"]["delivery_type"]
+          description: string
+          gift_denomination_id: string
+          id: string
+          image_url: string
+          image_urls: string[]
+          is_gift_product: boolean
+          last_sold_at: string
+          old_price: number
+          platform: string
+          platform_subcategory: string
+          price: number
+          rating: number
+          reviews_count: number
+          seller_id: string
+          slug: string
+          stock: number
+          subcategory: string
+          title: string
+        }[]
       }
       get_referral_stats: {
         Args: never
