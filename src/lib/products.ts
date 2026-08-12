@@ -3,6 +3,7 @@ import type { Product } from "./marketplace-data";
 
 export type DbProduct = {
   id: string;
+  seller_id: string;
   slug: string;
   title: string;
   description: string | null;
@@ -17,9 +18,8 @@ export type DbProduct = {
   stock: number;
   rating: number;
   reviews_count: number;
-  seller_id: string;
   delivery: "Instant" | "Manual";
-  is_active: boolean;
+  created_at: string;
   last_sold_at?: string | null;
   boost_tier?: string | null;
   boost_expires_at?: string | null;
@@ -142,9 +142,8 @@ export async function fetchProducts(): Promise<Product[]> {
   // Active boosts first (highest tier first), then by created_at desc
   const nowIso = new Date().toISOString();
   const { data, error } = await supabase
-    .from("products")
-    .select("*")
-    .eq("is_active", true)
+    .from("public_active_products")
+    .select("id, seller_id, slug, title, description, price, old_price, platform, platform_subcategory, category, subcategory, image_url, image_urls, stock, rating, reviews_count, delivery, created_at, last_sold_at, boost_tier, boost_expires_at, is_gift_product, gift_denomination_id")
     .is("gift_denomination_id", null)
     .order("boost_expires_at", { ascending: false, nullsFirst: false })
     .order("created_at", { ascending: false });
@@ -167,10 +166,9 @@ export async function fetchProducts(): Promise<Product[]> {
         .select("id, display_name, username, shop_name, avatar_url, verified_at, suspended_until, sales_count")
         .in("id", sellerIds),
       supabase
-        .from("products")
+        .from("public_active_products")
         .select("seller_id, rating, reviews_count")
-        .in("seller_id", sellerIds)
-        .eq("is_active", true),
+        .in("seller_id", sellerIds.filter((id): id is string => !!id)),
     ]);
     const legacyReviewStats = getSellerReviewStats(((sellerProds as any[]) ?? []) as any);
     sellerMap = new Map(((profs as any[]) ?? []).map((p: any) => {
@@ -188,26 +186,26 @@ export async function fetchProducts(): Promise<Product[]> {
     }));
   }
 
-  const visible = data.filter((d: any) => !suspendedIds.has(d.seller_id));
-  const dbItems = visible.map(d => dbToProduct(d as unknown as DbProduct, sellerMap.get(d.seller_id)));
+  const visible = data.filter((d: any) => d.seller_id && !suspendedIds.has(d.seller_id));
+  const dbItems = visible.map(d => dbToProduct(d as unknown as DbProduct, sellerMap.get(d.seller_id || "")));
   return dbItems;
 }
 
 export async function fetchProductBySlug(slug: string): Promise<Product | null> {
-  const { data } = await supabase.from("products").select("*").eq("slug", slug).eq("is_active", true).maybeSingle();
+  const { data } = await supabase.from("public_active_products").select("id, seller_id, slug, title, description, price, old_price, platform, platform_subcategory, category, subcategory, image_url, image_urls, stock, rating, reviews_count, delivery, created_at, last_sold_at, boost_tier, boost_expires_at, is_gift_product, gift_denomination_id").eq("slug", slug).maybeSingle();
   if (!data) return null;
 
   const [{ data: profRaw }, { data: sellerProds }] = await Promise.all([
     supabase.from("public_profiles" as any)
       .select("display_name, username, shop_name, avatar_url, verified_at, sales_count")
-      .eq("id", data.seller_id)
+      .eq("id", data.seller_id || "")
       .maybeSingle(),
-    supabase.from("products").select("seller_id, rating, reviews_count")
-      .eq("seller_id", data.seller_id).eq("is_active", true),
+    supabase.from("public_active_products").select("seller_id, rating, reviews_count")
+      .eq("seller_id", data.seller_id || ""),
   ]);
 
   const sellerProductRows = (sellerProds as any[]) ?? [];
-  const finalSellerSummary = getSellerReviewStats(sellerProductRows).get(data.seller_id) ?? { rating: 0, reviewsCount: 0 };
+  const finalSellerSummary = getSellerReviewStats(sellerProductRows).get(data.seller_id || "") ?? { rating: 0, reviewsCount: 0 };
 
   const prof = profRaw as any;
   return dbToProduct(data as unknown as DbProduct, {
