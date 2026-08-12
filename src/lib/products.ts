@@ -198,10 +198,10 @@ export async function fetchProductBySlug(slug: string): Promise<Product | null> 
   const [{ data: profRaw }, { data: sellerProds }] = await Promise.all([
     supabase.from("public_profiles" as any)
       .select("display_name, username, shop_name, avatar_url, verified_at, sales_count")
-      .eq("id", data.seller_id)
+      .eq("id", data.seller_id || "")
       .maybeSingle(),
-    supabase.from("products").select("seller_id, rating, reviews_count")
-      .eq("seller_id", data.seller_id).eq("is_active", true),
+    supabase.from("public_active_products").select("seller_id, rating, reviews_count")
+      .eq("seller_id", data.seller_id || ""),
   ]);
 
   const sellerProductRows = (sellerProds as any[]) ?? [];
