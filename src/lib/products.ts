@@ -205,7 +205,7 @@ export async function fetchProductBySlug(slug: string): Promise<Product | null> 
   ]);
 
   const sellerProductRows = (sellerProds as any[]) ?? [];
-  const finalSellerSummary = getSellerReviewStats(sellerProductRows).get(data.seller_id) ?? { rating: 0, reviewsCount: 0 };
+  const finalSellerSummary = getSellerReviewStats(sellerProductRows).get(data.seller_id || "") ?? { rating: 0, reviewsCount: 0 };
 
   const prof = profRaw as any;
   return dbToProduct(data as unknown as DbProduct, {
