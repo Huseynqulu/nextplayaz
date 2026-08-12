@@ -3,6 +3,7 @@ import type { Product } from "./marketplace-data";
 
 export type DbProduct = {
   id: string;
+  seller_id: string;
   slug: string;
   title: string;
   description: string | null;
@@ -17,9 +18,8 @@ export type DbProduct = {
   stock: number;
   rating: number;
   reviews_count: number;
-  seller_id: string;
   delivery: "Instant" | "Manual";
-  is_active: boolean;
+  created_at: string;
   last_sold_at?: string | null;
   boost_tier?: string | null;
   boost_expires_at?: string | null;
