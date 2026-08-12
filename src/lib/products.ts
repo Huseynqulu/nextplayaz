@@ -192,7 +192,7 @@ export async function fetchProducts(): Promise<Product[]> {
 }
 
 export async function fetchProductBySlug(slug: string): Promise<Product | null> {
-  const { data } = await supabase.from("products").select("*").eq("slug", slug).eq("is_active", true).maybeSingle();
+  const { data } = await supabase.from("public_active_products").select("id, seller_id, slug, title, description, price, old_price, platform, platform_subcategory, category, subcategory, image_url, image_urls, stock, rating, reviews_count, delivery, created_at, last_sold_at, boost_tier, boost_expires_at, is_gift_product, gift_denomination_id").eq("slug", slug).maybeSingle();
   if (!data) return null;
 
   const [{ data: profRaw }, { data: sellerProds }] = await Promise.all([
