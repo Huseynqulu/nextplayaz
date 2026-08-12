@@ -166,10 +166,9 @@ export async function fetchProducts(): Promise<Product[]> {
         .select("id, display_name, username, shop_name, avatar_url, verified_at, suspended_until, sales_count")
         .in("id", sellerIds),
       supabase
-        .from("products")
+        .from("public_active_products")
         .select("seller_id, rating, reviews_count")
-        .in("seller_id", sellerIds)
-        .eq("is_active", true),
+        .in("seller_id", sellerIds.filter((id): id is string => !!id)),
     ]);
     const legacyReviewStats = getSellerReviewStats(((sellerProds as any[]) ?? []) as any);
     sellerMap = new Map(((profs as any[]) ?? []).map((p: any) => {
