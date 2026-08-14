@@ -1164,6 +1164,57 @@ export type Database = {
         }
         Relationships: []
       }
+      product_cover_audit: {
+        Row: {
+          applied_at: string
+          confidence_score: number | null
+          id: string
+          igdb_cover_id: string | null
+          igdb_game_id: number | null
+          normalized_title: string
+          product_id: string
+          seller_id: string
+          storage_path: string
+        }
+        Insert: {
+          applied_at?: string
+          confidence_score?: number | null
+          id?: string
+          igdb_cover_id?: string | null
+          igdb_game_id?: number | null
+          normalized_title: string
+          product_id: string
+          seller_id: string
+          storage_path: string
+        }
+        Update: {
+          applied_at?: string
+          confidence_score?: number | null
+          id?: string
+          igdb_cover_id?: string | null
+          igdb_game_id?: number | null
+          normalized_title?: string
+          product_id?: string
+          seller_id?: string
+          storage_path?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_cover_audit_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "product_cover_audit_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "public_active_products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       product_stock_items: {
         Row: {
           content: string

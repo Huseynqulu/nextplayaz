@@ -5,11 +5,12 @@ import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
-import { Loader2, Plus, Package, Trash2, Pencil, Rocket, ShoppingBag, Sparkles, ArrowDown, Upload, Search, X, Eye, EyeOff } from "lucide-react";
+import { Loader2, Plus, Package, Trash2, Pencil, Rocket, ShoppingBag, Sparkles, ArrowDown, Upload, Search, X, Eye, EyeOff, Image as ImageIcon } from "lucide-react";
 import { SellerAnalytics } from "@/components/SellerAnalytics";
 import { EmptyState } from "@/components/EmptyState";
 import { BoostDialog } from "@/components/BoostDialog";
 import { BulkUploadDialog } from "@/components/BulkUploadDialog";
+import { AutoCoverDialog } from "@/components/seller/AutoCoverDialog";
 import { categoryLabel } from "@/lib/marketplace-data";
 
 export const Route = createFileRoute("/_authenticated/seller-dashboard")({
@@ -58,6 +59,7 @@ function SellerDashboard() {
   const [step1Done, setStep1Done] = useState(false);
   const [platformQuery, setPlatformQuery] = useState("");
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [autoCoverOpen, setAutoCoverOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [filterCategory, setFilterCategory] = useState<string>("all");
   const [filterPlatform, setFilterPlatform] = useState<string>("all");
@@ -304,6 +306,13 @@ function SellerDashboard() {
               >
                 <Plus className="h-4 w-4" /> {showForm ? "Bağla" : "Yeni məhsul əlavə et"}
               </button>
+              <button
+                onClick={() => setAutoCoverOpen(true)}
+                className="inline-flex items-center gap-2 h-11 px-5 rounded-lg border border-border bg-surface font-semibold hover:border-neon text-sm"
+                title="Şəkilləri avtomatik tamamla"
+              >
+                <ImageIcon className="h-4 w-4" /> Şəkilləri tamamla
+              </button>
             </div>
           </div>
 {user && (
@@ -314,6 +323,13 @@ function SellerDashboard() {
               onDone={refresh}
             />
           )}
+
+          <AutoCoverDialog 
+            open={autoCoverOpen} 
+            onOpenChange={setAutoCoverOpen}
+            productsWithoutImages={items.filter(item => !item.image_url && (!item.image_urls || item.image_urls.length === 0))}
+            onSuccess={refresh}
+          />
 
           {/* Onboarding helper — guides new sellers */}
           {!showForm && (
