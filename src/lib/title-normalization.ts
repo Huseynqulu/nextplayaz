@@ -35,6 +35,10 @@ export function normalizeGameTitle(title: string): string {
   // 3. Remove stock/price hints (e.g., "100 AZN", "Stokda")
   normalized = normalized.replace(/\d+\s*AZN/gi, " ");
   normalized = normalized.replace(/\bStokda\b/gi, " ");
+  
+  // 3a. Remove generic year markers that might confuse IGDB
+  normalized = normalized.replace(/\b202\d\b/g, " ");
+  normalized = normalized.replace(/\b(DLC|Pack|Bundle)\b/gi, " ");
 
   // 4. Remove emojis and decorative characters
   normalized = normalized.replace(/[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu, " ");
