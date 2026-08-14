@@ -111,7 +111,7 @@ export async function searchIgdbForProducts(productIds: string[], userId: string
 }
 
 export async function applyCoversToProducts(matches: any[], userId: string) {
-  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  // supabaseAdmin imported at top scope
 
   const results = [];
 
