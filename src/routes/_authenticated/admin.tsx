@@ -22,6 +22,7 @@ const AdminHomeCategories = lazy(() => import("@/components/AdminHomeCategories"
 const AdminTopupLinks = lazy(() => import("@/components/AdminTopupLinks").then(m => ({ default: m.AdminTopupLinks })));
 const AdminCoupons = lazy(() => import("@/components/AdminCoupons").then(m => ({ default: m.AdminCoupons })));
 import { notifyEmail } from "@/lib/notifications/notify-email";
+import { AdminAutoCoverPanel } from "@/components/AdminAutoCoverPanel";
 
 function TabFallback() {
   return <div className="grid place-items-center py-12"><Loader2 className="h-6 w-6 animate-spin text-neon" /></div>;
@@ -68,7 +69,7 @@ type OrderPayment = { id: string; buyer_id: string; product_id: string; quantity
 type Category = { slug: string; label_az: string; label_en: string; label_ru: string; sort_order: number; is_active: boolean };
 type Subcategory = { id?: string; category_slug: string; slug: string; label_az: string; label_en: string; label_ru: string; sort_order: number; is_active: boolean };
 
-type Tab = "analytics" | "applications" | "users" | "sellers" | "codes" | "products" | "tickets" | "topups" | "topuplinks" | "orderpayments" | "withdrawals" | "platform" | "payments" | "categories" | "platforms" | "disputes" | "banners" | "reviews" | "giftcards" | "giftmarket" | "boost" | "announcements" | "homecats" | "coupons";
+type Tab = "analytics" | "applications" | "users" | "sellers" | "codes" | "products" | "tickets" | "topups" | "topuplinks" | "orderpayments" | "withdrawals" | "platform" | "payments" | "categories" | "platforms" | "disputes" | "banners" | "reviews" | "giftcards" | "giftmarket" | "boost" | "announcements" | "homecats" | "coupons" | "autocover";
 
 type PlatformRow = { slug: string; label_az: string; label_en: string; label_ru: string; sort_order: number; is_active: boolean };
 type PlatformSub = { platform_slug: string; slug: string; label_az: string; label_en: string; label_ru: string; sort_order: number; is_active: boolean };
@@ -569,6 +570,7 @@ function AdminPage() {
           <div className="flex gap-1 mb-6 border-b border-border overflow-x-auto">
             {([
               ["analytics", "📊 Analitika"],
+              ["autocover", "🖼️ Avto-Logo"],
               ["announcements", "📢 Elanlar"],
               ["applications", `Müraciətlər (${apps.filter(a => a.status === "pending").length})`],
               ["tickets", `Dəstək (${tickets.filter(t => t.status === "open" || t.status === "pending").length})`],
@@ -603,6 +605,8 @@ function AdminPage() {
             <div className="flex justify-center py-20"><Loader2 className="h-6 w-6 animate-spin text-neon" /></div>
           ) : tab === "analytics" ? (
             <Suspense fallback={<TabFallback />}><AdminAnalytics /></Suspense>
+          ) : tab === "autocover" ? (
+            <AdminAutoCoverPanel />
           ) : tab === "applications" ? (
             <div className="space-y-3">
               <div className="flex gap-2 flex-wrap mb-2">
