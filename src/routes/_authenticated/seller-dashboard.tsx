@@ -306,6 +306,13 @@ function SellerDashboard() {
               >
                 <Plus className="h-4 w-4" /> {showForm ? "Bağla" : "Yeni məhsul əlavə et"}
               </button>
+              <button
+                onClick={() => setAutoCoverOpen(true)}
+                className="inline-flex items-center gap-2 h-11 px-5 rounded-lg border border-border bg-surface font-semibold hover:border-neon text-sm"
+                title="Şəkilləri avtomatik tamamla"
+              >
+                <ImageIcon className="h-4 w-4" /> Şəkilləri tamamla
+              </button>
             </div>
           </div>
 {user && (
