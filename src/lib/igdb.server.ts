@@ -1,5 +1,7 @@
 import { normalizeGameTitle } from "./title-normalization";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
+import { downloadAndUploadIgdbCover, verifyPublicUrl } from "./igdb-processor.server";
+
 
 
 interface IgdbMatch {
@@ -120,55 +122,42 @@ export async function searchIgdbForProducts(normalizedTitles: string[]) {
 }
 
 export async function applyCoversToProducts(matches: any[], userId: string) {
-  // supabaseAdmin imported at top scope
-
   const results = [];
 
   for (const match of matches) {
     try {
-      // 1. Download image
-      const imgRes = await fetch(match.imageUrl);
-      if (!imgRes.ok) throw new Error("Failed to download image");
-      
-      const blob = await imgRes.blob();
-      if (blob.size > 5 * 1024 * 1024) throw new Error("Image too large");
-      
-      const contentType = blob.type || "image/jpeg";
-      const ext = contentType.split("/")[1] || "jpg";
-      
-      // 2. Fetch product to get seller_id and check ownership
+      // 1. Fetch product to get seller_id and check ownership
       const { data: product } = await supabaseAdmin
         .from("products")
-        .select("seller_id")
+        .select("seller_id, image_url, image_urls")
         .eq("id", match.productId)
         .eq("seller_id", userId)
         .single();
       
       if (!product) throw new Error("Product not found or unauthorized");
 
-      const path = `auto-covers/${product.seller_id}/${match.normalizedTitle.replace(/[^a-z0-9]/gi, "_").toLowerCase()}/${match.igdbCoverId}.${ext}`;
+      // 2. Use shared helper for processing
+      const uploadResult = await downloadAndUploadIgdbCover(
+        match.igdbCoverId,
+        match.imageUrl,
+        product.seller_id,
+        match.normalizedTitle
+      );
 
-      // 3. Upload to storage
-      const { error: uploadError } = await supabaseAdmin.storage
-        .from("product-images")
-        .upload(path, blob, { contentType, upsert: true });
+      if (uploadResult.error) throw new Error(uploadResult.error);
 
-      if (uploadError) throw uploadError;
-
-      const { data: signData, error: signError } = await supabaseAdmin.storage
-        .from("product-images")
-        .createSignedUrl(path, 315360000); // 10 years
-
-      if (signError || !signData?.signedUrl) throw signError || new Error("Failed to generate signed URL");
-
-      const finalUrl = signData.signedUrl;
+      // 3. Public verification (anonymous)
+      const isVerified = await verifyPublicUrl(uploadResult.signedUrl);
+      if (!isVerified) {
+        throw new Error("İctimai səhifədə yoxlama uğursuz oldu");
+      }
 
       // 4. Update product
       const { error: updateError } = await supabaseAdmin
         .from("products")
         .update({
-          image_url: finalUrl,
-          image_urls: [finalUrl],
+          image_url: uploadResult.signedUrl,
+          image_urls: [uploadResult.signedUrl],
         })
         .eq("id", match.productId);
 
@@ -182,11 +171,12 @@ export async function applyCoversToProducts(matches: any[], userId: string) {
         igdb_game_id: match.igdbGameId,
         igdb_cover_id: match.igdbCoverId,
         confidence_score: match.confidence,
-        storage_path: path,
+        storage_path: uploadResult.storagePath,
       });
 
-      results.push({ productId: match.productId, status: "success", url: finalUrl });
+      results.push({ productId: match.productId, status: "success", url: uploadResult.signedUrl });
     } catch (err: any) {
+      console.error(`[IGDB] Failed to apply cover for product ${match.productId}:`, err);
       results.push({ productId: match.productId, status: "error", message: err.message });
     }
   }
