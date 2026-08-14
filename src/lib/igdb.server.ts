@@ -1,4 +1,6 @@
 import { normalizeGameTitle } from "./title-normalization";
+import { supabaseAdmin } from "@/integrations/supabase/client.server";
+
 
 interface IgdbMatch {
   productId: string;
