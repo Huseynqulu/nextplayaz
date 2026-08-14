@@ -185,7 +185,7 @@ export async function applyCoversToProducts(matches: any[], userId: string) {
         storage_path: path,
       });
 
-      results.push({ productId: match.productId, status: "success", url: publicUrl });
+      results.push({ productId: match.productId, status: "success", url: finalUrl });
     } catch (err: any) {
       results.push({ productId: match.productId, status: "error", message: err.message });
     }
