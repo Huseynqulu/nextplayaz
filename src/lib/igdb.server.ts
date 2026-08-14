@@ -1,4 +1,3 @@
-import { getRequest } from "@tanstack/react-start";
 import { normalizeGameTitle } from "./title-normalization";
 
 interface IgdbMatch {
