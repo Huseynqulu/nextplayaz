@@ -118,7 +118,7 @@ export const executeRepairBatch = createServerFn({ method: "POST" })
           // Reconstruct IGDB URL from cover_id
           const igdbUrl = `https://images.igdb.com/igdb/image/upload/t_cover_big/${audit.igdb_cover_id}.jpg`;
           const uploadResult = await downloadAndUploadIgdbCover(
-            audit.igdb_cover_id,
+            audit.igdb_cover_id || "",
             igdbUrl,
             product.seller_id,
             audit.normalized_title || product.title
