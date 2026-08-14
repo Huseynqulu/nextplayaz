@@ -191,7 +191,7 @@ export function AutoCoverDialog({
             <ImageIcon className="h-6 w-6 text-neon" /> Şəkilləri avtomatik tamamla
           </DialogTitle>
           <DialogDescription className="text-muted-foreground">
-            {productsWithoutImages.length} fotosuz məhsul tapıldı. IGDB vasitəsilə uyğun üz qabıqlarını müəyyən edin.
+            {productsWithoutImages.length} fotosuz məhsul tapıldı ({groups.length} unikal oyun).
           </DialogDescription>
         </DialogHeader>
 
@@ -214,12 +214,31 @@ export function AutoCoverDialog({
           )}
 
           {step === "searching" && (
-            <div className="flex flex-col items-center justify-center py-20 space-y-6">
-              <Loader2 className="h-12 w-12 text-neon animate-spin" />
-              <div className="text-center">
-                <h3 className="text-xl font-semibold">Yoxlanılır...</h3>
-                <p className="text-muted-foreground">Oyun məlumatları axtarılır, zəhmət olmasa gözləyin.</p>
+            <div className="flex flex-col items-center justify-center py-20 space-y-8">
+              <div className="relative h-24 w-24">
+                <div className="absolute inset-0 rounded-full border-4 border-neon/20 border-t-neon animate-spin"></div>
+                <div className="absolute inset-0 flex items-center justify-center font-bold text-xl">
+                  {searchProgress}%
+                </div>
               </div>
+              <div className="text-center space-y-4">
+                <h3 className="text-xl font-semibold">{isPaused ? "Dayandırılıb" : "Yoxlanılır..."}</h3>
+                <p className="text-muted-foreground">
+                  {Math.round((searchProgress / 100) * groups.length)} / {groups.length} oyun təhlil edildi
+                </p>
+                <div className="flex gap-4 justify-center">
+                  <Button variant="outline" onClick={() => setIsPaused(!isPaused)}>
+                    {isPaused ? <Play className="h-4 w-4 mr-2" /> : <Pause className="h-4 w-4 mr-2" />}
+                    {isPaused ? "Davam et" : "Dayandır"}
+                  </Button>
+                  {isPaused && (
+                    <Button variant="outline" onClick={() => setStep("review")}>
+                      Nəticələrə bax
+                    </Button>
+                  )}
+                </div>
+              </div>
+              <Progress value={searchProgress} className="w-64 h-2" />
             </div>
           )}
 
