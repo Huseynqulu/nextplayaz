@@ -30,84 +30,93 @@ async function getTwitchToken(clientId: string, clientSecret: string) {
   return data.access_token;
 }
 
-export async function searchIgdbForProducts(productIds: string[], userId: string) {
-  // supabaseAdmin imported at top scope
-
-  
-  // 1. Get products and verify ownership
-  const { data: products, error } = await supabaseAdmin
-    .from("products")
-    .select("id, title, seller_id")
-    .in("id", productIds)
-    .eq("seller_id", userId);
-
-  if (error || !products) throw new Error("Failed to fetch products");
-
+export async function searchIgdbForProducts(normalizedTitles: string[]) {
   const clientId = process.env.IGDB_CLIENT_ID;
   const clientSecret = process.env.IGDB_CLIENT_SECRET;
 
   if (!clientId || !clientSecret) {
-    console.error("[IGDB] IGDB credentials not configured (clientId or clientSecret missing)");
+    console.error("[IGDB] IGDB credentials not configured");
     throw new Error("IGDB credentials not configured");
   }
 
-  console.log(`[IGDB] Searching for ${productIds.length} products using clientId: ${clientId.substring(0, 4)}...`);
+  // 1. Check cache first
+  const { data: cached } = await supabaseAdmin
+    .from("product_cover_suggestions")
+    .select("normalized_title, suggestions")
+    .in("normalized_title", normalizedTitles);
+
+  const cachedMap = new Map(cached?.map(c => [c.normalized_title, c.suggestions]) || []);
+  const missingTitles = normalizedTitles.filter(t => !cachedMap.has(t));
+
+  if (missingTitles.length === 0) {
+    return normalizedTitles.map(t => ({
+      normalizedTitle: t,
+      candidates: cachedMap.get(t)
+    }));
+  }
+
+  console.log(`[IGDB] Searching for ${missingTitles.length} missing titles...`);
   const token = await getTwitchToken(clientId, clientSecret);
+  const results: any[] = [];
 
-  const results: IgdbMatch[] = [];
+  // IGDB rate limit is 4 requests per second
+  for (const title of missingTitles) {
+    try {
+      const igdbResponse = await fetch("https://api.igdb.com/v4/games", {
+        method: "POST",
+        headers: {
+          "Client-ID": clientId,
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "text/plain",
+        },
+        body: `search "${title.replace(/"/g, '\\"')}"; fields name, cover.url, cover.image_id, first_release_date, platforms.name; limit 5;`,
+      });
 
-  for (const product of products) {
-    const normalized = normalizeGameTitle(product.title);
-    
-    // IGDB Search
-    const igdbResponse = await fetch("https://api.igdb.com/v4/games", {
-      method: "POST",
-      headers: {
-        "Client-ID": clientId,
-        "Authorization": `Bearer ${token}`,
-        "Content-Type": "text/plain",
-      },
-      body: `search "${normalized.replace(/"/g, '\\"')}"; fields name, cover.url, cover.image_id, first_release_date, platforms.name; limit 5;`,
-    });
+      if (!igdbResponse.ok) {
+        if (igdbResponse.status === 429) {
+          console.warn("[IGDB] Rate limit exceeded, skipping title:", title);
+          continue;
+        }
+        const errorText = await igdbResponse.text();
+        console.error(`[IGDB] API error for "${title}": ${igdbResponse.status} ${errorText}`);
+        continue;
+      }
 
-    if (!igdbResponse.ok) {
-      const errorText = await igdbResponse.text();
-      console.error(`[IGDB] API error for "${normalized}": ${igdbResponse.status} ${errorText}`);
-      continue;
-    }
-
-    const games = await igdbResponse.json();
-    const candidates = games.map((g: any) => {
-      const coverUrl = g.cover?.url ? `https:${g.cover.url.replace("t_thumb", "t_cover_big")}` : "";
-      
-      // Calculate confidence
-      let confidence = 0;
-      const lowerName = g.name.toLowerCase();
-      const lowerNorm = normalized.toLowerCase();
-      
-      if (lowerName === lowerNorm) confidence = 100;
-      else if (lowerName.includes(lowerNorm) || lowerNorm.includes(lowerName)) confidence = 85;
-      else confidence = 60;
-
-      return {
+      const games = await igdbResponse.json();
+      const candidates = games.map((g: any) => ({
         igdbId: g.id,
         name: g.name,
-        coverUrl,
+        coverUrl: g.cover?.url ? `https:${g.cover.url.replace("t_thumb", "t_cover_big")}` : "",
         coverId: g.cover?.image_id || "",
         releaseYear: g.first_release_date ? new Date(g.first_release_date * 1000).getFullYear() : undefined,
         platforms: g.platforms?.map((p: any) => p.name),
-        confidence,
-      };
-    });
+        confidence: g.name.toLowerCase() === title.toLowerCase() ? 100 : 
+                   (g.name.toLowerCase().includes(title.toLowerCase()) ? 85 : 60)
+      }));
 
-    results.push({
-      productId: product.id,
-      normalizedTitle: normalized,
-      candidates,
-    });
+      // Cache the result
+      await supabaseAdmin.from("product_cover_suggestions").upsert({
+        normalized_title: title,
+        suggestions: candidates,
+        updated_at: new Date().toISOString()
+      });
+
+      results.push({ normalizedTitle: title, candidates });
+      
+      // Small delay to respect rate limits if processing many
+      if (missingTitles.length > 5) {
+        await new Promise(resolve => setTimeout(resolve, 250));
+      }
+    } catch (err) {
+      console.error(`[IGDB] Error searching for "${title}":`, err);
+    }
   }
 
-  return results;
+  // Combine cached and new
+  return normalizedTitles.map(t => ({
+    normalizedTitle: t,
+    candidates: cachedMap.get(t) || results.find(r => r.normalizedTitle === t)?.candidates || []
+  }));
 }
 
 export async function applyCoversToProducts(matches: any[], userId: string) {
