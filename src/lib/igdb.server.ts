@@ -15,10 +15,15 @@ interface IgdbMatch {
 }
 
 async function getTwitchToken(clientId: string, clientSecret: string) {
+  console.log("[IGDB] Requesting Twitch token...");
   const response = await fetch(`https://id.twitch.tv/oauth2/token?client_id=${clientId}&client_secret=${clientSecret}&grant_type=client_credentials`, {
     method: "POST",
   });
-  if (!response.ok) throw new Error("Failed to get Twitch token");
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error(`[IGDB] Failed to get Twitch token: ${response.status} ${errorText}`);
+    throw new Error(`Failed to get Twitch token: ${response.status}`);
+  }
   const data = await response.json();
   return data.access_token;
 }
