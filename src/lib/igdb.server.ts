@@ -23,20 +23,15 @@ async function getTwitchToken(clientId: string, clientSecret: string) {
   return data.access_token;
 }
 
-export async function searchIgdbForProducts(productIds: string[]) {
+export async function searchIgdbForProducts(productIds: string[], userId: string) {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   
-  // 1. Get products and verify ownership (implicitly by joining or checking session)
-  // Since this is a server function, we should ideally get the user session from the request.
-  // However, TanStack Start's createServerFn doesn't automatically pass the user session 
-  // unless we use middleware. For now, let's assume we'll add the requireSupabaseAuth middleware.
-  
-  // NOTE: In a real implementation, we'd use the session user ID.
-  // For now, we fetch the products.
+  // 1. Get products and verify ownership
   const { data: products, error } = await supabaseAdmin
     .from("products")
     .select("id, title, seller_id")
-    .in("id", productIds);
+    .in("id", productIds)
+    .eq("seller_id", userId);
 
   if (error || !products) throw new Error("Failed to fetch products");
 
@@ -101,7 +96,7 @@ export async function searchIgdbForProducts(productIds: string[]) {
   return results;
 }
 
-export async function applyCoversToProducts(matches: any[]) {
+export async function applyCoversToProducts(matches: any[], userId: string) {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
   const results = [];
@@ -118,9 +113,15 @@ export async function applyCoversToProducts(matches: any[]) {
       const contentType = blob.type || "image/jpeg";
       const ext = contentType.split("/")[1] || "jpg";
       
-      // 2. Fetch product to get seller_id
-      const { data: product } = await supabaseAdmin.from("products").select("seller_id").eq("id", match.productId).single();
-      if (!product) throw new Error("Product not found");
+      // 2. Fetch product to get seller_id and check ownership
+      const { data: product } = await supabaseAdmin
+        .from("products")
+        .select("seller_id")
+        .eq("id", match.productId)
+        .eq("seller_id", userId)
+        .single();
+      
+      if (!product) throw new Error("Product not found or unauthorized");
 
       const path = `auto-covers/${product.seller_id}/${match.normalizedTitle.replace(/[^a-z0-9]/gi, "_").toLowerCase()}/${match.igdbCoverId}.${ext}`;
 
