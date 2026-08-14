@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import {
   Dialog,
   DialogContent,
@@ -20,12 +20,15 @@ import {
   Image as ImageIcon,
   Check,
   X,
-  Play
+  Play,
+  Pause,
+  RefreshCcw
 } from "lucide-react";
 import { searchIgdbCovers, applyProductCovers } from "@/lib/igdb.functions";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { normalizeGameTitle } from "@/lib/title-normalization";
 
 interface AutoCoverDialogProps {
   open: boolean;
@@ -45,9 +48,13 @@ interface MatchCandidate {
 }
 
 interface IgdbMatchResult {
-  productId: string;
   normalizedTitle: string;
   candidates: MatchCandidate[];
+}
+
+interface NormalizedGroup {
+  title: string;
+  productIds: string[];
 }
 
 export function AutoCoverDialog({ 
@@ -57,44 +64,74 @@ export function AutoCoverDialog({
   onSuccess 
 }: AutoCoverDialogProps) {
   const [step, setStep] = useState<"initial" | "searching" | "review" | "applying" | "finished">("initial");
-  const [results, setResults] = useState<IgdbMatchResult[]>([]);
+  const [resultsMap, setResultsMap] = useState<Record<string, MatchCandidate[]>>({});
   const [selectedMatches, setSelectedMatches] = useState<Record<string, number>>({});
+  const [searchProgress, setSearchProgress] = useState(0);
   const [applyingProgress, setApplyingProgress] = useState(0);
   const [batchIndex, setBatchIndex] = useState(0);
-  const BATCH_SIZE = 10;
+  const [isPaused, setIsPaused] = useState(false);
+  const BATCH_SIZE = 12;
 
   const searchFn = useServerFn(searchIgdbCovers);
   const applyFn = useServerFn(applyProductCovers);
 
+  // Group products by normalized title
+  const groups = useMemo(() => {
+    const map: Record<string, string[]> = {};
+    productsWithoutImages.forEach(p => {
+      const normalized = normalizeGameTitle(p.title);
+      if (!map[normalized]) map[normalized] = [];
+      map[normalized].push(p.id);
+    });
+    return Object.entries(map).map(([title, productIds]) => ({ title, productIds }));
+  }, [productsWithoutImages]);
+
   const startSearch = async () => {
     setStep("searching");
+    setIsPaused(false);
+    setSearchProgress(0);
+    
+    const titlesToSearch = groups.map(g => g.title);
+    const uniqueResults: Record<string, MatchCandidate[]> = { ...resultsMap };
+    
     try {
-      const productIds = productsWithoutImages.map(p => p.id);
-      // Process in batches to avoid timeouts
-      const allResults: IgdbMatchResult[] = [];
-      for (let i = 0; i < productIds.length; i += BATCH_SIZE) {
-        const batch = productIds.slice(i, i + BATCH_SIZE);
-        const batchResults = await searchFn({ data: { productIds: batch } });
-        allResults.push(...(batchResults as IgdbMatchResult[]));
+      // Process in batches of 10 unique titles
+      const BATCH_COUNT = 10;
+      for (let i = 0; i < titlesToSearch.length; i += BATCH_COUNT) {
+        if (isPaused) break;
+        
+        const batch = titlesToSearch.slice(i, i + BATCH_COUNT);
+        const batchResults = await searchFn({ data: { normalizedTitles: batch } }) as IgdbMatchResult[];
+        
+        batchResults.forEach(res => {
+          uniqueResults[res.normalizedTitle] = res.candidates;
+        });
+        
+        setResultsMap({ ...uniqueResults });
+        setSearchProgress(Math.min(100, Math.round(((i + batch.length) / titlesToSearch.length) * 100)));
+        
+        // Short delay to prevent UI freezing and show progress
+        await new Promise(r => setTimeout(r, 100));
       }
       
-      setResults(allResults);
-      
-      // Pre-select high confidence matches (>= 90)
-      const initialSelected: Record<string, number> = {};
-      allResults.forEach(res => {
-        const best = res.candidates[0];
-        if (best && best.confidence >= 90) {
-          initialSelected[res.productId] = best.igdbId;
-        }
-      });
-      setSelectedMatches(initialSelected);
-      
-      setStep("review");
+      if (!isPaused) {
+        // Pre-select high confidence matches
+        const initialSelected: Record<string, number> = {};
+        groups.forEach(group => {
+          const candidates = uniqueResults[group.title];
+          const best = candidates?.[0];
+          if (best && best.confidence >= 90) {
+            group.productIds.forEach(pid => {
+              initialSelected[pid] = best.igdbId;
+            });
+          }
+        });
+        setSelectedMatches(initialSelected);
+        setStep("review");
+      }
     } catch (error: any) {
       console.error("IGDB Search Error:", error);
-      const message = error.message || "Sorğu zamanı xəta baş verdi";
-      toast.error(message);
+      toast.error(error.message || "Axtarış zamanı xəta baş verdi");
       setStep("initial");
     }
   };
@@ -104,14 +141,17 @@ export function AutoCoverDialog({
     setApplyingProgress(0);
     
     const matchesToApply = Object.entries(selectedMatches).map(([productId, igdbId]) => {
-      const result = results.find(r => r.productId === productId);
-      const candidate = result?.candidates.find(c => c.igdbId === igdbId);
+      const product = productsWithoutImages.find(p => p.id === productId);
+      const normalized = normalizeGameTitle(product?.title || "");
+      const candidates = resultsMap[normalized] || [];
+      const candidate = candidates.find(c => c.igdbId === igdbId);
+      
       return {
         productId,
         igdbGameId: igdbId,
         igdbCoverId: candidate?.coverId || "",
         imageUrl: candidate?.coverUrl || "",
-        normalizedTitle: result?.normalizedTitle || "",
+        normalizedTitle: normalized,
         confidence: candidate?.confidence || 0,
       };
     });
@@ -129,7 +169,7 @@ export function AutoCoverDialog({
         setApplyingProgress(Math.round(((i + batch.length) / matchesToApply.length) * 100));
       }
       
-      toast.success("Seçilmiş məhsulların şəkilləri uğurla yeniləndi");
+      toast.success("Şəkillər uğurla yeniləndi");
       setStep("finished");
       onSuccess();
     } catch (error) {
@@ -138,8 +178,10 @@ export function AutoCoverDialog({
     }
   };
 
-  const currentBatch = results.slice(batchIndex * BATCH_SIZE, (batchIndex + 1) * BATCH_SIZE);
-  const totalBatches = Math.ceil(results.length / BATCH_SIZE);
+  const uniqueTitlesWithResults = Object.keys(resultsMap);
+  const currentBatchTitles = uniqueTitlesWithResults.slice(batchIndex * BATCH_SIZE, (batchIndex + 1) * BATCH_SIZE);
+  const totalBatches = Math.ceil(uniqueTitlesWithResults.length / BATCH_SIZE);
+
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -149,7 +191,7 @@ export function AutoCoverDialog({
             <ImageIcon className="h-6 w-6 text-neon" /> Şəkilləri avtomatik tamamla
           </DialogTitle>
           <DialogDescription className="text-muted-foreground">
-            {productsWithoutImages.length} fotosuz məhsul tapıldı. IGDB vasitəsilə uyğun üz qabıqlarını müəyyən edin.
+            {productsWithoutImages.length} fotosuz məhsul tapıldı ({groups.length} unikal oyun).
           </DialogDescription>
         </DialogHeader>
 
@@ -172,51 +214,80 @@ export function AutoCoverDialog({
           )}
 
           {step === "searching" && (
-            <div className="flex flex-col items-center justify-center py-20 space-y-6">
-              <Loader2 className="h-12 w-12 text-neon animate-spin" />
-              <div className="text-center">
-                <h3 className="text-xl font-semibold">Yoxlanılır...</h3>
-                <p className="text-muted-foreground">Oyun məlumatları axtarılır, zəhmət olmasa gözləyin.</p>
+            <div className="flex flex-col items-center justify-center py-20 space-y-8">
+              <div className="relative h-24 w-24">
+                <div className="absolute inset-0 rounded-full border-4 border-neon/20 border-t-neon animate-spin"></div>
+                <div className="absolute inset-0 flex items-center justify-center font-bold text-xl">
+                  {searchProgress}%
+                </div>
               </div>
+              <div className="text-center space-y-4">
+                <h3 className="text-xl font-semibold">{isPaused ? "Dayandırılıb" : "Yoxlanılır..."}</h3>
+                <p className="text-muted-foreground">
+                  {Math.round((searchProgress / 100) * groups.length)} / {groups.length} oyun təhlil edildi
+                </p>
+                <div className="flex gap-4 justify-center">
+                  <Button variant="outline" onClick={() => setIsPaused(!isPaused)}>
+                    {isPaused ? <Play className="h-4 w-4 mr-2" /> : <Pause className="h-4 w-4 mr-2" />}
+                    {isPaused ? "Davam et" : "Dayandır"}
+                  </Button>
+                  {isPaused && (
+                    <Button variant="outline" onClick={() => setStep("review")}>
+                      Nəticələrə bax
+                    </Button>
+                  )}
+                </div>
+              </div>
+              <Progress value={searchProgress} className="w-64 h-2" />
             </div>
           )}
 
           {step === "review" && (
             <div className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {currentBatch.map((res) => {
-                  const product = productsWithoutImages.find(p => p.id === res.productId);
+                {currentBatchTitles.map((title) => {
+                  const group = groups.find(g => g.title === title);
+                  const candidates = resultsMap[title] || [];
+                  const sampleProduct = productsWithoutImages.find(p => p.id === group?.productIds[0]);
+                  
                   return (
-                    <div key={res.productId} className="flex flex-col border border-border rounded-xl p-4 bg-surface-lighter hover:border-neon/30 transition-colors">
+                    <div key={title} className="flex flex-col border border-border rounded-xl p-4 bg-surface-lighter hover:border-neon/30 transition-colors">
                       <div className="flex justify-between items-start mb-3">
                         <div className="space-y-1">
-                          <span className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Məhsulun hazırkı başlığı</span>
-                          <p className="font-medium text-sm line-clamp-1">{product?.title}</p>
+                          <span className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Oyun adı</span>
+                          <p className="font-medium text-sm line-clamp-1">{title}</p>
+                          <p className="text-[10px] text-muted-foreground italic">({group?.productIds.length} məhsul)</p>
                         </div>
                         <div className="text-right">
-                           <span className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Platforma</span>
-                           <p className="text-sm font-medium">{product?.platform}</p>
+                           <span className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Nümunə</span>
+                           <p className="text-[10px] font-medium text-muted-foreground truncate max-w-[120px]">{sampleProduct?.title}</p>
                         </div>
                       </div>
 
                       <div className="flex gap-4 mt-2">
-                        {res.candidates.length > 0 ? (
+                        {candidates.length > 0 ? (
                           <div className="flex-1 space-y-3">
-                            <span className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Tapılan oyunlar</span>
+                            <span className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Tapılanlar</span>
                             <div className="space-y-2">
-                              {res.candidates.map((can) => (
+                              {candidates.map((can: MatchCandidate) => (
                                 <div 
                                   key={can.igdbId} 
                                   className={cn(
                                     "flex items-center gap-3 p-2 rounded-lg cursor-pointer border transition-all",
-                                    selectedMatches[res.productId] === can.igdbId 
+                                    group?.productIds.every(pid => selectedMatches[pid] === can.igdbId) 
                                       ? "bg-neon/10 border-neon text-neon" 
                                       : "bg-background border-border hover:border-muted-foreground"
                                   )}
-                                  onClick={() => setSelectedMatches({
-                                    ...selectedMatches,
-                                    [res.productId]: selectedMatches[res.productId] === can.igdbId ? 0 : can.igdbId
-                                  })}
+                                  onClick={() => {
+                                    const newSelected = { ...selectedMatches };
+                                    const isAllSelected = group?.productIds.every(pid => selectedMatches[pid] === can.igdbId);
+                                    
+                                    group?.productIds.forEach(pid => {
+                                      if (isAllSelected) delete newSelected[pid];
+                                      else newSelected[pid] = can.igdbId;
+                                    });
+                                    setSelectedMatches(newSelected);
+                                  }}
                                 >
                                   <div className="relative h-12 w-9 rounded overflow-hidden bg-background shrink-0">
                                     {can.coverUrl ? (
@@ -241,7 +312,7 @@ export function AutoCoverDialog({
                                       {can.releaseYear && <span className="text-[10px] text-muted-foreground">{can.releaseYear}</span>}
                                     </div>
                                   </div>
-                                  {selectedMatches[res.productId] === can.igdbId && (
+                                  {group?.productIds.every(pid => selectedMatches[pid] === can.igdbId) && (
                                     <Check className="h-4 w-4 shrink-0" />
                                   )}
                                 </div>
@@ -252,7 +323,6 @@ export function AutoCoverDialog({
                           <div className="flex-1 flex flex-col items-center justify-center py-6 bg-background rounded-lg border border-dashed border-border text-muted-foreground">
                             <AlertCircle className="h-8 w-8 mb-2 opacity-50" />
                             <p className="text-sm">Uyğun nəticə tapılmadı</p>
-                            <Button variant="link" className="text-neon h-auto p-0 mt-1 text-xs">Yenidən axtar</Button>
                           </div>
                         )}
                       </div>

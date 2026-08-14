@@ -1215,6 +1215,24 @@ export type Database = {
           },
         ]
       }
+      product_cover_suggestions: {
+        Row: {
+          normalized_title: string
+          suggestions: Json
+          updated_at: string
+        }
+        Insert: {
+          normalized_title: string
+          suggestions: Json
+          updated_at?: string
+        }
+        Update: {
+          normalized_title?: string
+          suggestions?: Json
+          updated_at?: string
+        }
+        Relationships: []
+      }
       product_stock_items: {
         Row: {
           content: string

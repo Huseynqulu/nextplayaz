@@ -5,12 +5,12 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 export const searchIgdbCovers = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator(z.object({
-    productIds: z.array(z.string()),
+    normalizedTitles: z.array(z.string()),
   }))
-  .handler(async ({ data, context }) => {
-    const { productIds } = data;
+  .handler(async ({ data }) => {
+    const { normalizedTitles } = data;
     const { searchIgdbForProducts } = await import("./igdb.server");
-    return searchIgdbForProducts(productIds, context.userId);
+    return searchIgdbForProducts(normalizedTitles);
   });
 
 export const applyProductCovers = createServerFn({ method: "POST" })
