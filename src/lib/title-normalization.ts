@@ -1,3 +1,5 @@
+import { supabase } from "@/integrations/supabase/client";
+
 /**
  * Normalizes product titles to extract the core game name.
  * Removes platform tags, service info, and listing-specific metadata.
