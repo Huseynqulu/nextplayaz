@@ -101,7 +101,7 @@ export async function searchIgdbForProducts(normalizedTitles: string[]) {
         normalized_title: title,
         suggestions: candidates,
         updated_at: new Date().toISOString()
-      });
+      }, { onConflict: 'normalized_title' });
 
       results.push({ normalizedTitle: title, candidates });
       
