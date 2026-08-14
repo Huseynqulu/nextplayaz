@@ -10,6 +10,7 @@ import { SellerAnalytics } from "@/components/SellerAnalytics";
 import { EmptyState } from "@/components/EmptyState";
 import { BoostDialog } from "@/components/BoostDialog";
 import { BulkUploadDialog } from "@/components/BulkUploadDialog";
+import { AutoCoverDialog } from "@/components/seller/AutoCoverDialog";
 import { categoryLabel } from "@/lib/marketplace-data";
 
 export const Route = createFileRoute("/_authenticated/seller-dashboard")({
