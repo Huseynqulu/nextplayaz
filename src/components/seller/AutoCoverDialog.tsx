@@ -22,10 +22,13 @@ import {
   X,
   Play,
   Pause,
-  RefreshCcw
+  RefreshCcw,
+  Wrench
 } from "lucide-react";
 import { searchIgdbCovers, applyProductCovers } from "@/lib/igdb.functions";
+import { getRepairDryRun, executeRepairBatch } from "@/lib/repair-covers.functions";
 import { useServerFn } from "@tanstack/react-start";
+
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { normalizeGameTitle } from "@/lib/title-normalization";
@@ -63,17 +66,22 @@ export function AutoCoverDialog({
   productsWithoutImages,
   onSuccess 
 }: AutoCoverDialogProps) {
-  const [step, setStep] = useState<"initial" | "searching" | "review" | "applying" | "finished">("initial");
+  const [step, setStep] = useState<"initial" | "searching" | "review" | "applying" | "finished" | "repair_dry_run" | "repairing">("initial");
   const [resultsMap, setResultsMap] = useState<Record<string, MatchCandidate[]>>({});
   const [selectedMatches, setSelectedMatches] = useState<Record<string, number>>({});
   const [searchProgress, setSearchProgress] = useState(0);
   const [applyingProgress, setApplyingProgress] = useState(0);
+  const [repairProgress, setRepairProgress] = useState(0);
+  const [dryRunReport, setDryRunReport] = useState<any>(null);
   const [batchIndex, setBatchIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const BATCH_SIZE = 12;
 
   const searchFn = useServerFn(searchIgdbCovers);
   const applyFn = useServerFn(applyProductCovers);
+  const getDryRunFn = useServerFn(getRepairDryRun);
+  const executeRepairFn = useServerFn(executeRepairBatch);
+
 
   // Group products by normalized title
   const groups = useMemo(() => {
@@ -178,7 +186,44 @@ export function AutoCoverDialog({
     }
   };
 
+  const handleStartRepair = async () => {
+    setStep("repair_dry_run");
+    try {
+      const report = await getDryRunFn();
+      setDryRunReport(report);
+    } catch (error) {
+      toast.error("Audit zamanı xəta baş verdi");
+      setStep("initial");
+    }
+  };
+
+  const executeRepair = async () => {
+    if (!dryRunReport?.products?.length) return;
+    
+    setStep("repairing");
+    setRepairProgress(0);
+    
+    const productIds = dryRunReport.products.map((p: any) => p.id);
+    const BATCH_SIZE = 5;
+    
+    try {
+      for (let i = 0; i < productIds.length; i += BATCH_SIZE) {
+        const batch = productIds.slice(i, i + BATCH_SIZE);
+        await executeRepairFn({ data: { productIds: batch } });
+        setRepairProgress(Math.round(((i + batch.length) / productIds.length) * 100));
+      }
+      
+      toast.success("Bütün qırılmış şəkillər uğurla düzəldildi");
+      setStep("finished");
+      onSuccess();
+    } catch (error) {
+      toast.error("Təmir zamanı xəta baş verdi");
+      setStep("repair_dry_run");
+    }
+  };
+
   const uniqueTitlesWithResults = Object.keys(resultsMap);
+
   const currentBatchTitles = uniqueTitlesWithResults.slice(batchIndex * BATCH_SIZE, (batchIndex + 1) * BATCH_SIZE);
   const totalBatches = Math.ceil(uniqueTitlesWithResults.length / BATCH_SIZE);
 
@@ -207,9 +252,15 @@ export function AutoCoverDialog({
                   Sistem məhsul başlıqlarını analiz edərək oyun adlarını müəyyən edəcək və uyğun şəkilləri tapacaq.
                 </p>
               </div>
-              <Button onClick={startSearch} className="bg-neon text-background hover:opacity-90 px-8 py-6 text-lg font-bold rounded-xl">
-                <Play className="h-5 w-5 mr-2" /> Axtarışı başlat
-              </Button>
+              <div className="flex flex-col sm:flex-row gap-4">
+                <Button onClick={startSearch} className="bg-neon text-background hover:opacity-90 px-8 py-6 text-lg font-bold rounded-xl">
+                  <Play className="h-5 w-5 mr-2" /> Axtarışı başlat
+                </Button>
+                <Button variant="outline" onClick={handleStartRepair} className="border-neon/50 text-neon hover:bg-neon/10 px-8 py-6 text-lg font-bold rounded-xl">
+                  <Wrench className="h-5 w-5 mr-2" /> Qırıq şəkilləri düzəlt
+                </Button>
+              </div>
+
             </div>
           )}
 
@@ -375,7 +426,64 @@ export function AutoCoverDialog({
             </div>
           )}
 
+          {step === "repair_dry_run" && (
+            <div className="flex flex-col items-center justify-center py-12 text-center space-y-6">
+              <div className="h-20 w-20 rounded-full bg-yellow-500/10 flex items-center justify-center text-yellow-500">
+                <Search className="h-10 w-10" />
+              </div>
+              {!dryRunReport ? (
+                <div className="flex flex-col items-center space-y-4">
+                  <Loader2 className="h-8 w-8 animate-spin text-neon" />
+                  <p className="text-muted-foreground">Məhsullar yoxlanılır...</p>
+                </div>
+              ) : (
+                <>
+                  <div className="max-w-md space-y-2">
+                    <h3 className="text-xl font-semibold">Audit Nəticəsi</h3>
+                    <div className="grid grid-cols-2 gap-4 mt-4 text-left">
+                      <div className="bg-surface-lighter p-3 rounded-lg border border-border">
+                        <p className="text-xs text-muted-foreground uppercase">Yoxlanılan</p>
+                        <p className="text-lg font-bold">{dryRunReport.totalInspected}</p>
+                      </div>
+                      <div className="bg-red-500/10 p-3 rounded-lg border border-red-500/20">
+                        <p className="text-xs text-red-500 uppercase">Qırıq IGDB</p>
+                        <p className="text-lg font-bold text-red-500">{dryRunReport.brokenIgdb}</p>
+                      </div>
+                      <div className="bg-green-500/10 p-3 rounded-lg border border-green-500/20">
+                        <p className="text-xs text-green-500 uppercase">Əl ilə yüklənən</p>
+                        <p className="text-lg font-bold text-green-500">{dryRunReport.manualUploaded}</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex gap-4">
+                    <Button variant="outline" onClick={() => setStep("initial")}>Geri</Button>
+                    <Button onClick={executeRepair} disabled={dryRunReport.brokenIgdb === 0} className="bg-neon text-background">
+                      Təmiri başlat
+                    </Button>
+                  </div>
+                </>
+              )}
+            </div>
+          )}
+
+          {step === "repairing" && (
+            <div className="flex flex-col items-center justify-center py-20 space-y-8">
+              <div className="relative h-24 w-24">
+                <div className="absolute inset-0 rounded-full border-4 border-neon/20 border-t-neon animate-spin"></div>
+                <div className="absolute inset-0 flex items-center justify-center font-bold text-xl">
+                  {repairProgress}%
+                </div>
+              </div>
+              <div className="text-center space-y-2">
+                <h3 className="text-xl font-semibold">Təmir edilir...</h3>
+                <p className="text-muted-foreground">Şəkillər imzalanmış URL-lər ilə əvəzlənir.</p>
+              </div>
+              <Progress value={repairProgress} className="w-64 h-2" />
+            </div>
+          )}
+
           {step === "finished" && (
+
             <div className="flex flex-col items-center justify-center py-16 text-center space-y-6">
               <div className="h-20 w-20 rounded-full bg-green-500/10 flex items-center justify-center text-green-500">
                 <CheckCircle2 className="h-10 w-10" />

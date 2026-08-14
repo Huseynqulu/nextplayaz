@@ -121,7 +121,7 @@ export const executeRepairBatch = createServerFn({ method: "POST" })
             audit.igdb_cover_id,
             igdbUrl,
             product.seller_id,
-            audit.normalized_title
+            audit.normalized_title || product.title
           );
 
           if (uploadResult.error) throw new Error(uploadResult.error);
