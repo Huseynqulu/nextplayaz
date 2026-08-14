@@ -2,8 +2,6 @@ import { normalizeGameTitle } from "./title-normalization";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { downloadAndUploadIgdbCover, verifyPublicUrl } from "./igdb-processor.server";
 
-
-
 interface IgdbMatch {
   productId: string;
   normalizedTitle: string;
@@ -32,6 +30,9 @@ async function getTwitchToken(clientId: string, clientSecret: string) {
   return data.access_token;
 }
 
+/**
+ * Searches IGDB for normalized titles with exponential backoff for rate limits.
+ */
 export async function searchIgdbForProducts(normalizedTitles: string[]) {
   const clientId = process.env.IGDB_CLIENT_ID;
   const clientSecret = process.env.IGDB_CLIENT_SECRET;
@@ -53,7 +54,7 @@ export async function searchIgdbForProducts(normalizedTitles: string[]) {
   if (missingTitles.length === 0) {
     return normalizedTitles.map(t => ({
       normalizedTitle: t,
-      candidates: cachedMap.get(t)
+      candidates: cachedMap.get(t) || []
     }));
   }
 
@@ -61,57 +62,73 @@ export async function searchIgdbForProducts(normalizedTitles: string[]) {
   const token = await getTwitchToken(clientId, clientSecret);
   const results: any[] = [];
 
-  // IGDB rate limit is 4 requests per second
   for (const title of missingTitles) {
-    try {
-      const igdbResponse = await fetch("https://api.igdb.com/v4/games", {
-        method: "POST",
-        headers: {
-          "Client-ID": clientId,
-          "Authorization": `Bearer ${token}`,
-          "Content-Type": "text/plain",
-        },
-        body: `search "${title.replace(/"/g, '\\"')}"; fields name, cover.url, cover.image_id, first_release_date, platforms.name; limit 5;`,
-      });
+    let retries = 0;
+    const maxRetries = 3;
+    
+    while (retries <= maxRetries) {
+      try {
+        const igdbResponse = await fetch("https://api.igdb.com/v4/games", {
+          method: "POST",
+          headers: {
+            "Client-ID": clientId,
+            "Authorization": `Bearer ${token}`,
+            "Content-Type": "text/plain",
+          },
+          body: `search "${title.replace(/"/g, '\\"')}"; fields name, cover.url, cover.image_id, first_release_date, platforms.name; limit 5;`,
+        });
 
-      if (!igdbResponse.ok) {
-        if (igdbResponse.status === 429) {
-          console.warn("[IGDB] Rate limit exceeded, skipping title:", title);
-          continue;
+        if (!igdbResponse.ok) {
+          if (igdbResponse.status === 429) {
+            const wait = Math.pow(2, retries) * 1000;
+            console.warn(`[IGDB] Rate limit exceeded, waiting ${wait}ms...`);
+            await new Promise(r => setTimeout(r, wait));
+            retries++;
+            continue;
+          }
+          const errorText = await igdbResponse.text();
+          console.error(`[IGDB] API error for "${title}": ${igdbResponse.status} ${errorText}`);
+          break;
         }
-        const errorText = await igdbResponse.text();
-        console.error(`[IGDB] API error for "${title}": ${igdbResponse.status} ${errorText}`);
-        continue;
+
+        const games = await igdbResponse.json();
+        const candidates = games.map((g: any) => {
+          const lowerName = g.name.toLowerCase();
+          const lowerTitle = title.toLowerCase();
+          
+          let confidence = 60;
+          if (lowerName === lowerTitle) confidence = 100;
+          else if (lowerName.startsWith(lowerTitle) || lowerTitle.startsWith(lowerName)) confidence = 90;
+          else if (lowerName.includes(lowerTitle)) confidence = 80;
+
+          return {
+            igdbId: g.id,
+            name: g.name,
+            coverUrl: g.cover?.url ? `https:${g.cover.url.replace("t_thumb", "t_cover_big")}` : "",
+            coverId: g.cover?.image_id || "",
+            releaseYear: g.first_release_date ? new Date(g.first_release_date * 1000).getFullYear() : undefined,
+            platforms: g.platforms?.map((p: any) => p.name),
+            confidence
+          };
+        });
+
+        // Cache the result
+        await supabaseAdmin.from("product_cover_suggestions").upsert({
+          normalized_title: title,
+          suggestions: candidates,
+          updated_at: new Date().toISOString()
+        }, { onConflict: 'normalized_title' });
+
+        results.push({ normalizedTitle: title, candidates });
+        break; // Success
+      } catch (err) {
+        console.error(`[IGDB] Error searching for "${title}":`, err);
+        break;
       }
-
-      const games = await igdbResponse.json();
-      const candidates = games.map((g: any) => ({
-        igdbId: g.id,
-        name: g.name,
-        coverUrl: g.cover?.url ? `https:${g.cover.url.replace("t_thumb", "t_cover_big")}` : "",
-        coverId: g.cover?.image_id || "",
-        releaseYear: g.first_release_date ? new Date(g.first_release_date * 1000).getFullYear() : undefined,
-        platforms: g.platforms?.map((p: any) => p.name),
-        confidence: g.name.toLowerCase() === title.toLowerCase() ? 100 : 
-                   (g.name.toLowerCase().includes(title.toLowerCase()) ? 85 : 60)
-      }));
-
-      // Cache the result
-      await supabaseAdmin.from("product_cover_suggestions").upsert({
-        normalized_title: title,
-        suggestions: candidates,
-        updated_at: new Date().toISOString()
-      }, { onConflict: 'normalized_title' });
-
-      results.push({ normalizedTitle: title, candidates });
-      
-      // Small delay to respect rate limits if processing many
-      if (missingTitles.length > 5) {
-        await new Promise(resolve => setTimeout(resolve, 250));
-      }
-    } catch (err) {
-      console.error(`[IGDB] Error searching for "${title}":`, err);
     }
+    
+    // Base delay to stay within 4req/sec
+    await new Promise(resolve => setTimeout(resolve, 300));
   }
 
   // Combine cached and new
@@ -126,15 +143,19 @@ export async function applyCoversToProducts(matches: any[], userId: string) {
 
   for (const match of matches) {
     try {
-      // 1. Fetch product to get seller_id and check ownership
+      // 1. Fetch product
       const { data: product } = await supabaseAdmin
         .from("products")
-        .select("seller_id, image_url, image_urls")
+        .select("seller_id, image_url, image_urls, title")
         .eq("id", match.productId)
         .eq("seller_id", userId)
         .single();
       
       if (!product) throw new Error("Product not found or unauthorized");
+
+      // Rollback safety: preserve old values
+      const oldImageUrl = product.image_url;
+      const oldImageUrls = product.image_urls;
 
       // 2. Use shared helper for processing
       const uploadResult = await downloadAndUploadIgdbCover(
@@ -146,13 +167,7 @@ export async function applyCoversToProducts(matches: any[], userId: string) {
 
       if (uploadResult.error) throw new Error(uploadResult.error);
 
-      // 3. Public verification (anonymous)
-      const isVerified = await verifyPublicUrl(uploadResult.signedUrl);
-      if (!isVerified) {
-        throw new Error("İctimai səhifədə yoxlama uğursuz oldu");
-      }
-
-      // 4. Update product
+      // 3. Update product
       const { error: updateError } = await supabaseAdmin
         .from("products")
         .update({
@@ -162,6 +177,18 @@ export async function applyCoversToProducts(matches: any[], userId: string) {
         .eq("id", match.productId);
 
       if (updateError) throw updateError;
+
+      // 4. Public verification (anonymous)
+      const isVerified = await verifyPublicUrl(uploadResult.signedUrl);
+      if (!isVerified) {
+        // ROLLBACK
+        console.warn(`[IGDB] Verification failed for ${match.productId}, rolling back...`);
+        await supabaseAdmin.from("products").update({
+          image_url: oldImageUrl,
+          image_urls: oldImageUrls
+        }).eq("id", match.productId);
+        throw new Error("İctimai səhifədə yoxlama uğursuz oldu");
+      }
 
       // 5. Audit log
       await supabaseAdmin.from("product_cover_audit").insert({

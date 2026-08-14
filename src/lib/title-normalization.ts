@@ -21,7 +21,8 @@ export function normalizeGameTitle(title: string): string {
     "Sürətli Çatdırılma", "Fast Delivery", "Instant", "Manual",
     "Offline", "Online", "Universal", "Global", "Region Free",
     "P2", "P3", "P1", "Primary", "Secondary",
-    "1 il", "Ömürlük", "Zəmanəti",
+    "1 il", "Ömürlük", "Zəmanəti", "zəmanət",
+    "Hesab", "hesab",
   ];
 
   const tagRegex = new RegExp(`\\b(${tagsToRemove.join("|")})\\b`, "gi");
