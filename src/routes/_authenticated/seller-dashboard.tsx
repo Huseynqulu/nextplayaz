@@ -324,6 +324,13 @@ function SellerDashboard() {
             />
           )}
 
+          <AutoCoverDialog 
+            open={autoCoverOpen} 
+            onOpenChange={setAutoCoverOpen}
+            productsWithoutImages={items.filter(item => !item.image_url && (!item.image_urls || item.image_urls.length === 0))}
+            onSuccess={refresh}
+          />
+
           {/* Onboarding helper — guides new sellers */}
           {!showForm && (
             <div className="mb-6 rounded-2xl border border-neon/30 bg-neon/5 p-5 sm:p-6 card-shadow">
