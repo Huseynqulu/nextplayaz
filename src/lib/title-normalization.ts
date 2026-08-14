@@ -12,7 +12,7 @@ export function normalizeGameTitle(title: string): string {
   // 1. Remove common separators and their surrounding spaces
   normalized = normalized.replace(/[|/\\-]/g, " ");
 
-  // 2. Remove common platform/service tags (case-insensitive)
+  // 2. Remove common platform/service tags and edition info (case-insensitive)
   const tagsToRemove = [
     "PS4", "PS5", "PS4/PS5", "PS4/5", "PlayStation Network", "PSN",
     "Xbox", "Series X", "Series S", "XB1",
@@ -23,6 +23,10 @@ export function normalizeGameTitle(title: string): string {
     "P2", "P3", "P1", "Primary", "Secondary",
     "1 il", "Ömürlük", "Zəmanəti", "zəmanət",
     "Hesab", "hesab",
+    "Deluxe Edition", "Ultimate Edition", "Premium Edition",
+    "Complete Edition", "Gold Edition", "Director's Cut",
+    "Game of the Year Edition", "GOTY", "Standard Edition",
+    "Deluxe", "Ultimate", "Premium", "Complete", "Gold", "Standard",
   ];
 
   const tagRegex = new RegExp(`\\b(${tagsToRemove.join("|")})\\b`, "gi");
