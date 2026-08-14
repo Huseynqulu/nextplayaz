@@ -31,7 +31,8 @@ async function getTwitchToken(clientId: string, clientSecret: string) {
 }
 
 export async function searchIgdbForProducts(productIds: string[], userId: string) {
-  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  // supabaseAdmin imported at top scope
+
   
   // 1. Get products and verify ownership
   const { data: products, error } = await supabaseAdmin
