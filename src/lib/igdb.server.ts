@@ -155,14 +155,20 @@ export async function applyCoversToProducts(matches: any[], userId: string) {
 
       if (uploadError) throw uploadError;
 
-      const { data: { publicUrl } } = supabaseAdmin.storage.from("product-images").getPublicUrl(path);
+      const { data: signData, error: signError } = await supabaseAdmin.storage
+        .from("product-images")
+        .createSignedUrl(path, 315360000); // 10 years
+
+      if (signError || !signData?.signedUrl) throw signError || new Error("Failed to generate signed URL");
+
+      const finalUrl = signData.signedUrl;
 
       // 4. Update product
       const { error: updateError } = await supabaseAdmin
         .from("products")
         .update({
-          image_url: publicUrl,
-          image_urls: [publicUrl],
+          image_url: finalUrl,
+          image_urls: [finalUrl],
         })
         .eq("id", match.productId);
 
@@ -179,7 +185,7 @@ export async function applyCoversToProducts(matches: any[], userId: string) {
         storage_path: path,
       });
 
-      results.push({ productId: match.productId, status: "success", url: publicUrl });
+      results.push({ productId: match.productId, status: "success", url: finalUrl });
     } catch (err: any) {
       results.push({ productId: match.productId, status: "error", message: err.message });
     }
