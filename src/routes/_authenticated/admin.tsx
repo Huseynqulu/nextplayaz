@@ -570,6 +570,7 @@ function AdminPage() {
           <div className="flex gap-1 mb-6 border-b border-border overflow-x-auto">
             {([
               ["analytics", "📊 Analitika"],
+              ["autocover", "🖼️ Avto-Logo"],
               ["announcements", "📢 Elanlar"],
               ["applications", `Müraciətlər (${apps.filter(a => a.status === "pending").length})`],
               ["tickets", `Dəstək (${tickets.filter(t => t.status === "open" || t.status === "pending").length})`],
@@ -604,6 +605,8 @@ function AdminPage() {
             <div className="flex justify-center py-20"><Loader2 className="h-6 w-6 animate-spin text-neon" /></div>
           ) : tab === "analytics" ? (
             <Suspense fallback={<TabFallback />}><AdminAnalytics /></Suspense>
+          ) : tab === "autocover" ? (
+            <AdminAutoCoverPanel />
           ) : tab === "applications" ? (
             <div className="space-y-3">
               <div className="flex gap-2 flex-wrap mb-2">
