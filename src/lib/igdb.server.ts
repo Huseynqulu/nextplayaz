@@ -67,7 +67,11 @@ export async function searchIgdbForProducts(productIds: string[], userId: string
       body: `search "${normalized.replace(/"/g, '\\"')}"; fields name, cover.url, cover.image_id, first_release_date, platforms.name; limit 5;`,
     });
 
-    if (!igdbResponse.ok) continue;
+    if (!igdbResponse.ok) {
+      const errorText = await igdbResponse.text();
+      console.error(`[IGDB] API error for "${normalized}": ${igdbResponse.status} ${errorText}`);
+      continue;
+    }
 
     const games = await igdbResponse.json();
     const candidates = games.map((g: any) => {
