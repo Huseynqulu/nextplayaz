@@ -61,7 +61,8 @@ export const processAdminAutoCovers = createServerFn({ method: "POST" })
       const match = igdbResults.find(r => r.normalizedTitle === normalized);
       const bestCandidate = match?.candidates?.[0];
 
-      if (bestCandidate && bestCandidate.confidence >= 90) {
+      // Only apply if the product doesn't already have an audit entry (to prevent re-processing)
+      if (bestCandidate && bestCandidate.confidence >= 70) {
         matchesToApply.push({
           productId: product.id,
           igdbGameId: bestCandidate.igdbId,
