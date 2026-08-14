@@ -12,7 +12,7 @@ export function normalizeGameTitle(title: string): string {
   // 1. Remove common separators and their surrounding spaces
   normalized = normalized.replace(/[|/\\-]/g, " ");
 
-  // 2. Remove common platform/service tags (case-insensitive)
+  // 2. Remove common platform/service tags and edition info (case-insensitive)
   const tagsToRemove = [
     "PS4", "PS5", "PS4/PS5", "PS4/5", "PlayStation Network", "PSN",
     "Xbox", "Series X", "Series S", "XB1",
@@ -23,6 +23,10 @@ export function normalizeGameTitle(title: string): string {
     "P2", "P3", "P1", "Primary", "Secondary",
     "1 il", "Ömürlük", "Zəmanəti", "zəmanət",
     "Hesab", "hesab",
+    "Deluxe Edition", "Ultimate Edition", "Premium Edition",
+    "Complete Edition", "Gold Edition", "Director's Cut",
+    "Game of the Year Edition", "GOTY", "Standard Edition",
+    "Deluxe", "Ultimate", "Premium", "Complete", "Gold", "Standard",
   ];
 
   const tagRegex = new RegExp(`\\b(${tagsToRemove.join("|")})\\b`, "gi");
@@ -31,6 +35,10 @@ export function normalizeGameTitle(title: string): string {
   // 3. Remove stock/price hints (e.g., "100 AZN", "Stokda")
   normalized = normalized.replace(/\d+\s*AZN/gi, " ");
   normalized = normalized.replace(/\bStokda\b/gi, " ");
+  
+  // 3a. Remove generic year markers that might confuse IGDB
+  normalized = normalized.replace(/\b202\d\b/g, " ");
+  normalized = normalized.replace(/\b(DLC|Pack|Bundle)\b/gi, " ");
 
   // 4. Remove emojis and decorative characters
   normalized = normalized.replace(/[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu, " ");
