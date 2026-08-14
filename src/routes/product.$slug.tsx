@@ -15,6 +15,7 @@ import { toast } from "sonner";
 import { useCurrency } from "@/lib/currency";
 import { VerifiedBadge } from "@/components/VerifiedBadge";
 import { useT } from "@/lib/i18n";
+import { imgUrl } from "@/lib/image-url";
 import { useFavorites, isRealProductId } from "@/lib/favorites";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { ProductCoverPlaceholder } from "@/components/ProductCoverPlaceholder";
