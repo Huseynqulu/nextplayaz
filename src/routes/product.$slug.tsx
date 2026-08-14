@@ -15,6 +15,7 @@ import { toast } from "sonner";
 import { useCurrency } from "@/lib/currency";
 import { VerifiedBadge } from "@/components/VerifiedBadge";
 import { useT } from "@/lib/i18n";
+import { imgUrl } from "@/lib/image-url";
 import { useFavorites, isRealProductId } from "@/lib/favorites";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { ProductCoverPlaceholder } from "@/components/ProductCoverPlaceholder";
@@ -283,7 +284,7 @@ function ProductPage() {
             <div className="min-w-0 flex flex-col items-center lg:items-start">
               <div className="relative aspect-square overflow-hidden rounded-xl border border-border card-shadow w-full max-w-[260px] bg-surface/40">
                 {activeImg ? (
-                  <img src={activeImg} alt={p.title} className="absolute inset-0 h-full w-full object-cover" loading="eager" />
+                  <img src={imgUrl(activeImg, { width: 520, height: 520, quality: 85 })} alt={p.title} className="absolute inset-0 h-full w-full object-cover" loading="eager" />
                 ) : (
                   <ProductCoverPlaceholder title={p.title} />
                 )}
@@ -297,7 +298,7 @@ function ProductPage() {
                 <div className="mt-3 grid grid-cols-4 gap-2 w-full max-w-[260px]">
                   {gallery.map((src, i) => (
                     <button key={i} onClick={() => setActiveImg(src)} className={`aspect-square overflow-hidden rounded-md border transition ${activeImg === src ? "border-primary" : "border-border hover:border-primary/60"}`}>
-                      <img src={src} alt="" className="h-full w-full object-cover" />
+                      <img src={imgUrl(src, { width: 120, height: 120, quality: 60 })} alt="" className="h-full w-full object-cover" />
                     </button>
                   ))}
                 </div>
