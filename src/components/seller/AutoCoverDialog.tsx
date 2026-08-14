@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import {
   Dialog,
   DialogContent,
@@ -20,12 +20,15 @@ import {
   Image as ImageIcon,
   Check,
   X,
-  Play
+  Play,
+  Pause,
+  RefreshCcw
 } from "lucide-react";
 import { searchIgdbCovers, applyProductCovers } from "@/lib/igdb.functions";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { normalizeGameTitle } from "@/lib/title-normalization";
 
 interface AutoCoverDialogProps {
   open: boolean;
@@ -45,9 +48,13 @@ interface MatchCandidate {
 }
 
 interface IgdbMatchResult {
-  productId: string;
   normalizedTitle: string;
   candidates: MatchCandidate[];
+}
+
+interface NormalizedGroup {
+  title: string;
+  productIds: string[];
 }
 
 export function AutoCoverDialog({ 
@@ -57,44 +64,74 @@ export function AutoCoverDialog({
   onSuccess 
 }: AutoCoverDialogProps) {
   const [step, setStep] = useState<"initial" | "searching" | "review" | "applying" | "finished">("initial");
-  const [results, setResults] = useState<IgdbMatchResult[]>([]);
+  const [resultsMap, setResultsMap] = useState<Record<string, MatchCandidate[]>>({});
   const [selectedMatches, setSelectedMatches] = useState<Record<string, number>>({});
+  const [searchProgress, setSearchProgress] = useState(0);
   const [applyingProgress, setApplyingProgress] = useState(0);
   const [batchIndex, setBatchIndex] = useState(0);
-  const BATCH_SIZE = 10;
+  const [isPaused, setIsPaused] = useState(false);
+  const BATCH_SIZE = 12;
 
   const searchFn = useServerFn(searchIgdbCovers);
   const applyFn = useServerFn(applyProductCovers);
 
+  // Group products by normalized title
+  const groups = useMemo(() => {
+    const map: Record<string, string[]> = {};
+    productsWithoutImages.forEach(p => {
+      const normalized = normalizeGameTitle(p.title);
+      if (!map[normalized]) map[normalized] = [];
+      map[normalized].push(p.id);
+    });
+    return Object.entries(map).map(([title, productIds]) => ({ title, productIds }));
+  }, [productsWithoutImages]);
+
   const startSearch = async () => {
     setStep("searching");
+    setIsPaused(false);
+    setSearchProgress(0);
+    
+    const titlesToSearch = groups.map(g => g.title);
+    const uniqueResults: Record<string, MatchCandidate[]> = { ...resultsMap };
+    
     try {
-      const productIds = productsWithoutImages.map(p => p.id);
-      // Process in batches to avoid timeouts
-      const allResults: IgdbMatchResult[] = [];
-      for (let i = 0; i < productIds.length; i += BATCH_SIZE) {
-        const batch = productIds.slice(i, i + BATCH_SIZE);
-        const batchResults = await searchFn({ data: { productIds: batch } });
-        allResults.push(...(batchResults as IgdbMatchResult[]));
+      // Process in batches of 10 unique titles
+      const BATCH_COUNT = 10;
+      for (let i = 0; i < titlesToSearch.length; i += BATCH_COUNT) {
+        if (isPaused) break;
+        
+        const batch = titlesToSearch.slice(i, i + BATCH_COUNT);
+        const batchResults = await searchFn({ data: { normalizedTitles: batch } }) as IgdbMatchResult[];
+        
+        batchResults.forEach(res => {
+          uniqueResults[res.normalizedTitle] = res.candidates;
+        });
+        
+        setResultsMap({ ...uniqueResults });
+        setSearchProgress(Math.min(100, Math.round(((i + batch.length) / titlesToSearch.length) * 100)));
+        
+        // Short delay to prevent UI freezing and show progress
+        await new Promise(r => setTimeout(r, 100));
       }
       
-      setResults(allResults);
-      
-      // Pre-select high confidence matches (>= 90)
-      const initialSelected: Record<string, number> = {};
-      allResults.forEach(res => {
-        const best = res.candidates[0];
-        if (best && best.confidence >= 90) {
-          initialSelected[res.productId] = best.igdbId;
-        }
-      });
-      setSelectedMatches(initialSelected);
-      
-      setStep("review");
+      if (!isPaused) {
+        // Pre-select high confidence matches
+        const initialSelected: Record<string, number> = {};
+        groups.forEach(group => {
+          const candidates = uniqueResults[group.title];
+          const best = candidates?.[0];
+          if (best && best.confidence >= 90) {
+            group.productIds.forEach(pid => {
+              initialSelected[pid] = best.igdbId;
+            });
+          }
+        });
+        setSelectedMatches(initialSelected);
+        setStep("review");
+      }
     } catch (error: any) {
       console.error("IGDB Search Error:", error);
-      const message = error.message || "Sorğu zamanı xəta baş verdi";
-      toast.error(message);
+      toast.error(error.message || "Axtarış zamanı xəta baş verdi");
       setStep("initial");
     }
   };
@@ -104,14 +141,17 @@ export function AutoCoverDialog({
     setApplyingProgress(0);
     
     const matchesToApply = Object.entries(selectedMatches).map(([productId, igdbId]) => {
-      const result = results.find(r => r.productId === productId);
-      const candidate = result?.candidates.find(c => c.igdbId === igdbId);
+      const product = productsWithoutImages.find(p => p.id === productId);
+      const normalized = normalizeGameTitle(product?.title || "");
+      const candidates = resultsMap[normalized] || [];
+      const candidate = candidates.find(c => c.igdbId === igdbId);
+      
       return {
         productId,
         igdbGameId: igdbId,
         igdbCoverId: candidate?.coverId || "",
         imageUrl: candidate?.coverUrl || "",
-        normalizedTitle: result?.normalizedTitle || "",
+        normalizedTitle: normalized,
         confidence: candidate?.confidence || 0,
       };
     });
@@ -129,7 +169,7 @@ export function AutoCoverDialog({
         setApplyingProgress(Math.round(((i + batch.length) / matchesToApply.length) * 100));
       }
       
-      toast.success("Seçilmiş məhsulların şəkilləri uğurla yeniləndi");
+      toast.success("Şəkillər uğurla yeniləndi");
       setStep("finished");
       onSuccess();
     } catch (error) {
@@ -138,8 +178,10 @@ export function AutoCoverDialog({
     }
   };
 
-  const currentBatch = results.slice(batchIndex * BATCH_SIZE, (batchIndex + 1) * BATCH_SIZE);
-  const totalBatches = Math.ceil(results.length / BATCH_SIZE);
+  const uniqueTitlesWithResults = Object.keys(resultsMap);
+  const currentBatchTitles = uniqueTitlesWithResults.slice(batchIndex * BATCH_SIZE, (batchIndex + 1) * BATCH_SIZE);
+  const totalBatches = Math.ceil(uniqueTitlesWithResults.length / BATCH_SIZE);
+
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
