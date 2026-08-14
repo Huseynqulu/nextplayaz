@@ -149,7 +149,7 @@ export function AdminAutoCoverPanel() {
             <h3 className="text-xl font-bold">Bütün məhsullara logo əlavə et</h3>
             <p className="text-muted-foreground max-w-xl">
               Sistem bütün logosuz məhsulları analiz edəcək və IGDB bazasından uyğun şəkilləri taparaq avtomatik əlavə edəcək.
-              Yalnız yüksək uyğunluq (90%+) olan şəkillər tətbiq olunacaq.
+              Yalnız uyğunluq (70%+) olan şəkillər avtomatik tətbiq olunacaq.
             </p>
           </div>
 
