@@ -44,9 +44,11 @@ export async function searchIgdbForProducts(productIds: string[], userId: string
   const clientSecret = process.env.IGDB_CLIENT_SECRET;
 
   if (!clientId || !clientSecret) {
+    console.error("[IGDB] IGDB credentials not configured (clientId or clientSecret missing)");
     throw new Error("IGDB credentials not configured");
   }
 
+  console.log(`[IGDB] Searching for ${productIds.length} products using clientId: ${clientId.substring(0, 4)}...`);
   const token = await getTwitchToken(clientId, clientSecret);
 
   const results: IgdbMatch[] = [];
