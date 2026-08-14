@@ -91,8 +91,10 @@ export function AutoCoverDialog({
       setSelectedMatches(initialSelected);
       
       setStep("review");
-    } catch (error) {
-      toast.error("Sorğu zamanı xəta baş verdi");
+    } catch (error: any) {
+      console.error("IGDB Search Error:", error);
+      const message = error.message || "Sorğu zamanı xəta baş verdi";
+      toast.error(message);
       setStep("initial");
     }
   };
