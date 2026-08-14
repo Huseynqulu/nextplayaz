@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { Star, Zap, Heart, ShoppingCart, BadgeCheck, Flame } from "lucide-react";
 import { VerifiedBadge } from "@/components/VerifiedBadge";
 import { ProductCoverPlaceholder } from "@/components/ProductCoverPlaceholder";
+import { imgUrl } from "@/lib/image-url";
 import type { Product } from "@/lib/marketplace-data";
 import { useFavorites, isRealProductId } from "@/lib/favorites";
 import { useAuth } from "@/hooks/use-auth";
@@ -106,7 +107,7 @@ export function ProductCard({ p, variant = "default" }: { p: Product; variant?: 
       <div className="relative aspect-[4/3] overflow-hidden bg-surface/30">
         {p.image ? (
           <img 
-            src={p.image} 
+            src={imgUrl(p.image, { width: 400, height: 300, quality: 75 })} 
             alt={p.title} 
             loading="lazy" 
             decoding="async"
