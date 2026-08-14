@@ -33,25 +33,38 @@ export const processAdminAutoCovers = createServerFn({ method: "POST" })
   }))
   .handler(async ({ data }) => {
     const { limit } = data;
-    const { searchIgdbForProducts, applyCoversToProducts } = await import("./igdb.server");
+    const { searchIgdbForProducts } = await import("./igdb.server");
     const { normalizeGameTitle } = await import("./title-normalization");
 
+    console.log(`[AdminAutoCover] Starting batch processing, limit: ${limit}`);
+
     // 1. Fetch products without images
-    const { data: products } = await supabaseAdmin
+    // EXCLUSION: If we already tried this product in product_cover_audit, maybe skip it if it failed?
+    // For now, let's just get the oldest products without images.
+    const { data: products, error: fetchError } = await supabaseAdmin
       .from("products")
       .select("id, title, seller_id")
       .is("image_url", null)
+      .order('created_at', { ascending: false })
       .limit(limit);
 
+    if (fetchError) {
+      console.error("[AdminAutoCover] Fetch error:", fetchError);
+      throw new Error(`Məhsul siyahısı alınarkən xəta: ${fetchError.message}`);
+    }
+
     if (!products || products.length === 0) {
+      console.log("[AdminAutoCover] No products without images found.");
       return { processed: 0, status: "completed", message: "Şəkilsiz məhsul tapılmadı" };
     }
 
+    console.log(`[AdminAutoCover] Processing ${products.length} products:`, products.map(p => p.title));
+
     // 2. Group and search
-    const results = [];
     const titles = products.map(p => normalizeGameTitle(p.title));
     const uniqueTitles = Array.from(new Set(titles));
     
+    console.log(`[AdminAutoCover] Searching IGDB for ${uniqueTitles.length} unique titles...`);
     const igdbResults = await searchIgdbForProducts(uniqueTitles);
 
     // 3. Auto-apply high confidence matches
@@ -61,7 +74,8 @@ export const processAdminAutoCovers = createServerFn({ method: "POST" })
       const match = igdbResults.find(r => r.normalizedTitle === normalized);
       const bestCandidate = match?.candidates?.[0];
 
-      // Only apply if the product doesn't already have an audit entry (to prevent re-processing)
+      // Use a slightly lower threshold for auto-apply to increase coverage, 
+      // but only if it's the top result.
       if (bestCandidate && bestCandidate.confidence >= 70) {
         matchesToApply.push({
           productId: product.id,
@@ -70,28 +84,32 @@ export const processAdminAutoCovers = createServerFn({ method: "POST" })
           imageUrl: bestCandidate.coverUrl,
           normalizedTitle: normalized,
           confidence: bestCandidate.confidence,
-          sellerId: product.seller_id // Pass sellerId to bypass userId requirement if needed
+          sellerId: product.seller_id
         });
+      } else {
+        console.log(`[AdminAutoCover] Low confidence or no match for "${product.title}" (Score: ${bestCandidate?.confidence || 0})`);
       }
     }
 
+    console.log(`[AdminAutoCover] Found ${matchesToApply.length} high-confidence matches to apply.`);
+
     if (matchesToApply.length === 0) {
+      // We still "processed" them (checked them), so we should return processed count 
+      // so the UI can move to the next batch.
       return { 
         processed: products.length, 
         applied: 0, 
-        status: "no_high_confidence", 
-        message: `${products.length} məhsul yoxlanıldı, lakin yüksək uyğunluqlu şəkil tapılmadı` 
+        status: "no_matches", 
+        message: `${products.length} məhsul yoxlanıldı, uyğun şəkil tapılmadı` 
       };
     }
 
-    // 4. We need to modify applyCoversToProducts to accept a custom sellerId 
-    // or use a new internal helper that doesn't check against userId.
-    // For now, let's process them one by one using a new internal helper logic.
     const { downloadAndUploadIgdbCover, verifyPublicUrl } = await import("./igdb-processor.server");
     
     let appliedCount = 0;
     for (const match of matchesToApply) {
       try {
+        console.log(`[AdminAutoCover] Applying cover to ${match.productId} (${match.normalizedTitle})...`);
         const uploadResult = await downloadAndUploadIgdbCover(
           match.igdbCoverId,
           match.imageUrl,
@@ -102,13 +120,18 @@ export const processAdminAutoCovers = createServerFn({ method: "POST" })
         if (!uploadResult.error && uploadResult.signedUrl) {
           const isVerified = await verifyPublicUrl(uploadResult.signedUrl);
           if (isVerified) {
-            await supabaseAdmin
+            const { error: updateError } = await supabaseAdmin
               .from("products")
               .update({
                 image_url: uploadResult.signedUrl,
                 image_urls: [uploadResult.signedUrl],
               })
               .eq("id", match.productId);
+
+            if (updateError) {
+               console.error(`[AdminAutoCover] Product update error for ${match.productId}:`, updateError);
+               continue;
+            }
 
             await supabaseAdmin.from("product_cover_audit").insert({
               product_id: match.productId,
@@ -120,7 +143,12 @@ export const processAdminAutoCovers = createServerFn({ method: "POST" })
               storage_path: uploadResult.storagePath,
             });
             appliedCount++;
+            console.log(`[AdminAutoCover] Successfully applied cover to ${match.productId}`);
+          } else {
+            console.warn(`[AdminAutoCover] Verification failed for ${match.productId}`);
           }
+        } else {
+          console.error(`[AdminAutoCover] Upload error for ${match.productId}:`, uploadResult.error);
         }
       } catch (e) {
         console.error(`[AdminAutoCover] Error processing ${match.productId}:`, e);

@@ -63,34 +63,44 @@ export function AdminAutoCoverPanel() {
     const totalToProcess = stats.productsWithoutImages;
     const BATCH_LIMIT = 20;
 
-    try {
-      while (processedCount < totalToProcess) {
-        if (isPaused) break;
+    let localProcessedCount = 0;
+    let localAppliedCount = 0;
 
-        const result = await processFn({ data: { limit: BATCH_LIMIT } });
-        
-        if (result.processed === 0 || result.status === "completed") {
+    try {
+      while (localProcessedCount < totalToProcess) {
+        if (isPaused) {
+          console.log("Processing paused by user.");
           break;
         }
 
-        const newProcessed = processedCount + result.processed;
-        const newApplied = appliedCount + (result.applied || 0);
+        console.log(`Requesting batch starting from ${localProcessedCount}...`);
+        const result = await processFn({ data: { limit: BATCH_LIMIT } });
         
-        setProcessedCount(newProcessed);
-        setAppliedCount(newApplied);
-        setProgress(Math.min(100, Math.round((newProcessed / totalToProcess) * 100)));
+        console.log("Batch result:", result);
 
-        // Small break between batches
-        await new Promise(r => setTimeout(r, 1000));
+        if (!result || result.processed === 0 || result.status === "completed") {
+          console.log("No more products to process or completed.");
+          break;
+        }
+
+        localProcessedCount += result.processed;
+        localAppliedCount += (result.applied || 0);
+        
+        setProcessedCount(localProcessedCount);
+        setAppliedCount(localAppliedCount);
+        setProgress(Math.min(100, Math.round((localProcessedCount / totalToProcess) * 100)));
+
+        // Small break between batches to allow UI to breathe and respect rate limits
+        await new Promise(r => setTimeout(r, 1500));
         
         // Refresh stats periodically
-        if (newProcessed % 100 === 0) {
+        if (localProcessedCount % 60 === 0) {
           loadStats();
         }
       }
       
       if (!isPaused) {
-        toast.success(`Proses tamamlandı! ${appliedCount} şəkil əlavə edildi.`);
+        toast.success(`Proses tamamlandı! ${localAppliedCount} şəkil əlavə edildi.`);
         loadStats();
       }
     } catch (error: any) {
