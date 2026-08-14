@@ -226,39 +226,49 @@ export function AutoCoverDialog({
           {step === "review" && (
             <div className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {currentBatch.map((res) => {
-                  const product = productsWithoutImages.find(p => p.id === res.productId);
+                {currentBatchTitles.map((title) => {
+                  const group = groups.find(g => g.title === title);
+                  const candidates = resultsMap[title] || [];
+                  const sampleProduct = productsWithoutImages.find(p => p.id === group?.productIds[0]);
+                  
                   return (
-                    <div key={res.productId} className="flex flex-col border border-border rounded-xl p-4 bg-surface-lighter hover:border-neon/30 transition-colors">
+                    <div key={title} className="flex flex-col border border-border rounded-xl p-4 bg-surface-lighter hover:border-neon/30 transition-colors">
                       <div className="flex justify-between items-start mb-3">
                         <div className="space-y-1">
-                          <span className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Məhsulun hazırkı başlığı</span>
-                          <p className="font-medium text-sm line-clamp-1">{product?.title}</p>
+                          <span className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Oyun adı</span>
+                          <p className="font-medium text-sm line-clamp-1">{title}</p>
+                          <p className="text-[10px] text-muted-foreground italic">({group?.productIds.length} məhsul)</p>
                         </div>
                         <div className="text-right">
-                           <span className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Platforma</span>
-                           <p className="text-sm font-medium">{product?.platform}</p>
+                           <span className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Nümunə</span>
+                           <p className="text-[10px] font-medium text-muted-foreground truncate max-w-[120px]">{sampleProduct?.title}</p>
                         </div>
                       </div>
 
                       <div className="flex gap-4 mt-2">
-                        {res.candidates.length > 0 ? (
+                        {candidates.length > 0 ? (
                           <div className="flex-1 space-y-3">
-                            <span className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Tapılan oyunlar</span>
+                            <span className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Tapılanlar</span>
                             <div className="space-y-2">
-                              {res.candidates.map((can) => (
+                              {candidates.map((can: MatchCandidate) => (
                                 <div 
                                   key={can.igdbId} 
                                   className={cn(
                                     "flex items-center gap-3 p-2 rounded-lg cursor-pointer border transition-all",
-                                    selectedMatches[res.productId] === can.igdbId 
+                                    group?.productIds.every(pid => selectedMatches[pid] === can.igdbId) 
                                       ? "bg-neon/10 border-neon text-neon" 
                                       : "bg-background border-border hover:border-muted-foreground"
                                   )}
-                                  onClick={() => setSelectedMatches({
-                                    ...selectedMatches,
-                                    [res.productId]: selectedMatches[res.productId] === can.igdbId ? 0 : can.igdbId
-                                  })}
+                                  onClick={() => {
+                                    const newSelected = { ...selectedMatches };
+                                    const isAllSelected = group?.productIds.every(pid => selectedMatches[pid] === can.igdbId);
+                                    
+                                    group?.productIds.forEach(pid => {
+                                      if (isAllSelected) delete newSelected[pid];
+                                      else newSelected[pid] = can.igdbId;
+                                    });
+                                    setSelectedMatches(newSelected);
+                                  }}
                                 >
                                   <div className="relative h-12 w-9 rounded overflow-hidden bg-background shrink-0">
                                     {can.coverUrl ? (
@@ -283,7 +293,7 @@ export function AutoCoverDialog({
                                       {can.releaseYear && <span className="text-[10px] text-muted-foreground">{can.releaseYear}</span>}
                                     </div>
                                   </div>
-                                  {selectedMatches[res.productId] === can.igdbId && (
+                                  {group?.productIds.every(pid => selectedMatches[pid] === can.igdbId) && (
                                     <Check className="h-4 w-4 shrink-0" />
                                   )}
                                 </div>
@@ -294,7 +304,6 @@ export function AutoCoverDialog({
                           <div className="flex-1 flex flex-col items-center justify-center py-6 bg-background rounded-lg border border-dashed border-border text-muted-foreground">
                             <AlertCircle className="h-8 w-8 mb-2 opacity-50" />
                             <p className="text-sm">Uyğun nəticə tapılmadı</p>
-                            <Button variant="link" className="text-neon h-auto p-0 mt-1 text-xs">Yenidən axtar</Button>
                           </div>
                         )}
                       </div>
