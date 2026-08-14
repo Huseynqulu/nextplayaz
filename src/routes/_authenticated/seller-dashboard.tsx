@@ -59,6 +59,7 @@ function SellerDashboard() {
   const [step1Done, setStep1Done] = useState(false);
   const [platformQuery, setPlatformQuery] = useState("");
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [autoCoverOpen, setAutoCoverOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [filterCategory, setFilterCategory] = useState<string>("all");
   const [filterPlatform, setFilterPlatform] = useState<string>("all");
