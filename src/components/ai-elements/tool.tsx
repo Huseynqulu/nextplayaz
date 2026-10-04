@@ -19,7 +19,9 @@ import {
 import type { ComponentProps, ReactNode } from "react";
 import { isValidElement } from "react";
 
-import { CodeBlock } from "./code-block";
+const CodeBlock = ({ code }: { code: string; language?: string }) => (
+  <pre className="overflow-x-auto whitespace-pre-wrap break-all p-3 text-xs">{code}</pre>
+);
 
 export type ToolProps = ComponentProps<typeof Collapsible>;
 
