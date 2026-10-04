@@ -29,7 +29,7 @@ export const Route = createFileRoute("/product/$slug")({
     return { product };
   },
   component: ProductPage,
-  errorComponent: ({ error }) => <div className="min-h-screen grid place-items-center text-muted-foreground">{error.message}</div>,
+  errorComponent: ({ error }) => <div className="min-h-screen grid place-items-center text-muted-foreground">{error instanceof Error ? error.message : String(error)}</div>,
   notFoundComponent: () => <div className="min-h-screen grid place-items-center text-muted-foreground">Məhsul tapılmadı.</div>,
   head: ({ loaderData, params }) => {
     const p = loaderData?.product;
