@@ -29,6 +29,7 @@ import { Route as UIdRouteImport } from './routes/u.$id'
 import { Route as ProductSlugRouteImport } from './routes/product.$slug'
 import { Route as GiftCardsPlatformRouteImport } from './routes/gift-cards.$platform'
 import { Route as EmailUnsubscribeRouteImport } from './routes/email/unsubscribe'
+import { Route as ApiSupportChatRouteImport } from './routes/api/support-chat'
 import { Route as AuthenticatedWalletRouteImport } from './routes/_authenticated/wallet'
 import { Route as AuthenticatedSupportTicketsRouteImport } from './routes/_authenticated/support-tickets'
 import { Route as AuthenticatedStaffRouteImport } from './routes/_authenticated/staff'
@@ -146,6 +147,11 @@ const GiftCardsPlatformRoute = GiftCardsPlatformRouteImport.update({
 const EmailUnsubscribeRoute = EmailUnsubscribeRouteImport.update({
   id: '/email/unsubscribe',
   path: '/email/unsubscribe',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiSupportChatRoute = ApiSupportChatRouteImport.update({
+  id: '/api/support-chat',
+  path: '/api/support-chat',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedWalletRoute = AuthenticatedWalletRouteImport.update({
@@ -278,6 +284,7 @@ export interface FileRoutesByFullPath {
   '/staff': typeof AuthenticatedStaffRoute
   '/support-tickets': typeof AuthenticatedSupportTicketsRoute
   '/wallet': typeof AuthenticatedWalletRoute
+  '/api/support-chat': typeof ApiSupportChatRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/gift-cards/$platform': typeof GiftCardsPlatformRouteWithChildren
   '/product/$slug': typeof ProductSlugRoute
@@ -318,6 +325,7 @@ export interface FileRoutesByTo {
   '/staff': typeof AuthenticatedStaffRoute
   '/support-tickets': typeof AuthenticatedSupportTicketsRoute
   '/wallet': typeof AuthenticatedWalletRoute
+  '/api/support-chat': typeof ApiSupportChatRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/gift-cards/$platform': typeof GiftCardsPlatformRouteWithChildren
   '/product/$slug': typeof ProductSlugRoute
@@ -360,6 +368,7 @@ export interface FileRoutesById {
   '/_authenticated/staff': typeof AuthenticatedStaffRoute
   '/_authenticated/support-tickets': typeof AuthenticatedSupportTicketsRoute
   '/_authenticated/wallet': typeof AuthenticatedWalletRoute
+  '/api/support-chat': typeof ApiSupportChatRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/gift-cards/$platform': typeof GiftCardsPlatformRouteWithChildren
   '/product/$slug': typeof ProductSlugRoute
@@ -402,6 +411,7 @@ export interface FileRouteTypes {
     | '/staff'
     | '/support-tickets'
     | '/wallet'
+    | '/api/support-chat'
     | '/email/unsubscribe'
     | '/gift-cards/$platform'
     | '/product/$slug'
@@ -442,6 +452,7 @@ export interface FileRouteTypes {
     | '/staff'
     | '/support-tickets'
     | '/wallet'
+    | '/api/support-chat'
     | '/email/unsubscribe'
     | '/gift-cards/$platform'
     | '/product/$slug'
@@ -483,6 +494,7 @@ export interface FileRouteTypes {
     | '/_authenticated/staff'
     | '/_authenticated/support-tickets'
     | '/_authenticated/wallet'
+    | '/api/support-chat'
     | '/email/unsubscribe'
     | '/gift-cards/$platform'
     | '/product/$slug'
@@ -515,6 +527,7 @@ export interface RootRouteChildren {
   TermsRoute: typeof TermsRoute
   UnsubscribeRoute: typeof UnsubscribeRoute
   UserGuideRoute: typeof UserGuideRoute
+  ApiSupportChatRoute: typeof ApiSupportChatRoute
   EmailUnsubscribeRoute: typeof EmailUnsubscribeRoute
   ProductSlugRoute: typeof ProductSlugRoute
   UIdRoute: typeof UIdRoute
@@ -666,6 +679,13 @@ declare module '@tanstack/react-router' {
       path: '/email/unsubscribe'
       fullPath: '/email/unsubscribe'
       preLoaderRoute: typeof EmailUnsubscribeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/support-chat': {
+      id: '/api/support-chat'
+      path: '/api/support-chat'
+      fullPath: '/api/support-chat'
+      preLoaderRoute: typeof ApiSupportChatRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/wallet': {
@@ -878,6 +898,7 @@ const rootRouteChildren: RootRouteChildren = {
   TermsRoute: TermsRoute,
   UnsubscribeRoute: UnsubscribeRoute,
   UserGuideRoute: UserGuideRoute,
+  ApiSupportChatRoute: ApiSupportChatRoute,
   EmailUnsubscribeRoute: EmailUnsubscribeRoute,
   ProductSlugRoute: ProductSlugRoute,
   UIdRoute: UIdRoute,
