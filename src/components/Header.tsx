@@ -13,6 +13,8 @@ import { useCurrency } from "@/lib/currency";
 
 import nextplayLogo from "@/assets/nextplay-logo.png";
 import { imgUrl } from "@/lib/image-url";
+import { MARKETPLACE_ENABLED } from "@/lib/store-mode";
+import { ComingSoonSeller } from "@/components/ComingSoonSeller";
 
 export function Header() {
   const t = useT();
@@ -86,14 +88,18 @@ export function Header() {
 
         <nav className="hidden lg:flex items-center gap-1 ml-6">
           {nav.map(n => (
-            <Link
-              key={n.to} to={n.to}
-              activeOptions={{ exact: n.to === "/" }}
-              className="px-3 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition"
-              activeProps={{ className: "text-foreground" }}
-            >
-              {n.label}
-            </Link>
+            n.to === "/seller" && !MARKETPLACE_ENABLED ? (
+              <ComingSoonSeller key={n.to} label={n.label} className="px-3 py-2 text-sm font-medium text-muted-foreground" />
+            ) : (
+              <Link
+                key={n.to} to={n.to}
+                activeOptions={{ exact: n.to === "/" }}
+                className="px-3 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition"
+                activeProps={{ className: "text-foreground" }}
+              >
+                {n.label}
+              </Link>
+            )
           ))}
         </nav>
 
@@ -186,9 +192,16 @@ export function Header() {
                     <Link to="/support-tickets" onClick={() => setMenuOpen(false)} className="flex items-center gap-2 px-4 py-2.5 text-sm hover:bg-surface transition">
                       <LifeBuoy className="h-4 w-4" /> Dəstək müraciətlərim
                     </Link>
-                    <Link to="/seller" onClick={() => setMenuOpen(false)} className="flex items-center gap-2 px-4 py-2.5 text-sm hover:bg-surface transition">
-                      <LayoutDashboard className="h-4 w-4" /> {t("menu.becomeSeller")}
-                    </Link>
+                    {MARKETPLACE_ENABLED ? (
+                      <Link to="/seller" onClick={() => setMenuOpen(false)} className="flex items-center gap-2 px-4 py-2.5 text-sm hover:bg-surface transition">
+                        <LayoutDashboard className="h-4 w-4" /> {t("menu.becomeSeller")}
+                      </Link>
+                    ) : (
+                      <div className="flex items-center gap-2 px-4 py-2.5 text-sm">
+                        <LayoutDashboard className="h-4 w-4 opacity-70" />
+                        <ComingSoonSeller label={t("menu.becomeSeller")} />
+                      </div>
+                    )}
                     {isSeller && (
                       <>
                         <Link to="/seller-dashboard" onClick={() => setMenuOpen(false)} className="flex items-center gap-2 px-4 py-2.5 text-sm hover:bg-surface transition">
@@ -242,9 +255,13 @@ export function Header() {
         <div className="lg:hidden border-t border-border bg-background/95 backdrop-blur">
           <nav className="flex flex-col p-4 gap-1">
             {nav.map(n => (
-              <Link key={n.to} to={n.to} onClick={() => setOpen(false)} className="px-3 py-2.5 rounded-md text-sm font-medium hover:bg-surface">
-                {n.label}
-              </Link>
+              n.to === "/seller" && !MARKETPLACE_ENABLED ? (
+                <ComingSoonSeller key={n.to} label={n.label} className="px-3 py-2.5 rounded-md text-sm font-medium" />
+              ) : (
+                <Link key={n.to} to={n.to} onClick={() => setOpen(false)} className="px-3 py-2.5 rounded-md text-sm font-medium hover:bg-surface">
+                  {n.label}
+                </Link>
+              )
             ))}
           </nav>
         </div>
