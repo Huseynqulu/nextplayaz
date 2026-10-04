@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport, type UIMessage } from "ai";
-import { Headset, MessageCircle, Package, Search, UserRound, X, RotateCcw, Phone } from "lucide-react";
+import { Headset, MessageCircle, Package, UserRound, X, RotateCcw, Phone } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
@@ -326,7 +326,7 @@ function LivePane({ chatId, onExit }: { chatId: string; onExit: () => void }) {
             ) : (
               <Message from={m.role === "user" ? "user" : "assistant"} key={m.id}>
                 <MessageContent className="group-[.is-user]:bg-primary group-[.is-user]:text-primary-foreground">
-                  {m.role === "staff" && <span className="text-[10px] font-semibold text-neon flex items-center gap-1"><Search className="hidden" /><Headset className="h-3 w-3" /> NextPlay əməkdaşı</span>}
+                  {m.role === "staff" && <span className="text-[10px] font-semibold text-neon flex items-center gap-1"><Headset className="h-3 w-3" /> NextPlay əməkdaşı</span>}
                   <MessageResponse>{m.content}</MessageResponse>
                 </MessageContent>
               </Message>

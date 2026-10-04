@@ -134,7 +134,7 @@ import { IpTracker } from "@/components/IpTracker";
 import { InstallAppBanner } from "@/components/InstallAppBanner";
 import { OnboardingTour } from "@/components/OnboardingTour";
 import { MobileTabBar } from "@/components/MobileTabBar";
-import { WhatsAppButton } from "@/components/WhatsAppButton";
+import { SupportChat } from "@/components/SupportChat";
 import { CommandPalette } from "@/components/CommandPalette";
 import { ThemeProvider, useTheme } from "@/lib/theme";
 
@@ -197,7 +197,7 @@ function RootComponent() {
                 <InstallAppBanner />
                 <OnboardingTour />
                 <MobileTabBar />
-                <WhatsAppButton />
+                <SupportChat />
                 <CommandPalette />
                 <AppToaster />
               </CartProvider>
