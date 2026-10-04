@@ -59,7 +59,7 @@ export const Route = createFileRoute("/u/$id")({
     return { profile, products, reviews, salesCount: salesCount ?? 0, avgRating };
   },
   component: SellerProfilePage,
-  errorComponent: ({ error }) => <div className="min-h-screen grid place-items-center text-muted-foreground">{error.message}</div>,
+  errorComponent: ({ error }) => <div className="min-h-screen grid place-items-center text-muted-foreground">{error instanceof Error ? error.message : String(error)}</div>,
   notFoundComponent: () => <div className="min-h-screen grid place-items-center text-muted-foreground">Profil tapılmadı.</div>,
   head: ({ loaderData, params }) => ({
     meta: loaderData?.profile ? [
