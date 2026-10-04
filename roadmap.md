@@ -1,4 +1,4 @@
 # Roadmap
 
 - [x] Single-store mode ("Satıcı ol" + "Tezliklə", marketplace hidden not deleted)
-- [ ] AI support chat bottom-left: answers questions, reads catalog, hands off to a live staff member in the same chat — waiting on user answers (WhatsApp button, guests, staff side)
+- [ ] AI support chat bottom-left (replaces WhatsApp button; WhatsApp offered inside chat). Everyone can chat with AI; reads catalog; live staff handoff requires login; staff reply from a "Canlı çat" section in staff/admin panel, appears instantly in customer chat.
