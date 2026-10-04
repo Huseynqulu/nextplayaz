@@ -10,6 +10,7 @@ import { useCurrency } from "@/lib/currency";
 import { useCart } from "@/lib/cart";
 import { useT } from "@/lib/i18n";
 import { toast } from "sonner";
+import { MARKETPLACE_ENABLED, displaySellerName } from "@/lib/store-mode";
 
 function formatSoldAgo(iso?: string | null): string | null {
   if (!iso) return null;
@@ -67,8 +68,8 @@ export function ProductCard({ p, variant = "default" }: { p: Product; variant?: 
             )}
           </div>
           <div className="flex items-center gap-1.5 mt-1 text-[11px] text-muted-foreground flex-wrap">
-            {p.seller.verified && <BadgeCheck className="h-3.5 w-3.5 text-sky-400 fill-sky-500/25 shrink-0" strokeWidth={2.5} />}
-            <span className="truncate max-w-[140px]">{p.seller.name}</span>
+            {(p.seller.verified || !MARKETPLACE_ENABLED) && <BadgeCheck className="h-3.5 w-3.5 text-sky-400 fill-sky-500/25 shrink-0" strokeWidth={2.5} />}
+            <span className="truncate max-w-[140px]">{displaySellerName(p.seller.name)}</span>
             <span>·</span>
             {sellerRating > 0 && (
               <>
@@ -160,8 +161,8 @@ export function ProductCard({ p, variant = "default" }: { p: Product; variant?: 
         </h3>
 
         <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground flex-wrap">
-          {p.seller.verified && <BadgeCheck className="h-3 w-3 text-sky-400 fill-sky-500/25 shrink-0" strokeWidth={2.5} />}
-          <span className="truncate max-w-[110px]">{p.seller.name}</span>
+          {(p.seller.verified || !MARKETPLACE_ENABLED) && <BadgeCheck className="h-3 w-3 text-sky-400 fill-sky-500/25 shrink-0" strokeWidth={2.5} />}
+          <span className="truncate max-w-[110px]">{displaySellerName(p.seller.name)}</span>
           <span>·</span>
           {sellerRating > 0 && (
             <>

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Users, Package, ShoppingBag, Store } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useT } from "@/lib/i18n";
+import { MARKETPLACE_ENABLED } from "@/lib/store-mode";
 
 type Stats = { users: number; sellers: number; products: number; orders: number };
 
@@ -55,9 +56,9 @@ export function StatsSection() {
         <h2 className="font-display text-xl sm:text-3xl lg:text-4xl font-bold">{t("home.statsTitle")}</h2>
         <p className="mt-2 text-muted-foreground">{t("home.statsSub")}</p>
       </div>
-      <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
+      <div className={`grid gap-4 grid-cols-2 ${MARKETPLACE_ENABLED ? "lg:grid-cols-4" : "lg:grid-cols-3"}`}>
         <Stat icon={Users} value={Math.max(stats.users, 1)} label={t("home.stat.users")} />
-        <Stat icon={Store} value={Math.max(stats.sellers, 1)} label={t("home.stat.sellers")} />
+        {MARKETPLACE_ENABLED && <Stat icon={Store} value={Math.max(stats.sellers, 1)} label={t("home.stat.sellers")} />}
         <Stat icon={Package} value={Math.max(stats.products, 1)} label={t("home.stat.products")} />
         <Stat icon={ShoppingBag} value={Math.max(stats.orders, 1)} label={t("home.stat.orders")} />
       </div>
