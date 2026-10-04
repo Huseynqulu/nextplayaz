@@ -1,4 +1,5 @@
 import { createFileRoute, Link, notFound, useNavigate } from "@tanstack/react-router";
+import { MARKETPLACE_ENABLED, STORE_NAME } from "@/lib/store-mode";
 import { Header } from "@/components/Header";
 import { ReviewSection } from "@/components/ReviewSection";
 import { Footer } from "@/components/Footer";
@@ -428,7 +429,23 @@ function ProductPage() {
               </div>
 
               {/* Seller card */}
-              {p.sellerId ? (
+              {!MARKETPLACE_ENABLED ? (
+                <div className="mt-5 p-5 rounded-2xl border border-border bg-surface/50 flex items-center gap-4">
+                  <div className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-neon/15 border border-neon/30 text-neon font-bold">N</div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <h4 className="font-semibold truncate">{STORE_NAME}</h4>
+                      <VerifiedBadge verified size={16} />
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-0.5">Rəsmi mağaza</p>
+                  </div>
+                  {p.sellerId && (
+                    <button onClick={messageSeller} disabled={contacting} className="inline-flex items-center gap-1.5 px-3 h-9 rounded-lg border border-border text-sm hover:border-primary disabled:opacity-50">
+                      {contacting ? <Loader2 className="h-4 w-4 animate-spin" /> : <MessageCircle className="h-4 w-4" />} Mesaj
+                    </button>
+                  )}
+                </div>
+              ) : p.sellerId ? (
                 <Link to="/u/$id" params={{ id: p.sellerId }} className="mt-5 p-5 rounded-2xl border border-border bg-surface/50 flex items-center gap-4 hover:border-primary transition">
                   <div className="relative shrink-0">
                     {p.seller.avatarUrl ? (

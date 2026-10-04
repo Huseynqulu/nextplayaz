@@ -7,6 +7,8 @@ import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useT } from "@/lib/i18n";
+import { Link } from "@tanstack/react-router";
+import { MARKETPLACE_ENABLED } from "@/lib/store-mode";
 
 export const Route = createFileRoute("/seller")({
   component: SellerPage,
@@ -25,6 +27,31 @@ export const Route = createFileRoute("/seller")({
 type FileSlot = "id_front" | "id_back" | "selfie";
 
 function SellerPage() {
+  return MARKETPLACE_ENABLED ? <SellerApplicationPage /> : <SellerComingSoon />;
+}
+
+function SellerComingSoon() {
+  return (
+    <div className="min-h-screen flex flex-col">
+      <Header />
+      <main className="flex-1 grid place-items-center px-4 py-24">
+        <div className="max-w-lg text-center">
+          <span className="inline-block px-3 py-1 rounded-lg bg-neon/15 text-neon border border-neon/30 text-xs font-bold uppercase tracking-wider">Tezliklə</span>
+          <h1 className="mt-5 font-display text-3xl sm:text-5xl font-bold">Satıcı ol</h1>
+          <p className="mt-4 text-muted-foreground">
+            Satıcı müraciətləri hazırda qəbul edilmir. Bu bölmə tezliklə aktiv olacaq. Hələlik bütün məhsullar rəsmi NextPlay.az mağazası tərəfindən satılır.
+          </p>
+          <Link to="/marketplace" className="mt-8 inline-flex h-11 items-center px-6 rounded-xl bg-neon text-background font-bold hover:opacity-95 transition">
+            Mağazaya keç
+          </Link>
+        </div>
+      </main>
+      <Footer />
+    </div>
+  );
+}
+
+function SellerApplicationPage() {
   const t = useT();
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
