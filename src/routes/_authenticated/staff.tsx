@@ -1,4 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { LiveSupportPanel } from "@/components/LiveSupportPanel";
+import { Headset } from "lucide-react";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { useEffect, useRef, useState } from "react";
@@ -22,7 +24,7 @@ type Conv = { id: string; user_a: string; user_b: string; product_id: string | n
 type DMsg = { id: string; conversation_id: string; sender_id: string; body: string; created_at: string; kind?: string | null; attachment_url?: string | null };
 type Profile = { id: string; display_name: string | null; username: string | null };
 
-type Tab = "tickets" | "conversations" | "orders" | "disputes";
+type Tab = "tickets" | "live" | "conversations" | "orders" | "disputes";
 
 function StaffPage() {
   const { user } = useAuth();
@@ -225,6 +227,7 @@ function StaffPage() {
         <div className="flex gap-2 border-b border-border mb-6 overflow-x-auto">
           {([
             ["tickets", `Müraciətlər (${tickets.filter(t => t.status !== "closed").length})`, LifeBuoy],
+            ["live", "Canlı çat", Headset],
             ["disputes", `Etirazlar (${disputes.length})`, AlertTriangle],
             ["conversations", "Mesajlaşmalar", MessageSquare],
             ["orders", "Sifarişlər", Package],
@@ -238,6 +241,8 @@ function StaffPage() {
 
         {loading ? (
           <div className="grid place-items-center py-20"><Loader2 className="h-6 w-6 animate-spin text-neon" /></div>
+        ) : tab === "live" ? (
+          <LiveSupportPanel />
         ) : tab === "tickets" ? (
           activeTicket ? (
             <div className="rounded-xl border border-border bg-card-gradient card-shadow">
