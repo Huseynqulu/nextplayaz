@@ -239,7 +239,7 @@ type CatalogItem = { title: string; slug: string; price: number; platform: strin
 
 function CatalogCards({ items }: { items: CatalogItem[] }) {
   return (
-    <div className="grid gap-1.5">
+    <div className="grid gap-1.5 w-full max-w-[300px]">
       {items.map((p) => (
         <Link key={p.slug} to="/product/$slug" params={{ slug: p.slug }} className="flex items-center gap-2 rounded-lg border border-border bg-surface/50 px-3 py-2 hover:border-neon transition">
           <Package className="h-4 w-4 text-neon shrink-0" />
