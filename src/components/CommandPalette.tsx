@@ -11,6 +11,7 @@ import {
   CommandShortcut,
 } from "@/components/ui/command";
 import { useAuth } from "@/hooks/use-auth";
+import { MARKETPLACE_ENABLED } from "@/lib/store-mode";
 import { supabase } from "@/integrations/supabase/client";
 import {
   Home, ShoppingBag, Wallet, MessageSquare, Heart, ShoppingCart, Package,
@@ -85,7 +86,7 @@ export function CommandPalette() {
       { id: "seller-analytics", label: "Analitika", group: "Satıcı", icon: BarChart3, action: go("/seller-analytics") },
       { id: "seller-withdraw", label: "Pul çıxarma", group: "Satıcı", icon: Wallet, action: go("/wallet") },
     ] as Cmd[] : []),
-    ...(!isSeller && user ? [
+    ...(!isSeller && user && MARKETPLACE_ENABLED ? [
       { id: "become-seller", label: "Satıcı ol", group: "Satıcı", icon: ShieldCheck, action: go("/seller") },
     ] as Cmd[] : []),
 

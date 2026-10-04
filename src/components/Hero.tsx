@@ -8,6 +8,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { AnnouncementBar } from "./AnnouncementBar";
 import { PlatformRibbon } from "./PlatformRibbon";
+import { MARKETPLACE_ENABLED } from "@/lib/store-mode";
+import { ComingSoonSeller } from "./ComingSoonSeller";
 
 type Slide = {
   id: string;
@@ -158,11 +160,13 @@ export function Hero() {
                         {current.ctaLabel} <ArrowRight className="h-4 w-4" />
                       </Link>
                       
-                      {current.type === "brand" && (
+                      {current.type === "brand" && (MARKETPLACE_ENABLED ? (
                         <Link to="/seller" className="h-11 px-7 rounded-xl border border-white/10 bg-surface/60 backdrop-blur font-bold flex items-center hover:bg-surface transition">
                           {t("hero.defaultSlide.cta2")}
                         </Link>
-                      )}
+                      ) : (
+                        <ComingSoonSeller label={t("hero.defaultSlide.cta2")} className="h-11 px-7 rounded-xl border border-white/10 bg-surface/60 backdrop-blur font-bold" />
+                      ))}
                     </div>
                   </div>
 
@@ -276,9 +280,13 @@ export function Hero() {
                       </p>
                     </div>
                     <div className="z-10 pt-4">
-                      <Link to="/seller" className="h-10 px-6 rounded-xl bg-surface/50 border border-white/10 text-xs font-bold inline-flex items-center hover:bg-surface transition">
-                        {t("nav.seller")}
-                      </Link>
+                      {MARKETPLACE_ENABLED ? (
+                        <Link to="/seller" className="h-10 px-6 rounded-xl bg-surface/50 border border-white/10 text-xs font-bold inline-flex items-center hover:bg-surface transition">
+                          {t("nav.seller")}
+                        </Link>
+                      ) : (
+                        <ComingSoonSeller label={t("nav.seller")} className="h-10 px-6 rounded-xl bg-surface/50 border border-white/10 text-xs font-bold" />
+                      )}
                     </div>
                   </>
                 )}

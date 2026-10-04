@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { Wallet, ShoppingBag, Store, Sparkles, X, ArrowRight, ArrowLeft, Check } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
+import { MARKETPLACE_ENABLED } from "@/lib/store-mode";
 
 type Step = {
   icon: typeof Wallet;
@@ -10,11 +11,11 @@ type Step = {
   cta?: { label: string; to: string };
 };
 
-const STEPS: Step[] = [
+const ALL_STEPS: Step[] = [
   {
     icon: Sparkles,
     title: "NextPlay-ə xoş gəlmisən! 🎮",
-    body: "Azərbaycanın ən etibarlı gaming marketplace-i. Bütün ödənişlər escrow ilə qorunur, satıcı məhsulu çatdırmayanda pulun avtomatik qaytarılır.",
+    body: "Azərbaycanın etibarlı gaming mağazası. Bütün ödənişlər qorunur, məhsul çatdırılmasa pulun avtomatik qaytarılır.",
   },
   {
     icon: Wallet,
@@ -35,6 +36,8 @@ const STEPS: Step[] = [
     cta: { label: "Satıcı ol", to: "/seller" },
   },
 ];
+
+const STEPS: Step[] = MARKETPLACE_ENABLED ? ALL_STEPS : ALL_STEPS.filter((s) => s.cta?.to !== "/seller");
 
 const STORAGE_KEY = "nextplay_onboarding_v1";
 

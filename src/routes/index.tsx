@@ -11,6 +11,7 @@ import { StatsSection } from "@/components/StatsSection";
 import { HowItWorks } from "@/components/HowItWorks";
 
 import { SellerCta } from "@/components/SellerCta";
+import { MARKETPLACE_ENABLED } from "@/lib/store-mode";
 import { LiveSalesTicker } from "@/components/LiveSalesTicker";
 
 import { RecentlyViewed } from "@/components/RecentlyViewed";
@@ -22,9 +23,9 @@ export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
       { title: "NextPlay.az — Oyun dünyasına növbəti addım" },
-      { name: "description", content: "Oyunlar, hesablar, açarlar və rəqəmsal xidmətləri bir məkanda kəşf et. Təhlükəsiz sifariş prosesi və yoxlanılmış satıcılar." },
+      { name: "description", content: "Oyunlar, hesablar, açarlar və rəqəmsal xidmətləri bir məkanda kəşf et. Təhlükəsiz sifariş prosesi və rəsmi NextPlay.az mağazası." },
       { property: "og:title", content: "NextPlay.az — Oyun dünyasına növbəti addım" },
-      { property: "og:description", content: "Oyunlar, hesablar, açarlar və rəqəmsal xidmətləri bir məkanda kəşf et. Təhlükəsiz sifariş prosesi və yoxlanılmış satıcılar." },
+      { property: "og:description", content: "Oyunlar, hesablar, açarlar və rəqəmsal xidmətləri bir məkanda kəşf et. Təhlükəsiz sifariş prosesi və rəsmi NextPlay.az mağazası." },
       { property: "og:url", content: "https://nextplay.az/" },
       { property: "og:image", content: OG_IMAGE },
       { name: "twitter:title", content: "NextPlay.az — Oyun dünyasına növbəti addım" },
@@ -82,7 +83,7 @@ function HomePage() {
         <SelectedProducts />
         <StatsSection />
         <HowItWorks />
-        <SellerCta />
+        {MARKETPLACE_ENABLED && <SellerCta />}
       </main>
       <Footer />
     </div>

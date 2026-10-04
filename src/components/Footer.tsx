@@ -2,6 +2,8 @@ import { Link } from "@tanstack/react-router";
 import { Shield, Zap, Headphones } from "lucide-react";
 import nextplayLogo from "@/assets/nextplay-logo.png";
 import { useT } from "@/lib/i18n";
+import { MARKETPLACE_ENABLED } from "@/lib/store-mode";
+import { ComingSoonSeller } from "@/components/ComingSoonSeller";
 
 export function Footer() {
   const t = useT();
@@ -66,7 +68,11 @@ function FooterCol({ title, links }: { title: string; links: [string, string][] 
       <ul className="space-y-2.5 text-sm">
         {links.map(([href, label]) => (
           <li key={href}>
-            <Link to={href} className="text-muted-foreground hover:text-neon transition">{label}</Link>
+            {href === "/seller" && !MARKETPLACE_ENABLED ? (
+              <ComingSoonSeller label={label} className="text-muted-foreground" />
+            ) : (
+              <Link to={href} className="text-muted-foreground hover:text-neon transition">{label}</Link>
+            )}
           </li>
         ))}
       </ul>
