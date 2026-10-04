@@ -347,7 +347,7 @@ const az: Dict = {
   "common.dayAgo": "gün əvvəl",
 
   // footer
-  "footer.tagline": "Azərbaycanın ilk premium gaming marketplace platforması. Təhlükəsiz ödənişlər, yoxlanılmış satıcılar.",
+  "footer.tagline": "Azərbaycanın premium gaming mağazası. Təhlükəsiz ödənişlər, rəsmi və sürətli çatdırılma.",
   "footer.marketplace": "Marketplace",
   "footer.all": "Bütün məhsullar",
   "footer.games": "Oyunlar",
